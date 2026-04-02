@@ -1,22 +1,25 @@
-# Makefile for LaTeX compilation
+# Makefile for LaTeX compilation to 'out' directory
 
 MAIN = main
 LATEX = pdflatex
 BIBER = biber
 GLOSSARY = makeglossaries
+OUT_DIR = out
 
-all: $(MAIN).pdf
+all: $(OUT_DIR) $(OUT_DIR)/$(MAIN).pdf
 
-$(MAIN).pdf: $(MAIN).tex
-	$(LATEX) $(MAIN).tex
-	# Ignore errors if glossary or bib files are missing for now
-	-$(GLOSSARY) $(MAIN)
-	-$(BIBER) $(MAIN)
-	$(LATEX) $(MAIN).tex
-	$(LATEX) $(MAIN).tex
+$(OUT_DIR):
+	mkdir -p $(OUT_DIR)
+
+$(OUT_DIR)/$(MAIN).pdf: $(MAIN).tex
+	$(LATEX) -output-directory=$(OUT_DIR) $(MAIN).tex
+	# Run bibliography and glossary tools on files inside out/
+	-$(GLOSSARY) -d $(OUT_DIR) $(MAIN)
+	-$(BIBER) --output-directory $(OUT_DIR) $(OUT_DIR)/$(MAIN)
+	$(LATEX) -output-directory=$(OUT_DIR) $(MAIN).tex
+	$(LATEX) -output-directory=$(OUT_DIR) $(MAIN).tex
 
 clean:
-	rm -f *.aux *.bbl *.bcf *.blg *.log *.out *.run.xml *.toc *.lof *.lot *.glo *.glg *.gls *.ist *.acn *.acr *.alg
-	rm -f $(MAIN).pdf
+	rm -rf $(OUT_DIR)
 
 .PHONY: all clean
