@@ -1,0 +1,424 @@
+% ============================================================
+% Master Thesis Skeleton (Balanced Theory + Practice)
+% Topic: Lightweight semantics for job posts & CSV uploads
+% ============================================================
+
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ----------------------------
+% Packages (keep it reasonable)
+% ----------------------------
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{setspace}          % line spacing
+\usepackage{graphicx}          % figures
+\usepackage{booktabs}          % nice tables
+\usepackage{longtable}         % long tables across pages
+\usepackage{amsmath,amssymb}   % math
+\usepackage{hyperref}          % links and references
+\usepackage{url}               % url formatting
+\usepackage{caption}           % captions
+\usepackage{subcaption}        % subfigures
+\usepackage{float}             % figure placement
+\usepackage{enumitem}          % nicer lists
+\usepackage{csquotes}          % recommended for biblatex
+\usepackage{listings}          % code listings
+\usepackage{xcolor}            % code colors
+\usepackage{algorithm}
+\usepackage{algpseudocode}     % algorithms pseudocode
+\usepackage{glossaries}        % glossary / acronyms
+\usepackage{biblatex}          % bibliography management
+
+% ----------------------------
+% Bibliography
+% ----------------------------
+\addbibresource{references.bib}
+
+% ----------------------------
+% Formatting
+% ----------------------------
+\onehalfspacing
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue,
+  pdftitle={Master Thesis Title},
+  pdfauthor={Your Name}
+}
+
+% ----------------------------
+% Listings configuration
+% ----------------------------
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{teal}
+}
+
+% ----------------------------
+% Acronyms / Glossary (optional)
+% ----------------------------
+\makeglossaries
+% Example:
+% \newacronym{nlp}{NLP}{Natural Language Processing}
+% \newacronym{ir}{IR}{Information Retrieval}
+% \newacronym{ner}{NER}{Named Entity Recognition}
+% \newacronym{bm25}{BM25}{Best Matching 25}
+
+% ----------------------------
+% Thesis metadata (edit these)
+% ----------------------------
+\newcommand{\ThesisTitle}{Lightweight Semantic Structuring of Internship Listings from Web Scraping and CSV Uploads}
+\newcommand{\AuthorName}{Mouad bensaid}
+\newcommand{\DegreeName}{Master of Science (or your program)}
+\newcommand{\UniversityName}{Your University}
+\newcommand{\DepartmentName}{Your Department}
+\newcommand{\SupervisorName}{Supervisor Name}
+\newcommand{\SubmissionDate}{February 2026}
+
+% ----------------------------
+% Title page
+% ----------------------------
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  {\Large \UniversityName \par}
+  \vspace{0.5cm}
+  {\large \DepartmentName \par}
+  \vspace{2.0cm}
+  {\huge \bfseries \ThesisTitle \par}
+  \vspace{2.0cm}
+  {\Large \AuthorName \par}
+  \vspace{0.5cm}
+  {\large \DegreeName \par}
+  \vspace{1.5cm}
+  {\large Supervisor: \SupervisorName \par}
+  \vfill
+  {\large \SubmissionDate \par}
+\end{titlepage}
+
+% ----------------------------
+% Front matter
+% ----------------------------
+\pagenumbering{roman}
+
+\chapter*{Abstract}
+% 150--300 words. Problem, method, key results, contributions.
+\addcontentsline{toc}{chapter}{Abstract}
+
+\chapter*{Résumé / ملخص}
+% Optional depending on university requirements.
+\addcontentsline{toc}{chapter}{Résumé / ملخص}
+
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+
+
+\addcontentsline{toc}{chapter}{Declaration}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\printglossaries
+
+% ============================================================
+% Main matter
+% ============================================================
+\clearpage
+\pagenumbering{arabic}
+
+% ============================================================
+% Part I: Theoretical Background (Aim ~50%)
+% ============================================================
+\part{Theoretical Background and Related Work}
+
+\chapter{Introduction}
+\section{Context and Motivation}
+% Internship/job listings are noisy, heterogeneous, and often semi-structured.
+% Motivation: better search, filtering, matching, analytics.
+
+\section{Problem Statement}
+% Define: input sources (scraped posts + user CSV uploads), target: semantic representation.
+% Define constraints: low compute, low latency, low cost; limited/optional LLM.
+
+\section{Research Questions}
+\begin{itemize}[noitemsep]
+  \item RQ1: How can scraped job postings and CSV uploads be mapped into a structured semantic schema using lightweight methods?
+  \item RQ2: Which combination of rule-based extraction and small-model classification yields the best cost/quality trade-off?
+  \item RQ3: How does semantic enrichment improve retrieval quality compared to keyword-only baselines?
+\end{itemize}
+
+\section{Contributions}
+\begin{itemize}[noitemsep]
+  \item A unified schema for internships that supports filtering, ranking, and analytics.
+  \item A lightweight enrichment pipeline (rules + dictionaries + small ML).
+  \item An evaluation framework and ablation study comparing components.
+\end{itemize}
+
+\section{Thesis Structure}
+% Briefly describe each part and chapter.
+
+\chapter{Background: Information Extraction and Semantics}
+\section{Semi-Structured Web Data and Job Postings}
+% Discuss typical noise, layout variability, duplicates, expiry.
+
+\section{Information Extraction (IE) Fundamentals}
+% Named entities, relations, slot filling, pattern-based extraction.
+
+\section{Semantic Modeling}
+\subsection{Schemas vs Ontologies vs Taxonomies}
+% Define each and why a schema-first approach fits the problem.
+
+\subsection{Skill and Occupation Taxonomies}
+% Introduce ESCO / O*NET and explain how you use them (as vocabulary, not full ontology).
+
+\section{Normalization and Canonicalization}
+% Titles normalization, synonyms, deduplication, standard fields.
+
+\chapter{Background: Text Representation and Retrieval}
+\section{Keyword Retrieval}
+% BM25 and inverted indexes; strengths/weaknesses for noisy job text.
+
+\section{Vector Representations}
+% TF-IDF, word embeddings, sentence embeddings; lightweight options.
+
+\section{Hybrid Retrieval}
+% Combining lexical + semantic vectors; practical justification.
+
+\section{Efficiency Considerations}
+% Latency, memory, inference cost; caching; indexing strategies.
+
+\chapter{Related Work}
+\section{Job Posting Analytics and Skill Extraction}
+% Prior approaches: dictionaries, weak supervision, ML, LLM-based.
+
+\section{Ontology/Taxonomy Alignment in HR/Recruitment}
+% Mapping job text to standardized labels.
+
+\section{LLM-based Pipelines vs Lightweight Pipelines}
+% Discuss trade-offs: cost, explainability, error modes.
+
+% ============================================================
+% Part II: Practical Design and Implementation (Aim ~50%)
+% ============================================================
+\part{System Design, Implementation, and Evaluation}
+
+\chapter{Methodology and System Overview}
+\section{Design Goals and Constraints}
+\begin{itemize}[noitemsep]
+  \item Low computational cost per document
+  \item Robustness to noisy text and HTML variability
+  \item Explainability: traceable extraction decisions
+  \item Extensibility: adding skills/labels without retraining everything
+\end{itemize}
+
+\section{Proposed Architecture}
+% Include a system diagram figure.
+\begin{figure}[H]
+  \centering
+  % \includegraphics[width=0.9\textwidth]{figures/architecture.pdf}
+  \caption{High-level architecture of the data ingestion and semantic enrichment pipeline.}
+  \label{fig:architecture}
+\end{figure}
+
+\section{Data Flow}
+% Scraper -> Cleaner -> Extractor -> Normalizer -> Store -> Search API
+
+\chapter{Data Collection and Preprocessing}
+\section{Web Scraping Strategy}
+% Sources, crawling frequency, compliance, deduplication.
+
+\section{HTML Parsing and Text Extraction}
+% Boilerplate removal, section detection (Responsibilities/Requirements).
+
+\section{CSV Upload Handling}
+\subsection{Column Mapping Heuristics}
+% Header similarity + content-based heuristics.
+
+\subsection{Validation and Sanitization}
+% Required columns, encoding issues, missing values.
+
+\section{Dataset Description}
+% Volume, time span, language(s), distribution of fields.
+
+\chapter{Semantic Schema and Label Space}
+\section{Target Schema}
+% Provide JSON schema and rationale.
+\begin{lstlisting}[language=json,caption={Example target schema (simplified).},label={lst:schema}]
+{
+  "job_id": "...",
+  "title_raw": "...",
+  "title_normalized": "...",
+  "seniority": "intern",
+  "employment_type": "internship",
+  "location": {"city": "...", "region": "...", "country": "CA", "mode": "hybrid"},
+  "skills": [{"name": "python", "weight": 0.9}, {"name": "sql", "weight": 0.7}],
+  "compensation": {"min": null, "max": null, "currency": "CAD", "period": "hour"},
+  "source": {"url": "...", "site": "..."},
+  "timestamps": {"scraped_at": "...", "posted_at": "..."}
+}
+\end{lstlisting}
+
+\section{Canonical Labels}
+% Define canonical titles/domains and how you curate them.
+
+\section{Synonyms and Alias Tables}
+% Example: js -> javascript, node -> node.js
+
+\chapter{Lightweight Semantic Enrichment Pipeline}
+\section{Layer A: Rule-Based Extraction}
+\subsection{Patterns for Compensation, Dates, Location}
+% Regex patterns and validation.
+
+\subsection{Seniority and Employment Type}
+% Keywords, disambiguation rules.
+
+\subsection{Skill Matching with Lexicon}
+% Dictionary-driven phrase matching; handling multi-word skills.
+
+\begin{algorithm}[H]
+\caption{Lexicon-based skill extraction (overview)}
+\label{alg:skill_extraction}
+\begin{algorithmic}[1]
+\Require Text $T$, skill lexicon $L$ with synonyms and canonical forms
+\Ensure Extracted skills $S$
+\State $T' \gets$ normalize($T$)  \Comment{lowercase, punctuation, unicode, etc.}
+\State $M \gets$ find\_matches($T', L$) \Comment{phrase matching}
+\State $S \gets$ canonicalize\_and\_dedupe($M$)
+\State $S \gets$ score\_skills($S, T'$) \Comment{weights via heuristics}
+\State \Return $S$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Layer B: Small-Model Mapping}
+\subsection{Title Normalization and Classification}
+% TF-IDF + linear classifier OR small embedding + nearest-label mapping.
+
+\subsection{Domain Classification (Optional)}
+% Describe features and training procedure.
+
+\subsection{Confidence Scoring}
+% How you decide whether output is reliable.
+
+\section{Layer C: Optional Fallback (Budgeted)}
+% If you include an LLM at all: only for low-confidence cases.
+% Must include a strict gating strategy and cost accounting.
+
+\chapter{Storage, Indexing, and Search}
+\section{Data Storage Model}
+% DB tables/collections; versioning; auditability.
+
+\section{Search Index Design}
+% Fields: normalized, faceted filters; plus optional vector index.
+
+\section{Hybrid Retrieval Strategy}
+% BM25 + vectors, reranking rules.
+
+\section{API Endpoints}
+% /search, /jobs/{id}, /upload/csv, /stats
+
+\chapter{Evaluation Setup}
+\section{Evaluation Objectives}
+% Extraction accuracy, classification accuracy, retrieval quality, cost/latency.
+
+\section{Ground Truth Construction}
+% Annotation guidelines; inter-annotator agreement (if possible).
+% If limited time: small labeled set + spot checks.
+
+\section{Metrics}
+\subsection{Field-Level Extraction}
+% Precision/Recall/F1 for skills, locations, seniority, etc.
+
+\subsection{Classification}
+% Accuracy, macro-F1; confusion matrix.
+
+\subsection{Retrieval}
+% nDCG@k, Precision@k, Recall@k, MRR.
+
+\subsection{Efficiency}
+% Latency per doc, throughput, memory, $ cost estimate.
+
+\section{Baselines and Ablations}
+\begin{itemize}[noitemsep]
+  \item Baseline 1: keyword-only search (no enrichment)
+  \item Baseline 2: rules-only extraction
+  \item Baseline 3: rules + small-model mapping
+  \item Ablations: remove title normalization / remove synonym table / remove section weighting
+\end{itemize}
+
+\chapter{Results}
+\section{Extraction Results}
+% Tables + error breakdown.
+
+\section{Classification Results}
+% Confusion matrix figure + discussion.
+
+\section{Retrieval Results}
+% Compare hybrid vs keyword-only.
+
+\section{Efficiency and Cost}
+% Latency histograms, per-document compute, scaling discussion.
+
+\chapter{Discussion}
+\section{Error Analysis}
+% Common failure cases: ambiguous titles, missing info, skill synonyms, noisy HTML.
+
+\section{Trade-offs: Accuracy vs Cost}
+% Where lightweight wins/loses compared to heavy LLM.
+
+\section{Threats to Validity}
+% Sampling bias, annotation bias, generalizability, source drift.
+
+\chapter{Ethical, Legal, and Privacy Considerations}
+\section{Scraping Compliance and Respect for Terms}
+% Robots.txt, rate limiting, attribution, opt-out mechanisms.
+
+\section{Privacy and User Uploads}
+% CSV handling, PII minimization, retention policy.
+
+\section{Fairness and Bias}
+% Biased postings, biased labels, mitigation strategies.
+
+\chapter{Conclusion and Future Work}
+\section{Summary of Findings}
+% Answer RQs succinctly.
+
+\section{Future Directions}
+\begin{itemize}[noitemsep]
+  \item Multilingual extraction
+  \item Better section segmentation
+  \item Self-training / distillation from limited LLM labeling
+  \item Continuous monitoring for taxonomy drift
+\end{itemize}
+
+% ============================================================
+% Back matter
+% ============================================================
+\clearpage
+\printbibliography
+
+% ============================================================
+% Appendices
+% ============================================================
+\appendix
+
+\chapter{Annotation Guidelines (if you label data)}
+% Definitions, examples, edge cases.
+
+\chapter{Regex and Heuristic Rules}
+% Document patterns; version them.
+
+\chapter{Schema Documentation}
+% Field definitions, allowed values, examples.
+
+\chapter{Skill Lexicon and Synonyms (Excerpt)}
+% Provide a representative subset; full list can be linked or attached.
+
+\end{document}
