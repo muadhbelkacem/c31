@@ -12,12 +12,7 @@ $(OUT_DIR):
 	mkdir -p $(OUT_DIR)
 
 $(OUT_DIR)/$(MAIN).pdf: $(MAIN).tex
-	$(LATEX) -output-directory=$(OUT_DIR) $(MAIN).tex
-	# Run bibliography and glossary tools on files inside out/
-	-$(GLOSSARY) -d $(OUT_DIR) $(MAIN)
-	-$(BIBER) --output-directory $(OUT_DIR) $(OUT_DIR)/$(MAIN)
-	$(LATEX) -output-directory=$(OUT_DIR) $(MAIN).tex
-	$(LATEX) -output-directory=$(OUT_DIR) $(MAIN).tex
+	$(LATEX) -output-directory=$(OUT_DIR) $(MAIN).tex --output-directory $(OUT_DIR) $(OUT_DIR)/$(MAIN)
 
 clean:
 	rm -rf $(OUT_DIR)
