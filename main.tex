@@ -131,7 +131,26 @@
 \section{Problem Statement}
 \section{Research Questions}
 \section{Contributions}
+
 \section{Thesis Structure}
+This thesis is organized into two primary parts, moving from the theoretical foundations to the practical implementation and evaluation of the proposed system.
+
+\textbf{Part I: Theoretical Background and Related Work}
+\begin{itemize}
+    \item \textbf{Chapter 2: Background: Information Extraction and Semantics} establishes the conceptual framework, discussing the nature of semi-structured web data, the fundamentals of Information Extraction (IE), and the role of standardized taxonomies like ESCO and O*NET.
+    \item \textbf{Chapter 3: Background: Text Representation and Retrieval} explores the evolution of search from lexical keyword matching to modern semantic and hybrid retrieval techniques.
+    \item \textbf{Chapter 4: Related Work} provides a critical review of existing job posting analytics systems and the trade-offs between Large Language Models and lightweight production pipelines.
+\end{itemize}
+
+\textbf{Part II: System Design, Implementation, and Evaluation}
+\begin{itemize}
+    \item \textbf{Chapter 5: Methodology and System Overview} introduces the design goals, modular architecture, and the overall data flow of the proposed system.
+    \item \textbf{Chapter 6: Data Collection and Preprocessing} details the implementation of web scraping strategies, HTML parsing for clean text extraction, and a flexible heuristic-based system for handling multi-format CSV uploads.
+    \item \textbf{Chapter 7: Semantic Schema and Label Space} defines the core data model and the mapping strategies used to align raw text with the chosen taxonomies.
+    \item \textbf{Chapter 8: Lightweight Semantic Enrichment Pipeline} describes the NLP components, including NER and skill classification, optimized for low computational cost.
+    \item \textbf{Chapter 9: Storage, Indexing, and Search} focuses on the implementation of the hybrid search index and the vector database integration.
+    \item \textbf{Chapter 10-14} cover the experimental setup, results, discussion, ethical considerations, and final conclusions.
+\end{itemize}
 
 \chapter{Background: Information Extraction and Semantics}
 \section{Semi-Structured Web Data and Job Postings}
@@ -313,6 +332,15 @@ The data flow within the system follows a linear progression with intermediate v
 
 \chapter{Data Collection and Preprocessing}
 The effectiveness of any semantic enrichment pipeline is heavily dependent on the quality and variety of the input data. This chapter describes the dual-pronged approach used to acquire internship listings: automated web scraping of public job boards and a flexible CSV ingestion system for manual uploads. We also detail the preprocessing steps required to transform raw, noisy inputs into a clean, normalized format suitable for downstream NLP tasks.
+
+\section*{Chapter Outline}
+This chapter is organized as follows:
+\begin{itemize}
+    \item \textbf{Section 6.1: Web Scraping Strategy} outlines the targeted sources and the distributed crawling approach.
+    \item \textbf{Section 6.2: HTML Parsing and Text Extraction} details the heuristics for boilerplate removal and structural preservation.
+    \item \textbf{Section 6.3: CSV Upload Handling} describes the mapping heuristics and validation logic for user-provided files.
+    \item \textbf{Section 6.4: Dataset Description} provides a summary of the resulting dataset used for system evaluation.
+\end{itemize}
 
 \section{Web Scraping Strategy}
 To build a representative dataset of internship opportunities, we implemented a distributed scraping strategy targeting major job aggregation platforms and specific company career portals. The strategy is designed to maximize data diversity while adhering to ethical scraping practices.
