@@ -129,9 +129,35 @@
 
 \chapter{Introduction}
 \section{Context and Motivation}
+The digital transformation of the global labor market has fundamentally altered the way internship opportunities are advertised and discovered. Traditional recruitment channels have been largely superseded by a vast ecosystem of online platforms, ranging from global aggregators like LinkedIn and Indeed to specialized university career portals and niche industry boards. This shift has resulted in an unprecedented volume of data, providing students with access to thousands of potential opportunities at any given moment.
+
+However, this abundance of information presents a significant challenge: the "data deluge." Internship listings are inherently semi-structured and highly heterogeneous. A single role may be described using vastly different terminology depending on the platform or the employer's preference—for instance, a "Junior Java Developer" and a "Software Engineering Intern" may require identical skill sets but are often treated as distinct entities by traditional keyword-based search systems. Furthermore, the data is often noisy, containing irrelevant boilerplate text, inconsistent formatting, and a lack of standardized labels. For recruitment platforms and educational institutions, managing this influx of unstructured data from disparate sources (such as automated web scraping and manual CSV uploads from partners) is a complex task. The motivation for this research lies in the need for an efficient, "lightweight" approach to transform this chaotic stream of data into a structured, semantic knowledge base that enables precise discovery and analytical insight without the prohibitive costs of manual curation or heavy computational infrastructure.
+
 \section{Problem Statement}
+The core problem addressed in this thesis is the "semantic gap" and structural heterogeneity in internship data ingestion and retrieval. Current systems for processing job postings typically suffer from one of two extremes:
+\begin{enumerate}
+    \item \textbf{Rigid Lexical Matching:} Many platforms rely on exact keyword matching (e.g., BM25). This approach fails to account for synonyms, technical aliases, and conceptual relationships, causing users to miss relevant listings because their search terms do not perfectly match the employer's vocabulary.
+    \item \textbf{High-Cost LLM Dependency:} While Large Language Models (LLMs) offer excellent semantic understanding, using them to process thousands of scraped documents in real-time is often prohibitively expensive and introduces significant latency.
+\end{enumerate}
+Additionally, the ingestion process itself is fragmented. Data arriving via CSV uploads from partner institutions often lacks a fixed schema, requiring repetitive manual mapping. There is a clear need for a unified system that can automatically clean, structure, and semantically enrich data from diverse sources while remaining computationally efficient enough to run on commodity hardware.
+
 \section{Research Questions}
+To address the problem statement, this research seeks to answer the following questions:
+\begin{enumerate}
+    \item \textbf{RQ1:} How can a tiered pipeline architecture effectively balance the trade-off between extraction accuracy and computational cost in the context of internship listings?
+    \item \textbf{RQ2:} To what extent can lightweight transformer models (e.g., DistilBERT) map heterogeneous and idiosyncratic job titles to standardized professional taxonomies like ESCO?
+    \item \textbf{RQ3:} How does a hybrid retrieval strategy—combining lexical (BM25) and semantic (HNSW) search—improve the relevance and recall of internship discovery compared to traditional keyword-only approaches?
+    \item \textbf{RQ4:} What heuristic-based mapping strategies can be utilized to automate the ingestion of inconsistently formatted CSV data into a unified semantic schema?
+\end{enumerate}
+
 \section{Contributions}
+The primary contributions of this thesis are as follows:
+\begin{itemize}
+    \item \textbf{A Tiered Semantic Enrichment Pipeline:} The development of a modular architecture that combines deterministic rule-based extraction (Layer A) with lightweight neural mapping (Layer B) and a budgeted LLM fallback (Layer C).
+    \item \textbf{A Hybrid Search Infrastructure:} The implementation of a retrieval system using PostgreSQL and the \texttt{pgvector} extension, optimized for sub-50ms hybrid (lexical + semantic) query responses.
+    \item \textbf{Automated Ingestion Heuristics:} A flexible CSV processing module that utilizes fuzzy header matching and content-based inference to normalize multi-format user uploads without manual schema mapping.
+    \item \textbf{Empirical Evaluation:} A detailed performance analysis using a real-world dataset of 17,500 listings, demonstrating the feasibility of achieving high semantic accuracy with minimal computational overhead.
+\end{itemize}
 
 \section{Thesis Structure}
 This thesis is organized into two primary parts, moving from the theoretical foundations to the practical implementation and evaluation of the proposed system.
@@ -635,7 +661,7 @@ For entities like dates, compensation, and locations, we use:
 \subsection{Classification}
 For job role mapping and skill categorization, we use:
 \begin{itemize}
-    \item \textbf{Accuracy:} The percentage of documents where the predicted canonical ID matches the ground truth.
+    \item \textbf{Accuracy:} The percentage of documents where the predicted class matches the ground truth.
     \item \textbf{Top-3 Accuracy:} The percentage of documents where the correct label is within the system's top 3 predictions (relevant for the bi-encoder mapping).
 \end{itemize}
 
@@ -806,7 +832,7 @@ The system is designed to strictly adhere to \texttt{robots.txt} directives prov
 From a legal standpoint, our work focuses on \textit{publicly available, non-copyrightable facts} (e.g., job requirements, locations, and titles). We operate within the framework established by landmark cases such as \textit{hiQ Labs, Inc. v. LinkedIn Corp.}, which protected the right to scrape public data for analytical purposes. Furthermore, the system does not bypass authentication barriers or "paywalls," ensuring that it only processes information intended for public consumption.
 
 \section{Privacy and User Uploads}
-The inclusion of user-uploaded CSVs introduces additional privacy challenges, particularly concerning Personal Identifiable Information (PII) and data sovereignty.
+The inclusion of user-provided CSVs introduces additional privacy challenges, particularly concerning Personal Identifiable Information (PII) and data sovereignty.
 
 \subsection{Anonymization at Ingestion}
 While job descriptions themselves are generally public, they occasionally contain PII, such as the contact details of a specific recruiter (e.g., "Email your CV to jane.doe@company.com"). Our refining layer (Section 6.2) includes a PII-redaction step using heuristic patterns to detect and mask email addresses and phone numbers before the text is committed to the long-term storage or the vector index.
