@@ -149,7 +149,7 @@ This thesis is organized into two primary parts, moving from the theoretical fou
     \item \textbf{Chapter 6: Data Collection and Preprocessing} details the implementation of web scraping strategies, HTML parsing for clean text extraction, and a flexible heuristic-based system for handling multi-format CSV uploads.
     \item \textbf{Chapter 7: Semantic Schema and Label Space} defines the core data model and the mapping strategies used to align raw text with the chosen taxonomies.
     \item \textbf{Chapter 8: Lightweight Semantic Enrichment Pipeline} describes the NLP components, including NER and skill classification, optimized for low computational cost.
-    \item \textbf{Chapter 9: Storage, Indexing, and Search} focuses on the implementation of the hybrid search index and the vector database integration.
+    \item \textbf{Chapter 9: Storage, Indexing, and Search} details the dual-storage architecture (PostgreSQL and pgvector), the hybrid search index design combining lexical and semantic search, and the API endpoints for system integration.
     \item \textbf{Chapter 10-14} cover the experimental setup, results, discussion, ethical considerations, and final conclusions.
 \end{itemize}
 
@@ -287,6 +287,9 @@ However, recent comparative studies have highlighted several drawbacks of relyin
 \end{itemize}
 In contrast, lightweight pipelines—combining optimized small-scale models (like DistilBERT) with heuristic rules and local vector databases—offer a more cost-effective and predictable alternative. This thesis argues for a hybrid approach where LLMs are used for high-quality data annotation and initial schema generation, while the runtime production system utilizes a lightweight, modular architecture for efficiency and control.
 
+% ============================================================
+% Part II
+% ============================================================
 \part{System Design, Implementation, and Evaluation}
 
 \chapter{Methodology and System Overview}
@@ -513,6 +516,15 @@ Layer C acts as the "final resort" for highly complex or ambiguous documents. It
 
 \chapter{Storage, Indexing, and Search}
 This chapter describes the persistence layer and retrieval mechanisms that power the internship search platform. We detail the dual-storage architecture designed to support both structured metadata queries and high-dimensional semantic search, followed by the hybrid retrieval strategy that combines lexical and dense vector scores.
+
+\section*{Chapter Outline}
+This chapter is organized as follows:
+\begin{itemize}
+    \item \textbf{Section 9.1: Data Storage Model} describes the dual-storage architecture using PostgreSQL and pgvector.
+    \item \textbf{Section 9.2: Search Index Design} details the lexical (BM25) and semantic (HNSW) indexing strategies.
+    \item \textbf{Section 9.3: Hybrid Retrieval Strategy} explains the score fusion using Reciprocal Rank Fusion (RRF).
+    \item \textbf{Section 9.4: API Endpoints} outlines the RESTful interfaces for search and data ingestion.
+\end{itemize}
 
 \section{Data Storage Model}
 The storage layer is designed to balance the need for relational integrity with the performance requirements of vector-based search. We adopt a \textbf{dual-storage architecture}.
