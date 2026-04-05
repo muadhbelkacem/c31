@@ -246,6 +246,7 @@ Hybrid retrieval combines the strengths of both:
 A common method to combine these disparate scores is Reciprocal Rank Fusion \cite{corback2009rrf}. It calculates a final score based on the rank of a document in each retrieval system, rather than the raw score values:
 \begin{equation}
     RRFscore(d \in D) = \frac{1}{k + r(d)}
+    \label{eq:rrf}
 \end{equation}
 where $R$ is the set of rankers, $r(d)$ is the rank of document $d$, and $k$ is a constant (typically 60) to mitigate the impact of low-ranked outliers.
 
@@ -401,6 +402,14 @@ The dataset covers multiple industries, with a primary focus on Software Enginee
 
 \chapter{Semantic Schema and Label Space}
 This chapter defines the internal data model and the controlled vocabularies used to transform raw internship listings into a structured format. We describe the transition from a "RawDocument" to a "StructuredDocument" and the mechanisms used to bridge the gap between diverse natural language expressions and standardized taxonomies.
+
+\section*{Chapter Outline}
+This chapter is organized as follows:
+\begin{itemize}
+    \item \textbf{Section 7.1: Target Schema} defines the structured fields used for extraction and search.
+    \item \textbf{Section 7.2: Canonical Labels} introduces the reference taxonomies (ESCO/O*NET) used as the label space.
+    \item \textbf{Section 7.3: Synonyms and Alias Tables} describes the mapping strategies to handle lexical variations.
+\end{itemize}
 
 \section{Target Schema}
 The target schema serves as the blueprint for the extraction process. It defines the specific fields that the enrichment pipeline (detailed in Chapter 8) aims to populate. Unlike the "RawDocument" schema, which preserves all original artifacts, the "StructuredDocument" schema is optimized for retrieval and analytical consistency.
