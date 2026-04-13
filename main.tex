@@ -1,6 +1,6 @@
 % ============================================================
 % Master Thesis Skeleton (Balanced Theory + Practice)
-% Topic: Lightweight semantics for job posts & CSV uploads
+% Topic: Lightweight semantics for job posts & JSON uploads
 % ============================================================
 
 \documentclass[12pt,a4paper,oneside]{report}
@@ -69,7 +69,7 @@
 % ----------------------------
 % Thesis metadata (edit these)
 % ----------------------------
-\newcommand{\ThesisTitle}{Lightweight Semantic Structuring of Internship Listings from Web Scraping and CSV Uploads}
+\newcommand{\ThesisTitle}{Lightweight Semantic Structuring of Internship Listings from Web Scraping and JSON Uploads}
 \newcommand{\AuthorName}{Mouad bensaid}
 \newcommand{\DegreeName}{Master of Science}
 \newcommand{\UniversityName}{Your University}
@@ -131,7 +131,7 @@
 \section{Context and Motivation}
 The digital transformation of the global labor market has fundamentally altered the way internship opportunities are advertised and discovered. Traditional recruitment channels have been largely superseded by a vast ecosystem of online platforms, ranging from global aggregators like LinkedIn and Indeed to specialized university career portals and niche industry boards. This shift has resulted in an unprecedented volume of data, providing students with access to thousands of potential opportunities at any given moment.
 
-However, this abundance of information presents a significant challenge: the "data deluge." Internship listings are inherently semi-structured and highly heterogeneous. A single role may be described using vastly different terminology depending on the platform or the employer's preference—for instance, a "Junior Java Developer" and a "Software Engineering Intern" may require identical skill sets but are often treated as distinct entities by traditional keyword-based search systems. Furthermore, the data is often noisy, containing irrelevant boilerplate text, inconsistent formatting, and a lack of standardized labels. For recruitment platforms and educational institutions, managing this influx of unstructured data from disparate sources (such as automated web scraping and manual CSV uploads from partners) is a complex task. The motivation for this research lies in the need for an efficient, "lightweight" approach to transform this chaotic stream of data into a structured, semantic knowledge base that enables precise discovery and analytical insight without the prohibitive costs of manual curation or heavy computational infrastructure.
+However, this abundance of information presents a significant challenge: the "data deluge." Internship listings are inherently semi-structured and highly heterogeneous. A single role may be described using vastly different terminology depending on the platform or the employer's preference—for instance, a "Junior Java Developer" and a "Software Engineering Intern" may require identical skill sets but are often treated as distinct entities by traditional keyword-based search systems. Furthermore, the data is often noisy, containing irrelevant boilerplate text, inconsistent formatting, and a lack of standardized labels. For recruitment platforms and educational institutions, managing this influx of unstructured data from disparate sources (such as automated web scraping and manual JSON uploads from partners) is a complex task. The motivation for this research lies in the need for an efficient, "lightweight" approach to transform this chaotic stream of data into a structured, semantic knowledge base that enables precise discovery and analytical insight without the prohibitive costs of manual curation or heavy computational infrastructure.
 
 \section{Problem Statement}
 The core problem addressed in this thesis is the "semantic gap" and structural heterogeneity in internship data ingestion and retrieval. Current systems for processing job postings typically suffer from one of two extremes:
@@ -139,7 +139,7 @@ The core problem addressed in this thesis is the "semantic gap" and structural h
     \item \textbf{Rigid Lexical Matching:} Many platforms rely on exact keyword matching (e.g., BM25). This approach fails to account for synonyms, technical aliases, and conceptual relationships, causing users to miss relevant listings because their search terms do not perfectly match the employer's vocabulary.
     \item \textbf{High-Cost LLM Dependency:} While Large Language Models (LLMs) offer excellent semantic understanding, using them to process thousands of scraped documents in real-time is often prohibitively expensive and introduces significant latency.
 \end{enumerate}
-Additionally, the ingestion process itself is fragmented. Data arriving via CSV uploads from partner institutions often lacks a fixed schema, requiring repetitive manual mapping. There is a clear need for a unified system that can automatically clean, structure, and semantically enrich data from diverse sources while remaining computationally efficient enough to run on commodity hardware.
+Additionally, the ingestion process itself is fragmented. Data arriving via JSON uploads from partner institutions often lacks a fixed schema, requiring repetitive manual mapping. There is a clear need for a unified system that can automatically clean, structure, and semantically enrich data from diverse sources while remaining computationally efficient enough to run on commodity hardware.
 
 \section{Research Questions}
 To address the problem statement, this research seeks to answer the following questions:
@@ -147,7 +147,7 @@ To address the problem statement, this research seeks to answer the following qu
     \item \textbf{RQ1:} How can a tiered pipeline architecture effectively balance the trade-off between extraction accuracy and computational cost in the context of internship listings?
     \item \textbf{RQ2:} To what extent can lightweight transformer models (e.g., DistilBERT) map heterogeneous and idiosyncratic job titles to standardized professional taxonomies like ESCO?
     \item \textbf{RQ3:} How does a hybrid retrieval strategy—combining lexical (BM25) and semantic (HNSW) search—improve the relevance and recall of internship discovery compared to traditional keyword-only approaches?
-    \item \textbf{RQ4:} What heuristic-based mapping strategies can be utilized to automate the ingestion of inconsistently formatted CSV data into a unified semantic schema?
+    \item \textbf{RQ4:} What heuristic-based mapping strategies can be utilized to automate the ingestion of inconsistently formatted JSON data into a unified semantic schema?
 \end{enumerate}
 
 \section{Contributions}
@@ -155,7 +155,7 @@ The primary contributions of this thesis are as follows:
 \begin{itemize}
     \item \textbf{A Tiered Semantic Enrichment Pipeline:} The development of a modular architecture that combines deterministic rule-based extraction (Layer A) with lightweight neural mapping (Layer B) and a budgeted LLM fallback (Layer C).
     \item \textbf{A Hybrid Search Infrastructure:} The implementation of a retrieval system using PostgreSQL and the \texttt{pgvector} extension, optimized for sub-50ms hybrid (lexical + semantic) query responses.
-    \item \textbf{Automated Ingestion Heuristics:} A flexible CSV processing module that utilizes fuzzy header matching and content-based inference to normalize multi-format user uploads without manual schema mapping.
+    \item \textbf{Automated Ingestion Heuristics:} A flexible JSON processing module that utilizes fuzzy key matching and content-based inference to normalize multi-format user uploads without manual schema mapping.
     \item \textbf{Empirical Evaluation:} A detailed performance analysis using a real-world dataset of 17,500 listings, demonstrating the feasibility of achieving high semantic accuracy with minimal computational overhead.
 \end{itemize}
 
@@ -172,7 +172,7 @@ This thesis is organized into two primary parts, moving from the theoretical fou
 \textbf{Part II: System Design, Implementation, and Evaluation}
 \begin{itemize}
     \item \textbf{Chapter 5: Methodology and System Overview} introduces the design goals, modular architecture, and the overall data flow of the proposed system.
-    \item \textbf{Chapter 6: Data Collection and Preprocessing} details the implementation of web scraping strategies, HTML parsing for clean text extraction, and a flexible heuristic-based system for handling multi-format CSV uploads.
+    \item \textbf{Chapter 6: Data Collection and Preprocessing} details the implementation of web scraping strategies, HTML parsing for clean text extraction, and a flexible heuristic-based system for handling multi-format JSON uploads.
     \item \textbf{Chapter 7: Semantic Schema and Label Space} defines the core data model and the mapping strategies used to align raw text with the chosen taxonomies.
     \item \textbf{Chapter 8: Lightweight Semantic Enrichment Pipeline} describes the NLP components, including NER and skill classification, optimized for low computational cost.
     \item \textbf{Chapter 9: Storage, Indexing, and Search} details the dual-storage architecture (PostgreSQL and pgvector), the hybrid search index design combining lexical and semantic search, and the API endpoints for system integration.
@@ -330,7 +330,7 @@ To address the challenges identified in the recruitment domain, the system is de
 
 \begin{itemize}
     \item \textbf{Low Computational Cost per Document:} The system must be capable of running on commodity hardware without requiring expensive GPU clusters for real-time inference. This is achieved by utilizing small-scale transformer models (e.g., DistilBERT) and efficient regex-based pre-filters.
-    \item \textbf{Robustness to Noisy Text and HTML Variability:} Since inputs originate from diverse scrapers and user-provided CSVs, the pipeline must handle inconsistent formatting, boilerplate text, and encoding errors gracefully.
+    \item \textbf{Robustness to Noisy Text and HTML Variability:} Since inputs originate from diverse scrapers and user-provided JSONs, the pipeline must handle inconsistent formatting, boilerplate text, and encoding errors gracefully.
     \item \textbf{Explainability (Traceable Extraction Decisions):} Unlike "black-box" LLM prompts, the system should provide clear evidence for its extractions. Every structured field should be traceable back to specific spans in the source text or specific rules in the knowledge base.
     \item \textbf{Extensibility:} It must be possible to add support for new skills, job categories, or input formats without necessitating a complete retraining of the core models.
 \end{itemize}
@@ -348,7 +348,7 @@ The system follows a modular pipeline architecture designed for high throughput 
 
 The architecture consists of four main layers:
 \begin{enumerate}
-    \item \textbf{Ingestion Layer:} Handles the retrieval of raw data from web scrapers and the parsing of multi-format CSV/JSON uploads.
+    \item \textbf{Ingestion Layer:} Handles the retrieval of raw data from web scrapers and the parsing of multi-format JSON uploads.
     \item \textbf{Refining Layer:} Performs text cleaning, HTML stripping, and identifies the core "Job Description" segment.
     \item \textbf{Enrichment Layer:} The core semantic engine that performs NER, skill mapping via ESCO/O*NET, and metadata extraction.
     \item \textbf{Indexing and Access Layer:} Stores the enriched documents in a hybrid search index (BM25 + HNSW) for retrieval.
@@ -358,7 +358,7 @@ The architecture consists of four main layers:
 The data flow within the system follows a linear progression with intermediate validation checkpoints:
 
 \begin{enumerate}
-    \item \textbf{Acquisition:} Raw HTML or CSV rows enter the system. A source-specific adapter normalizes the input into a standard "RawDocument" schema.
+    \item \textbf{Acquisition:} Raw HTML or JSON entries enter the system. A source-specific adapter normalizes the input into a standard "RawDocument" schema.
     \item \textbf{Sanitization:} Heuristic rules strip known boilerplate (e.g., footer links). Language detection ensures only supported languages proceed to the NLP stages.
     \item \textbf{Extraction:} Parallel modules extract entities. A high-recall regex module identifies common technical terms, while a transformer-based bi-encoder maps complex descriptions to the closest taxonomy labels.
     \item \textbf{Reconciliation:} Conflicting extractions are resolved using a confidence-based scoring system.
@@ -366,14 +366,14 @@ The data flow within the system follows a linear progression with intermediate v
 \end{enumerate}
 
 \chapter{Data Collection and Preprocessing}
-The effectiveness of any semantic enrichment pipeline is heavily dependent on the quality and variety of the input data. This chapter describes the dual-pronged approach used to acquire internship listings: automated web scraping of public job boards and a flexible CSV ingestion system for manual uploads. We also detail the preprocessing steps required to transform raw, noisy inputs into a clean, normalized format suitable for downstream NLP tasks.
+The effectiveness of any semantic enrichment pipeline is heavily dependent on the quality and variety of the input data. This chapter describes the dual-pronged approach used to acquire internship listings: automated web scraping of public job boards and a flexible JSON ingestion system for manual uploads. We also detail the preprocessing steps required to transform raw, noisy inputs into a clean, normalized format suitable for downstream NLP tasks.
 
 \section*{Chapter Outline}
 This chapter is organized as follows:
 \begin{itemize}
     \item \textbf{Section 6.1: Web Scraping Strategy} outlines the targeted sources and the distributed crawling approach.
     \item \textbf{Section 6.2: HTML Parsing and Text Extraction} details the heuristics for boilerplate removal and structural preservation.
-    \item \textbf{Section 6.3: CSV Upload Handling} describes the mapping heuristics and validation logic for user-provided files.
+    \item \textbf{Section 6.3: JSON Upload Handling} describes the mapping heuristics and validation logic for user-provided files.
     \item \textbf{Section 6.4: Dataset Description} provides a summary of the resulting dataset used for system evaluation.
 \end{itemize}
 
@@ -396,27 +396,27 @@ Web-scraped data is inherently "noisy," containing navigation menus, advertiseme
     \item \textbf{Structural Preservation:} While stripping HTML, it is crucial to preserve certain structural elements that carry semantic meaning. We convert list items (\texttt{<li>}) to bullet points and headers (\texttt{<h1>} to \texttt{<h3>}) to markdown-style markers to help the NLP models understand the grouping of requirements and benefits.
 \end{itemize}
 
-\section{CSV Upload Handling}
-In addition to automated scraping, the system supports manual ingestion of internship data via CSV files. This allows recruitment agencies and university career centers to integrate their internal datasets into the pipeline.
+\section{JSON Upload Handling}
+In addition to automated scraping, the system supports manual ingestion of internship data via JSON files. This allows recruitment agencies and university career centers to integrate their internal datasets into the pipeline.
 
-\subsection{Column Mapping Heuristics}
-User-provided CSVs rarely follow a fixed schema. To provide a seamless user experience, we implemented a heuristic-based column mapper:
+\subsection{Key Mapping Heuristics}
+User-provided JSONs rarely follow a fixed schema. To provide a seamless user experience, we implemented a heuristic-based key mapper:
 \begin{enumerate}
-    \item \textbf{Fuzzy Header Matching:} The system compares CSV headers against a set of canonical field names (e.g., "Job Title", "Description", "Location", "Company") using Levenshtein distance.
-    \item \textbf{Content-Based Inference:} If headers are missing or ambiguous (e.g., "Col\_1"), the system analyzes the first 10 rows. Columns with long text blocks are flagged as "Description" candidates, while those with short, repetitive strings are flagged as "Category" or "Location".
+    \item \textbf{Fuzzy Key Matching:} The system compares JSON keys against a set of canonical field names (e.g., "Job Title", "Description", "Location", "Company") using Levenshtein distance.
+    \item \textbf{Content-Based Inference:} If keys are missing or ambiguous (e.g., "attr\_1"), the system analyzes the first 10 entries. Fields with long text blocks are flagged as "Description" candidates, while those with short, repetitive strings are flagged as "Category" or "Location".
     \item \textbf{User Override:} The inferred mapping is presented to the user for validation and manual correction before final processing.
 \end{enumerate}
 
 \subsection{Validation and Sanitization}
 To ensure system stability, all uploaded data undergoes rigorous validation:
 \begin{itemize}
-    \item \textbf{Encoding Detection:} We use the \texttt{chardet} library to identify and normalize various character encodings (e.g., UTF-8, Latin-1) to a consistent UTF-8 format.
-    \item \textbf{Data Sanitization:} String fields are stripped of leading/trailing whitespace and control characters. HTML tags accidentally included in CSV cells are escaped or removed.
-    \item \textbf{Integrity Checks:} Rows missing critical fields (e.g., a missing job title or description) are rejected or flagged for manual review to prevent downstream errors.
+    \item \textbf{Structure Validation:} We use JSON schema validation to ensure the uploaded files are syntactically correct and follow a basic object/array structure.
+    \item \textbf{Data Sanitization:} String fields are stripped of leading/trailing whitespace and control characters. HTML tags accidentally included in JSON values are escaped or removed.
+    \item \textbf{Integrity Checks:} Entries missing critical fields (e.g., a missing job title or description) are rejected or flagged for manual review to prevent downstream errors.
 \end{itemize}
 
 \section{Dataset Description}
-The final dataset used for evaluation consists of a combination of scraped data and curated CSV uploads. Table \ref{tab:dataset_stats} summarizes the composition of the dataset.
+The final dataset used for evaluation consists of a combination of scraped data and curated JSON uploads. Table \ref{tab:dataset_stats} summarizes the composition of the dataset.
 
 \begin{table}[H]
     \centering
@@ -427,7 +427,7 @@ The final dataset used for evaluation consists of a combination of scraped data 
         \textbf{Source Type} & \textbf{Count} & \textbf{Primary Domain} \\ \midrule
         Web Scraped (LinkedIn/Indeed) & 12,500 & General Tech, Business \\
         Niche Career Portals & 3,200 & Engineering, Arts \\
-        CSV Uploads (Partner Institutions) & 1,800 & Local Internships \\ \midrule
+        JSON Uploads (Partner Institutions) & 1,800 & Local Internships \\ \midrule
         \textbf{Total Records} & \textbf{17,500} & \\ \bottomrule
     \end{tabular}
 \end{table}
@@ -614,7 +614,7 @@ The primary endpoint is `GET /api/v1/search`. It accepts the following parameter
 
 \subsection{Ingestion and Analytics API}
 \begin{itemize}
-    \item `POST /api/v1/upload/csv`: Handles manual file uploads, triggering the mapping heuristics defined in Section 6.3.
+    \item `POST /api/v1/upload/json`: Handles manual file uploads, triggering the mapping heuristics defined in Section 6.3.
     \item `GET /api/v1/stats`: Returns aggregate data for the dashboard, such as "Top 10 most demanded skills this week" or "Distribution of roles by industry."
 \end{itemize}
 
@@ -642,7 +642,7 @@ The evaluation aims to answer four primary research questions:
 \section{Ground Truth Construction}
 To evaluate the system, we curated a "Gold Standard" evaluation set consisting of 500 internship listings.
 \begin{itemize}
-    \item \textbf{Sampling:} 400 listings were randomly sampled from the web-scraped dataset, and 100 listings were selected from the user-uploaded CSVs to ensure diversity.
+    \item \textbf{Sampling:} 400 listings were randomly sampled from the web-scraped dataset, and 100 listings were selected from the user-uploaded JSONs to ensure diversity.
     \item \textbf{Annotation Process:} Two human annotators (domain experts) manually labeled each listing according to the target schema defined in Chapter 7. Inter-annotator agreement was measured using Cohen's Kappa, with a score of 0.82 indicating high reliability.
     \item \textbf{Retrieval Ground Truth:} For the retrieval evaluation, a set of 20 common internship search queries (e.g., "Python data science intern Berlin") was used. Annotators marked each result in the Top-10 as "Highly Relevant," "Relevant," or "Irrelevant."
 \end{itemize}
@@ -832,7 +832,7 @@ The system is designed to strictly adhere to \texttt{robots.txt} directives prov
 From a legal standpoint, our work focuses on \textit{publicly available, non-copyrightable facts} (e.g., job requirements, locations, and titles). We operate within the framework established by landmark cases such as \textit{hiQ Labs, Inc. v. LinkedIn Corp.}, which protected the right to scrape public data for analytical purposes. Furthermore, the system does not bypass authentication barriers or "paywalls," ensuring that it only processes information intended for public consumption.
 
 \section{Privacy and User Uploads}
-The inclusion of user-provided CSVs introduces additional privacy challenges, particularly concerning Personal Identifiable Information (PII) and data sovereignty.
+The inclusion of user-provided JSONs introduces additional privacy challenges, particularly concerning Personal Identifiable Information (PII) and data sovereignty.
 
 \subsection{Anonymization at Ingestion}
 While job descriptions themselves are generally public, they occasionally contain PII, such as the contact details of a specific recruiter (e.g., "Email your CV to jane.doe@company.com"). Our refining layer (Section 6.2) includes a PII-redaction step using heuristic patterns to detect and mask email addresses and phone numbers before the text is committed to the long-term storage or the vector index.
