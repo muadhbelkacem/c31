@@ -1,0 +1,51 @@
+/* Base resets and document-level styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html,
+body {
+  position: relative;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding-bottom: 80px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  will-change: background-color, color;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px 0;
+  background: var(--bg-header);
+  color: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: background-color 0.3s ease;
+  will-change: background-color;
+}
+
+footer {
+  margin-bottom: 60px;
+}

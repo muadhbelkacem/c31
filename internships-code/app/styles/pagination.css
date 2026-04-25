@@ -1,0 +1,116 @@
+/* Pagination controls for desktop and mobile */
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+  padding: 15px 0;
+  flex-wrap: wrap;
+  transition: background-color 0.3s ease;
+  will-change: background-color;
+}
+
+.pagination-btn {
+  background: linear-gradient(135deg, #3a7bd5 0%, #1a2a6c 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(58, 123, 213, 0.3);
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform, box-shadow, background-color;
+}
+
+.pagination-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.page-input-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 10px;
+  font-weight: 600;
+  color: var(--section-title);
+  transition: color 0.3s ease;
+}
+
+#pageInput {
+  width: 60px;
+  padding: 8px 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  appearance: none;
+  -webkit-appearance: none;
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease;
+  will-change: background-color, border-color, color;
+}
+
+/* Mobile pagination */
+.mobile-pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0 30px;
+  padding: 15px;
+  background: var(--card-bg);
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.3s ease;
+  border: 1px solid var(--card-border);
+}
+.mobile-pagination-btn {
+  background: linear-gradient(135deg, #3a7bd5 0%, #1a2a6c 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(58, 123, 213, 0.3);
+}
+.mobile-pagination-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.mobile-pagination-text {
+  font-weight: 600;
+  color: var(--section-title);
+  transition: color 0.3s ease;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .pagination-controls {
+    display: none !important;
+  }
+  .mobile-pagination-controls {
+    display: flex !important;
+  }
+  .mobile-views-container {
+    padding-bottom: 100px;
+  }
+}

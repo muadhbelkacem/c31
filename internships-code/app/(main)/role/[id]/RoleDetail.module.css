@@ -1,0 +1,821 @@
+/* Role Detail Page Styles */
+
+/* ===== GLOBAL STYLES ===== */
+.roleDetailPage {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding-bottom: 80px;
+}
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1.5rem;
+  gap: 10px;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+/* ===== HEADER STYLES ===== */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px 0;
+  background: var(--bg-header);
+  color: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.themeToggle {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.themeToggle:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.1);
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-top: 10px;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.mainContent {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+/* ===== DETAIL CONTENT STYLES ===== */
+.rolesContainerExpanded {
+  background: var(--card-bg);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.roleModalCard {
+  background: var(--modal-bg);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid var(--modal-border);
+  animation: modalAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+@keyframes modalAppear {
+  0% { opacity: 0.8; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.roleHeaderBanner {
+  background: var(--role-header);
+  color: white;
+  padding: 25px;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.roleTitleLarge {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+.roleCompanyLarge {
+  font-size: 1.2rem;
+  opacity: 0.95;
+}
+
+.roleContentBody {
+  padding: 25px;
+}
+
+.roleDetailsGridExpanded {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+.roleDetailBox {
+  background: var(--action-btn);
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.roleDetailTitle {
+  font-size: 1.1rem;
+  color: var(--section-title);
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #3a7bd5;
+  transition: color 0.3s ease;
+}
+
+.roleDetailItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.roleDetailIcon {
+  color: var(--icon-color);
+  font-size: 1rem;
+  min-width: 20px;
+  margin-top: 2px;
+  transition: color 0.3s ease;
+}
+
+.roleDetailLabel {
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: 5px;
+  transition: color 0.3s ease;
+}
+
+.roleDetailValue {
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.skillsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skillTag {
+  background: var(--skill-tag);
+  color: var(--skill-tag-color);
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.noSkills {
+  color: var(--text-secondary);
+  font-style: italic;
+  transition: color 0.3s ease;
+}
+
+.roleDescriptionBox {
+  background: var(--action-btn);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.roleDescriptionContent {
+  line-height: 1.6;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.roleApplySection {
+  background: var(--action-btn);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid var(--card-border);
+  text-align: center;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.applyButtonLarge {
+  display: inline-block;
+  background: var(--button-bg);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  margin-top: 10px;
+  width: 100%;
+  text-align: center;
+  transition: all 0.3s ease, background-color 0.3s ease;
+}
+
+.applyButtonLarge:hover {
+  background: var(--button-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(58, 123, 213, 0.4);
+}
+
+.roleFooter {
+  padding: 20px;
+  border-top: 1px solid var(--card-border);
+  transition: border-color 0.3s ease;
+}
+
+.actionButtonRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.actionButton {
+  background: var(--action-btn);
+  border: 1px solid var(--card-border);
+  color: var(--action-color);
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  flex: 1;
+  justify-content: center;
+}
+
+.actionButton:hover {
+  background: var(--action-btn-hover);
+  color: var(--text-primary);
+}
+
+.actionButton.saved {
+  background: #4caf50;
+  color: white;
+  border-color: #4caf50;
+}
+
+[data-theme="dark"] .actionButton.saved {
+  background: #388e3c;
+  color: white;
+  border-color: #388e3c;
+}
+
+/* ===== RECOMMENDATIONS SIDEBAR ===== */
+.rightSidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.similarRolesContainer {
+  background: var(--card-bg);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.sectionTitleSmall {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: var(--section-title);
+  border-bottom: 2px solid #3a7bd5;
+  padding-bottom: 8px;
+  display: inline-block;
+  transition: color 0.3s ease;
+}
+
+.similarRolesGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Recommended Role Card */
+.recommendedRoleCard {
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  height: auto;
+  min-height: 150px;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+
+.recommendedRoleCard:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  border-color: var(--button-bg);
+  text-decoration: none;
+  color: inherit;
+}
+
+.recommendedRoleHeader {
+  background: var(--role-header);
+  color: white;
+  padding: 10px 15px;
+  position: relative;
+  flex-shrink: 0;
+  min-height: 55px;
+  transition: background-color 0.3s ease;
+}
+
+.recommendedRoleTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: white;
+}
+
+.recommendedRoleCompany {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: white;
+}
+
+.recommendedRoleBody {
+  padding: 10px 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.recommendedRoleDetails {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.recommendedRoleLocation {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.recommendedRoleStipend {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2e7d32;
+  background: #e8f5e9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] .recommendedRoleStipend {
+  background: #2a3a2a;
+  color: #a0d8a0;
+}
+
+.recommendedRoleSkills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.recommendedSkillTag {
+  background: var(--skill-tag);
+  color: var(--skill-tag-color);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ===== PAGINATION STYLES ===== */
+.paginationControls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 10px 0;
+}
+
+.paginationBtn {
+  background: linear-gradient(135deg, #3a7bd5 0%, #1a2a6c 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(58, 123, 213, 0.3);
+}
+
+.paginationBtn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.pageInputContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 5px;
+  font-weight: 600;
+  color: var(--section-title);
+  transition: color 0.3s ease;
+}
+
+.mobilePaginationControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 5px;
+  margin-top: 15px;
+  background: var(--card-bg);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.mobilePaginationBtn {
+  background: var(--button-bg);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.mobilePaginationBtn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.mobilePageIndicator {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+/* ===== MOBILE STYLES ===== */
+.mobileRoleDetails {
+  display: none;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.mobileRoleModal {
+  background: var(--modal-bg);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid var(--modal-border);
+  animation: modalAppear 0.3s ease-out;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.mobileRoleHeader {
+  background: var(--role-header);
+  color: white;
+  padding: 20px 15px;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.mobileRoleTitle {
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+.mobileRoleCompany {
+  font-size: 1rem;
+  opacity: 0.95;
+}
+
+.mobileDetailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  padding: 15px;
+}
+
+.mobileDetailSection {
+  background: var(--action-btn);
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.mobileDetailTitle {
+  font-size: 1rem;
+  color: var(--section-title);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--card-border);
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.mobileRoleDetail {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.mobileRoleIcon {
+  color: var(--icon-color);
+  font-size: 1rem;
+  min-width: 18px;
+  margin-top: 2px;
+  transition: color 0.3s ease;
+}
+
+.mobileDetailLabel {
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.mobileDetailValue {
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.mobileSkillsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mobileSkillTag {
+  background: var(--skill-tag);
+  color: var(--skill-tag-color);
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.mobileDescriptionSection {
+  background: var(--action-btn);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 0 15px 15px;
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.descriptionContent {
+  line-height: 1.6;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.mobileRoleFooter {
+  padding: 15px;
+  border-top: 1px solid var(--card-border);
+  background: var(--modal-bg);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.mobileApplyBtn {
+  width: 100%;
+  background: var(--button-bg);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  margin-bottom: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.mobileRoleActions {
+  display: flex;
+  justify-content: space-around;
+}
+
+.mobileActionBtn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.mobileActionIcon {
+  font-size: 1.2rem;
+}
+
+.mobileSimilarRoles {
+  display: none;
+  padding: 0 15px 20px;
+}
+
+/* ===== MOBILE NAVIGATION ===== */
+.mobileNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--mobile-nav-bg);
+  border-top: 1px solid var(--mobile-nav-border);
+  z-index: 900;
+  height: 60px;
+  display: none;
+  align-items: center;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.mobileNavList {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+}
+
+.mobileNavItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  color: var(--mobile-nav-text);
+  font-size: 0.75rem;
+  padding: 8px 0;
+  width: 20%;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.mobileNavItem.active {
+  color: var(--mobile-nav-active-text);
+  background: var(--mobile-nav-active);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  padding: 30px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 20px;
+  border-top: 1px solid var(--footer-border);
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1200px) {
+  .mainContent {
+    grid-template-columns: 1fr;
+  }
+  
+  .rightSidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .mainContent {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    display: none;
+  }
+  
+  .mobileRoleDetails {
+    display: block;
+  }
+  
+  .mobileSimilarRoles {
+    display: block;
+  }
+  
+  .mobileNav {
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  
+  .container {
+    padding: 0;
+    padding-top: 10px;
+  }
+  
+  .header {
+    border-radius: 0;
+    margin-bottom: 10px;
+    padding: 15px 0;
+  }
+}
+
+@media (max-width: 400px) {
+  .mobileDetailsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .roleDetailsGridExpanded {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* iOS safe area fix */
+@supports (-webkit-touch-callout: none) {
+  .mobileNav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  
+  body {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+}
