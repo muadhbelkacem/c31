@@ -13,7 +13,7 @@ The ingestion of internship opportunities, as implemented in the \texttt{getInte
 Information Extraction is the task of automatically pulling structured attributes from unstructured text. In the context of the internship portal, this is operationalized through specialized parsing and keyword-matching logic.
 
 \subsection{Skill Extraction}
-The \texttt{extractSkills} function in the codebase implements a dictionary-based Named Entity Recognition (NER) approach. By maintaining a curated list of technical and soft skills (e.g., "React", "Python", "Communication"), the system identifies relevant tokens within the job description. While modern deep learning models are available, research demonstrates that structured keyword-based extraction remains a highly effective and computationally efficient baseline for recruitment domains.
+The \texttt{extractSkills} function in the codebase implements a dictionary-based Named Entity Recognition (NER) approach. By maintaining a curated list of technical and soft skills (e.g., "React", "Python", "Communication"), the system identifies relevant tokens within the job description. While modern deep learning models are available, structured keyword-based extraction remains a highly effective and computationally efficient baseline for recruitment domains.
 
 \subsection{Slot Filling and Attribute Parsing}
 Extracting specific values like salaries requires robust pattern matching. The \texttt{cleanSalary} function utilizes regular expressions to normalize varied currency formats (e.g., converting range strings into a canonical form). This process of "slot filling" transforms descriptive text into filterable metadata, enabling the system's faceted search capabilities.
@@ -22,7 +22,7 @@ Extracting specific values like salaries requires robust pattern matching. The \
 To provide a meaningful user experience, raw job titles must be mapped to a higher-level label space. This is critical for overcoming the "semantic gap" where different words describe the same concept.
 
 \subsection{Heuristic-Based Classification}
-The \texttt{categorizeJob} function implements a rule-based classifier that maps titles to domains such as "Software", "Data/AI", or "Healthcare". While simple, this approach provides the necessary structure for the system's categorical filtering. As noted by Grijzen, the choice between heuristic rules and complex machine learning often depends on the specificity of the domain and the availability of labeled data; for internship listings, title-based keywords often provide a strong signal for initial categorization.
+The \texttt{categorizeJob} function implements a rule-based classifier that maps titles to domains such as "Software", "Data/AI", or "Healthcare". While simple, this approach provides the necessary structure for the system's categorical filtering. The choice between heuristic rules and complex machine learning often depends on the specificity of the domain and the availability of labeled data; for internship listings, title-based keywords often provide a strong signal for initial categorization.
 
 \subsection{Reference Taxonomies}
 In a production environment, these categories can be aligned with international standards like ESCO (European Skills, Competences, Qualifications and Occupations). Aligning the system's internal \texttt{category} labels with these taxonomies ensures interoperability and allows for more granular skill-to-occupation mapping.
@@ -34,4 +34,4 @@ A significant challenge in aggregating data from multiple platforms is the occur
 The \texttt{generateId} function creates a unique, slug-based identifier by cleaning and concatenating the job title and company name. This technique is a form of \textit{blocking} in the field of entity resolution, where similar records are grouped together to facilitate deduplication.
 
 \subsection{Title Canonicalization}
-Standardizing job titles (e.g., removing special characters and converting to lowercase) is essential for both ID generation and search indexing. Javed et al. highlight that generating normalized titles from unstructured text is foundational for downstream analytics, as it allows the system to treat "Software Eng." and "Software Engineer" as the same entity for the purposes of aggregation and discovery.
+Standardizing job titles (e.g., removing special characters and converting to lowercase) is essential for both ID generation and search indexing. Generating normalized titles from unstructured text is foundational for downstream analytics, as it allows the system to treat "Software Eng." and "Software Engineer" as the same entity for the purposes of aggregation and discovery.
