@@ -3,7 +3,7 @@
 % Topic: Lightweight semantics for job posts & JSON uploads
 % ============================================================
 
-\documentclass[12pt,a4paper,oneside]{report}
+\documentclass[11pt,a4paper,oneside]{report}
 
 % ----------------------------
 % Packages (keep it reasonable)
@@ -28,6 +28,7 @@
 \usepackage{glossaries}        % glossary / acronyms
 \usepackage{biblatex}          % bibliography management
 \usepackage{eurosym}           % Euro symbol support
+\usepackage{sectsty}           % easy heading customization
 
 % ----------------------------
 % Bibliography
@@ -46,6 +47,11 @@
   pdftitle={Master Thesis Title},
   pdfauthor={Your Name}
 }
+
+% Heading sizes
+\chapterfont{\LARGE}
+\sectionfont{\Large}
+\subsectionfont{\large}
 
 % ----------------------------
 % Listings configuration
@@ -84,19 +90,19 @@
 
 \begin{titlepage}
   \centering
-  {\Large \UniversityName \par}
+  {\large \UniversityName \par}
   \vspace{0.5cm}
-  {\large \DepartmentName \par}
+  {\normalsize \DepartmentName \par}
   \vspace{2.0cm}
-  {\huge \bfseries \ThesisTitle \par}
+  {\LARGE \bfseries \ThesisTitle \par}
   \vspace{2.0cm}
-  {\Large \AuthorName \par}
+  {\large \AuthorName \par}
   \vspace{0.5cm}
-  {\large \DegreeName \par}
+  {\normalsize \DegreeName \par}
   \vspace{1.5cm}
-  {\large Supervisor: \SupervisorName \par}
+  {\normalsize Supervisor: \SupervisorName \par}
   \vfill
-  {\large \SubmissionDate \par}
+  {\normalsize \SubmissionDate \par}
 \end{titlepage}
 
 % ----------------------------
