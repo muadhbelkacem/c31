@@ -1,50 +1,37 @@
 \chapter{Background: Information Extraction and Semantics}
+This chapter establishes the theoretical foundations for the "internships-code" system, bridging the gap between Information Extraction (IE) theory and the practical implementation of a recruitment data pipeline. We explore how semi-structured internship data is transformed into a queryable semantic format, drawing on established literature in data matching and natural language processing.
+
 \section{Semi-Structured Web Data and Job Postings}
-Web-based job postings represent a prime example of semi-structured data. Unlike fully structured databases, these postings are primarily designed for human readability, often embedded within complex HTML structures. This presentation leads to several inherent challenges for automated processing:
+The ingestion of internship opportunities, as implemented in the \texttt{getInternships} function within the project's data module, highlights the core challenges of semi-structured web data. Unlike rigid relational databases, web-scraped job postings are often delivered as heterogeneous JSON objects or raw HTML.
 
 \begin{itemize}
-    \item \textbf{Noise and Boilerplate:} Job descriptions are frequently surrounded by non-relevant content, such as "About Us" sections, legal disclaimers, navigation menus, and "Equal Opportunity Employer" statements. Distinguishing the core job requirements from this noise is a critical first step.
-    \item \textbf{Layout Variability:} There is no universal standard for how a job post should be structured. Different platforms (e.g., LinkedIn, Indeed, Glassdoor) and individual company career pages use vastly different HTML layouts and CSS classes.
-    \item \textbf{Data Volatility and Expiry:} Job postings are ephemeral. Once a position is filled, the page may be removed or return a 404 error, making historical analysis and link consistency difficult.
-    \item \textbf{Redundancy and Duplication:} A single internship opportunity is often cross-posted across multiple job boards, sometimes with subtle variations in the title or formatting, necessitating robust deduplication strategies.
+    \item \textbf{Schema Variability:} As seen in the implementation of \texttt{getInternships}, the system must handle multiple naming conventions for the same attribute (e.g., \texttt{platform\_link} vs. \texttt{link}, or \texttt{date\_posted} vs. \texttt{job\_age}). This reflects the "schema-on-read" nature of modern web data pipelines.
+    \item \textbf{Data Noisiness:} Raw descriptions often contain repetitive boilerplate. The system's \texttt{cleanDescription} utility addresses this by removing excessive line breaks and whitespace, a fundamental step in preparing text for downstream NLP tasks.
 \end{itemize}
 
 \section{Information Extraction (IE) Fundamentals}
-Information Extraction (IE) is the task of automatically pulling structured information from unstructured or semi-structured documents \cite{sarawagi2008information}. In the recruitment domain, IE aims to convert a block of text into a set of discrete attributes. Key components of IE include:
+Information Extraction is the task of automatically pulling structured attributes from unstructured text. In the context of the internship portal, this is operationalized through specialized parsing and keyword-matching logic.
 
-\begin{itemize}
-    \item \textbf{Named Entity Recognition (NER):} The identification of entities such as company names, locations (cities, regions), and dates. For internship posts, this also extends to recognizing specific technologies and tools.
-    \item \textbf{Slot Filling and Template Extraction:} This involves populating a predefined schema with specific values extracted from the text, such as salary ranges, duration of the internship, and required degree levels.
-    \item \textbf{Rule-Based vs. Statistical Methods:} Traditional IE often relied on hand-crafted regular expressions (Regex) and gazetteers (dictionaries). Modern approaches favor machine learning models, though lightweight rule-based systems remain highly effective for structured patterns like currency and dates.
-    \item \textbf{Relation Extraction:} Identifying the semantic links between entities, such as confirming that a specific skill (e.g., "Python") is a "required" qualification rather than just "nice-to-have."
-\end{itemize}
+\subsection{Skill Extraction}
+The \texttt{extractSkills} function in the codebase implements a dictionary-based Named Entity Recognition (NER) approach. By maintaining a curated list of technical and soft skills (e.g., "React", "Python", "Communication"), the system identifies relevant tokens within the job description. While modern deep learning models are available, research demonstrates that structured keyword-based extraction remains a highly effective and computationally efficient baseline for recruitment domains.
 
-\section{Semantic Modeling}
-Semantic modeling provides the conceptual framework for organizing extracted data so that it can be queried and interpreted meaningfully by machines.
+\subsection{Slot Filling and Attribute Parsing}
+Extracting specific values like salaries requires robust pattern matching. The \texttt{cleanSalary} function utilizes regular expressions to normalize varied currency formats (e.g., converting range strings into a canonical form). This process of "slot filling" transforms descriptive text into filterable metadata, enabling the system's faceted search capabilities.
 
-\subsection{Schemas vs Ontologies vs Taxonomies}
-Understanding the distinction between these three concepts is vital for choosing the right level of complexity for a system:
-\begin{itemize}
-    \item \textbf{Taxonomies:} Hierarchical classifications that define "is-a" relationships (e.g., "Software Engineer" is a sub-type of "IT Professional"). They are primarily used for categorization and navigation.
-    \item \textbf{Ontologies:} The most expressive form, defining not just hierarchies but also complex relationships, properties, and constraints between concepts \cite{gruber1993translation}. They allow for logical reasoning and inference.
-    \item \textbf{Schemas:} A structural definition of a data model, specifying fields, types, and constraints (e.g., a JSON or SQL schema).
-\end{itemize}
-For this thesis, we adopt a \textit{lightweight schema-first approach}. While full ontologies offer great power, they are often too computationally expensive and difficult to maintain for the rapid, high-volume processing required for web-scraped job data.
+\section{Semantic Categorization}
+To provide a meaningful user experience, raw job titles must be mapped to a higher-level label space. This is critical for overcoming the "semantic gap" where different words describe the same concept.
 
-\subsection{Skill and Occupation Taxonomies}
-To avoid a fragmented data space where "Software Dev" and "Programmer" are treated as unrelated, we utilize standardized reference taxonomies:
-\begin{itemize}
-    \item \textbf{ESCO (European Skills, Competences, Qualifications and Occupations):} A multilingual classification system that maps thousands of skills to specific occupations, providing a common language for the labor market \cite{esco_portal}.
-    \item \textbf{O*NET (Occupational Information Network):} A comprehensive database developed by the US Department of Labor that defines the "DNA" of occupations, including required knowledge, skills, and abilities \cite{onet_online}.
-\end{itemize}
-In our pipeline, these taxonomies serve as canonical "anchor points" for mapping raw, noisy text to standardized labels.
+\subsection{Heuristic-Based Classification}
+The \texttt{categorizeJob} function implements a rule-based classifier that maps titles to domains such as "Software", "Data/AI", or "Healthcare". While simple, this approach provides the necessary structure for the system's categorical filtering. As noted by Grijzen, the choice between heuristic rules and complex machine learning often depends on the specificity of the domain and the availability of labeled data; for internship listings, title-based keywords often provide a strong signal for initial categorization.
 
-\section{Normalization and Canonicalization}
-Raw extracted data is rarely ready for end-user consumption or efficient search. Normalization and canonicalization are the processes of bringing data into a consistent format:
+\subsection{Reference Taxonomies}
+In a production environment, these categories can be aligned with international standards like ESCO (European Skills, Competences, Qualifications and Occupations). Aligning the system's internal \texttt{category} labels with these taxonomies ensures interoperability and allows for more granular skill-to-occupation mapping.
 
-\begin{itemize}
-    \item \textbf{Title Normalization:} Standardizing varied strings like "Sr. Software Eng.", "Senior Developer", and "SDE II" into a single canonical form (e.g., "Senior Software Engineer").
-    \item \textbf{Synonym and Alias Mapping:} Consolidating variations of the same skill, such as mapping "JS", "ECMAScript", and "Javascript" to the unique identifier "JavaScript".
-    \item \textbf{Value Standardization:} Converting heterogeneous data points—such as dates ("2 weeks ago" vs "2023-10-12") and salaries—into ISO-compliant formats and base units.
-    \item \textbf{Entity Resolution:} The process of determining whether two different postings refer to the same job opening at the same company, which is essential for accurate analytics.
-\end{itemize}
+\section{Normalization and Entity Resolution}
+A significant challenge in aggregating data from multiple platforms is the occurrence of duplicate listings. The "internships-code" project addresses this through a deterministic normalization strategy.
+
+\subsection{Stable Identifier Generation}
+The \texttt{generateId} function creates a unique, slug-based identifier by cleaning and concatenating the job title and company name. This technique is a form of \textit{blocking} in the field of entity resolution, where similar records are grouped together to facilitate deduplication.
+
+\subsection{Title Canonicalization}
+Standardizing job titles (e.g., removing special characters and converting to lowercase) is essential for both ID generation and search indexing. Javed et al. highlight that generating normalized titles from unstructured text is foundational for downstream analytics, as it allows the system to treat "Software Eng." and "Software Engineer" as the same entity for the purposes of aggregation and discovery.

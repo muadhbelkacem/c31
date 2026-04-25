@@ -20,16 +20,16 @@ While all listings in our dataset are internships, they often specify secondary 
 \end{itemize}
 
 \subsection{Skill Matching with Lexicon}
-The primary skill extraction in Layer A relies on the alias tables defined in Section 7.3. We perform \textit{Aho-Corasick string matching} \cite{aho1975efficient}, which allows for the simultaneous searching of thousands of skill aliases in a single pass over the text. This method is significantly faster than multiple regex executions and ensures that technical terms like "C++" or ".NET" are captured accurately.
+The primary skill extraction in Layer A relies on the alias tables defined in Section 7.3. We perform \textit{Aho-Corasick string matching}, which allows for the simultaneous searching of thousands of skill aliases in a single pass over the text. This method is significantly faster than multiple regex executions and ensures that technical terms like "C++" or ".NET" are captured accurately.
 
 \section{Layer B: Small-Model Mapping}
 Layer B is invoked for tasks where simple string matching is insufficient due to linguistic ambiguity or the need for semantic understanding. We utilize lightweight Transformer models that provide high accuracy with a fraction of the parameters of full-scale LLMs.
 
 \subsection{Title Normalization and Classification}
-Job titles are often idiosyncratic. To map a raw title like "Cloud Infrastructure Intern (DevOps focus)" to the canonical ESCO occupation "System Programmer," we use a \textit{bi-encoder} model (e.g., \texttt{all-MiniLM-L6-v2}) \cite{reimers2019sentence}. The raw title is embedded into a vector space, and a cosine similarity search is performed against the pre-computed embeddings of the ESCO occupation labels. The label with the highest similarity score above a predefined threshold is assigned to the document.
+Job titles are often idiosyncratic. To map a raw title like "Cloud Infrastructure Intern (DevOps focus)" to the canonical ESCO occupation "System Programmer," we use a \textit{bi-encoder} model (e.g., \texttt{all-MiniLM-L6-v2}). The raw title is embedded into a vector space, and a cosine similarity search is performed against the pre-computed embeddings of the ESCO occupation labels. The label with the highest similarity score above a predefined threshold is assigned to the document.
 
 \subsection{Domain Classification (Optional)}
-To further assist in filtering, we employ a multi-class classifier to identify the industry domain (e.g., FinTech, Healthcare, E-commerce). This is implemented as a simple linear layer on top of a frozen DistilBERT \cite{sanh2019distilbert} backbone, trained on a small labeled subset of job postings.
+To further assist in filtering, we employ a multi-class classifier to identify the industry domain (e.g., FinTech, Healthcare, E-commerce). This is implemented as a simple linear layer on top of a frozen DistilBERT backbone, trained on a small labeled subset of job postings.
 
 \subsection{Confidence Scoring}
 Every extraction from Layer B is accompanied by a confidence score. For classification tasks, this is the softmax probability of the predicted class. For similarity-based mapping, it is the cosine distance. If the confidence score falls below a "doubt threshold" (e.g., 0.65), the field is flagged for either Layer C processing or manual human verification.
