@@ -1,0 +1,42 @@
+\chapter{Methodology and System Overview}
+This chapter details the proposed methodology for the lightweight semantic structuring of internship listings. We outline the design philosophy, the architectural components of the pipeline, and the end-to-end data flow that transforms raw web content and file uploads into a structured, searchable knowledge base.
+
+\section{Design Goals and Constraints}
+To address the challenges identified in the recruitment domain, the system is developed with the following primary objectives:
+
+\begin{itemize}
+    \item \textbf{Low Computational Cost per Document:} The system must be capable of running on commodity hardware without requiring expensive GPU clusters for real-time inference. This is achieved by utilizing small-scale transformer models (e.g., DistilBERT) and efficient regex-based pre-filters.
+    \item \textbf{Robustness to Noisy Text and HTML Variability:} Since inputs originate from diverse scrapers and user-provided JSONs, the pipeline must handle inconsistent formatting, boilerplate text, and encoding errors gracefully.
+    \item \textbf{Explainability (Traceable Extraction Decisions):} Unlike "black-box" LLM prompts, the system should provide clear evidence for its extractions. Every structured field should be traceable back to specific spans in the source text or specific rules in the knowledge base.
+    \item \textbf{Extensibility:} It must be possible to add support for new skills, job categories, or input formats without necessitating a complete retraining of the core models.
+\end{itemize}
+
+\section{Proposed Architecture}
+The system follows a modular pipeline architecture designed for high throughput and maintainability.
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=\textwidth]{figures/architecture.png}
+    \fbox{Placeholder: High-level architecture of the data ingestion and semantic enrichment pipeline.}
+    \caption{High-level architecture of the data ingestion and semantic enrichment pipeline.}
+    \label{fig:architecture}
+\end{figure}
+
+The architecture consists of four main layers:
+\begin{enumerate}
+    \item \textbf{Ingestion Layer:} Handles the retrieval of raw data from web scrapers and the parsing of multi-format JSON uploads.
+    \item \textbf{Refining Layer:} Performs text cleaning, HTML stripping, and identifies the core "Job Description" segment.
+    \item \textbf{Enrichment Layer:} The core semantic engine that performs NER, skill mapping via ESCO/O*NET, and metadata extraction.
+    \item \textbf{Indexing and Access Layer:} Stores the enriched documents in a hybrid search index (BM25 + HNSW) for retrieval.
+\end{enumerate}
+
+\section{Data Flow}
+The data flow within the system follows a linear progression with intermediate validation checkpoints:
+
+\begin{enumerate}
+    \item \textbf{Acquisition:} Raw HTML or JSON entries enter the system. A source-specific adapter normalizes the input into a standard "RawDocument" schema.
+    \item \textbf{Sanitization:} Heuristic rules strip known boilerplate (e.g., footer links). Language detection ensures only supported languages proceed to the NLP stages.
+    \item \textbf{Extraction:} Parallel modules extract entities. A high-recall regex module identifies common technical terms, while a transformer-based bi-encoder maps complex descriptions to the closest taxonomy labels.
+    \item \textbf{Reconciliation:} Conflicting extractions are resolved using a confidence-based scoring system.
+    \item \textbf{Persistence:} The final "StructuredDocument" is committed to the relational database and the vector index simultaneously.
+\end{enumerate}

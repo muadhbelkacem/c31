@@ -1,0 +1,68 @@
+\chapter{Data Collection and Preprocessing}
+The effectiveness of any semantic enrichment pipeline is heavily dependent on the quality and variety of the input data. This chapter describes the dual-pronged approach used to acquire internship listings: automated web scraping of public job boards and a flexible JSON ingestion system for manual uploads. We also detail the preprocessing steps required to transform raw, noisy inputs into a clean, normalized format suitable for downstream NLP tasks.
+
+\section*{Chapter Outline}
+This chapter is organized as follows:
+\begin{itemize}
+    \item \textbf{Section 6.1: Web Scraping Strategy} outlines the targeted sources and the distributed crawling approach.
+    \item \textbf{Section 6.2: HTML Parsing and Text Extraction} details the heuristics for boilerplate removal and structural preservation.
+    \item \textbf{Section 6.3: JSON Upload Handling} describes the mapping heuristics and validation logic for user-provided files.
+    \item \textbf{Section 6.4: Dataset Description} provides a summary of the resulting dataset used for system evaluation.
+\end{itemize}
+
+\section{Web Scraping Strategy}
+To build a representative dataset of internship opportunities, we implemented a distributed scraping strategy targeting major job aggregation platforms and specific company career portals. The strategy is designed to maximize data diversity while adhering to ethical scraping practices.
+
+\begin{itemize}
+    \item \textbf{Targeted Sources:} We prioritized platforms with high-density internship listings, such as LinkedIn, Indeed, and specialized student career portals (e.g., Handshake, Welcome to the Jungle).
+    \item \textbf{Pagination and Depth:} Scrapers were configured to traverse search results up to a depth of 50 pages per query, ensuring a mix of recent and slightly older listings for temporal analysis.
+    \item \textbf{Rate Limiting and Politeness:} To avoid overwhelming source servers, we implemented adaptive rate limiting and random delays between requests. User-agent rotation was used to simulate diverse client environments.
+    \item \textbf{Incremental Scraping:} To maintain an up-to-date repository, the system performs incremental updates, identifying and skipping previously processed URLs based on their cryptographic hashes.
+\end{itemize}
+
+\section{HTML Parsing and Text Extraction}
+Web-scraped data is inherently "noisy," containing navigation menus, advertisements, and tracking scripts that are irrelevant to the job description.
+
+\begin{itemize}
+    \item \textbf{Boilerplate Removal:} We utilize library-based parsers (e.g., BeautifulSoup4 or Selectolax) to strip non-content tags such as \texttt{<script>}, \texttt{<style>}, \texttt{<nav>}, and \texttt{<footer>}.
+    \item \textbf{Content Extraction Heuristics:} We employ a density-based approach to identify the main "Job Description" block. Containers with a high ratio of text to HTML tags are prioritized. Common CSS classes like \texttt{.job-description} or \texttt{\#vacancy-content} are used as initial anchors.
+    \item \textbf{Structural Preservation:} While stripping HTML, it is crucial to preserve certain structural elements that carry semantic meaning. We convert list items (\texttt{<li>}) to bullet points and headers (\texttt{<h1>} to \texttt{<h3>}) to markdown-style markers to help the NLP models understand the grouping of requirements and benefits.
+\end{itemize}
+
+\section{JSON Upload Handling}
+In addition to automated scraping, the system supports manual ingestion of internship data via JSON files. This allows recruitment agencies and university career centers to integrate their internal datasets into the pipeline.
+
+\subsection{Key Mapping Heuristics}
+User-provided JSONs rarely follow a fixed schema. To provide a seamless user experience, we implemented a heuristic-based key mapper:
+\begin{enumerate}
+    \item \textbf{Fuzzy Key Matching:} The system compares JSON keys against a set of canonical field names (e.g., "Job Title", "Description", "Location", "Company") using Levenshtein distance.
+    \item \textbf{Content-Based Inference:} If keys are missing or ambiguous (e.g., "attr\_1"), the system analyzes the first 10 entries. Fields with long text blocks are flagged as "Description" candidates, while those with short, repetitive strings are flagged as "Category" or "Location".
+    \item \textbf{User Override:} The inferred mapping is presented to the user for validation and manual correction before final processing.
+\end{enumerate}
+
+\subsection{Validation and Sanitization}
+To ensure system stability, all uploaded data undergoes rigorous validation:
+\begin{itemize}
+    \item \textbf{Structure Validation:} We use JSON schema validation to ensure the uploaded files are syntactically correct and follow a basic object/array structure.
+    \item \textbf{Data Sanitization:} String fields are stripped of leading/trailing whitespace and control characters. HTML tags accidentally included in JSON values are escaped or removed.
+    \item \textbf{Integrity Checks:} Entries missing critical fields (e.g., a missing job title or description) are rejected or flagged for manual review to prevent downstream errors.
+\end{itemize}
+
+\section{Dataset Description}
+The final dataset used for evaluation consists of a combination of scraped data and curated JSON uploads. Table \ref{tab:dataset_stats} summarizes the composition of the dataset.
+
+\begin{table}[H]
+    \centering
+    \caption{Summary of the Internship Listings Dataset}
+    \label{tab:dataset_stats}
+    \begin{tabular}{@{}lrl@{}}
+        \toprule
+        \textbf{Source Type} & \textbf{Count} & \textbf{Primary Domain} \\ \midrule
+        Web Scraped (LinkedIn/Indeed) & 12,500 & General Tech, Business \\
+        Niche Career Portals & 3,200 & Engineering, Arts \\
+        JSON Uploads (Partner Institutions) & 1,800 & Local Internships \\ \midrule
+        \textbf{Total Records} & \textbf{17,500} & \\ \bottomrule
+    \end{tabular}
+\end{table}
+
+The dataset covers multiple industries, with a primary focus on Software Engineering, Data Science, and Digital Marketing, reflecting the current internship market demand.

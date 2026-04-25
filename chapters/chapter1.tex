@@ -1,0 +1,55 @@
+\chapter{Introduction}
+\section{Context and Motivation}
+The digital transformation of the global labor market has fundamentally altered the way internship opportunities are advertised and discovered. Traditional recruitment channels have been largely superseded by a vast ecosystem of online platforms, ranging from global aggregators like LinkedIn and Indeed to specialized university career portals and niche industry boards. This shift has resulted in an unprecedented volume of data, providing students with access to thousands of potential opportunities at any given moment.
+
+However, this abundance of information presents a significant challenge: the "data deluge." Internship listings are inherently semi-structured and highly heterogeneous. A single role may be described using vastly different terminology depending on the platform or the employer's preference—for instance, a "Junior Java Developer" and a "Software Engineering Intern" may require identical skill sets but are often treated as distinct entities by traditional keyword-based search systems. Furthermore, the data is often noisy, containing irrelevant boilerplate text, inconsistent formatting, and a lack of standardized labels. For recruitment platforms and educational institutions, managing this influx of unstructured data from disparate sources (such as automated web scraping and manual JSON uploads from partners) is a complex task. The motivation for this research lies in the need for an efficient, "lightweight" approach to transform this chaotic stream of data into a structured, semantic knowledge base that enables precise discovery and analytical insight without the prohibitive costs of manual curation or heavy computational infrastructure.
+
+\section{Problem Statement}
+The core problem addressed in this thesis is the "semantic gap" and structural heterogeneity in internship data ingestion and retrieval. Current systems for processing job postings typically suffer from one of two extremes:
+\begin{enumerate}
+    \item \textbf{Rigid Lexical Matching:} Many platforms rely on exact keyword matching (e.g., BM25). This approach fails to account for synonyms, technical aliases, and conceptual relationships, causing users to miss relevant listings because their search terms do not perfectly match the employer's vocabulary.
+    \item \textbf{High-Cost LLM Dependency:} While Large Language Models (LLMs) offer excellent semantic understanding, using them to process thousands of scraped documents in real-time is often prohibitively expensive and introduces significant latency.
+\end{enumerate}
+Additionally, the ingestion process itself is fragmented. Data arriving via JSON uploads from partner institutions often lacks a fixed schema, requiring repetitive manual mapping. There is a clear need for a unified system that can automatically clean, structure, and semantically enrich data from diverse sources while remaining computationally efficient enough to run on commodity hardware.
+
+\section{Research Questions}
+To address the problem statement, this research seeks to answer the following questions:
+\begin{enumerate}
+    \item \textbf{RQ1:} How can a tiered pipeline architecture effectively balance the trade-off between extraction accuracy and computational cost in the context of internship listings?
+    \item \textbf{RQ2:} To what extent can lightweight transformer models (e.g., DistilBERT) map heterogeneous and idiosyncratic job titles to standardized professional taxonomies like ESCO?
+    \item \textbf{RQ3:} How does a hybrid retrieval strategy—combining lexical (BM25) and semantic (HNSW) search—improve the relevance and recall of internship discovery compared to traditional keyword-only approaches?
+    \item \textbf{RQ4:} What heuristic-based mapping strategies can be utilized to automate the ingestion of inconsistently formatted JSON data into a unified semantic schema?
+\end{enumerate}
+
+\section{Contributions}
+The primary contributions of this thesis are as follows:
+\begin{itemize}
+    \item \textbf{A Tiered Semantic Enrichment Pipeline:} The development of a modular architecture that combines deterministic rule-based extraction (Layer A) with lightweight neural mapping (Layer B) and a budgeted LLM fallback (Layer C).
+    \item \textbf{A Hybrid Search Infrastructure:} The implementation of a retrieval system using PostgreSQL and the \texttt{pgvector} extension, optimized for sub-50ms hybrid (lexical + semantic) query responses.
+    \item \textbf{Automated Ingestion Heuristics:} A flexible JSON processing module that utilizes fuzzy key matching and content-based inference to normalize multi-format user uploads without manual schema mapping.
+    \item \textbf{Empirical Evaluation:} A detailed performance analysis using a real-world dataset of 17,500 listings, demonstrating the feasibility of achieving high semantic accuracy with minimal computational overhead.
+\end{itemize}
+
+\section{Thesis Structure}
+This thesis is organized into two primary parts, moving from the theoretical foundations to the practical implementation and evaluation of the proposed system.
+
+\textbf{Part I: Theoretical Background and Related Work}
+\begin{itemize}
+    \item \textbf{Chapter 2: Background: Information Extraction and Semantics} establishes the conceptual framework, discussing the nature of semi-structured web data, the fundamentals of Information Extraction (IE), and the role of standardized taxonomies like ESCO and O*NET.
+    \item \textbf{Chapter 3: Background: Text Representation and Retrieval} explores the evolution of search from lexical keyword matching to modern semantic and hybrid retrieval techniques.
+    \item \textbf{Chapter 4: Related Work} provides a critical review of existing job posting analytics systems and the trade-offs between Large Language Models and lightweight production pipelines.
+\end{itemize}
+
+\textbf{Part II: System Design, Implementation, and Evaluation}
+\begin{itemize}
+    \item \textbf{Chapter 5: Methodology and System Overview} introduces the design goals, modular architecture, and the overall data flow of the proposed system.
+    \item \textbf{Chapter 6: Data Collection and Preprocessing} details the implementation of web scraping strategies, HTML parsing for clean text extraction, and a flexible heuristic-based system for handling multi-format JSON uploads.
+    \item \textbf{Chapter 7: Semantic Schema and Label Space} defines the core data model and the mapping strategies used to align raw text with the chosen taxonomies.
+    \item \textbf{Chapter 8: Lightweight Semantic Enrichment Pipeline} describes the NLP components, including NER and skill classification, optimized for low computational cost.
+    \item \textbf{Chapter 9: Storage, Indexing, and Search} details the dual-storage architecture (PostgreSQL and pgvector), the hybrid search index design combining lexical and semantic search, and the API endpoints for system integration.
+    \item \textbf{Chapter 10: Evaluation Setup} defines the objectives, ground truth construction, metrics, and the experimental framework used to assess the system's performance.
+    \item \textbf{Chapter 11: Results} presents the quantitative findings across extraction, classification, and retrieval tasks, along with an analysis of system efficiency.
+    \item \textbf{Chapter 12: Discussion} reflects on the experimental results, providing a detailed error analysis, evaluating the trade-offs between accuracy and cost, and identifying threats to validity.
+    \item \textbf{Chapter 13: Ethical, Legal, and Privacy Considerations} addresses the implications of automated recruitment data processing.
+    \item \textbf{Chapter 14} covers final conclusions and future work.
+\end{itemize}

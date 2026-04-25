@@ -1,0 +1,50 @@
+\chapter{Background: Information Extraction and Semantics}
+\section{Semi-Structured Web Data and Job Postings}
+Web-based job postings represent a prime example of semi-structured data. Unlike fully structured databases, these postings are primarily designed for human readability, often embedded within complex HTML structures. This presentation leads to several inherent challenges for automated processing:
+
+\begin{itemize}
+    \item \textbf{Noise and Boilerplate:} Job descriptions are frequently surrounded by non-relevant content, such as "About Us" sections, legal disclaimers, navigation menus, and "Equal Opportunity Employer" statements. Distinguishing the core job requirements from this noise is a critical first step.
+    \item \textbf{Layout Variability:} There is no universal standard for how a job post should be structured. Different platforms (e.g., LinkedIn, Indeed, Glassdoor) and individual company career pages use vastly different HTML layouts and CSS classes.
+    \item \textbf{Data Volatility and Expiry:} Job postings are ephemeral. Once a position is filled, the page may be removed or return a 404 error, making historical analysis and link consistency difficult.
+    \item \textbf{Redundancy and Duplication:} A single internship opportunity is often cross-posted across multiple job boards, sometimes with subtle variations in the title or formatting, necessitating robust deduplication strategies.
+\end{itemize}
+
+\section{Information Extraction (IE) Fundamentals}
+Information Extraction (IE) is the task of automatically pulling structured information from unstructured or semi-structured documents \cite{sarawagi2008information}. In the recruitment domain, IE aims to convert a block of text into a set of discrete attributes. Key components of IE include:
+
+\begin{itemize}
+    \item \textbf{Named Entity Recognition (NER):} The identification of entities such as company names, locations (cities, regions), and dates. For internship posts, this also extends to recognizing specific technologies and tools.
+    \item \textbf{Slot Filling and Template Extraction:} This involves populating a predefined schema with specific values extracted from the text, such as salary ranges, duration of the internship, and required degree levels.
+    \item \textbf{Rule-Based vs. Statistical Methods:} Traditional IE often relied on hand-crafted regular expressions (Regex) and gazetteers (dictionaries). Modern approaches favor machine learning models, though lightweight rule-based systems remain highly effective for structured patterns like currency and dates.
+    \item \textbf{Relation Extraction:} Identifying the semantic links between entities, such as confirming that a specific skill (e.g., "Python") is a "required" qualification rather than just "nice-to-have."
+\end{itemize}
+
+\section{Semantic Modeling}
+Semantic modeling provides the conceptual framework for organizing extracted data so that it can be queried and interpreted meaningfully by machines.
+
+\subsection{Schemas vs Ontologies vs Taxonomies}
+Understanding the distinction between these three concepts is vital for choosing the right level of complexity for a system:
+\begin{itemize}
+    \item \textbf{Taxonomies:} Hierarchical classifications that define "is-a" relationships (e.g., "Software Engineer" is a sub-type of "IT Professional"). They are primarily used for categorization and navigation.
+    \item \textbf{Ontologies:} The most expressive form, defining not just hierarchies but also complex relationships, properties, and constraints between concepts \cite{gruber1993translation}. They allow for logical reasoning and inference.
+    \item \textbf{Schemas:} A structural definition of a data model, specifying fields, types, and constraints (e.g., a JSON or SQL schema).
+\end{itemize}
+For this thesis, we adopt a \textit{lightweight schema-first approach}. While full ontologies offer great power, they are often too computationally expensive and difficult to maintain for the rapid, high-volume processing required for web-scraped job data.
+
+\subsection{Skill and Occupation Taxonomies}
+To avoid a fragmented data space where "Software Dev" and "Programmer" are treated as unrelated, we utilize standardized reference taxonomies:
+\begin{itemize}
+    \item \textbf{ESCO (European Skills, Competences, Qualifications and Occupations):} A multilingual classification system that maps thousands of skills to specific occupations, providing a common language for the labor market \cite{esco_portal}.
+    \item \textbf{O*NET (Occupational Information Network):} A comprehensive database developed by the US Department of Labor that defines the "DNA" of occupations, including required knowledge, skills, and abilities \cite{onet_online}.
+\end{itemize}
+In our pipeline, these taxonomies serve as canonical "anchor points" for mapping raw, noisy text to standardized labels.
+
+\section{Normalization and Canonicalization}
+Raw extracted data is rarely ready for end-user consumption or efficient search. Normalization and canonicalization are the processes of bringing data into a consistent format:
+
+\begin{itemize}
+    \item \textbf{Title Normalization:} Standardizing varied strings like "Sr. Software Eng.", "Senior Developer", and "SDE II" into a single canonical form (e.g., "Senior Software Engineer").
+    \item \textbf{Synonym and Alias Mapping:} Consolidating variations of the same skill, such as mapping "JS", "ECMAScript", and "Javascript" to the unique identifier "JavaScript".
+    \item \textbf{Value Standardization:} Converting heterogeneous data points—such as dates ("2 weeks ago" vs "2023-10-12") and salaries—into ISO-compliant formats and base units.
+    \item \textbf{Entity Resolution:} The process of determining whether two different postings refer to the same job opening at the same company, which is essential for accurate analytics.
+\end{itemize}

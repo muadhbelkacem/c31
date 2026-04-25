@@ -1,0 +1,23 @@
+\chapter{Related Work}
+The automation of recruitment and labor market analysis has seen significant progress with the advent of Natural Language Processing (NLP) and machine learning. This chapter reviews the existing literature and technological approaches relevant to job posting analytics, semantic alignment, and the trade-offs between modern large-scale models and specialized lightweight pipelines.
+
+\section{Job Posting Analytics and Skill Extraction}
+The extraction of structured information from job advertisements is a well-established research area, often referred to as Job Posting Analytics (JPA). Early approaches relied heavily on rule-based systems and gazetteers to identify key entities like job titles and locations \cite{tamburri2020data}. However, the high variability of natural language in job descriptions led to the adoption of statistical and deep learning methods.
+
+Recent research has focused on fine-tuning Transformer-based models, such as BERT, specifically for the recruitment domain. For instance, Bhola et al. \cite{bhola2020extracting} demonstrated that domain-specific pre-training significantly improves the accuracy of skill extraction compared to general-purpose NER models. Similarly, Sayfullina et al. \cite{sayfullina2018learning} explored the use of skill embeddings to capture the latent relationships between technologies, allowing systems to understand that "React" and "Vue" are semantically related even if they appear in different documents. Gnehm and Clematide \cite{gnehm2022extraction} further extended this by analyzing how the linguistic context of a skill (e.g., "required" vs. "beneficial") can be automatically classified to provide deeper insights into employer demands.
+
+\section{Ontology/Taxonomy Alignment in HR/Recruitment}
+A core challenge in HR tech is the "vocabulary gap" between different actors in the labor market. Standardized taxonomies like ESCO \cite{esco_portal} and O*NET \cite{onet_online} provide a common reference point, but mapping raw, non-standardized text to these hierarchies is a non-trivial task known as Entity Linking or Taxonomy Alignment.
+
+Literature in this area often discusses the trade-off between the expressiveness of full ontologies and the practical utility of flatter taxonomies. While ontologies can model complex relationships (e.g., "Python is a prerequisite for Data Science"), they often suffer from "ontology drift" as new technologies emerge. Lightweight semantic approaches focus on alignment at the embedding level, where raw strings are mapped to the nearest canonical concept in a vector space. This allows for a more flexible and maintainable system that can handle the rapid evolution of technical skills without requiring constant manual updates to a formal logic-based ontology.
+
+\section{LLM-based Pipelines vs Lightweight Pipelines}
+The emergence of Large Language Models (LLMs) like GPT-4 has introduced a new paradigm for Information Extraction. These models exhibit remarkable zero-shot and few-shot capabilities, often outperforming specialized fine-tuned models on complex extraction tasks without requiring extensive labeled datasets \cite{wei2023chatgpt}.
+
+However, recent comparative studies have highlighted several drawbacks of relying solely on LLMs for production-scale job posting pipelines:
+\begin{itemize}
+    \item \textbf{Latency and Throughput:} Processing thousands of scraped job posts per hour using cloud-based LLM APIs can be prohibitively slow and expensive.
+    \item \textbf{Consistency and Hallucination:} LLMs may occasionally "hallucinate" skills that are not present in the text or format the output inconsistently, complicating downstream database integration.
+    \item \textbf{Privacy and Data Sovereignty:} Sending sensitive recruitment data to external APIs may conflict with regional data protection regulations (e.g., GDPR).
+\end{itemize}
+In contrast, lightweight pipelines—combining optimized small-scale models (like DistilBERT) with heuristic rules and local vector databases—offer a more cost-effective and predictable alternative. This thesis argues for a hybrid approach where LLMs are used for high-quality data annotation and initial schema generation, while the runtime production system utilizes a lightweight, modular architecture for efficiency and control.

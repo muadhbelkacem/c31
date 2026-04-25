@@ -1,0 +1,43 @@
+\chapter{Lightweight Semantic Enrichment Pipeline}
+The semantic enrichment pipeline is the computational heart of the system, responsible for transforming the cleaned text generated in Chapter 6 into the structured schema defined in Chapter 7. To meet the design goals of efficiency and low latency, we implement a tiered architecture consisting of three layers of increasing complexity and cost.
+
+\section{Layer A: Rule-Based Extraction}
+Layer A serves as the high-throughput first pass of the pipeline. It utilizes deterministic patterns and lexical lookups to extract structured data with near-zero latency. By handling well-defined patterns first, we reduce the load on more computationally expensive neural models.
+
+\subsection{Patterns for Compensation, Dates, Location}
+Many critical data points in internship listings follow semi-standardized formats that are highly amenable to Regular Expression (Regex) extraction.
+\begin{itemize}
+    \item \textbf{Compensation:} We use patterns to identify currency symbols (\$, \euro, \pounds) followed by numeric ranges (e.g., "1500 - 2000"). The system also looks for keywords like "per month," "stipend," or "unpaid" to categorize the compensation type.
+    \item \textbf{Dates and Duration:} Internship durations (e.g., "3-6 months") and start dates (e.g., "Starting June 2024") are extracted using a library of temporal patterns. Relative dates like "Posted 2 days ago" are converted to absolute ISO dates using the ingestion timestamp.
+    \item \textbf{Location Extraction:} A gazetteer-based approach is used to identify cities and countries. If a location is found in the text that matches our internal geographic database, it is automatically normalized to its canonical form (e.g., "NYC" to "New York City").
+\end{itemize}
+
+\subsection{Seniority and Employment Type}
+While all listings in our dataset are internships, they often specify secondary levels of seniority or specific employment structures.
+\begin{itemize}
+    \item \textbf{Seniority Keywords:} We use a weighted keyword matching system for terms like "Lead," "Junior," "Associate," and "Student."
+    \item \textbf{Employment Type:} Patterns identify whether the role is "Full-time," "Part-time," or "Remote/Hybrid." Hybrid mentions are particularly important and are extracted by looking for keywords like "remote-friendly" or "2 days in office."
+\end{itemize}
+
+\subsection{Skill Matching with Lexicon}
+The primary skill extraction in Layer A relies on the alias tables defined in Section 7.3. We perform \textit{Aho-Corasick string matching} \cite{aho1975efficient}, which allows for the simultaneous searching of thousands of skill aliases in a single pass over the text. This method is significantly faster than multiple regex executions and ensures that technical terms like "C++" or ".NET" are captured accurately.
+
+\section{Layer B: Small-Model Mapping}
+Layer B is invoked for tasks where simple string matching is insufficient due to linguistic ambiguity or the need for semantic understanding. We utilize lightweight Transformer models that provide high accuracy with a fraction of the parameters of full-scale LLMs.
+
+\subsection{Title Normalization and Classification}
+Job titles are often idiosyncratic. To map a raw title like "Cloud Infrastructure Intern (DevOps focus)" to the canonical ESCO occupation "System Programmer," we use a \textit{bi-encoder} model (e.g., \texttt{all-MiniLM-L6-v2}) \cite{reimers2019sentence}. The raw title is embedded into a vector space, and a cosine similarity search is performed against the pre-computed embeddings of the ESCO occupation labels. The label with the highest similarity score above a predefined threshold is assigned to the document.
+
+\subsection{Domain Classification (Optional)}
+To further assist in filtering, we employ a multi-class classifier to identify the industry domain (e.g., FinTech, Healthcare, E-commerce). This is implemented as a simple linear layer on top of a frozen DistilBERT \cite{sanh2019distilbert} backbone, trained on a small labeled subset of job postings.
+
+\subsection{Confidence Scoring}
+Every extraction from Layer B is accompanied by a confidence score. For classification tasks, this is the softmax probability of the predicted class. For similarity-based mapping, it is the cosine distance. If the confidence score falls below a "doubt threshold" (e.g., 0.65), the field is flagged for either Layer C processing or manual human verification.
+
+\section{Layer C: Optional Fallback (Budgeted)}
+Layer C acts as the "final resort" for highly complex or ambiguous documents. It utilizes Large Language Models (LLMs) via an API (e.g., GPT-4o-mini).
+\begin{itemize}
+    \item \textbf{Triggering:} Layer C is only invoked if Layer B reports low confidence or if critical fields remain empty after the first two passes.
+    \item \textbf{Budgeted Execution:} To control costs, we use a "budgeting" strategy where only a small percentage (e.g., <5\%) of the total ingestion volume is sent to the LLM.
+    \item \textbf{Task-Specific Prompting:} The LLM is provided with the raw text and a specific instruction to "Extract the primary job role and top 5 skills from this text based on the provided list of categories." This structured prompt ensures that even the LLM output remains aligned with our semantic schema.
+\end{itemize}

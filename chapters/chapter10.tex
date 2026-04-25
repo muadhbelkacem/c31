@@ -1,0 +1,79 @@
+\chapter{Evaluation Setup}
+This chapter defines the framework for assessing the effectiveness and efficiency of the proposed semantic enrichment and retrieval system. We outline the evaluation objectives, the process of constructing a "ground truth" dataset, the metrics used for quantitative analysis, and the suite of baselines and ablations used for comparative study.
+
+\section*{Chapter Outline}
+This chapter is organized as follows:
+\begin{itemize}
+    \item \textbf{Section 10.1: Evaluation Objectives} outlines the core research questions and goals of the assessment.
+    \item \textbf{Section 10.2: Ground Truth Construction} details the manual annotation and sampling process for the "Gold Standard" dataset.
+    \item \textbf{Section 10.3: Metrics} defines the quantitative measures for extraction, classification, retrieval, and efficiency.
+    \item \textbf{Section 10.4: Baselines and Ablations} describes the comparative configurations used to isolate component contributions.
+\end{itemize}
+
+\section{Evaluation Objectives}
+The evaluation aims to answer four primary research questions:
+\begin{enumerate}
+    \item \textbf{Extraction Accuracy:} How accurately does the system extract structured fields (dates, compensation, skills) compared to human-annotated labels?
+    \item \textbf{Semantic Alignment:} How well does the bi-encoder map noisy job titles to canonical ESCO occupations?
+    \item \textbf{Retrieval Quality:} Does the hybrid search strategy outperform traditional keyword-only search in terms of relevance and recall?
+    \item \textbf{System Efficiency:} What is the computational overhead (latency and throughput) of the enrichment pipeline on commodity hardware?
+\end{enumerate}
+
+\section{Ground Truth Construction}
+To evaluate the system, we curated a "Gold Standard" evaluation set consisting of 500 internship listings.
+\begin{itemize}
+    \item \textbf{Sampling:} 400 listings were randomly sampled from the web-scraped dataset, and 100 listings were selected from the user-uploaded JSONs to ensure diversity.
+    \item \textbf{Annotation Process:} Two human annotators (domain experts) manually labeled each listing according to the target schema defined in Chapter 7. Inter-annotator agreement was measured using Cohen's Kappa, with a score of 0.82 indicating high reliability.
+    \item \textbf{Retrieval Ground Truth:} For the retrieval evaluation, a set of 20 common internship search queries (e.g., "Python data science intern Berlin") was used. Annotators marked each result in the Top-10 as "Highly Relevant," "Relevant," or "Irrelevant."
+\end{itemize}
+
+\section{Metrics}
+We utilize a multi-faceted set of metrics to capture different aspects of system performance.
+
+\subsection{Field-Level Extraction}
+For entities like dates, compensation, and locations, we use:
+\begin{itemize}
+    \item \textbf{Precision (P):} The proportion of extracted entities that are correct.
+    \item \textbf{Recall (R):} The proportion of ground truth entities correctly extracted.
+    \item \textbf{F1-Score:} The harmonic mean of precision and recall.
+\end{itemize}
+
+\subsection{Classification}
+For job role mapping and skill categorization, we use:
+\begin{itemize}
+    \item \textbf{Accuracy:} The percentage of documents where the predicted class matches the ground truth.
+    \item \textbf{Top-3 Accuracy:} The percentage of documents where the correct label is within the system's top 3 predictions (relevant for the bi-encoder mapping).
+\end{itemize}
+
+\subsection{Retrieval}
+For the search engine evaluation, we use standard Information Retrieval (IR) metrics:
+\begin{itemize}
+    \item \textbf{Precision@k (P@k):} Precision at rank $k$ (typically $k=1, 5, 10$).
+    \item \textbf{Mean Average Precision (MAP):} A global measure of ranking quality.
+    \item \textbf{NDCG (Normalized Discounted Cumulative Gain):} Accounts for the graded relevance levels of the results.
+\end{itemize}
+
+\subsection{Efficiency}
+\begin{itemize}
+    \item \textbf{Throughput:} Documents processed per second during ingestion.
+    \item \textbf{Search Latency:} Time taken (in milliseconds) to return a ranked list of results for a query.
+    \item \textbf{Memory Footprint:} RAM usage of the vector index and the Transformer models.
+\end{itemize}
+
+\section{Baselines and Ablations}
+To isolate the contribution of each component, we compare our proposed system against several baselines and ablation variants.
+
+\subsection{Baselines}
+\begin{itemize}
+    \item \textbf{Baseline 1: Keyword-Only Search (No Enrichment):} A traditional BM25 search on the raw, unprocessed text. This represents the "unstructured" state of the data.
+    \item \textbf{Baseline 2: Rules-Only Extraction:} Using only Layer A (Regex and Lexicons) for extraction, skipping the Transformer-based mapping and classification.
+    \item \textbf{Baseline 3: Rules + Small-Model Mapping:} The core proposed system (Layers A + B), representing the standard "lightweight" configuration.
+\end{itemize}
+
+\subsection{Ablations}
+We systematically disable specific features of the pipeline to measure their impact:
+\begin{itemize}
+    \item \textbf{Remove Title Normalization:} Disabling the bi-encoder mapping for job titles and relying solely on the raw title string for search.
+    \item \textbf{Remove Synonym Table:} Using the ESCO preferred labels for skill matching without the manually curated alias tables.
+    \item \textbf{Remove Section Weighting:} Treating all parts of the job posting (e.g., "About the Company" vs. "Requirements") with equal importance during search ranking.
+\end{itemize}
