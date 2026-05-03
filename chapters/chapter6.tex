@@ -1,40 +1,48 @@
 \chapter{Data Collection and Preprocessing}
-This chapter details the implementation of the data acquisition, sanitization, and enrichment pipeline. The system transforms raw, heterogeneous internship listings into a structured format suitable for the application's search and recommendation engines, using a series of specialized processing functions defined in the \texttt{data.ts} library.
+This chapter details the implementation of the data acquisition, sanitization, and enrichment pipeline. The system transforms raw, heterogeneous internship listings into a structured format suitable for the application's search and recommendation engines, leveraging a series of specialized processing functions defined in the \texttt{data.ts} library.
 
 \section{Data Ingestion Pipeline}
-The system implements an asynchronous ingestion mechanism that retrieves internship data from a local repository.
+The system implements an asynchronous ingestion mechanism designed to retrieve and validate internship data from a local JSON repository.
 
 \begin{itemize}
-    \item \textbf{Source Acquisition:} Data is stored in \texttt{public/intern\_data.json}. The \texttt{getInternships()} function utilizes the Node.js \texttt{fs.promises} API to read the file asynchronously, ensuring non-blocking I/O operations.
-    \item \textbf{Initial Validation:} Before parsing, the system performs "sanity checks" on the raw file content. It detects empty files and specifically checks if the content starts with HTML/XML tags (e.g., \texttt{<}), which often indicates an error page served by a web server instead of the intended JSON payload.
-    \item \textbf{Structural Parsing:} The content is parsed into a TypeScript \texttt{Internship} interface, which defines fields including \texttt{title}, \texttt{company}, \texttt{location}, \texttt{salary}, \texttt{description}, \texttt{skills}, and \texttt{category}.
+    \item \textbf{Source Acquisition:} Data is persisted in \texttt{public/intern\_data.json}. The \texttt{getInternships()} function utilizes the Node.js \texttt{fs.promises} API to read the file asynchronously, ensuring non-blocking I/O operations which is critical for performance in a Next.js environment.
+    \item \textbf{Initial Validation:} Before parsing, the system performs "sanity checks" on the raw file content. It detects empty files and specifically monitors for content starting with HTML/XML tags (e.g., \texttt{<}), which often indicates an error page served by a web server (e.g., a 404 or 500 HTML response) instead of the intended JSON payload.
+    \item \textbf{Structural Parsing:} The content is parsed into a TypeScript \texttt{Internship} interface. This interface enforces a strict schema including fields such as \texttt{id}, \texttt{title}, \texttt{company}, \texttt{location}, \texttt{salary}, \texttt{description}, \texttt{skills}, \texttt{category}, and \texttt{duration}.
 \end{itemize}
 
 \section{Preprocessing and Sanitization}
-Raw data from scrapers often contains inconsistent formatting. The system applies several sanitization layers:
+Raw data obtained from web scrapers often contains inconsistent formatting, redundant whitespace, or missing fields. The system applies several sanitization layers to ensure data integrity:
 
 \begin{itemize}
-    \item \textbf{Field Normalization:} Functions like \texttt{cleanTitle}, \texttt{cleanCompany}, and \texttt{cleanLocation} strip leading/trailing whitespace and provide fallback strings (e.g., "Position Not Specified") to prevent UI breaks.
-    \item \textbf{Salary Extraction:} The \texttt{cleanSalary} function uses regular expressions to extract structured currency information. It specifically targets patterns such as \texttt{\$[\textbackslash d\textbackslash .,]+[KMB]?\textbackslash s*[–-]\textbackslash s*\$[\textbackslash d\textbackslash .,]+[KMB]?} to capture both single values and ranges (e.g., "\$50K - \$70K/year").
-    \item \textbf{Description Cleaning:} The \texttt{cleanDescription} function processes raw text by splitting it into lines, trimming each line, and removing empty lines. This preserves the structural intent (like bullet points) while removing unnecessary whitespace bloat.
+    \item \textbf{Field Normalization:} Functions like \texttt{cleanTitle}, \texttt{cleanCompany}, and \texttt{cleanLocation} trim leading and trailing whitespace. If a field is missing or empty, the system provides descriptive fallbacks (e.g., "Position Not Specified") to prevent UI rendering errors or "null" displays.
+    \item \textbf{Salary Extraction:} The \texttt{cleanSalary} function employs regular expressions to extract structured currency information from varied text strings. It targets patterns such as \texttt{\$[\textbackslash d\textbackslash .,]+[KMB]?\textbackslash s*[–-]\textbackslash s*\$[\textbackslash d\textbackslash .,]+[KMB]?} to capture both single values and ranges (e.g., "\$50K - \$70K/year"). This normalization is essential for future filtering features.
+    \item \textbf{Description Cleaning:} To maintain readability while preserving structural intent (such as bullet points), the \texttt{cleanDescription} function splits the text by line breaks, trims each segment, and filters out empty lines. This process removes unnecessary "whitespace bloat" often introduced during the scraping of HTML content.
 \end{itemize}
 
 \section{Data Enrichment and Categorization}
-The system enriches the raw listings with derived metadata to improve searchability.
+The system enriches the raw listings with derived metadata to improve the user experience and searchability.
 
-\subsection{Stable Identifier Generation}
-To ensure persistent referencing and duplicate detection, the \texttt{generateId} function creates a URL-friendly slug. It converts the title and company name to lowercase, removes non-alphanumeric characters (via the regex \texttt{/[^a-z0-9\textbackslash s-]/g}), and replaces whitespace with hyphens. A counter-based mechanism is used during ingestion to handle collisions (e.g., \texttt{software-engineer-google-1}).
+\subsection{Stable Identifier Generation and Collision Handling}
+To ensure persistent referencing and effective duplicate detection, the \texttt{generateId} function creates a URL-friendly slug.
+\begin{enumerate}
+    \item The title and company name are converted to lowercase.
+    \item Non-alphanumeric characters are removed using the regular expression \texttt{/[^a-z0-9\textbackslash s-]/g}.
+    \item Whitespace is replaced with hyphens, and multiple hyphens are collapsed into one.
+\end{enumerate}
+To handle "collisions" (multiple postings with the same title from the same company), the ingestion pipeline maintains a \texttt{Set} of seen IDs. If a duplicate is detected, a counter-based suffix is appended (e.g., \texttt{software-engineer-google-1}), ensuring every internship has a unique, predictable URI.
 
 \subsection{Keyword-Based Categorization}
-The \texttt{categorizeJob} function automatically assigns roles to high-level categories using keyword matching:
+The \texttt{categorizeJob} function automatically assigns roles to high-level categories using keyword matching on the job title. This facilitates high-level filtering in the user interface:
 \begin{itemize}
-    \item \textbf{Software:} Keywords: \textit{software, developer, engineer}.
-    \item \textbf{Data/AI:} Keywords: \textit{data, analyst, ai, scientist}.
-    \item \textit{Other categories include Design, Marketing, and Healthcare, with Business as the default fallback.}
+    \item \textbf{Software:} Identified by keywords: \textit{software, developer, engineer}.
+    \item \textbf{Data/AI:} Identified by keywords: \textit{data, analyst, ai, scientist}.
+    \item \textbf{Design:} Identified by keywords: \textit{design, ux, ui}.
+    \item \textbf{Healthcare:} Identified by keywords: \textit{pharmacist, health, medical}.
+    \item \textit{Marketing and Business serve as additional categories, with Business acting as the default fallback.}
 \end{itemize}
 
 \subsection{Skill Extraction}
-The system extracts technical skills from the job description by matching text against a predefined set of keywords (e.g., \textit{JavaScript, Python, React, AWS}). The \texttt{extractSkills} function identifies these keywords in a case-insensitive manner and returns a normalized list of the top five detected skills.
+The system extracts technical and soft skills from the job description by matching text against a predefined set of over 30 keywords (e.g., \textit{JavaScript, Python, AWS, Figma}). The \texttt{extractSkills} function performs case-insensitive matching and uses a \texttt{Set} to ensure uniqueness. To maintain a clean UI, only the top five detected skills are returned for each listing.
 
 \section{Performance Optimization}
-To minimize overhead in the Next.js environment, the processed dataset is stored in an in-memory cache (\texttt{cachedInternships}). Subsequent calls to \texttt{getInternships()} return the cached array directly, avoiding redundant filesystem reads and re-processing of the sanitization pipeline.
+To minimize I/O overhead and redundant processing, the system implements an in-memory caching strategy. The processed dataset is stored in a module-level variable \texttt{cachedInternships}. Subsequent requests to the data layer return the cached array directly, bypassing the filesystem and the entire sanitization/enrichment pipeline for follow-up requests. This significantly improves response times for the API routes and server-side rendering.
