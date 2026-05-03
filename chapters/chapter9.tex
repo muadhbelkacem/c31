@@ -1,45 +1,47 @@
 \chapter{Storage, Indexing, and Persistence}
 This chapter describes the data persistence and retrieval mechanisms that power the internship search platform. We detail the hybrid storage strategy that combines local file-based data for the internship catalog with cloud-based relational storage for user interactions, as implemented using Next.js and Supabase.
 
-\section{Hybrid Data Storage}
-The system adopts a hybrid approach to data management, balancing the speed of local access with the persistence of a managed database.
+\section{Hybrid Data Storage Architecture}
+The system adopts a hybrid approach to data management, balancing the high-speed read requirements of a large catalog with the transactional persistence needed for user-specific features.
 
-\subsection{Static Catalog (JSON)}
-The primary repository for internship listings is the \texttt{intern\_data.json} file.
+\subsection{Static Catalog and Data Normalization}
+The primary repository for internship listings is a large-scale \texttt{intern\_data.json} file containing over 17,500 records. To ensure data integrity, the system implements a robust ingestion pipeline:
 \begin{itemize}
-    \item \textbf{High-Speed Ingestion:} During server startup or API requests, the system reads this file into memory.
-    \item \textbf{Schema Consistency:} The raw JSON is transformed into the typed \texttt{Internship} interface, ensuring that all subsequent operations are performed on structured data.
+    \item \textbf{Data Cleaning:} Raw strings for titles, companies, and salaries are normalized. For instance, the system extracts numeric ranges from diverse salary text formats and removes redundant whitespace from descriptions.
+    \item \textbf{Stable Identifier Generation:} Since the source JSON lacks unique keys, the system generates deterministic "slug" IDs based on the internship title and company name (e.g., \texttt{software-engineer-google}). A collision detection algorithm appends incremental suffixes to handle identical roles at the same company.
+    \item \textbf{Type Safety:} During ingestion, the raw objects are transformed into the \texttt{Internship} TypeScript interface, enforcing schema consistency across the application.
 \end{itemize}
 
 \subsection{Relational Persistence (Supabase)}
-For dynamic data and user-specific state, the system integrates with Supabase (a backend-as-a-service built on PostgreSQL).
+For dynamic user state, the system utilizes Supabase, a backend-as-a-service leveraging PostgreSQL.
 \begin{itemize}
-    \item \textbf{User Management:} Authentication and session management are handled via Supabase Auth.
-    \item \textbf{Saved Roles Table:} A dedicated table, \texttt{saved\_roles}, stores the association between \texttt{user\_id} and \texttt{role\_id}. It also persists a snapshot of the \texttt{internship\_data} to ensure that users can view their saved roles even if the underlying JSON catalog is updated.
+    \item \textbf{Authentication:} Supabase Auth manages user sessions and provides the \texttt{user\_id} context required for data isolation.
+    \item \textbf{Persistence Strategy:} The \texttt{saved\_roles} table stores the association between users and their bookmarked internships.
+    \item \textbf{Snapshotting:} To maintain UI consistency, the system persists a snapshot of the internship data at the time of saving. This prevents "broken links" in the user's dashboard if the underlying JSON catalog is updated or if a record is removed during a refresh.
 \end{itemize}
 
-\section{Indexing and Performance Optimization}
-To provide a responsive user experience, the system implements several layers of caching and indexing.
+\section{Indexing and Metadata Enrichment}
+Beyond simple storage, the system enriches the data to facilitate efficient discovery.
 
-\subsection{In-Memory Caching}
-The API layer (\texttt{route.ts}) implements a server-side cache for the processed internship data.
+\subsection{Heuristic Categorization}
+As the source data is often unstructured, the system performs real-time metadata enrichment:
 \begin{itemize}
-    \item \textbf{Cache TTL:} A 5-minute Time-To-Live (TTL) ensures that the expensive operations of reading, parsing, and cleaning 17,500+ records are not performed on every request.
-    \item \textbf{Global State:} The \texttt{cachedInternships} variable serves as a high-speed "in-memory index" for the application.
+    \item \textbf{Category Mapping:} A keyword-based heuristic classifies roles into domains such as Software, Data/AI, Design, or Healthcare.
+    \item \textbf{Skill Extraction:} The system parses the job descriptions against a predefined taxonomy of 40+ technical and soft skills (e.g., React, Python, Communication), creating a tag-based index for each record.
 \end{itemize}
 
-\subsection{Client-Side State Management}
-On the frontend, the \texttt{useSavedRoles} hook provides an optimized interface for interacting with the persistence layer. It utilizes React's \texttt{useCallback} and \texttt{useEffect} to manage the synchronization between the local UI state and the Supabase database, minimizing redundant network calls.
+\subsection{Performance Optimization}
+To handle the overhead of processing 17,000+ records, two layers of caching are implemented:
+\begin{itemize}
+    \item \textbf{Server-Side In-Memory Cache:} The API layer implements a singleton pattern for the processed dataset with a 5-minute Time-To-Live (TTL). This ensures that expensive parsing and cleaning operations are only performed once per interval rather than on every HTTP request.
+    \item \textbf{Client-Side State Synchronization:} The \texttt{useSavedRoles} hook utilizes React state and asynchronous effects to minimize network latency when toggling saved states, providing an optimistic UI experience.
+\end{itemize}
 
 \section{Retrieval and API Design}
-The system's search and retrieval capabilities are exposed via Next.js Route Handlers.
+The system's data access layer is exposed via Next.js Route Handlers, designed for resilience and scalability.
 
-\subsection{Internship API}
-The \texttt{GET /api/internship} endpoint serves as the primary data source for the application.
-\begin{itemize}
-    \item \textbf{Data Transformation:} The endpoint returns the fully enriched and cleaned dataset, including extracted skills and categories.
-    \item \textbf{Error Resilience:} The API is designed to fail gracefully, returning an empty array and logging specific error types (e.g., JSON Syntax Errors) instead of crashing the client application.
-\end{itemize}
+\subsection{The Internship API}
+The \texttt{GET /api/internship} endpoint serves as the unified data source. It is designed with "fail-safe" logic: if the JSON catalog is corrupted or missing, the API returns an empty dataset and logs the specific error (e.g., SyntaxError) to prevent a cascading failure in the frontend.
 
-\subsection{Search and Similarity}
-While the current implementation focuses on exact filtering, the \texttt{findSimilarInternships} utility in the library provides a foundation for recommendation. It identifies related roles within the processed dataset, facilitating discovery beyond direct search queries.
+\subsection{Search and Similarity Foundations}
+The architecture includes a \texttt{findSimilarInternships} utility. While current filtering relies on category matches, the utility is structured to support future recommendation engines by leveraging the enriched skill tags and category metadata generated during the storage phase.
