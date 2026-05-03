@@ -1,5 +1,5 @@
 \chapter{Methodology and System Overview}
-This chapter details the methodology for the lightweight semantic structuring of internship listings. We outline the design philosophy, the architectural components of the pipeline, and the end-to-end data flow that transforms raw web content into a structured, searchable knowledge base, implemented using a Next.js and TypeScript framework.
+This chapter details the methodology for the lightweight semantic structuring of internship listings. We outline the design philosophy, the architectural components of the pipeline, and the end-to-end data flow that transforms raw web content into a structured, searchable knowledge base, implemented using the Next.js App Router and TypeScript.
 
 \section{Design Goals and Constraints}
 To address the challenges identified in the recruitment domain, the system is developed with the following primary objectives:
@@ -8,31 +8,31 @@ To address the challenges identified in the recruitment domain, the system is de
     \item \textbf{Low Computational Cost:} The system utilizes heuristic-based extraction and keyword mapping instead of heavy Large Language Model (LLM) inference for initial processing. This ensures high throughput and low latency during data ingestion and retrieval.
     \item \textbf{Robustness to Noisy Text:} The pipeline handles inconsistent formatting from diverse scrapers and user-provided JSON sources through dedicated cleaning and validation layers, ensuring data integrity.
     \item \textbf{Explainability:} Extraction decisions, such as skill identification and job categorization, are based on explicit keyword mappings and regular expression patterns. This makes the results traceable and avoids the "black box" nature of pure machine learning approaches.
-    \item \textbf{Scalability and Performance:} By employing in-memory caching with a Time-To-Live (TTL) mechanism, the system minimizes expensive file I/O operations and provides rapid response times for frontend requests.
+    \item \textbf{Scalability and Performance:} By employing in-memory caching with a 5-minute Time-To-Live (TTL) mechanism, the system minimizes expensive file I/O operations and provides rapid response times for frontend requests.
 \end{itemize}
 
 \section{Proposed Architecture}
 The system follows a modern full-stack architecture using the Next.js App Router, optimized for efficient data processing and presentation. The architecture is modularized into distinct layers:
 
 \begin{enumerate}
-    \item \textbf{Data Storage Layer:} The primary data source is a structured \texttt{intern\_data.json} file located in the \texttt{public} directory, complemented by Supabase for user-related persistence (e.g., saved roles).
-    \item \textbf{Data Access and Utility Layer (\texttt{lib/data.ts}):} This layer encapsulates the core business logic. It handles file reading via the Node.js \texttt{fs} module, implements data cleaning functions (\texttt{cleanTitle}, \texttt{cleanSalary}), and performs semantic extraction (skills and categories).
-    \item \textbf{API Layer (Next.js Route Handlers):} RESTful endpoints, such as \texttt{/api/internship}, serve as the bridge between the data layer and the frontend. This layer implements a server-side caching strategy to store processed results in memory.
+    \item \textbf{Data Storage Layer:} The primary data source is a structured \texttt{intern\_data.json} file located in the \texttt{public} directory. For user-specific persistence, such as saved roles, the system integrates with Supabase via \texttt{app/lib/supabase-client.ts}.
+    \item \textbf{Data Access and Utility Layer (\texttt{app/lib/data.ts}):} This layer encapsulates the core business logic. It defines the \texttt{Internship} interface and handles file reading via the Node.js \texttt{fs} module. It implements data cleaning functions (\texttt{cleanTitle}, \texttt{cleanSalary}) and performs semantic extraction (skills and categories).
+    \item \textbf{API Layer (\texttt{app/api/internship/route.ts}):} RESTful endpoints serve as the bridge between the data layer and the frontend. This layer implements the server-side caching strategy using a global \texttt{cachedInternships} variable.
     \item \textbf{Presentation Layer (React Components):} A responsive frontend built with TypeScript and React components (e.g., \texttt{InternshipList}, \texttt{RoleDetails}) consumes the API to display structured listings and facilitate real-time search and filtering.
 \end{enumerate}
 
 \section{Data Flow and Processing Pipeline}
-The transformation of raw data into a structured knowledge base follows a well-defined pipeline within the \texttt{getProcessedData} and \texttt{getInternships} functions:
+The transformation of raw data into a structured knowledge base follows a well-defined pipeline within the \texttt{getProcessedData} function:
 
 \begin{enumerate}
-    \item \textbf{Ingestion and Validation:} Raw JSON entries are loaded and passed through an \texttt{isValidInternship} check, which ensures that mandatory fields like \texttt{title} and \texttt{company} are present and non-empty.
-    \item \textbf{Sanitization:} Individual fields are normalized. The \texttt{cleanDescription} function removes unnecessary whitespace and line breaks, while \texttt{cleanTitle}, \texttt{cleanCompany}, and \texttt{cleanLocation} provide fallback values (e.g., "Position Not Specified") for missing data.
-    \item \textbf{Deterministic ID Generation:} To facilitate stable routing and deep linking, a unique identifier is generated for each listing using the \texttt{generateId} function. This converts the title and company into a URL-friendly slug. To handle potential collisions (duplicate title-company pairs), a sequential counter is appended to the ID.
+    \item \textbf{Ingestion and Validation:} Raw JSON entries are loaded and passed through an \texttt{isValidInternship} check, which ensures that mandatory fields--specifically \texttt{title} and \texttt{company}--are present and non-empty.
+    \item \textbf{Sanitization:} Individual fields are normalized. The \texttt{cleanDescription} function removes unnecessary line breaks and trims whitespace. The \texttt{cleanTitle}, \texttt{cleanCompany}, and \texttt{cleanLocation} functions provide fallback values (e.g., "Position Not Specified") for missing data.
+    \item \textbf{Deterministic ID Generation:} To facilitate stable routing and deep linking, a unique identifier is generated for each listing using the \texttt{generateId} function. This converts the title and company into a URL-friendly slug using the regex \texttt{/[^a-z0-9\s-]/g}. To handle potential collisions (duplicate title-company pairs), a sequential counter is appended to the ID (e.g., \texttt{software-engineer-google-1}).
     \item \textbf{Semantic Extraction:}
         \begin{itemize}
-            \item \textbf{Skill Mapping:} The \texttt{extractSkills} function performs keyword matching against a predefined lexicon of over 30 technical and soft skills (e.g., Python, React, Communication). It identifies up to five relevant skills per listing.
-            \item \textbf{Heuristic Categorization:} The \texttt{categorizeJob} function uses title-based heuristics to map internships into broad domains such as \texttt{Software}, \texttt{Data/AI}, \texttt{Design}, and \texttt{Healthcare}.
-            \item \textbf{Salary Parsing:} Regular expressions (\texttt{/\$[\d\.,]+[KMB]?/i}) are employed in \texttt{cleanSalary} to extract standardized currency ranges from unstructured text.
+            \item \textbf{Skill Mapping:} The \texttt{extractSkills} function performs keyword matching against a predefined lexicon of technical and soft skills, including languages (Python, Java, C++), frameworks (React, Node.js), and domains (AI, UX, Marketing). It identifies up to five unique skills per listing.
+            \item \textbf{Heuristic Categorization:} The \texttt{categorizeJob} function uses title-based heuristics to map internships into six domains: \texttt{Software}, \texttt{Data/AI}, \texttt{Design}, \texttt{Marketing}, \texttt{Healthcare}, and \texttt{Business}.
+            \item \textbf{Salary Parsing:} A sophisticated regular expression (\texttt{/\$[\d\.,]+[KMB]?\s*[–\-]\s*\$[\d\.,]+[KMB]?(?:\/[a-z]+)?/i}) is employed in \texttt{cleanSalary} to extract standardized currency ranges from unstructured text, handling both single values and ranges.
         \end{itemize}
-    \item \textbf{Caching Strategy:} To optimize performance, the processed data is stored in a global variable (\texttt{cachedInternships}) with a \texttt{CACHE\_TTL} set to 5 minutes. Subsequent API requests within this window are served directly from memory, bypassing the parsing and extraction pipeline.
+    \item \textbf{Caching Strategy:} To optimize performance, the processed data is stored in memory with a \texttt{CACHE\_TTL} of 300,000 milliseconds (5 minutes). Subsequent API requests within this window are served directly from the \texttt{cachedInternships} variable, bypassing the parsing and extraction pipeline.
 \end{enumerate}
