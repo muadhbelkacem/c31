@@ -1,73 +1,45 @@
-\chapter{Storage, Indexing, and Search}
-This chapter describes the persistence layer and retrieval mechanisms that power the internship search platform. We detail the dual-storage architecture designed to support both structured metadata queries and high-dimensional semantic search, followed by the hybrid retrieval strategy that combines lexical and dense vector scores.
+\chapter{Storage, Indexing, and Persistence}
+This chapter describes the data persistence and retrieval mechanisms that power the internship search platform. We detail the hybrid storage strategy that combines local file-based data for the internship catalog with cloud-based relational storage for user interactions, as implemented using Next.js and Supabase.
 
-\section*{Chapter Outline}
-This chapter is organized as follows:
+\section{Hybrid Data Storage}
+The system adopts a hybrid approach to data management, balancing the speed of local access with the persistence of a managed database.
+
+\subsection{Static Catalog (JSON)}
+The primary repository for internship listings is the \texttt{intern\_data.json} file.
 \begin{itemize}
-    \item \textbf{Section 9.1: Data Storage Model} describes the dual-storage architecture using PostgreSQL and pgvector.
-    \item \textbf{Section 9.2: Search Index Design} details the lexical (BM25) and semantic (HNSW) indexing strategies.
-    \item \textbf{Section 9.3: Hybrid Retrieval Strategy} explains the score fusion using Reciprocal Rank Fusion (RRF).
-    \item \textbf{Section 9.4: API Endpoints} outlines the RESTful interfaces for search and data ingestion.
+    \item \textbf{High-Speed Ingestion:} During server startup or API requests, the system reads this file into memory.
+    \item \textbf{Schema Consistency:} The raw JSON is transformed into the typed \texttt{Internship} interface, ensuring that all subsequent operations are performed on structured data.
 \end{itemize}
 
-\section{Data Storage Model}
-The storage layer is designed to balance the need for relational integrity with the performance requirements of vector-based search. We adopt a \textbf{dual-storage architecture}.
-
-\subsection{Relational Storage (PostgreSQL)}
-PostgreSQL serves as the system of record for all persistent data. It handles:
+\subsection{Relational Persistence (Supabase)}
+For dynamic data and user-specific state, the system integrates with Supabase (a backend-as-a-service built on PostgreSQL).
 \begin{itemize}
-    \item \textbf{Core Metadata:} Storing the `StructuredDocument` fields defined in Chapter 7, including job titles, company names, and canonical IDs for occupations and skills.
-    \item \textbf{System State:} Managing ingestion logs, source tracking (URLs, file hashes), and user-generated data (e.g., saved searches).
-    \item \textbf{JSONB Integration:} We utilize the `JSONB` data type for semi-structured fields that may vary between sources, such as specific "benefits" or "nice-to-have" requirements that are not yet part of the canonical schema.
+    \item \textbf{User Management:} Authentication and session management are handled via Supabase Auth.
+    \item \textbf{Saved Roles Table:} A dedicated table, \texttt{saved\_roles}, stores the association between \texttt{user\_id} and \texttt{role\_id}. It also persists a snapshot of the \texttt{internship\_data} to ensure that users can view their saved roles even if the underlying JSON catalog is updated.
 \end{itemize}
 
-\subsection{Vector Storage (pgvector)}
-For semantic retrieval, we utilize the `pgvector` extension for PostgreSQL. This allows us to store the 384-dimensional SBERT embeddings directly alongside the relational data. By keeping embeddings in the same database, we simplify the architecture and avoid the synchronization challenges associated with managing a separate vector database (like Milvus or Pinecone).
+\section{Indexing and Performance Optimization}
+To provide a responsive user experience, the system implements several layers of caching and indexing.
 
-\section{Search Index Design}
-To provide low-latency search results, we maintain two distinct types of indices: lexical and semantic.
-
-\subsection{Lexical Index (GIN/BM25)}
-A Generalized Inverted Index (GIN) is built on the cleaned description and title fields.
+\subsection{In-Memory Caching}
+The API layer (\texttt{route.ts}) implements a server-side cache for the processed internship data.
 \begin{itemize}
-    \item \textbf{Tokenization:} Text is tokenized using a domain-specific analyzer that preserves technical abbreviations (e.g., "C\#", ".NET").
-    \item \textbf{Ranking Model:} We configure the text search to use a BM25-based scoring algorithm, which provides superior relevance for exact keyword matches compared to standard TF-IDF.
+    \item \textbf{Cache TTL:} A 5-minute Time-To-Live (TTL) ensures that the expensive operations of reading, parsing, and cleaning 17,500+ records are not performed on every request.
+    \item \textbf{Global State:} The \texttt{cachedInternships} variable serves as a high-speed "in-memory index" for the application.
 \end{itemize}
 
-\subsection{Semantic Index (HNSW)}
-The dense vectors are indexed using the \textbf{Hierarchical Navigable Small World (HNSW)} algorithm.
+\subsection{Client-Side State Management}
+On the frontend, the \texttt{useSavedRoles} hook provides an optimized interface for interacting with the persistence layer. It utilizes React's \texttt{useCallback} and \texttt{useEffect} to manage the synchronization between the local UI state and the Supabase database, minimizing redundant network calls.
+
+\section{Retrieval and API Design}
+The system's search and retrieval capabilities are exposed via Next.js Route Handlers.
+
+\subsection{Internship API}
+The \texttt{GET /api/internship} endpoint serves as the primary data source for the application.
 \begin{itemize}
-    \item \textbf{Parameters:} We set the construction parameters to $M=16$ and $ef\_construction=64$, providing a balance between indexing speed and retrieval recall.
-    \item \textbf{Approximate Search:} HNSW allows the system to find the "Top-K" most semantically similar documents in sub-linear time, which is essential for real-time user interaction.
+    \item \textbf{Data Transformation:} The endpoint returns the fully enriched and cleaned dataset, including extracted skills and categories.
+    \item \textbf{Error Resilience:} The API is designed to fail gracefully, returning an empty array and logging specific error types (e.g., JSON Syntax Errors) instead of crashing the client application.
 \end{itemize}
 
-\section{Hybrid Retrieval Strategy}
-The core search functionality employs a hybrid strategy to leverage the precision of keyword matching and the recall of semantic search.
-
-\subsection{Reciprocal Rank Fusion (RRF)}
-To combine scores from the BM25 index and the HNSW vector index, we implement \textbf{Reciprocal Rank Fusion (RRF)}. As defined in Equation \ref{eq:rrf}, RRF allows us to merge two ranked lists without needing to normalize the raw scores from disparate systems. This ensures that a document that ranks high in \textit{either} lexical or semantic search remains highly visible to the user.
-
-\subsection{The Retrieval Pipeline}
-The hybrid retrieval follows a two-stage process:
-\begin{enumerate}
-    \item \textbf{Candidate Retrieval:} The system fetches the top 100 results from the lexical index and the top 100 results from the vector index.
-    \item \textbf{Re-ranking and Fusion:} The RRF algorithm merges these lists. Any hard filters (e.g., "Location = New York" or "Skill = Python") are applied as SQL constraints during the initial retrieval to ensure the search remains efficient.
-\end{enumerate}
-
-\section{API Endpoints}
-The system's functionality is exposed via a RESTful API, facilitating integration with the frontend application and external tools.
-
-\subsection{Core Search API}
-The primary endpoint is `GET /api/v1/search`. It accepts the following parameters:
-\begin{itemize}
-    \item `q`: The natural language query string.
-    \item `filters`: A JSON object for hard constraints (skills, level, location).
-    \item `alpha`: A weighting parameter (0.0 to 1.0) to manually adjust the balance between lexical and semantic search (default is 0.5).
-    \item `limit/offset`: Standard pagination parameters.
-\end{itemize}
-
-\subsection{Ingestion and Analytics API}
-\begin{itemize}
-    \item `POST /api/v1/upload/json`: Handles manual file uploads, triggering the mapping heuristics defined in Section 6.3.
-    \item `GET /api/v1/stats`: Returns aggregate data for the dashboard, such as "Top 10 most demanded skills this week" or "Distribution of roles by industry."
-\end{itemize}
+\subsection{Search and Similarity}
+While the current implementation focuses on exact filtering, the \texttt{findSimilarInternships} utility in the library provides a foundation for recommendation. It identifies related roles within the processed dataset, facilitating discovery beyond direct search queries.

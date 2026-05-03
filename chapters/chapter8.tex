@@ -1,43 +1,53 @@
 \chapter{Lightweight Semantic Enrichment Pipeline}
-The semantic enrichment pipeline is the computational heart of the system, responsible for transforming the cleaned text generated in Chapter 6 into the structured schema defined in Chapter 7. To meet the design goals of efficiency and low latency, we implement a tiered architecture consisting of three layers of increasing complexity and cost.
+The semantic enrichment pipeline is the computational heart of the system, responsible for transforming raw, unstructured text into the structured format defined in Chapter 7. To meet the goals of high performance and low maintenance, we implement a refined, rule-based extraction engine using TypeScript, focusing on deterministic patterns and lexical matching.
 
-\section{Layer A: Rule-Based Extraction}
-Layer A serves as the high-throughput first pass of the pipeline. It utilizes deterministic patterns and lexical lookups to extract structured data with near-zero latency. By handling well-defined patterns first, we reduce the load on more computationally expensive neural models.
+\section{Regex-Based Attribute Extraction}
+A significant portion of critical internship metadata follows semi-structured patterns that are highly suitable for Regular Expression (Regex) extraction.
 
-\subsection{Patterns for Compensation, Dates, Location}
-Many critical data points in internship listings follow semi-standardized formats that are highly amenable to Regular Expression (Regex) extraction.
+\subsection{Standardized Salary Parsing}
+The \texttt{cleanSalary} function utilizes regex to identify and normalize compensation information.
 \begin{itemize}
-    \item \textbf{Compensation:} We use patterns to identify currency symbols (\$, \euro, \pounds) followed by numeric ranges (e.g., "1500 - 2000"). The system also looks for keywords like "per month," "stipend," or "unpaid" to categorize the compensation type.
-    \item \textbf{Dates and Duration:} Internship durations (e.g., "3-6 months") and start dates (e.g., "Starting June 2024") are extracted using a library of temporal patterns. Relative dates like "Posted 2 days ago" are converted to absolute ISO dates using the ingestion timestamp.
-    \item \textbf{Location Extraction:} A gazetteer-based approach is used to identify cities and countries. If a location is found in the text that matches our internal geographic database, it is automatically normalized to its canonical form (e.g., "NYC" to "New York City").
+    \item \textbf{Range Detection:} The system looks for patterns like \texttt{\$[\textbackslash d\textbackslash .,]+[KMB]?\textbackslash s*[–-]\textbackslash s*\$[\textbackslash d\textbackslash .,]+}.
+    \item \textbf{Single Value Extraction:} If a range is not found, it falls back to capturing single currency mentions (e.g., "\$25/hr").
+    \item \textbf{Normalization:} Extracted strings are trimmed and standardized to a canonical display format, or marked as "Salary not specified" to ensure UI consistency.
 \end{itemize}
 
-\subsection{Seniority and Employment Type}
-While all listings in our dataset are internships, they often specify secondary levels of seniority or specific employment structures.
+\subsection{Stable Identifier Generation}
+To ensure referential integrity across the system (e.g., for bookmarked roles), we implement a deterministic \texttt{generateId} algorithm. This function transforms the \texttt{title} and \texttt{company} into a URL-friendly slug by:
+\begin{enumerate}
+    \item Converting text to lowercase.
+    \item Removing non-alphanumeric characters.
+    \item Replacing whitespace and multiple dashes with single hyphens.
+    \item Trimming leading/trailing hyphens.
+\end{enumerate}
+This ensures that the same internship from different ingestion cycles always maps to the same internal ID.
+
+\section{Lexical Skill Extraction}
+The extraction of technical competencies is performed through the \texttt{extractSkills} module, which implements a high-performance keyword matching strategy.
+
 \begin{itemize}
-    \item \textbf{Seniority Keywords:} We use a weighted keyword matching system for terms like "Lead," "Junior," "Associate," and "Student."
-    \item \textbf{Employment Type:} Patterns identify whether the role is "Full-time," "Part-time," or "Remote/Hybrid." Hybrid mentions are particularly important and are extracted by looking for keywords like "remote-friendly" or "2 days in office."
+    \item \textbf{Lexicon-Based Matching:} The system maintains a target lexicon of over 40 industry-standard technical keywords (e.g., "React", "Python", "Kubernetes", "Data Analysis").
+    \item \textbf{Case-Insensitive Scanning:} The cleaned job description is scanned for the presence of these keywords.
+    \item \textbf{Density Control:} To prevent "keyword stuffing" and maintain focus, the system selects and capitalizes the first 5 unique matches found in the text.
 \end{itemize}
 
-\subsection{Skill Matching with Lexicon}
-The primary skill extraction in Layer A relies on the alias tables defined in Section 7.3. We perform \textit{Aho-Corasick string matching}, which allows for the simultaneous searching of thousands of skill aliases in a single pass over the text. This method is significantly faster than multiple regex executions and ensures that technical terms like "C++" or ".NET" are captured accurately.
+\section{Heuristic Role Categorization}
+The \texttt{categorizeJob} function provides the semantic bridge between idiosyncratic job titles and high-level industry domains. This is achieved through a hierarchical keyword-matching logic applied to the job title:
 
-\section{Layer B: Small-Model Mapping}
-Layer B is invoked for tasks where simple string matching is insufficient due to linguistic ambiguity or the need for semantic understanding. We utilize lightweight Transformer models that provide high accuracy with a fraction of the parameters of full-scale LLMs.
+\begin{table}[H]
+    \centering
+    \caption{Heuristic Mapping for Job Categories}
+    \label{tab:category_mapping}
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Target Category} & \textbf{Title Keywords (Substrings)} \\ \midrule
+        Software & software, developer, engineer \\
+        Data/AI & data, analyst, ai, scientist \\
+        Design & design, ux, ui \\
+        Marketing & marketing \\
+        Healthcare & pharmacist, health, medical \\
+        Business & [Default Fallback] \\ \bottomrule
+    \end{tabular}
+\end{table}
 
-\subsection{Title Normalization and Classification}
-Job titles are often idiosyncratic. To map a raw title like "Cloud Infrastructure Intern (DevOps focus)" to the canonical ESCO occupation "System Programmer," we use a \textit{bi-encoder} model (e.g., \texttt{all-MiniLM-L6-v2}). The raw title is embedded into a vector space, and a cosine similarity search is performed against the pre-computed embeddings of the ESCO occupation labels. The label with the highest similarity score above a predefined threshold is assigned to the document.
-
-\subsection{Domain Classification (Optional)}
-To further assist in filtering, we employ a multi-class classifier to identify the industry domain (e.g., FinTech, Healthcare, E-commerce). This is implemented as a simple linear layer on top of a frozen DistilBERT backbone, trained on a small labeled subset of job postings.
-
-\subsection{Confidence Scoring}
-Every extraction from Layer B is accompanied by a confidence score. For classification tasks, this is the softmax probability of the predicted class. For similarity-based mapping, it is the cosine distance. If the confidence score falls below a "doubt threshold" (e.g., 0.65), the field is flagged for either Layer C processing or manual human verification.
-
-\section{Layer C: Optional Fallback (Budgeted)}
-Layer C acts as the "final resort" for highly complex or ambiguous documents. It utilizes Large Language Models (LLMs) via an API (e.g., GPT-4o-mini).
-\begin{itemize}
-    \item \textbf{Triggering:} Layer C is only invoked if Layer B reports low confidence or if critical fields remain empty after the first two passes.
-    \item \textbf{Budgeted Execution:} To control costs, we use a "budgeting" strategy where only a small percentage (e.g., <5\%) of the total ingestion volume is sent to the LLM.
-    \item \textbf{Task-Specific Prompting:} The LLM is provided with the raw text and a specific instruction to "Extract the primary job role and top 5 skills from this text based on the provided list of categories." This structured prompt ensures that even the LLM output remains aligned with our semantic schema.
-\end{itemize}
+This lightweight approach ensures that the system can categorize thousands of listings in milliseconds without the need for expensive machine learning inference.
