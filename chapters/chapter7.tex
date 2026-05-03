@@ -1,47 +1,69 @@
 \chapter{Semantic Schema and Label Space}
-This chapter defines the internal data model and the controlled vocabularies used to transform raw internship listings into a structured format. We describe the \texttt{Internship} interface used in the implementation and the mechanisms used to bridge the gap between diverse natural language expressions and standardized categories.
+This chapter defines the internal data model and the controlled vocabularies used to transform raw, heterogeneous internship listings into a structured semantic knowledge base. We describe the \texttt{Internship} interface as a formal contract for the data pipeline and explain the selection of the ESCO taxonomy as the primary reference for mapping job titles and skills.
 
-\section{Target Schema}
-The target schema is implemented as a TypeScript interface, which serves as the blueprint for the extraction and cleaning process. This ensures type safety throughout the data pipeline and provides a consistent structure for the frontend.
+\section{Target Schema Definition}
+To achieve a unified view of the labor market data, the system requires a rigid target schema that can accommodate the variability of source data while providing the necessary metadata for hybrid retrieval.
+
+\subsection{Structural Requirements}
+The schema is designed to support three primary objectives:
+\begin{enumerate}
+    \item \textbf{Identity and Provenance:} Ensuring unique identification across ingestion cycles and maintaining links to original sources.
+    \item \textbf{Faceted Discovery:} Providing standardized labels (categories, locations, skills) for efficient filtering.
+    \item \textbf{Semantic Enrichment:} Storing high-dimensional representations (embeddings) and canonical labels to facilitate non-lexical search.
+\end{enumerate}
 
 \subsection{The Internship Interface}
-The core data structure consists of the following fields:
+The schema is implemented as a TypeScript interface, serving as the blueprint for both the database and the frontend presentation layer.
 
+\begin{table}[H]
+    \centering
+    \caption{Core Fields of the \texttt{Internship} Semantic Schema}
+    \label{tab:internship_schema}
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{Field} & \textbf{Type} & \textbf{Description} \\ \midrule
+        \texttt{id} & \texttt{string} & Stable slug generated from title and company. \\
+        \texttt{title} & \texttt{string} & The raw, sanitized job title. \\
+        \texttt{company} & \texttt{string} & The normalized name of the hiring entity. \\
+        \texttt{category} & \texttt{string} & High-level domain (e.g., Software, Data/AI). \\
+        \texttt{skills} & \texttt{string[]} & Array of canonical skill labels (aligned with ESCO). \\
+        \texttt{salary} & \texttt{string} & Standardized compensation range or value. \\
+        \texttt{job\_age} & \texttt{string} & Temporal metadata regarding the posting date. \\
+        \texttt{description} & \texttt{string} & The cleaned plaintext of the job advertisement. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Taxonomy Selection: The ESCO Framework}
+A central goal of this research is to map idiosyncratic titles to a standardized professional taxonomy. We have selected the \textbf{ESCO (European Skills, Competences, Qualifications and Occupations)} framework as our primary label space.
+
+\subsection{Occupations Pillar}
+ESCO provides a hierarchical structure for occupations. For the purpose of this system, we focus on the "Level 4" unit groups, which provide a balance between specificity and generalizability. For example, a "React Developer" listing is mapped to the ESCO concept \textit{"software developer"}. This mapping is critical for the title normalization task evaluated in Chapter 11.
+
+\subsection{Skills and Competences Pillar}
+The skill lexicon used in the extraction phase is grounded in the ESCO Skills pillar. By using ESCO as a reference, the system avoids the "vocabulary gap" where different employers use synonyms to describe the same competency. The system maps these aliases to a single canonical label, enabling higher recall in skill-based filtering.
+
+\section{Internal Categorization and Mapping}
+While ESCO provides the granular depth, the user interface requires a flatter, more navigable set of high-level categories to facilitate efficient browsing.
+
+\subsection{Domain-Specific Categories}
+We define a set of top-level categories that reflect the current internship market:
 \begin{itemize}
-    \item \textbf{Identification:} \texttt{id} (a stable slug generated from title and company) and \texttt{link} (source URL).
-    \item \textbf{Organizational Metadata:} \texttt{title}, \texttt{company}, \texttt{location}, and \texttt{platform}.
-    \item \textbf{Temporal Attributes:} \texttt{job\_age} (date posted) and \texttt{duration} (length of the internship).
-    \item \textbf{Financial and Evaluative:} \texttt{salary} (standardized via regex) and \texttt{rating} (from source platform).
-    \item \textbf{Semantic Fields:}
-    \begin{itemize}
-        \item \texttt{category}: A high-level classification (e.g., Software, Data/AI, Design, Marketing).
-        \item \texttt{skills}: An array of extracted technical and soft skill labels.
-        \item \texttt{description}: The sanitized job content.
-    \end{itemize}
+    \item \textbf{Software:} Encompasses web, mobile, and systems engineering.
+    \item \textbf{Data/AI:} Includes data science, machine learning, and analytics.
+    \item \textbf{Design:} Covers UI/UX, graphic design, and industrial design.
+    \item \textbf{Healthcare:} Specialized roles in pharmacy, medicine, and health tech.
+    \item \textbf{Business:} A broad category for marketing, management, and finance.
 \end{itemize}
 
-\section{Label Space and Categorization}
-To facilitate efficient filtering and browsing, the system maps raw job titles to a fixed set of broad categories.
-
-\subsection{Heuristic-Based Classification}
-Instead of complex neural classifiers for top-level domains, the system employs a high-performance keyword-based categorization strategy. Job titles are analyzed for specific anchors:
+\subsection{Heuristic Mapping Logic}
+To bridge the gap between raw titles and these categories, the system utilizes a keyword-based anchor strategy. This serves as the first layer of the semantic pipeline. Job titles are analyzed for specific keywords:
 \begin{itemize}
-    \item \textbf{Software:} Identified by "developer," "engineer," or "software."
-    \item \textbf{Data/AI:} Identified by "data," "analyst," "ai," or "scientist."
-    \item \textbf{Design:} Identified by "design," "ux," or "ui."
-    \item \textbf{Healthcare:} Identified by "pharmacist," "health," or "medical."
+    \item \textbf{Software:} "developer," "engineer," or "software."
+    \item \textbf{Data/AI:} "data," "analyst," "ai," or "scientist."
+    \item \textbf{Design:} "design," "ux," or "ui."
 \end{itemize}
+This lightweight approach ensures that thousands of listings can be categorized in milliseconds without the computational overhead of deep learning inference for simple classification tasks.
 
-\section{Skill Lexicon and Alias Matching}
-The semantic "skills" field is populated by matching the job description against a curated lexicon of industry-standard terms.
-
-\subsection{Technical Lexicon}
-The current implementation uses a predefined array of keywords covering multiple domains:
-\begin{itemize}
-    \item \textbf{Languages/Frameworks:} JavaScript, Python, React, Node.js, Java, C++, TypeScript.
-    \item \textbf{Data and Cloud:} SQL, AWS, Azure, GCP, Docker, Kubernetes, AI, Machine Learning.
-    \item \textbf{Soft Skills:} Communication, Teamwork, Leadership, Management.
-\end{itemize}
-
-\subsection{Extraction Logic}
-The extraction process uses a case-insensitive search across the cleaned description. To maintain a focused profile for each internship, the system limits the output to the top 5 identified skills. This lightweight approach avoids the computational overhead of Named Entity Recognition (NER) models while maintaining high precision for well-defined technical terms.
+\section{Addressing the Semantic Gap}
+The chosen label space specifically addresses the "semantic gap" by moving from lexical tokens to conceptual entities. By defining the schema around canonical identifiers rather than raw strings, the system prepares the data for the hybrid search infrastructure discussed in Chapter 9, where queries are matched not just on text, but on their proximity within the defined semantic space.
