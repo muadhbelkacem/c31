@@ -2,83 +2,83 @@
 This chapter provides the architectural blueprint for the lightweight semantic structuring system. By leveraging the Next.js App Router and a modular TypeScript backend, the system achieves a performant data pipeline that avoids the latency of external LLM dependencies while maintaining high extraction precision.
 
 \section{System Architecture and Component Mapping}
-The system is organized into four logical tiers. The following UML Component Diagram illustrates the physical organization of the \texttt{internships-code} directory and the dependencies between modules, specifically highlighting the interaction between the file-based storage, the preprocessing library, and the frontend.
+The system is organized into four logical tiers. The following UML Component Diagram illustrates the physical organization of the \texttt{internships-code} directory and the dependencies between modules, specifically highlighting the interaction between the file-based storage, the server-side logic, and the React client components.
 
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[
         node distance=2.5cm,
-        package/.style={rectangle, draw, thick, fill=gray!5, text width=3.5cm, align=left, minimum height=1.5cm, copy shadow={shadow xshift=0.1cm, shadow yshift=-0.1cm}},
-        file/.style={rectangle, draw, fill=white, text width=3.2cm, align=left, font=\ttfamily\scriptsize},
+        package/.style={rectangle, draw, thick, fill=gray!5, text width=3.8cm, align=left, minimum height=1.5cm, copy shadow={shadow xshift=0.1cm, shadow yshift=-0.1cm}},
+        file/.style={rectangle, draw, fill=white, text width=3.4cm, align=left, font=\ttfamily\scriptsize},
         arrow/.style={-stealth, thick, dashed}
     ]
         % Packages
-        \node (public) [package] {\textbf{public/} \\ \scriptsize (Static Assets)};
-        \node (lib) [package, right of=public, xshift=3.5cm] {\textbf{app/lib/} \\ \scriptsize (Core Logic)};
-        \node (api) [package, below of=lib, yshift=-0.5cm] {\textbf{app/api/} \\ \scriptsize (Service Layer)};
-        \node (components) [package, right of=lib, xshift=4cm] {\textbf{app/components/} \\ \scriptsize (UI Components)};
+        \node (public) [package] {\textbf{public/} \\ \scriptsize (Static Data Assets)};
+        \node (lib) [package, right of=public, xshift=3.8cm] {\textbf{app/lib/} \\ \scriptsize (Data Processing Layer)};
+        \node (api) [package, below of=lib, yshift=-0.5cm] {\textbf{app/api/internship/} \\ \scriptsize (REST Endpoints)};
+        \node (components) [package, right of=lib, xshift=4.2cm] {\textbf{app/components/} \\ \scriptsize (UI/Client Layer)};
 
         % Files inside packages
         \node (json) [file, below of=public, yshift=1.5cm, xshift=0.3cm] {intern\_data.json};
         \node (dataTs) [file, below of=lib, yshift=1.5cm, xshift=0.3cm] {data.ts};
         \node (supabase) [file, below of=dataTs, yshift=1.8cm] {supabase-client.ts};
-        \node (route) [file, below of=api, yshift=1.5cm, xshift=0.3cm] {internship/route.ts};
+        \node (route) [file, below of=api, yshift=1.5cm, xshift=0.3cm] {route.ts};
         \node (ui) [file, below of=components, yshift=1.5cm, xshift=0.3cm] {InternshipList.tsx};
 
         % Relationships
         \draw [arrow] (dataTs) -- (json) node[midway, above, font=\tiny] {fs.readFile};
-        \draw [arrow] (route) -- (dataTs) node[midway, right, font=\tiny] {getInternships};
-        \draw [arrow] (ui) -- (dataTs) node[midway, above, font=\tiny] {import};
-        \draw [arrow] (ui) -- (route) node[midway, right, xshift=1cm, yshift=-0.5cm, font=\tiny] {HTTP GET};
-        \draw [arrow] (dataTs) -- (supabase) node[midway, left, font=\tiny] {DB Client};
+        \draw [arrow] (route) -- (dataTs) node[midway, right, font=\tiny] {getProcessedData};
+        \draw [arrow] (ui) -- (dataTs) node[midway, above, font=\tiny] {Interface Import};
+        \draw [arrow] (ui) -- (route) node[midway, right, xshift=1.2cm, yshift=-0.4cm, font=\tiny] {Client Fetch (GET)};
+        \draw [arrow] (dataTs) -- (supabase) node[midway, left, font=\tiny] {Database Client};
     \end{tikzpicture}
-    \caption{UML Component Diagram: Mapping Logical Layers to the \texttt{internships-code} File Structure}
+    \caption{UML Component Diagram: Mapping Logical Layers to the \texttt{internships-code} Project Structure}
     \label{fig:component_diagram}
 \end{figure}
 
 \section{Core Data Model}
-The semantic integrity of the pipeline is maintained by the \texttt{Internship} interface defined in \texttt{app/lib/data.ts}. This model acts as the "Contract" between the ingestion scripts and the frontend presentation layer, ensuring that all extracted entities adhere to a strict schema.
+The semantic integrity of the pipeline is maintained by the \texttt{Internship} interface defined in \texttt{app/lib/data.ts}. This model acts as the formal contract between the ingestion logic and the frontend presentation layer.
 
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}
-        \node [rectangle, draw, thick, fill=blue!5, text width=10cm, align=left] (internship) {
+        \node [rectangle, draw, thick, fill=blue!5, text width=11cm, align=left] (internship) {
             \textbf{interface Internship} \\
             \hline
-            \texttt{id: string} \hfill \textit{// Stable title-company slug} \\
-            \texttt{title: string} \hfill \textit{// Sanitized job title} \\
-            \texttt{company: string} \hfill \textit{// Normalized company name} \\
+            \texttt{id: string} \hfill \textit{// Generated slug (title-company)} \\
+            \texttt{title: string} \hfill \textit{// Sanitized position name} \\
+            \texttt{company: string} \hfill \textit{// Normalized entity name} \\
             \texttt{location: string} \hfill \textit{// Standardized geography} \\
-            \texttt{link: string} \hfill \textit{// Source or platform URL} \\
-            \texttt{salary: string} \hfill \textit{// Regex-extracted range/value} \\
-            \texttt{description: string} \hfill \textit{// Cleaned plaintext} \\
-            \texttt{rating: string} \hfill \textit{// Numeric/Star rating} \\
-            \texttt{job\_age: string} \hfill \textit{// Posting freshness} \\
-            \texttt{platform: string} \hfill \textit{// Source platform (e.g. LinkedIn)} \\
-            \texttt{skills: string[]} \hfill \textit{// Lexicon-matched tags} \\
+            \texttt{link: string} \hfill \textit{// Source platform URL} \\
+            \texttt{salary: string} \hfill \textit{// Regex-extracted range} \\
+            \texttt{description: string} \hfill \textit{// Trimmed plaintext} \\
+            \texttt{rating: string} \hfill \textit{// Aggregated platform score} \\
+            \texttt{job\_age: string} \hfill \textit{// Posting date or age} \\
+            \texttt{platform: string} \hfill \textit{// Origin (LinkedIn, Indeed, etc.)} \\
+            \texttt{skills: string[]} \hfill \textit{// Extracted keyword tags} \\
             \texttt{category: string} \hfill \textit{// Heuristic-mapped domain} \\
-            \texttt{duration?: string} \hfill \textit{// Optional internship length}
+            \texttt{duration?: string} \hfill \textit{// Optional contract length}
         };
     \end{tikzpicture}
-    \caption{UML Class Representation of the Semantic Schema}
+    \caption{UML Class Representation of the \texttt{Internship} Semantic Schema}
     \label{fig:internship_class}
 \end{figure}
 
 \section{The Ingestion Pipeline}
-The data ingestion process, defined in \texttt{app/lib/data.ts}, follows a strictly sequential pipeline to ensure that messy web-scraped data is transformed into high-quality semantic entities.
+The data ingestion process, implemented in \texttt{app/lib/data.ts} and mirrored in the API layer, follows a sequence of operations to ensure raw JSON data is transformed into structured entities.
 
 \begin{enumerate}
-    \item \textbf{I/O and Parsing:} The system reads \texttt{intern\_data.json} using the Node.js \texttt{promises/fs} module. It validates that the content is a valid JSON array and not an HTML error page or empty file.
+    \item \textbf{I/O and Safety Validation:} The system reads \texttt{intern\_data.json} using \texttt{promises/fs}. It performs safety checks to ensure the file is not empty and does not contain unexpected HTML error responses (common in proxy-based scraping).
     \item \textbf{Cleaning and Normalization:}
         \begin{itemize}
-            \item \textbf{Titles:} Truncates noise and provides "Position Not Specified" fallbacks.
-            \item \textbf{Salaries:} Uses the regex \texttt{/\$[\textbackslash d\textbackslash .,]+[KMB]?\textbackslash s*[–-]\textbackslash s*\$[\textbackslash d\textbackslash .,]+[KMB]?(?:\textbackslash /[a-z]+)?/i} to extract compensation ranges.
+            \item \textbf{Text Fields:} Uses \texttt{cleanTitle}, \texttt{cleanCompany}, and \texttt{cleanLocation} to handle missing values and whitespace.
+            \item \textbf{Salaries:} Employs the regex \texttt{/\$[\textbackslash d\textbackslash .,]+[KMB]?\textbackslash s*[–-]\textbackslash s*\$[\textbackslash d\textbackslash .,]+[KMB]?(?:\textbackslash /[a-z]+)?/i} to isolate compensation values from noisy text.
         \end{itemize}
-    \item \textbf{Deterministic ID Generation:} Slugs are created by combining the title and company (e.g., \texttt{software-engineer-google}). Collisions are handled by appending a sequential counter (\texttt{-1}, \texttt{-2}).
+    \item \textbf{ID Generation and Conflict Resolution:} The \texttt{generateId} function creates slugs. If multiple listings share the same title and company, a sequential suffix is appended to ensure uniqueness.
     \item \textbf{Semantic Mapping:}
         \begin{itemize}
-            \item \textbf{Skills:} Case-insensitive matching against a 40+ keyword lexicon (JavaScript, Python, AWS, etc.).
-            \item \textbf{Categories:} Title-based heuristics mapping roles to Software, Data/AI, Design, Marketing, or Healthcare.
+            \item \textbf{Skills:} Case-insensitive matching against a dictionary of technical keywords.
+            \item \textbf{Categories:} Heuristics mapping roles to domains such as \textit{Software}, \textit{Data/AI}, or \textit{Healthcare}.
         \end{itemize}
-    \item \textbf{Server-Side Caching:} Processed results are stored in a global \texttt{cachedInternships} variable with a 5-minute TTL (\texttt{300,000ms}) to minimize filesystem overhead.
+    \item \textbf{State Management:} Processed results are stored in a \texttt{cachedInternships} variable with a 300,000ms (5-minute) TTL to optimize server response times.
 \end{enumerate}
