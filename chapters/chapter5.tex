@@ -64,15 +64,56 @@ The semantic integrity of the pipeline is maintained by the \texttt{Internship} 
     \label{fig:internship_class}
 \end{figure}
 
+\section{The Ingestion and Retrieval Flow}
+The interaction between the client-side UI and the server-side data processing layer is managed through asynchronous requests. The following sequence diagram illustrates the lifecycle of a data request, from the initial user visit to the delivery of processed semantic entities.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        node distance=3cm,
+        actor/.style={rectangle, draw, minimum width=2.2cm, minimum height=0.8cm, fill=gray!10},
+        lifeline/.style={draw, dashed},
+        message/.style={-stealth, thick},
+        return/.style={stealth-, dashed, thick}
+    ]
+        % Lifelines
+        \node (user) [actor] {User/Client};
+        \node (api) [actor, right of=user, xshift=2cm] {Next.js API};
+        \node (lib) [actor, right of=api, xshift=2cm] {Data Library};
+        \node (fs) [actor, right of=lib, xshift=2cm] {File System / Cache};
+
+        \draw [lifeline] (user.south) -- +(0,-6.5);
+        \draw [lifeline] (api.south) -- +(0,-6.5);
+        \draw [lifeline] (lib.south) -- +(0,-6.5);
+        \draw [lifeline] (fs.south) -- +(0,-6.5);
+
+        % Messages
+        \draw [message] ($(user.south)+(0,-1)$) -- ($(api.south)+(0,-1)$) node[midway, above, font=\scriptsize] {HTTP GET /api/internship};
+        \draw [message] ($(api.south)+(0,-1.5)$) -- ($(lib.south)+(0,-1.5)$) node[midway, above, font=\scriptsize] {getInternships()};
+
+        \draw [message] ($(lib.south)+(0,-2)$) -- ($(fs.south)+(0,-2)$) node[midway, above, font=\scriptsize] {Check Cache};
+        \draw [return] ($(lib.south)+(0,-2.5)$) -- ($(fs.south)+(0,-2.5)$) node[midway, below, font=\scriptsize] {Cache Miss / Null};
+
+        \draw [message] ($(lib.south)+(0,-3.5)$) -- ($(fs.south)+(0,-3.5)$) node[midway, above, font=\scriptsize] {fs.readFile('intern\_data.json')};
+        \draw [return] ($(lib.south)+(0,-4)$) -- ($(fs.south)+(0,-4)$) node[midway, below, font=\scriptsize] {Raw JSON Content};
+
+        \draw [return] ($(api.south)+(0,-5)$) -- ($(lib.south)+(0,-5)$) node[midway, below, font=\scriptsize] {Processed JSON Array};
+        \draw [return] ($(user.south)+(0,-6)$) -- ($(api.south)+(0,-6)$) node[midway, below, font=\scriptsize] {200 OK (Application/JSON)};
+
+    \end{tikzpicture}
+    \caption{UML Sequence Diagram: Data Retrieval and API Interaction}
+    \label{fig:sequence_diagram}
+\end{figure}
+
 \section{The Ingestion Pipeline}
 The data ingestion process, implemented in \texttt{app/lib/data.ts} and mirrored in the API layer, follows a sequence of operations to ensure raw JSON data is transformed into structured entities.
 
 \begin{enumerate}
-    \item \textbf{I/O and Safety Validation:} The system reads \texttt{intern\_data.json} using \texttt{promises/fs}. It performs safety checks to ensure the file is not empty and does not contain unexpected HTML error responses (common in proxy-based scraping).
+    \item \textbf{I/O and Safety Validation:} The system reads \texttt{intern\_data.json} using \texttt{promises/fs}. It performs safety checks to ensure the file is not empty and does not contain unexpected HTML error responses.
     \item \textbf{Cleaning and Normalization:}
         \begin{itemize}
             \item \textbf{Text Fields:} Uses \texttt{cleanTitle}, \texttt{cleanCompany}, and \texttt{cleanLocation} to handle missing values and whitespace.
-            \item \textbf{Salaries:} Employs the regex \texttt{/\$[\textbackslash d\textbackslash .,]+[KMB]?\textbackslash s*[–-]\textbackslash s*\$[\textbackslash d\textbackslash .,]+[KMB]?(?:\textbackslash /[a-z]+)?/i} to isolate compensation values from noisy text.
+            \item \textbf{Salaries:} Employs specialized regex to isolate compensation values from noisy text.
         \end{itemize}
     \item \textbf{ID Generation and Conflict Resolution:} The \texttt{generateId} function creates slugs. If multiple listings share the same title and company, a sequential suffix is appended to ensure uniqueness.
     \item \textbf{Semantic Mapping:}
