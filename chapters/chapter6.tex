@@ -6,35 +6,7 @@ The system implements an asynchronous ingestion mechanism designed to retrieve a
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}[
-        node distance=3cm,
-        actor/.style={rectangle, draw, minimum width=2cm, minimum height=0.8cm, fill=blue!5},
-        lifeline/.style={draw, dashed},
-        message/.style={-stealth, thick},
-        return/.style={stealth-, dashed, thick}
-    ]
-        % Lifelines
-        \node (caller) [actor] {Caller};
-        \node (lib) [actor, right of=caller, xshift=2cm] {data.ts};
-        \node (fs) [actor, right of=lib, xshift=2cm] {File System};
-
-        \draw [lifeline] (caller.south) -- +(0,-6.5);
-        \draw [lifeline] (lib.south) -- +(0,-6.5);
-        \draw [lifeline] (fs.south) -- +(0,-6.5);
-
-        % Messages
-        \draw [message] ($(caller.south)+(0,-0.5)$) -- ($(lib.south)+(0,-0.5)$) node[midway, above, font=\scriptsize] {getInternships()};
-        \draw [message] ($(lib.south)+(0,-1)$) -- ($(fs.south)+(0,-1)$) node[midway, above, font=\scriptsize] {fs.readFile()};
-        \draw [return] ($(lib.south)+(0,-1.5)$) -- ($(fs.south)+(0,-1.5)$) node[midway, below, font=\scriptsize] {rawBuffer};
-
-        \node [draw, fill=yellow!10, text width=2.5cm, font=\tiny, align=center] at ($(lib.south)+(0,-2.5)$) {Safety Check:\\Empty or HTML?};
-
-        \draw [message] ($(lib.south)+(0,-3.5)$) -- ($(lib.south)+(0,-4)$) node[right, xshift=0.2cm, yshift=0.3cm, font=\scriptsize, text width=2cm] {JSON.parse()};
-
-        \node [draw, fill=yellow!10, text width=2.5cm, font=\tiny, align=center] at ($(lib.south)+(0,-4.8)$) {Type Check:\\Is Array?};
-
-        \draw [return] ($(caller.south)+(0,-6)$) -- ($(lib.south)+(0,-6)$) node[midway, below, font=\scriptsize] {Internship[]};
-    \end{tikzpicture}
+    \includegraphics[width=0.9\textwidth]{uml/sequenceDiagramInternshipsFetcher.jpg}
     \caption{UML Sequence Diagram: Data Ingestion and Safety Validation}
     \label{fig:ingestion_sequence}
 \end{figure}

@@ -41,25 +41,7 @@ The semantic integrity of the pipeline is maintained by the \texttt{Internship} 
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}
-        \node [rectangle, draw, thick, fill=blue!5, text width=11cm, align=left] (internship) {
-            \textbf{interface Internship} \\
-            \hline
-            \texttt{id: string} \hfill \textit{// Generated slug (title-company)} \\
-            \texttt{title: string} \hfill \textit{// Sanitized position name} \\
-            \texttt{company: string} \hfill \textit{// Normalized entity name} \\
-            \texttt{location: string} \hfill \textit{// Standardized geography} \\
-            \texttt{link: string} \hfill \textit{// Source platform URL} \\
-            \texttt{salary: string} \hfill \textit{// Regex-extracted range} \\
-            \texttt{description: string} \hfill \textit{// Trimmed plaintext} \\
-            \texttt{rating: string} \hfill \textit{// Aggregated platform score} \\
-            \texttt{job\_age: string} \hfill \textit{// Posting date or age} \\
-            \texttt{platform: string} \hfill \textit{// Origin (LinkedIn, Indeed, etc.)} \\
-            \texttt{skills: string[]} \hfill \textit{// Extracted keyword tags} \\
-            \texttt{category: string} \hfill \textit{// Heuristic-mapped domain} \\
-            \texttt{duration?: string} \hfill \textit{// Optional contract length}
-        };
-    \end{tikzpicture}
+    \includegraphics[width=0.9\textwidth]{uml/classDiagram.jpg}
     \caption{UML Class Representation of the \texttt{Internship} Semantic Schema}
     \label{fig:internship_class}
 \end{figure}
@@ -69,38 +51,7 @@ The interaction between the client-side UI and the server-side data processing l
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}[
-        node distance=3cm,
-        actor/.style={rectangle, draw, minimum width=2.2cm, minimum height=0.8cm, fill=gray!10},
-        lifeline/.style={draw, dashed},
-        message/.style={-stealth, thick},
-        return/.style={stealth-, dashed, thick}
-    ]
-        % Lifelines
-        \node (user) [actor] {User/Client};
-        \node (api) [actor, right of=user, xshift=2cm] {Next.js API};
-        \node (lib) [actor, right of=api, xshift=2cm] {Data Library};
-        \node (fs) [actor, right of=lib, xshift=2cm] {File System / Cache};
-
-        \draw [lifeline] (user.south) -- +(0,-6.5);
-        \draw [lifeline] (api.south) -- +(0,-6.5);
-        \draw [lifeline] (lib.south) -- +(0,-6.5);
-        \draw [lifeline] (fs.south) -- +(0,-6.5);
-
-        % Messages
-        \draw [message] ($(user.south)+(0,-1)$) -- ($(api.south)+(0,-1)$) node[midway, above, font=\scriptsize] {HTTP GET /api/internship};
-        \draw [message] ($(api.south)+(0,-1.5)$) -- ($(lib.south)+(0,-1.5)$) node[midway, above, font=\scriptsize] {getInternships()};
-
-        \draw [message] ($(lib.south)+(0,-2)$) -- ($(fs.south)+(0,-2)$) node[midway, above, font=\scriptsize] {Check Cache};
-        \draw [return] ($(lib.south)+(0,-2.5)$) -- ($(fs.south)+(0,-2.5)$) node[midway, below, font=\scriptsize] {Cache Miss / Null};
-
-        \draw [message] ($(lib.south)+(0,-3.5)$) -- ($(fs.south)+(0,-3.5)$) node[midway, above, font=\scriptsize] {fs.readFile('intern\_data.json')};
-        \draw [return] ($(lib.south)+(0,-4)$) -- ($(fs.south)+(0,-4)$) node[midway, below, font=\scriptsize] {Raw JSON Content};
-
-        \draw [return] ($(api.south)+(0,-5)$) -- ($(lib.south)+(0,-5)$) node[midway, below, font=\scriptsize] {Processed JSON Array};
-        \draw [return] ($(user.south)+(0,-6)$) -- ($(api.south)+(0,-6)$) node[midway, below, font=\scriptsize] {200 OK (Application/JSON)};
-
-    \end{tikzpicture}
+    \includegraphics[width=0.9\textwidth]{uml/sequenceDiagramFrontend.jpg}
     \caption{UML Sequence Diagram: Data Retrieval and API Interaction}
     \label{fig:sequence_diagram}
 \end{figure}
