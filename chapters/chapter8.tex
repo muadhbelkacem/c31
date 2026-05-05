@@ -2,7 +2,45 @@
 The semantic enrichment pipeline is the computational heart of the system, responsible for transforming raw, unstructured text into the structured format defined in Chapter 7. This chapter details the implementation of a high-performance, rule-based extraction engine in TypeScript, designed to minimize latency and eliminate the costs associated with external model inference.
 
 \section{Pipeline Architecture and Data Flow}
-The pipeline operates on a "clean-enrich-structure" sequence. Data arriving from web scrapers or manual JSON uploads is first sanitized to remove noise, then enriched with semantic tags using deterministic heuristics, and finally stored in a structured cache.
+The pipeline operates on a "clean-enrich-structure" sequence. Data arriving from web scrapers or manual JSON uploads is first sanitized to remove noise, then enriched with semantic tags using deterministic heuristics, and finally stored in a structured cache. The sequence of these internal transformations is shown in Figure \ref{fig:enrichment_sequence}.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        node distance=2.8cm,
+        actor/.style={rectangle, draw, minimum width=2cm, minimum height=0.8cm, fill=green!5},
+        lifeline/.style={draw, dashed},
+        message/.style={-stealth, thick},
+        return/.style={stealth-, dashed, thick}
+    ]
+        % Lifelines
+        \node (loop) [actor] {Data Loop};
+        \node (clean) [actor, right of=loop, xshift=1.5cm] {Sanitizer};
+        \node (ident) [actor, right of=clean, xshift=1.5cm] {Identifier};
+        \node (enrich) [actor, right of=ident, xshift=1.5cm] {Enricher};
+
+        \draw [lifeline] (loop.south) -- +(0,-7.5);
+        \draw [lifeline] (clean.south) -- +(0,-7.5);
+        \draw [lifeline] (ident.south) -- +(0,-7.5);
+        \draw [lifeline] (enrich.south) -- +(0,-7.5);
+
+        % Messages
+        \draw [message] ($(loop.south)+(0,-0.5)$) -- ($(clean.south)+(0,-0.5)$) node[midway, above, font=\tiny] {cleanTitle / Company};
+        \draw [return] ($(loop.south)+(0,-1)$) -- ($(clean.south)+(0,-1)$) node[midway, below, font=\tiny] {Sanitized Strings};
+
+        \draw [message] ($(loop.south)+(0,-2)$) -- ($(ident.south)+(0,-2)$) node[midway, above, font=\tiny, xshift=1.5cm] {generateId(title, company)};
+        \node [draw, fill=yellow!10, text width=2cm, font=\tiny, align=center] at ($(ident.south)+(0,-2.8)$) {Check seenIds Set\\for Collisions};
+        \draw [return] ($(loop.south)+(0,-3.5)$) -- ($(ident.south)+(0,-3.5)$) node[midway, below, font=\tiny, xshift=1.5cm] {Unique Slug ID};
+
+        \draw [message] ($(loop.south)+(0,-4.5)$) -- ($(enrich.south)+(0,-4.5)$) node[midway, above, font=\tiny, xshift=3cm] {cleanSalary(text)};
+        \draw [message] ($(loop.south)+(0,-5.5)$) -- ($(enrich.south)+(0,-5.5)$) node[midway, above, font=\tiny, xshift=3cm] {extractSkills(description)};
+        \draw [message] ($(loop.south)+(0,-6.5)$) -- ($(enrich.south)+(0,-6.5)$) node[midway, above, font=\tiny, xshift=3cm] {categorizeJob(title)};
+
+        \draw [return] ($(loop.south)+(0,-7.2)$) -- ($(enrich.south)+(0,-7.2)$) node[midway, below, font=\tiny, xshift=3cm] {Enriched Attributes};
+    \end{tikzpicture}
+    \caption{UML Sequence Diagram: Individual Item Enrichment Lifecycle}
+    \label{fig:enrichment_sequence}
+\end{figure}
 
 \begin{algorithm}[H]
 \caption{Internship Ingestion and Enrichment}
