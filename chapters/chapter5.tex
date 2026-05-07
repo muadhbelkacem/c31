@@ -1,6 +1,16 @@
 \chapter{Methodology and System Overview}
 This chapter provides the architectural blueprint for the lightweight semantic structuring system. By leveraging the Next.js App Router and a modular TypeScript backend, the system achieves a performant data pipeline that avoids the latency of external LLM dependencies while maintaining high extraction precision.
 
+\section{Functional Requirements and Use Cases}
+The system is designed to serve two primary actors: the \textit{Student/Job Seeker}, who interacts with the search interface to discover opportunities, and the \textit{System Administrator/Data Engineer}, who manages the automated ingestion and maintenance of the data pipeline. The following Use Case Diagram illustrates the high-level functional requirements and the boundaries of the system.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{uml/useCaseDiagram.png}
+    \caption{UML Use Case Diagram: Actor Interactions and System Scope}
+    \label{fig:use_case_diagram}
+\end{figure}
+
 \section{System Architecture and Component Mapping}
 The system is organized into four logical tiers. The following UML Component Diagram illustrates the physical organization of the \texttt{internships-code} directory and the dependencies between modules, specifically highlighting the interaction between the file-based storage, the server-side logic, and the React client components.
 
