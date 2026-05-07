@@ -97,21 +97,6 @@ To avoid "keyword stuffing" (where a recruiter lists 50 technologies to maximize
 \section{Heuristic Role Categorization}
 The final enrichment step maps the internship to a high-level domain. The \texttt{categorizeJob} function evaluates the job title against a hierarchy of professional "anchors."
 
-\begin{table}[H]
-    \centering
-    \caption{Mapping Anchors for Categorical Enrichment}
-    \label{tab:mapping_anchors}
-    \begin{tabular}{ll}
-        \toprule
-        \textbf{Category} & \textbf{Title Anchors (Substrings)} \\ \midrule
-        Software & \textit{software, developer, engineer, fullstack} \\
-        Data/AI & \textit{data, analyst, ai, scientist, machine learning} \\
-        Design & \textit{design, ux, ui, creative} \\
-        Healthcare & \textit{pharmacist, health, medical, clinic} \\
-        Business & \textit{[Default Fallback]} \\ \bottomrule
-    \end{tabular}
-\end{table}
-
 This mapping allows for O(1) time complexity categorization during the ingestion phase, contributing to the system's overall sub-100ms processing time for large JSON datasets.
 
 \section{Caching and Performance Considerations}

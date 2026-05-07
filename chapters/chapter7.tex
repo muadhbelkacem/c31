@@ -15,25 +15,6 @@ The schema is designed to support three primary objectives:
 \subsection{The Internship Interface}
 The schema is implemented as a TypeScript interface, serving as the blueprint for both the database and the frontend presentation layer.
 
-\begin{table}[H]
-    \centering
-    \caption{Core Fields of the \texttt{Internship} Semantic Schema}
-    \label{tab:internship_schema}
-    \begin{tabular}{lll}
-        \toprule
-        \textbf{Field} & \textbf{Type} & \textbf{Description} \\ \midrule
-        \texttt{id} & \texttt{string} & Stable slug generated from title and company. \\
-        \texttt{title} & \texttt{string} & The raw, sanitized job title. \\
-        \texttt{company} & \texttt{string} & The normalized name of the hiring entity. \\
-        \texttt{category} & \texttt{string} & High-level domain (e.g., Software, Data/AI). \\
-        \texttt{skills} & \texttt{string[]} & Array of canonical skill labels (aligned with ESCO). \\
-        \texttt{salary} & \texttt{string} & Standardized compensation range or value. \\
-        \texttt{job\_age} & \texttt{string} & Temporal metadata regarding the posting date. \\
-        \texttt{description} & \texttt{string} & The cleaned plaintext of the job advertisement. \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
 \section{Taxonomy Selection: The ESCO Framework}
 A central goal of this research is to map idiosyncratic titles to a standardized professional taxonomy. We have selected the \textbf{ESCO (European Skills, Competences, Qualifications and Occupations)} framework as our primary label space.
 
