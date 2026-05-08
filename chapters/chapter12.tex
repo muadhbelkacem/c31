@@ -7,16 +7,16 @@ While the system demonstrated robust performance across both extraction and retr
 \subsection{Extraction Failures and Implicit Information}
 The lower recall for lexical skill extraction highlights a significant challenge: \textit{implicit skill requirements}. Many job postings omit foundational skills that are assumed for a role. This "semantic gap" is a known issue in recruitment informatics, where requirements are often latent rather than explicit \cite{giabelli2021skills, qin2018enhancing}.
 
-In the case of date extraction, errors primarily occurred in "rolling" recruitment cycles. Our current regex-based Layer A often failed to normalize these into a precise temporal range, a limitation common in rule-based Information Extraction systems when faced with high linguistic variability \cite{grishman2015information, appelt1999introduction}.
+In the case of date extraction, errors primarily occurred in "rolling" recruitment cycles. Our current regex-based Layer A often failed to normalize these into a precise temporal range, a limitation common in rule-based Information Extraction systems when faced with high linguistic variability \cite{grishman2015information}.
 
 \subsection{Ambiguity in Semantic Mapping}
-The gap between Top-1 and Top-3 accuracy for title normalization reveals the impact of professional ambiguity. Generic titles lack sufficient semantic density for the bi-encoder to map them to a specific ESCO occupation without analyzing the full text body. This challenge of entity resolution and disambiguation is central to modern taxonomy alignment research \cite{zhang2022survey, sayfullina2018learning}.
+The gap between Top-1 and Top-3 accuracy for title normalization reveals the impact of professional ambiguity. Generic titles lack sufficient semantic density for the bi-encoder to map them to a specific occupation without analyzing the full text body. This challenge of entity resolution and disambiguation is central to modern taxonomy alignment research \cite{zhang2022survey, sayfullina2018learning}.
 
 \section{Trade-offs: Accuracy vs Cost}
 The design of our tiered architecture was motivated by the need to balance performance with operational feasibility, a core principle in "Green AI" and efficient deep learning \cite{schwartz2020green, menghani2023efficient}.
 
 \subsection{The Cost of Perfection}
-While Large Language Models (LLMs) offer superior zero-shot capabilities, the marginal gain in accuracy comes at a significant cost in both latency and financial expenditure \cite{hsieh2023distilling, bender2021dangers}. By delegating the majority of the workload to local, small-scale models, we achieved a "good enough" accuracy level suitable for production environments while minimizing reliance on expensive external APIs \cite{menghani2023efficient, sanh2019distilbert}.
+While Large Language Models (LLMs) offer superior zero-shot capabilities, the marginal gain in accuracy comes at a significant cost in both latency and financial expenditure \cite{hsieh2023distilling, bender2021dangers}. By delegating the majority of the workload to local, small-scale models, we achieved a "good enough" accuracy level suitable for production environments while minimizing reliance on expensive external APIs \cite{menghani2023efficient}.
 
 \subsection{Latency and User Experience}
 The search latency of 45ms is critical for a responsive user interface. A system relying on real-time LLM inference for search-time semantic expansion would likely exceed the thresholds for interactive systems \cite{buttcher2016information}. Our use of pre-computed HNSW indices and RRF-based fusion allows the system to deliver semantic results with the efficiency of traditional lexical search \cite{malkov2018efficient, cormack2009reciprocal}.
@@ -28,7 +28,7 @@ Despite the positive results, several factors may affect the generalizability an
 The evaluation relies on a "Gold Standard" annotated by experts. While inter-annotator agreement was high, subjectivity in labeling "relevant" skills remains a threat, a known challenge in creating benchmarks for specialized domains \cite{jurafsky2023speech, thakur2021beir}.
 
 \subsection{External Validity: Generalizability}
-Our dataset is primarily focused on the Tech and Business sectors within the North American and European contexts, driven by the ESCO framework \cite{esco2017handbook}. The effectiveness of the system might degrade when applied to different linguistic domains or regions with different occupational structures \cite{kurekova2015using}.
+Our dataset is primarily focused on the Tech and Business sectors within the North American and European contexts, driven by the ESCO framework. The effectiveness of the system might degrade when applied to different linguistic domains or regions with different occupational structures \cite{kurekova2015using}.
 
 \subsection{Construct Validity: Metric Selection}
 We used standard IR metrics like MAP and NDCG. However, these metrics do not always correlate perfectly with real-world user satisfaction in job discovery, where factors like "freshness" and company reputation may play significant roles \cite{baeza2011modern, lacic2020recommender}.

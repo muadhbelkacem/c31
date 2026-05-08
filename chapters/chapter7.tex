@@ -2,7 +2,7 @@
 This chapter defines the internal data model and the controlled vocabularies used to transform raw, heterogeneous internship listings into a structured semantic knowledge base. We describe the \texttt{Internship} interface as a formal contract for the data pipeline and explain the selection of the ESCO taxonomy as the primary reference for mapping job titles and skills, adhering to principles of data integration and semantic modeling \cite{doan2012principles, shvaiko2013ontology}.
 
 \section{Target Schema Definition}
-To achieve a unified view of the labor market data, the system requires a rigid target schema that can accommodate the variability of source data while providing the necessary metadata for hybrid retrieval \cite{mezzanzanica2019big}.
+To achieve a unified view of the labor market data, the system requires a rigid target schema that can accommodate the variability of source data while providing the necessary metadata for hybrid retrieval.
 
 \subsection{Structural Requirements}
 The schema is designed to support three primary objectives:
@@ -16,7 +16,7 @@ The schema is designed to support three primary objectives:
 The schema is implemented as a TypeScript interface, serving as the blueprint for both the database and the frontend presentation layer. This formalization is essential for maintaining consistency in complex Information Extraction tasks \cite{sarawagi2008information}.
 
 \section{Taxonomy Selection: The ESCO Framework}
-A central goal of this research is to map idiosyncratic titles to a standardized professional taxonomy. We have selected the \textbf{ESCO (European Skills, Competences, Qualifications and Occupations)} framework as our primary label space \cite{esco2017handbook}.
+A central goal of this research is to map idiosyncratic titles to a standardized professional taxonomy. We have selected the \textbf{ESCO (European Skills, Competences, Qualifications and Occupations)} framework as our primary label space.
 
 \subsection{Occupations Pillar}
 ESCO provides a hierarchical structure for occupations. For the purpose of this system, we focus on the "Level 4" unit groups, which provide a balance between specificity and generalizability. This approach is consistent with other labor market analysis frameworks such as O*NET \cite{peterson2001occupational}.
@@ -41,4 +41,4 @@ We define a set of top-level categories that reflect the current internship mark
 To bridge the gap between raw titles and these categories, the system utilizes a keyword-based anchor strategy. This serves as the first layer of the semantic pipeline. Such rule-based approaches remain effective for initial classification in production environments \cite{boselli2018classifying}.
 
 \section{Addressing the Semantic Gap}
-The chosen label space specifically addresses the "semantic gap" by moving from lexical tokens to conceptual entities \cite{mezzanzanica2019big}. By defining the schema around canonical identifiers rather than raw strings, the system prepares the data for the hybrid search infrastructure discussed in Chapter 9, where queries are matched not just on text, but on their proximity within the defined semantic space \cite{lin2021pretrained, reimers2019sentence}.
+The chosen label space specifically addresses the "semantic gap" by moving from lexical tokens to conceptual entities. By defining the schema around canonical identifiers rather than raw strings, the system prepares the data for the hybrid search infrastructure discussed in Chapter 9, where queries are matched not just on text, but on their proximity within the defined semantic space \cite{lin2021pretrained, reimers2019sentence}.

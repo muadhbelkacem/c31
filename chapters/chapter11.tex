@@ -16,9 +16,9 @@ The first stage of evaluation focuses on the performance of the rule-based Layer
 The system achieves high precision across all fields, particularly for compensation and locations where patterns are relatively stable. The lower recall for "Skill Match" is expected, as simple lexicon lookups cannot capture skills described through paraphrasing, a limitation commonly noted in dictionary-based extraction systems \cite{nadeau2007survey, sarawagi2008information}. These cases are later addressed through the semantic mapping in Layer B.
 
 \section{Classification Results}
-Layer B's primary task is to bridge the semantic gap using small transformer models, leveraging the capabilities of bi-encoder architectures \cite{reimers2019sentence}. We evaluate the mapping of raw job titles to canonical ESCO occupations and the categorization of complex skill mentions \cite{esco2017handbook}.
+Layer B's primary task is to bridge the semantic gap using small transformer models, leveraging the capabilities of bi-encoder architectures \cite{reimers2019sentence}. We evaluate the mapping of raw job titles to canonical occupations and the categorization of complex skill mentions.
 
-The Top-3 accuracy of 91\% for title normalization indicates that while the system may occasionally miss the exact canonical label, it consistently identifies the correct professional family. This is a significant improvement over simple keyword-based title matching, which achieved only 54\% Top-1 accuracy in our baseline tests, consistent with findings in domain-specific BERT applications \cite{pappas2022jobbert, gugnani2020implicit}.
+The Top-3 accuracy of 91\% for title normalization indicates that while the system may occasionally miss the exact canonical label, it consistently identifies the correct professional family. This is a significant improvement over simple keyword-based title matching, which achieved only 54\% Top-1 accuracy in our baseline tests, consistent with findings in domain-specific BERT applications \cite{pappas2022jobbert}.
 
 \section{Retrieval Results}
 The retrieval quality is measured by comparing our proposed Hybrid Retrieval strategy (Baseline 3) against the Keyword-Only baseline (Baseline 1), following evaluation frameworks such as BEIR \cite{thakur2021beir}.
