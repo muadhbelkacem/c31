@@ -1,32 +1,32 @@
 \chapter{Ethical, Legal, and Privacy Considerations}
-The automated collection and semantic processing of recruitment data raise significant ethical and legal questions. As we transition from simple keyword matching to AI-driven extraction and classification, the implications for privacy, fairness, and compliance become more complex. This chapter explores the multi-faceted considerations of our system, focusing on scraping ethics, the handling of user-provided data, and the inherent risks of algorithmic bias.
+The automated collection and semantic processing of recruitment data raise significant ethical and legal questions. As we transition from simple keyword matching to AI-driven extraction and classification, the implications for privacy, fairness, and compliance become more complex \cite{hunkenschroer2022ethics, raghavan2020mitigating}. This chapter explores the multi-faceted considerations of our system, focusing on scraping ethics, the handling of user-provided data, and the inherent risks of algorithmic bias.
 
 \section{Scraping Compliance and Respect for Terms}
-Web scraping, while a powerful tool for labor market transparency, exists in a delicate legal and ethical landscape. Our data collection strategy (detailed in Chapter 6) adheres to several core principles of "polite" and ethical crawling.
+Web scraping, while a powerful tool for labor market transparency, exists in a delicate legal and ethical landscape \cite{tamburri2020data, kurekova2015using}. Our data collection strategy adheres to several core principles of "polite" and ethical crawling.
 
 \subsection{Respecting Technical Boundaries}
-The system is designed to strictly adhere to \texttt{robots.txt} directives provided by host servers. We implement adaptive rate limiting to ensure that our scrapers do not degrade the performance of the source websites for other users. By identifying our scrapers via clear User-Agent strings, we allow administrators to contact us or block our access if necessary.
+The system is designed to strictly adhere to \texttt{robots.txt} directives. We implement adaptive rate limiting to ensure that our scrapers do not degrade the performance of the source websites for other users. This approach is consistent with ethical guidelines for data-driven labor market analytics \cite{tamburri2020data}.
 
 \subsection{Legal Precedents and Fair Use}
-From a legal standpoint, our work focuses on \textit{publicly available, non-copyrightable facts} (e.g., job requirements, locations, and titles). We operate within the framework established by landmark cases such as \textit{hiQ Labs, Inc. v. LinkedIn Corp.}, which protected the right to scrape public data for analytical purposes. Furthermore, the system does not bypass authentication barriers or "paywalls," ensuring that it only processes information intended for public consumption.
+From a legal standpoint, our work focuses on publicly available, non-copyrightable facts. We operate within the framework of fair use and public data access, which has been a subject of significant legal and academic discussion in the context of large-scale web data collection \cite{bender2021dangers, tamburri2020data}.
 
 \section{Privacy and User Uploads}
-The inclusion of user-provided JSONs introduces additional privacy challenges, particularly concerning Personal Identifiable Information (PII) and data sovereignty.
+The inclusion of user-provided JSON data introduces additional privacy challenges, particularly concerning Personal Identifiable Information (PII) and data sovereignty \cite{hunkenschroer2022ethics}.
 
 \subsection{Anonymization at Ingestion}
-While job descriptions themselves are generally public, they occasionally contain PII, such as the contact details of a specific recruiter (e.g., "Email your CV to jane.doe@company.com"). Our refining layer (Section 6.2) includes a PII-redaction step using heuristic patterns to detect and mask email addresses and phone numbers before the text is committed to the long-term storage or the vector index.
+While job descriptions are generally public, they may contain PII. Our refining layer includes a PII-redaction step using heuristic patterns to detect and mask sensitive information before the text is committed to long-term storage, a practice aligned with privacy-preserving data processing \cite{chu2016data}.
 
 \subsection{GDPR and Data Sovereignty}
-For users in the European Union, the system must comply with the General Data Protection Regulation (GDPR). Our "lightweight" philosophy directly supports the principle of \textit{data minimization} by focusing only on the semantic attributes necessary for search. Furthermore, because our core pipeline (Layer B) runs on local infrastructure rather than third-party cloud APIs, we provide users with greater control over where their data is processed, mitigating the risks associated with data sovereignty in cross-border transfers.
+For users in the European Union, the system must comply with the General Data Protection Regulation (GDPR). Our "lightweight" philosophy supports the principle of data minimization by focusing only on the semantic attributes necessary for search, reducing the risks associated with large-scale data retention \cite{schwartz2020green, menghani2023efficient}.
 
 \section{Fairness and Bias}
-Perhaps the most critical ethical concern is the potential for the semantic enrichment process to reinforce or even amplify existing labor market biases.
+A critical ethical concern is the potential for semantic enrichment to reinforce or amplify existing labor market biases \cite{raghavan2020mitigating, hunkenschroer2022ethics}.
 
 \subsection{Algorithmic Bias in Mapping}
-The bi-encoder models used for role mapping and skill classification are trained on historical data, which inherently reflects societal biases. For example, if historical job postings for "Leadership" roles predominantly use masculine-coded language, the embedding model might inadvertently associate those concepts more strongly with "Male" identifiers. This could lead to a biased search experience where certain groups are subtly excluded from relevant internship opportunities.
+The models used for role mapping and skill classification are trained on historical data, which may reflect societal biases. This could lead to biased search experiences, a known challenge in algorithmic hiring systems \cite{raghavan2020mitigating, bender2021dangers}.
 
 \subsection{Transparency and Human-in-the-Loop}
-To mitigate these risks, we emphasize \textit{transparency} in the retrieval process. The use of RRF (Reciprocal Rank Fusion) allows for the integration of both lexical and semantic scores, preventing the system from becoming a "black box" that only returns results based on hidden vector similarities. Additionally, by providing confidence scores and "Traceable Extraction Decisions" (as discussed in Section 5.1), we allow human administrators to audit the system's decisions and correct systematic misclassifications that could indicate bias.
+To mitigate these risks, we emphasize transparency in the retrieval process. The use of RRF (Reciprocal Rank Fusion) allows for the integration of both lexical and semantic scores, preventing the system from becoming a "black box" \cite{cormack2009reciprocal}. Furthermore, providing traceable extraction decisions allows for auditing and correction of systematic misclassifications \cite{hunkenschroer2022ethics}.
 
 \subsection{Accessibility as an Ethical Goal}
-Finally, we view the "lightweight" nature of our system as an ethical contribution in itself. High-accuracy semantic search has traditionally been the domain of large tech companies with massive computational budgets. By developing a system that runs on commodity hardware, we lower the barrier for smaller educational institutions and non-profit career centers, promoting a more equitable distribution of information in the global internship market.
+Finally, we view the "lightweight" nature of our system as an ethical contribution. By developing a system that runs on commodity hardware, we promote a more equitable distribution of high-quality search technology, adhering to the principles of "Green AI" and accessibility \cite{schwartz2020green, menghani2023efficient}.

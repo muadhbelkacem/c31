@@ -1,8 +1,8 @@
 \chapter{Lightweight Semantic Enrichment Pipeline}
-The semantic enrichment pipeline is the computational heart of the system, responsible for transforming raw, unstructured text into the structured format defined in Chapter 7. This chapter details the implementation of a high-performance, rule-based extraction engine in TypeScript, designed to minimize latency and eliminate the costs associated with external model inference.
+The semantic enrichment pipeline is the computational heart of the system, responsible for transforming raw, unstructured text into the structured format defined in Chapter 7. This chapter details the implementation of a high-performance, rule-based extraction engine in TypeScript, designed to minimize latency and eliminate the costs associated with external model inference, following established principles in Information Extraction (IE) \cite{sarawagi2008information, grishman2015information}.
 
 \section{Pipeline Architecture and Data Flow}
-The pipeline operates on a "clean-enrich-structure" sequence. Data arriving from web scrapers or manual JSON uploads is first sanitized to remove noise, then enriched with semantic tags using deterministic heuristics, and finally stored in a structured cache. The sequence of these internal transformations is shown in Figure \ref{fig:enrichment_sequence}.
+The pipeline operates on a "clean-enrich-structure" sequence. Data arriving from web scrapers or manual JSON uploads is first sanitized to remove noise \cite{chu2016data}, then enriched with semantic tags using deterministic heuristics, and finally stored in a structured cache. This layered approach is consistent with production-grade IE systems that prioritize efficiency \cite{boselli2018classifying, menghani2023efficient}.
 
 \begin{figure}[H]
     \centering
@@ -60,10 +60,10 @@ The pipeline operates on a "clean-enrich-structure" sequence. Data arriving from
 \end{algorithm}
 
 \section{Deterministic Attribute Normalization}
-Normalization ensures that the data is consistent and queryable, regardless of the source platform's original formatting.
+Normalization ensures that the data is consistent and queryable, regardless of the source platform's original formatting \cite{manning2008introduction}.
 
 \subsection{Stable Identifier Generation}
-To maintain referential integrity (e.g., for user bookmarks), we implement a deterministic \texttt{generateId} function. By concatenating the slugified title and company, the system ensures that the same listing from different ingestion cycles always maps to the same primary key.
+To maintain referential integrity, we implement a deterministic \texttt{generateId} function. This process of creating unique keys for record linkage is critical for data quality in large-scale aggregators \cite{christen2012data, elmagarmid2007duplicate}.
 \begin{lstlisting}[language=TypeScript, caption=Stable ID Generation Logic]
 function generateId(title: string, company: string): string {
     const slug = (str: string) => str.toLowerCase()
@@ -74,30 +74,19 @@ function generateId(title: string, company: string): string {
 \end{lstlisting}
 
 \subsection{Regex-Based Salary Parsing}
-Financial data is often buried within narrative text. The \texttt{cleanSalary} module uses a tiered regex strategy:
-\begin{enumerate}
-    \item \textbf{Range Capture:} Identifies patterns such as \texttt{\$50k - \$70k}.
-    \item \textbf{Unit Capture:} Detects hourly, monthly, or yearly qualifiers (e.g., \texttt{/hr}, \texttt{/yr}).
-    \item \textbf{Fallback:} Defaults to "Salary not specified" if no financial tokens are found, preventing UI layout shifts.
-\end{enumerate}
+Financial data is often buried within narrative text. The \texttt{cleanSalary} module uses a tiered regex strategy. Pattern matching remains a highly effective method for extracting structured numeric entities from semi-structured text \cite{sarawagi2008information}.
 
 \section{Skill Extraction and Semantic Alignment}
 As established in the research objectives, the system must identify professional competencies without the overhead of heavy NLP models.
 
 \subsection{Lexicon-Based Matching}
-The \texttt{extractSkills} function implements a case-insensitive keyword search against a curated lexicon. While simple, this approach provides high precision for technical domains where terminology is standardized (e.g., "React", "Python", "Kubernetes").
+The \texttt{extractSkills} function implements a case-insensitive keyword search against a curated lexicon. Dictionary-based methods provide a high-precision baseline for entity recognition in specialized domains \cite{nadeau2007survey, nadeau2007survey}.
 
 \subsection{Ranking and Density Control}
-To avoid "keyword stuffing" (where a recruiter lists 50 technologies to maximize reach), the system employs a density control mechanism:
-\begin{itemize}
-    \item \textbf{Unique Set Matching:} Uses a \texttt{Set} to ensure each skill is counted only once.
-    \item \textbf{Cardinality Limit:} The output is truncated to the top 5 identified skills, prioritizing the first occurrences in the job description which typically represent core requirements.
-\end{itemize}
+To avoid "keyword stuffing," the system employs a density control mechanism. This ensures that the extracted skills represent the core requirements of the role, a common challenge in labor market analytics \cite{giabelli2021skills, bhola2020retrieving}.
 
 \section{Heuristic Role Categorization}
-The final enrichment step maps the internship to a high-level domain. The \texttt{categorizeJob} function evaluates the job title against a hierarchy of professional "anchors."
-
-This mapping allows for O(1) time complexity categorization during the ingestion phase, contributing to the system's overall sub-100ms processing time for large JSON datasets.
+The final enrichment step maps the internship to a high-level domain. The \texttt{categorizeJob} function evaluates the job title against a hierarchy of professional "anchors." This categorization facilitates the efficient discovery mechanisms discussed in retrieval theory \cite{baeza2011modern, croft2010search}.
 
 \section{Caching and Performance Considerations}
-To maintain responsiveness, the results of the enrichment pipeline are stored in a server-side cache (\texttt{cachedInternships}). This minimizes file I/O and redundant processing. In a production environment, this cache is invalidated every 5 minutes (300,000ms), ensuring a balance between data freshness and system throughput.
+To maintain responsiveness, the results of the enrichment pipeline are stored in a server-side cache. This minimizes redundant processing and ensures low-latency performance, a requirement for modern interactive search systems \cite{buttcher2016information, menghani2023efficient}.

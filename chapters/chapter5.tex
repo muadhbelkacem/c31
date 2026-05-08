@@ -1,8 +1,8 @@
 \chapter{Methodology and System Overview}
-This chapter provides the architectural blueprint for the lightweight semantic structuring system. By leveraging the Next.js App Router and a modular TypeScript backend, the system achieves a performant data pipeline that avoids the latency of external LLM dependencies while maintaining high extraction precision.
+This chapter provides the architectural blueprint for the lightweight semantic structuring system. By leveraging modern web technologies and a modular backend, the system achieves a performant data pipeline that avoids the latency of external LLM dependencies while maintaining high extraction precision, following established principles in data integration and system design \cite{doan2012principles, buttcher2016information}.
 
 \section{Functional Requirements and Use Cases}
-The system is designed to serve two primary actors: the \textit{Student/Job Seeker}, who interacts with the search interface to discover opportunities, and the \textit{System Administrator/Data Engineer}, who manages the automated ingestion and maintenance of the data pipeline. The following Use Case Diagram illustrates the high-level functional requirements and the boundaries of the system.
+The system is designed to serve two primary actors: the \textit{Student/Job Seeker}, who interacts with the search interface to discover opportunities, and the \textit{System Administrator/Data Engineer}, who manages the automated ingestion and maintenance of the data pipeline. These requirements align with standard practices in recruitment informatics \cite{faliagka2012online}.
 
 \begin{figure}[H]
     \centering
@@ -12,7 +12,7 @@ The system is designed to serve two primary actors: the \textit{Student/Job Seek
 \end{figure}
 
 \section{System Architecture and Component Mapping}
-The system is organized into four logical tiers. The following UML Component Diagram illustrates the physical organization of the \texttt{internships-code} directory and the dependencies between modules, specifically highlighting the interaction between the file-based storage, the server-side logic, and the React client components.
+The system is organized into four logical tiers. The architecture emphasizes the separation of data processing from the presentation layer to ensure scalability \cite{doan2012principles}. The following UML Component Diagram illustrates the physical organization of the project structure and the dependencies between modules.
 
 \begin{figure}[H]
     \centering
@@ -42,12 +42,12 @@ The system is organized into four logical tiers. The following UML Component Dia
         \draw [arrow] (ui) -- (route) node[midway, right, xshift=1.2cm, yshift=-0.4cm, font=\tiny] {Client Fetch (GET)};
         \draw [arrow] (dataTs) -- (supabase) node[midway, left, font=\tiny] {Database Client};
     \end{tikzpicture}
-    \caption{UML Component Diagram: Mapping Logical Layers to the \texttt{internships-code} Project Structure}
+    \caption{UML Component Diagram: Mapping Logical Layers to the Project Structure}
     \label{fig:component_diagram}
 \end{figure}
 
 \section{Core Data Model}
-The semantic integrity of the pipeline is maintained by the \texttt{Internship} interface defined in \texttt{app/lib/data.ts}. This model acts as the formal contract between the ingestion logic and the frontend presentation layer.
+The semantic integrity of the pipeline is maintained by a formal data model that acts as the contract between the ingestion logic and the frontend. This approach to structured information management is consistent with foundational work in Information Extraction \cite{sarawagi2008information}.
 
 \begin{figure}[H]
     \centering
@@ -57,7 +57,7 @@ The semantic integrity of the pipeline is maintained by the \texttt{Internship} 
 \end{figure}
 
 \section{The Ingestion and Retrieval Flow}
-The interaction between the client-side UI and the server-side data processing layer is managed through asynchronous requests. The following sequence diagram illustrates the lifecycle of a data request, from the initial user visit to the delivery of processed semantic entities.
+The interaction between the client-side UI and the server-side data processing layer is managed through asynchronous requests, allowing for low-latency retrieval as discussed in modern search engine implementation \cite{buttcher2016information}.
 
 \begin{figure}[H]
     \centering
@@ -67,20 +67,12 @@ The interaction between the client-side UI and the server-side data processing l
 \end{figure}
 
 \section{The Ingestion Pipeline}
-The data ingestion process, implemented in \texttt{app/lib/data.ts} and mirrored in the API layer, follows a sequence of operations to ensure raw JSON data is transformed into structured entities.
+The data ingestion process follows a sequence of operations to ensure raw JSON data is transformed into structured entities, employing techniques for data cleaning and normalization \cite{chu2016data}.
 
 \begin{enumerate}
-    \item \textbf{I/O and Safety Validation:} The system reads \texttt{intern\_data.json} using \texttt{promises/fs}. It performs safety checks to ensure the file is not empty and does not contain unexpected HTML error responses.
-    \item \textbf{Cleaning and Normalization:}
-        \begin{itemize}
-            \item \textbf{Text Fields:} Uses \texttt{cleanTitle}, \texttt{cleanCompany}, and \texttt{cleanLocation} to handle missing values and whitespace.
-            \item \textbf{Salaries:} Employs specialized regex to isolate compensation values from noisy text.
-        \end{itemize}
-    \item \textbf{ID Generation and Conflict Resolution:} The \texttt{generateId} function creates slugs. If multiple listings share the same title and company, a sequential suffix is appended to ensure uniqueness.
-    \item \textbf{Semantic Mapping:}
-        \begin{itemize}
-            \item \textbf{Skills:} Case-insensitive matching against a dictionary of technical keywords.
-            \item \textbf{Categories:} Heuristics mapping roles to domains such as \textit{Software}, \textit{Data/AI}, or \textit{Healthcare}.
-        \end{itemize}
-    \item \textbf{State Management:} Processed results are stored in a \texttt{cachedInternships} variable with a 300,000ms (5-minute) TTL to optimize server response times.
+    \item \textbf{I/O and Safety Validation:} The system reads the source data and performs safety checks to ensure structural integrity \cite{doan2012principles}.
+    \item \textbf{Cleaning and Normalization:} Employs specialized logic to handle missing values and noisy text fields \cite{chu2016data}.
+    \item \textbf{ID Generation and Conflict Resolution:} Creates stable identifiers to enable deduplication and record linkage \cite{christen2012data}.
+    \item \textbf{Semantic Mapping:} Maps extracted information to professional taxonomies like ESCO \cite{esco2017handbook}.
+    \item \textbf{State Management:} Utilizes caching strategies to optimize response times and system throughput.
 \end{enumerate}

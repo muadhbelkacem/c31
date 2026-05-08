@@ -1,27 +1,27 @@
 \chapter{Conclusion and Future Work}
-This thesis has presented a comprehensive approach to the lightweight semantic structuring of internship listings, addressing the challenges of high-volume, noisy recruitment data. By combining traditional rule-based extraction with modern, small-scale Transformer models, we have demonstrated that it is possible to build a robust and efficient knowledge base without the excessive costs and latency of large-scale LLM dependencies.
+This thesis has presented a comprehensive approach to the lightweight semantic structuring of internship listings, addressing the challenges of high-volume, noisy recruitment data. By combining traditional rule-based extraction with modern, small-scale Transformer models, we have demonstrated that it is possible to build a robust and efficient knowledge base without the excessive costs and latency of large-scale LLM dependencies, following the trend towards more sustainable and efficient AI \cite{schwartz2020green, menghani2023efficient}.
 
 \section{Summary of Findings}
 The experimental results validate our core hypothesis: a tiered, hybrid architecture can achieve professional-grade semantic alignment while remaining computationally feasible for production deployment. Our key findings include:
 
 \begin{itemize}
-    \item \textbf{Efficiency and Scalability:} The system achieved an ingestion throughput of 12.5 documents per second on commodity hardware, with a search latency under 50ms. This confirms that semantic search can be delivered with the responsiveness users expect from traditional search engines.
-    \item \textbf{Extraction Accuracy:} Deterministic fields such as compensation and location were extracted with high precision ($>0.94$), while semantic mapping of job roles achieved a Top-3 accuracy of 91\% using lightweight bi-encoders.
-    \item \textbf{Search Relevance:} The hybrid retrieval strategy (BM25 + HNSW) outperformed keyword-only search by over 20\% in Precision@5 and Mean Average Precision, effectively bridging the "semantic gap" for conceptual queries.
-    \item \textbf{Operational Cost:} By utilizing local models for the vast majority of processing, the system reduces reliance on expensive external APIs by over 95\% compared to zero-shot LLM approaches.
+    \item \textbf{Efficiency and Scalability:} The system achieved an ingestion throughput suitable for real-time updates on commodity hardware, confirming that semantic search can be delivered with the responsiveness required for interactive applications \cite{buttcher2016information, johnson2019billion}.
+    \item \textbf{Extraction Accuracy:} Deterministic fields were extracted with high precision, while semantic mapping of job roles achieved high Top-3 accuracy using lightweight bi-encoders, bridging the gap between raw text and standardized taxonomies like ESCO \cite{esco2017handbook, reimers2019sentence}.
+    \item \textbf{Search Relevance:} The hybrid retrieval strategy outperformed keyword-only search, effectively addressing the "semantic gap" for conceptual queries in the recruitment domain \cite{thakur2021beir, luan2021sparse}.
+    \item \textbf{Operational Cost:} By utilizing local models for the vast majority of processing, the system reduces reliance on expensive external APIs, adhering to principles of Knowledge Distillation and efficient inference \cite{hsieh2023distilling, menghani2023efficient}.
 \end{itemize}
 
 \section{Future Directions}
-While the current system provides a solid foundation for internship analytics, several areas remain for future exploration and improvement.
+While the current system provides a solid foundation for internship analytics, several areas remain for future exploration and improvement \cite{tamburri2020data, lacic2020recommender}.
 
 \subsection{Multilingual Extraction}
-A primary limitation of the current implementation is its focus on English-language listings. Expanding the pipeline to support multilingual extraction—leveraging the cross-lingual capabilities of models like \texttt{multi-qa-MiniLM-L6-cos-v1} and the multilingual definitions in the ESCO framework—would be essential for a truly global internship platform.
+A primary limitation is the current focus on English-language listings. Expanding the pipeline to support multilingual extraction using cross-lingual models would be essential for a truly global internship platform, leveraging the multilingual definitions in the ESCO framework \cite{esco2017handbook, lin2021pretrained}.
 
 \subsection{Better Section Segmentation}
-The current refining layer uses text density heuristics to identify the main description block. Future work could employ more sophisticated layout-aware models (e.g., LayoutLM) to explicitly segment job postings into "Requirements," "Responsibilities," and "Benefits." This would allow for more granular skill weighting, such as distinguishing between a "required" skill and a "nice-to-have" benefit.
+Future work could employ more sophisticated models to explicitly segment job postings into structured blocks like "Responsibilities" and "Benefits". This would allow for more granular skill weighting and better context-aware matching \cite{qin2018enhancing, bhola2020retrieving}.
 
 \subsection{Self-training and Distillation}
-To further improve local model performance, we envision a continuous self-training loop. High-confidence labels generated by the "Layer C" LLM can be used to periodically fine-tune the "Layer B" local models. This distillation process would allow the lightweight components to gradually "inherit" the linguistic nuances of the larger models without inheriting their latency or cost.
+We envision a continuous self-training loop where high-confidence labels generated by larger models are used to periodically fine-tune local models. This distillation process would allow the lightweight components to gradually improve without inheriting high latency \cite{hsieh2023distilling, sanh2019distilbert}.
 
 \subsection{Continuous Monitoring for Taxonomy Drift}
-The technical landscape is in constant flux, with new frameworks and job roles emerging every month. Implementing an automated "drift detection" module—which flags frequently occurring terms that do not map to the current ESCO or alias tables—would allow administrators to keep the system's semantic schema up-to-date with minimal manual effort.
+The technical landscape is in constant flux, with new frameworks and job roles emerging frequently. Implementing automated "drift detection" would allow the system's semantic schema to stay up-to-date with minimal manual effort, addressing the challenges of ontology evolution in the labor market \cite{shvaiko2013ontology, staab2009handbook}.

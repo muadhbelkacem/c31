@@ -1,5 +1,5 @@
 \chapter{Results}
-This chapter presents the experimental findings of our evaluation. We detail the performance of the extraction and classification modules, assess the quality of the hybrid retrieval strategy, and analyze the system's computational efficiency and operational costs.
+This chapter presents the experimental findings of our evaluation. We detail the performance of the extraction and classification modules, assess the quality of the hybrid retrieval strategy, and analyze the system's computational efficiency and operational costs, drawing comparisons to benchmarks established in information extraction and retrieval literature \cite{sarawagi2008information, thakur2021beir}.
 
 \section*{Chapter Outline}
 This chapter is organized as follows:
@@ -11,21 +11,21 @@ This chapter is organized as follows:
 \end{itemize}
 
 \section{Extraction Results}
-The first stage of evaluation focuses on the performance of the rule-based Layer A for structured field extraction.
+The first stage of evaluation focuses on the performance of the rule-based Layer A for structured field extraction, a foundational task in recruitment analytics \cite{boselli2018classifying, tamburri2020data}.
 
-The system achieves high precision across all fields, particularly for compensation and locations where patterns are relatively stable. The lower recall for "Skill Match" is expected, as simple lexicon lookups cannot capture skills described through paraphrasing, which are later addressed in Layer B.
+The system achieves high precision across all fields, particularly for compensation and locations where patterns are relatively stable. The lower recall for "Skill Match" is expected, as simple lexicon lookups cannot capture skills described through paraphrasing, a limitation commonly noted in dictionary-based extraction systems \cite{nadeau2007survey, sarawagi2008information}. These cases are later addressed through the semantic mapping in Layer B.
 
 \section{Classification Results}
-Layer B's primary task is to bridge the semantic gap using small transformer models. We evaluate the mapping of raw job titles to canonical ESCO occupations and the categorization of complex skill mentions.
+Layer B's primary task is to bridge the semantic gap using small transformer models, leveraging the capabilities of bi-encoder architectures \cite{reimers2019sentence}. We evaluate the mapping of raw job titles to canonical ESCO occupations and the categorization of complex skill mentions \cite{esco2017handbook}.
 
-The Top-3 accuracy of 91\% for title normalization indicates that while the system may occasionally miss the exact canonical label, it consistently identifies the correct professional family. This is a significant improvement over simple keyword-based title matching, which achieved only 54\% Top-1 accuracy in our baseline tests.
+The Top-3 accuracy of 91\% for title normalization indicates that while the system may occasionally miss the exact canonical label, it consistently identifies the correct professional family. This is a significant improvement over simple keyword-based title matching, which achieved only 54\% Top-1 accuracy in our baseline tests, consistent with findings in domain-specific BERT applications \cite{pappas2022jobbert, gugnani2020implicit}.
 
 \section{Retrieval Results}
-The retrieval quality is measured by comparing our proposed Hybrid Retrieval strategy (Baseline 3) against the Keyword-Only baseline (Baseline 1).
+The retrieval quality is measured by comparing our proposed Hybrid Retrieval strategy (Baseline 3) against the Keyword-Only baseline (Baseline 1), following evaluation frameworks such as BEIR \cite{thakur2021beir}.
 
-The hybrid approach demonstrates a substantial gain of +22\% in P@5 and +21\% in MAP. Qualitative analysis shows that the hybrid system excels in handling conceptual queries like "Data Analysis roles in Healthcare," where the keyword baseline fails to find relevant posts that use synonymous terms like "Clinical Researcher" or "Bioinformatics Intern."
+The hybrid approach demonstrates a substantial gain of +22\% in P@5 and +21\% in MAP. Qualitative analysis shows that the hybrid system excels in handling conceptual queries where the keyword baseline fails, a result that aligns with modern dense retrieval performance in specialized domains \cite{luan2021sparse, karpukhin2020dense}.
 
 \section{Efficiency and Cost}
-A key goal of this thesis is to demonstrate the feasibility of running a semantic pipeline on commodity hardware.
+A key goal of this thesis is to demonstrate the feasibility of running a semantic pipeline on commodity hardware, adhering to the principles of "Green AI" \cite{schwartz2020green}.
 
-By utilizing Layer B for 95\% of the workload and reserving Layer C for ambiguous cases, the system reduces API costs by over 90\% compared to an LLM-only approach, while maintaining a high ingestion throughput suitable for real-time web scraping updates.
+By utilizing Layer B for 95\% of the workload and reserving Layer C for ambiguous cases, the system reduces API costs by over 90\% compared to an LLM-only approach. This optimization demonstrates the practical utility of knowledge distillation and efficient deep learning practices in production environments \cite{hsieh2023distilling, menghani2023efficient}.

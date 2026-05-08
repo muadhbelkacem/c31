@@ -1,71 +1,58 @@
 \chapter{Evaluation Setup}
-This chapter defines the framework for assessing the effectiveness and efficiency of the proposed semantic enrichment and retrieval system. We outline the evaluation objectives, the process of constructing a "gold standard" dataset, the metrics used for quantitative analysis, and the suite of baselines and configurations used for comparative study.
+This chapter defines the framework for assessing the effectiveness and efficiency of the proposed semantic enrichment and retrieval system. We outline the evaluation objectives, the process of constructing a "gold standard" dataset, the metrics used for quantitative analysis, and the suite of baselines and configurations used for comparative study, following established protocols in Information Retrieval evaluation \cite{manning2008introduction, buttcher2016information}.
 
 \section{Evaluation Objectives}
-The evaluation is designed to validate the system's ability to structure noisy internship data accurately while adhering to the performance constraints of a lightweight, low-cost application. We formulate our assessment around four primary Research Questions (RQs):
+The evaluation is designed to validate the system's ability to structure noisy internship data accurately while adhering to the performance constraints of a lightweight, low-cost application. We formulate our assessment around four primary Research Questions (RQs), drawing on metrics established in deep learning survey literature \cite{li2020survey, menghani2023efficient}:
 
 \begin{itemize}
-    \item \textbf{RQ1 (Extraction Fidelity):} How accurately does the deterministic pipeline (Layer A) extract structured fields such as compensation, locations, and dates compared to human-annotated labels?
-    \item \textbf{RQ2 (Semantic Alignment):} To what extent does the embedding-based mapping (Layer B) improve the classification of job titles into canonical ESCO occupations over keyword-based heuristics?
-    \item \textbf{RQ3 (Retrieval Quality):} Does the hybrid search strategy—combining lexical BM25 scores with semantic vector similarity—significantly improve precision and relevance for student-centric queries?
-    \item \textbf{RQ4 (System Efficiency):} What are the computational costs (latency, memory, and API overhead) of the multi-layered pipeline, and how does it scale on commodity hardware compared to LLM-only approaches?
+    \item \textbf{RQ1 (Extraction Fidelity):} How accurately does the deterministic pipeline (Layer A) extract structured fields such as compensation, locations, and dates compared to human-annotated labels? \cite{sarawagi2008information}
+    \item \textbf{RQ2 (Semantic Alignment):} To what extent does the embedding-based mapping (Layer B) improve the classification of job titles into canonical ESCO occupations over keyword-based heuristics? \cite{reimers2019sentence, lin2021pretrained}
+    \item \textbf{RQ3 (Retrieval Quality):} Does the hybrid search strategy—combining lexical BM25 scores with semantic vector similarity—significantly improve precision and relevance for student-centric queries? \cite{thakur2021beir, luan2021sparse}
+    \item \textbf{RQ4 (System Efficiency):} What are the computational costs (latency, memory, and API overhead) of the multi-layered pipeline, and how does it scale on commodity hardware compared to LLM-only approaches? \cite{menghani2023efficient, hsieh2023distilling}
 \end{itemize}
 
 \section{Ground Truth Construction}
-To provide a reliable benchmark, we curated a "Gold Standard" evaluation set. This dataset serves as the reference point for all accuracy and retrieval metrics.
+To provide a reliable benchmark, we curated a "Gold Standard" evaluation set. This dataset serves as the reference point for all accuracy and retrieval metrics \cite{buttcher2016information}.
 
 \subsection{Dataset Composition}
 The evaluation set consists of 500 internship listings, purposively sampled to ensure diversity across sources and domains:
 \begin{itemize}
-    \item \textbf{Web-Scraped (400):} Randomly sampled from the 17,500+ records in the primary JSON catalog, covering various platforms like LinkedIn and Indeed.
-    \item \textbf{User-Uploaded (100):} Selected from raw JSON uploads to test the system's robustness against heterogeneous, non-standardized structures.
+    \item \textbf{Web-Scraped (400):} Randomly sampled from the 17,500+ records in the primary JSON catalog \cite{kurekova2015using}.
+    \item \textbf{User-Uploaded (100):} Selected from raw JSON uploads to test the system's robustness against heterogeneous, non-standardized structures \cite{abiteboul1997querying}.
 \end{itemize}
 
 \subsection{Annotation Process}
-Two domain experts (graduate students in Computer Science) manually labeled each listing according to the target schema defined in Chapter 7. For each entry, annotators:
-\begin{enumerate}
-    \item Extracted ground-truth city, country, and compensation ranges.
-    \item Mapped the raw job title to the most specific "Level 4" ESCO Occupation.
-    \item Identified core technical skills from the ESCO Skills pillar.
-\end{enumerate}
-Inter-annotator agreement was measured using Cohen's Kappa ($\kappa$), achieving a score of 0.82, which indicates high reliability. Discrepancies were resolved through a final review by a third senior annotator.
+Two domain experts manually labeled each listing according to the target schema defined in Chapter 7. Inter-annotator agreement was measured using Cohen's Kappa, a standard measure for reliability in classification tasks \cite{jurafsky2023speech}.
 
 \section{Metrics}
-We utilize a multi-faceted set of metrics to capture different aspects of system performance.
+We utilize a multi-faceted set of metrics to capture different aspects of system performance, as defined in fundamental Information Retrieval and NLP texts \cite{manning2008introduction, jurafsky2023speech}.
 
 \subsection{Extraction and Classification}
-For field-level extraction (Layer A) and categorical mapping (Layer B), we use standard classification metrics:
+For field-level extraction (Layer A) and categorical mapping (Layer B), we use standard classification metrics \cite{manning2008introduction, li2020survey}:
 \begin{itemize}
     \item \textbf{Precision (P):} The proportion of extracted entities that are correct.
     \item \textbf{Recall (R):} The proportion of ground truth entities correctly extracted.
-    \item \textbf{F1-Score:} The harmonic mean of precision and recall: $F1 = 2 \cdot \frac{P \cdot R}{P + R}$.
-    \item \textbf{Top-k Accuracy:} For title mapping, we report Top-1 and Top-3 accuracy to account for valid overlapping professional families in the ESCO taxonomy.
+    \item \textbf{F1-Score:} The harmonic mean of precision and recall.
+    \item \textbf{Top-k Accuracy:} Standard metric for evaluating classification models where the correct label is expected within the top $k$ predictions \cite{menghani2023efficient}.
 \end{itemize}
 
 \subsection{Information Retrieval (IR)}
-For search engine evaluation, we use 20 representative search queries. Annotators marked each result in the Top-10 as "Highly Relevant," "Relevant," or "Irrelevant."
+For search engine evaluation, we use metrics that account for both binary and graded relevance \cite{manning2008introduction, baeza2011modern, buttcher2016information}:
 \begin{itemize}
-    \item \textbf{Precision@k (P@k):} Precision at rank $k$ (typically $k=5, 10$).
+    \item \textbf{Precision@k (P@k):} Precision at rank $k$.
     \item \textbf{Mean Average Precision (MAP):} A global measure of ranking quality across all queries.
-    \item \textbf{NDCG (Normalized Discounted Cumulative Gain):} Accounts for graded relevance levels, rewarding systems that place "Highly Relevant" results higher.
+    \item \textbf{NDCG (Normalized Discounted Cumulative Gain):} Accounts for graded relevance levels, rewarding systems that place relevant results higher \cite{jarvelin2002cumulated}.
 \end{itemize}
 
 \section{Experimental Configuration}
-To isolate the contribution of each component, we compare our proposed system against several baselines and ablation variants.
+To isolate the contribution of each component, we compare our proposed system against several baselines and ablation variants, reflecting the comparative methodologies used in modern retrieval research \cite{thakur2021beir, luan2021sparse}.
 
 \subsection{Baselines}
 \begin{itemize}
-    \item \textbf{Baseline 1: Keyword-Only (BM25):} A traditional search on raw text without any semantic enrichment.
-    \item \textbf{Baseline 2: Rules-Only (Layer A):} Extraction using only regex and lexicons, representing a basic structured system.
-    \item \textbf{Baseline 3: Hybrid (Layer A + Layer B):} Our primary proposed system, combining deterministic rules with small-model semantic mapping.
+    \item \textbf{Baseline 1: Keyword-Only (BM25):} A traditional search on raw text \cite{robertson2009probabilistic}.
+    \item \textbf{Baseline 2: Rules-Only (Layer A):} Extraction using only regex and lexicons \cite{sarawagi2008information}.
+    \item \textbf{Baseline 3: Hybrid (Layer A + Layer B):} Our primary proposed system, combining deterministic rules with small-model semantic mapping \cite{reimers2019sentence, thakur2021beir}.
 \end{itemize}
 
 \subsection{Comparison and Hardware}
-To evaluate efficiency (RQ4), we compare the throughput and cost of the local \textbf{Layer B} (Transformer-based) against an \textbf{LLM-Only (Layer C)} approach using GPT-4o-mini.
-
-All local tests are conducted on a standardized environment:
-\begin{itemize}
-    \item \textbf{CPU:} Intel Core i7 (4-core), 16GB RAM (No dedicated GPU).
-    \item \textbf{Runtime:} Node.js v20 (Next.js 14 Production Build).
-    \item \textbf{Embedding Model:} \texttt{all-MiniLM-L6-v2} (ONNX format) for local inference.
-\end{itemize}
+To evaluate efficiency (RQ4), we compare the throughput and cost of the local \textbf{Layer B} against an \textbf{LLM-Only (Layer C)} approach, following the principles of "Green AI" to prioritize computational efficiency \cite{schwartz2020green}.

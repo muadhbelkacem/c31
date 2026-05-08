@@ -12,49 +12,49 @@ As implemented in the system's ingestion module, web-scraped data often arrives 
 \subsection{Data Noisiness and Preprocessing}
 Web-scraped text is inherently noisy. It contains "boilerplate" (legal disclaimers, navigation links) and formatting artifacts. Data cleaning is a critical prerequisite for reliable extraction \cite{chu2016data}.
 \begin{itemize}
-    \item \textbf{Text Normalization:} This is the process of transforming text into a consistent canonical form. The system's \texttt{cleanDescription} utility performs basic normalization by removing excessive whitespace and line breaks, which reduces the variance that downstream NLP models must handle.
-    \item \textbf{Tokenization:} The first step in most IE tasks is breaking text into discrete tokens (words or sub-words). Consistent tokenization is crucial for the dictionary-based matching used in skill extraction and is a fundamental component of information retrieval pipelines \cite{manning2008introduction}.
+    \item \textbf{Text Normalization:} This is the process of transforming text into a consistent canonical form. The system's \texttt{cleanDescription} utility performs basic normalization, which reduces the variance that downstream NLP models must handle.
+    \item \textbf{Tokenization:} The first step in most IE tasks is breaking text into discrete tokens. Consistent tokenization is crucial for the dictionary-based matching used in skill extraction and is a fundamental component of information retrieval pipelines \cite{manning2008introduction}.
 \end{itemize}
 
 \section{Information Extraction (IE) Fundamentals}
-Information Extraction is the automated process of extracting structured information from unstructured or semi-structured machine-readable documents \cite{grishman2015information}.
+Information Extraction is the automated process of extracting structured information from unstructured or semi-structured machine-readable documents \cite{grishman2015information, sarawagi2008information}.
 
 \subsection{Named Entity Recognition (NER)}
 NER is a subtask of IE that seeks to locate and classify named entities mentioned in unstructured text into pre-defined categories \cite{nadeau2007survey}.
 \begin{itemize}
-    \item \textbf{Dictionary-Based (Gazetteer) NER:} This approach relies on a predefined list of entities. The project's \texttt{extractSkills} function uses this method to identify technical terms like "React" or "Python". While it may miss novel entities, it offers high precision and extreme computational efficiency, making it ideal for the "Layer A" (deterministic) part of a tiered pipeline.
-    \item \textbf{Neural NER:} Modern approaches use sequence labeling models (e.g., Bi-LSTM-CRF or Transformers) to identify entities based on context \cite{lample2016neural}. These are necessary for resolving ambiguities where a word like "Java" could refer to a programming language or a geographic location.
+    \item \textbf{Dictionary-Based (Gazetteer) NER:} This approach relies on a predefined list of entities. The project's \texttt{extractSkills} function uses this method. While it may miss novel entities, it offers high precision and extreme computational efficiency, making it ideal for the initial stage of a tiered pipeline \cite{nadeau2007survey}.
+    \item \textbf{Neural NER:} Modern approaches use sequence labeling models or Transformers to identify entities based on context \cite{lample2016neural, li2020survey}. These are necessary for resolving ambiguities where a word like "Java" could refer to a programming language or a geographic location.
 \end{itemize}
 
 \subsection{Slot Filling and Attribute Extraction}
 Slot filling involves identifying specific values for a set of predefined attributes (slots) associated with an event or entity.
 \begin{itemize}
-    \item \textbf{Regex-Based Extraction:} For highly structured attributes like salaries or dates, Regular Expressions (Regex) provide a robust mechanism. The \texttt{cleanSalary} function in the codebase utilizes pattern matching to normalize varied currency strings (e.g., "\$50k" vs "50,000 USD") into a comparable numeric or range format.
-    \item \textbf{Heuristic Validation:} Once extracted, values are often passed through heuristic filters to ensure data integrity (e.g., ensuring a salary value is within a reasonable range for an internship).
+    \item \textbf{Regex-Based Extraction:} For highly structured attributes like salaries or dates, Regular Expressions (Regex) provide a robust mechanism. The \texttt{cleanSalary} function in the codebase utilizes pattern matching to normalize varied currency strings into a comparable numeric or range format \cite{sarawagi2008information}.
+    \item \textbf{Heuristic Validation:} Once extracted, values are often passed through heuristic filters to ensure data integrity.
 \end{itemize}
 
 \section{Semantic Categorization and Taxonomies}
-Raw job titles and descriptions often suffer from the "semantic gap"—the difference between the specific language used by an author and the general concepts understood by a system.
+Raw job titles and descriptions often suffer from the "semantic gap"—the difference between the specific language used by an author and the general concepts understood by a system \cite{mezzanzanica2019big}.
 
-\subsection{Occupational Taxonomies (ESCO and O*NET)}
+\subsection{Occupational Taxonomies}
 To bridge this gap, systems map raw data to standardized taxonomies.
 \begin{itemize}
-    \item \textbf{ESCO (European Skills, Competences, Qualifications and Occupations):} ESCO provides a common reference language for the European labor market \cite{esco2017handbook}. It organizes occupations into a hierarchy and links them to required skills.
-    \item \textbf{Hierarchical Mapping:} By using a taxonomy, a system can understand that a "React Developer" is a subset of "Software Engineer". This allows for "roll-up" queries where a user searching for "IT roles" can find "Web Developers" even if the specific keyword "IT" is missing.
+    \item \textbf{O*NET and ESCO:} Frameworks like O*NET \cite{peterson2001occupational} and ESCO provide a common reference language for the labor market. They organize occupations into hierarchies and link them to required skills.
+    \item \textbf{Hierarchical Mapping:} By using a taxonomy, a system can understand professional relationships, such as a "React Developer" being a subset of "Software Engineer" \cite{mezzanzanica2019big}.
 \end{itemize}
 
 \subsection{Heuristic vs. Semantic Classification}
-The system's \texttt{categorizeJob} function implements a rule-based classifier. While simple, these heuristics provide a baseline for "Categorical Filtering". More advanced "Semantic Labeling" involves using sentence embeddings \cite{reimers2019sentence} to find the nearest neighbor in the ESCO label space, a method that provides higher recall for idiosyncratic job titles.
+While heuristics provide a baseline for "Categorical Filtering", more advanced "Semantic Labeling" involves using sentence embeddings \cite{reimers2019sentence} to find the nearest neighbor in a label space, a method that provides higher recall for idiosyncratic job titles \cite{sayfullina2018learning}.
 
 \section{Record Linkage and Entity Resolution}
-When aggregating from multiple job boards, the same internship may appear multiple times with slight variations in title or description.
+When aggregating from multiple job boards, the same internship may appear multiple times with slight variations.
 
 \subsection{Deduplication Strategies}
 \textit{Record Linkage} is the task of finding records in a dataset that refer to the same entity \cite{christen2012data, elmagarmid2007duplicate}.
 \begin{itemize}
-    \item \textbf{Deterministic Matching:} The \texttt{generateId} function uses a combination of "Slugification" and concatenation (Company + Title) to create a unique identifier. This is a form of \textit{blocking}, where records that do not share a signature are never compared, significantly speeding up the deduplication process.
-    \item \textbf{Probabilistic Matching:} In cases where company names vary (e.g., "Google" vs "Google Inc."), fuzzy string matching (e.g., Levenshtein distance) is used to calculate a similarity score between records.
+    \item \textbf{Deterministic Matching:} The \texttt{generateId} function uses a combination of "Slugification" and concatenation. This is a form of \textit{blocking}, which significantly speeds up the deduplication process \cite{christen2012data}.
+    \item \textbf{Probabilistic Matching:} In cases where names vary, fuzzy string matching is used to calculate a similarity score between records \cite{elmagarmid2007duplicate}.
 \end{itemize}
 
 \subsection{Canonicalization}
-The final step in normalization is canonicalization—converting a group of linked records into a single "golden" representation. This involves choosing the most complete description and the most standard title, ensuring that the final search index is both concise and accurate.
+The final step in normalization is canonicalization—converting a group of linked records into a single "golden" representation, ensuring that the final search index is both concise and accurate \cite{doan2012principles}.
