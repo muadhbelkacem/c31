@@ -1,29 +1,29 @@
 \chapter{Background: Information Extraction and Semantics}
-This chapter establishes the theoretical foundations for the "internships-code" system, bridging the gap between Information Extraction (IE) theory and the practical implementation of a recruitment data pipeline. We explore how semi-structured internship data is transformed into a queryable semantic format, drawing on established principles in data matching, natural language processing (NLP), and occupational taxonomies.
+This chapter establishes the theoretical foundations for the "internships-code" system, bridging the gap between Information Extraction (IE) theory \cite{sarawagi2008information} and the practical implementation of a recruitment data pipeline. We explore how semi-structured internship data is transformed into a queryable semantic format, drawing on established principles in data matching \cite{christen2012data}, natural language processing (NLP) \cite{jurafsky2023speech}, and occupational taxonomies.
 
 \section{Information Landscapes: From Unstructured to Structured}
-The core challenge in recruitment informatics is the heterogeneity of data sources. Information typically exists on a spectrum of structure.
+The core challenge in recruitment informatics is the heterogeneity of data sources. Information typically exists on a spectrum of structure, ranging from completely unstructured text to highly structured databases \cite{doan2012principles}.
 
 \subsection{Unstructured vs. Semi-Structured Data}
-Unstructured data, such as raw job descriptions or cover letters, lacks a pre-defined data model. Conversely, semi-structured data—prevalent in web-scraped job postings—contains some organizational markers (like HTML tags or JSON keys) but lacks the strict consistency of a relational database.
+Unstructured data, such as raw job descriptions or cover letters, lacks a pre-defined data model. Conversely, semi-structured data—prevalent in web-scraped job postings—contains some organizational markers (like HTML tags or JSON keys) but lacks the strict consistency of a relational database \cite{abiteboul1997querying}.
 
 As implemented in the system's ingestion module, web-scraped data often arrives as a "schema-on-read" challenge. For example, while one platform might use the key \texttt{platform\_link}, another uses \texttt{url}. The pipeline must perform \textit{schema mapping} to normalize these into a canonical \texttt{link} attribute.
 
 \subsection{Data Noisiness and Preprocessing}
-Web-scraped text is inherently noisy. It contains "boilerplate" (legal disclaimers, navigation links) and formatting artifacts.
+Web-scraped text is inherently noisy. It contains "boilerplate" (legal disclaimers, navigation links) and formatting artifacts. Data cleaning is a critical prerequisite for reliable extraction \cite{chu2016data}.
 \begin{itemize}
     \item \textbf{Text Normalization:} This is the process of transforming text into a consistent canonical form. The system's \texttt{cleanDescription} utility performs basic normalization by removing excessive whitespace and line breaks, which reduces the variance that downstream NLP models must handle.
-    \item \textbf{Tokenization:} The first step in most IE tasks is breaking text into discrete tokens (words or sub-words). Consistent tokenization is crucial for the dictionary-based matching used in skill extraction.
+    \item \textbf{Tokenization:} The first step in most IE tasks is breaking text into discrete tokens (words or sub-words). Consistent tokenization is crucial for the dictionary-based matching used in skill extraction and is a fundamental component of information retrieval pipelines \cite{manning2008introduction}.
 \end{itemize}
 
 \section{Information Extraction (IE) Fundamentals}
-Information Extraction is the automated process of extracting structured information from unstructured or semi-structured machine-readable documents.
+Information Extraction is the automated process of extracting structured information from unstructured or semi-structured machine-readable documents \cite{grishman2015information}.
 
 \subsection{Named Entity Recognition (NER)}
-NER is a subtask of IE that seeks to locate and classify named entities mentioned in unstructured text into pre-defined categories.
+NER is a subtask of IE that seeks to locate and classify named entities mentioned in unstructured text into pre-defined categories \cite{nadeau2007survey}.
 \begin{itemize}
     \item \textbf{Dictionary-Based (Gazetteer) NER:} This approach relies on a predefined list of entities. The project's \texttt{extractSkills} function uses this method to identify technical terms like "React" or "Python". While it may miss novel entities, it offers high precision and extreme computational efficiency, making it ideal for the "Layer A" (deterministic) part of a tiered pipeline.
-    \item \textbf{Neural NER:} Modern approaches use sequence labeling models (e.g., Bi-LSTM-CRF or Transformers) to identify entities based on context. These are necessary for resolving ambiguities where a word like "Java" could refer to a programming language or a geographic location.
+    \item \textbf{Neural NER:} Modern approaches use sequence labeling models (e.g., Bi-LSTM-CRF or Transformers) to identify entities based on context \cite{lample2016neural}. These are necessary for resolving ambiguities where a word like "Java" could refer to a programming language or a geographic location.
 \end{itemize}
 
 \subsection{Slot Filling and Attribute Extraction}
@@ -39,18 +39,18 @@ Raw job titles and descriptions often suffer from the "semantic gap"—the diffe
 \subsection{Occupational Taxonomies (ESCO and O*NET)}
 To bridge this gap, systems map raw data to standardized taxonomies.
 \begin{itemize}
-    \item \textbf{ESCO (European Skills, Competences, Qualifications and Occupations):} ESCO provides a common reference language. It organizes occupations into a hierarchy and links them to required skills.
+    \item \textbf{ESCO (European Skills, Competences, Qualifications and Occupations):} ESCO provides a common reference language for the European labor market \cite{esco2017handbook}. It organizes occupations into a hierarchy and links them to required skills.
     \item \textbf{Hierarchical Mapping:} By using a taxonomy, a system can understand that a "React Developer" is a subset of "Software Engineer". This allows for "roll-up" queries where a user searching for "IT roles" can find "Web Developers" even if the specific keyword "IT" is missing.
 \end{itemize}
 
 \subsection{Heuristic vs. Semantic Classification}
-The system's \texttt{categorizeJob} function implements a rule-based classifier. While simple, these heuristics provide a baseline for "Categorical Filtering". More advanced "Semantic Labeling" involves using sentence embeddings to find the nearest neighbor in the ESCO label space, a method that provides higher recall for idiosyncratic job titles.
+The system's \texttt{categorizeJob} function implements a rule-based classifier. While simple, these heuristics provide a baseline for "Categorical Filtering". More advanced "Semantic Labeling" involves using sentence embeddings \cite{reimers2019sentence} to find the nearest neighbor in the ESCO label space, a method that provides higher recall for idiosyncratic job titles.
 
 \section{Record Linkage and Entity Resolution}
 When aggregating from multiple job boards, the same internship may appear multiple times with slight variations in title or description.
 
 \subsection{Deduplication Strategies}
-\textit{Record Linkage} is the task of finding records in a dataset that refer to the same entity.
+\textit{Record Linkage} is the task of finding records in a dataset that refer to the same entity \cite{christen2012data, elmagarmid2007duplicate}.
 \begin{itemize}
     \item \textbf{Deterministic Matching:} The \texttt{generateId} function uses a combination of "Slugification" and concatenation (Company + Title) to create a unique identifier. This is a form of \textit{blocking}, where records that do not share a signature are never compared, significantly speeding up the deduplication process.
     \item \textbf{Probabilistic Matching:} In cases where company names vary (e.g., "Google" vs "Google Inc."), fuzzy string matching (e.g., Levenshtein distance) is used to calculate a similarity score between records.
