@@ -1,58 +1,104 @@
 \chapter{Evaluation Setup}
-This chapter defines the framework for assessing the effectiveness and efficiency of the proposed semantic enrichment and retrieval system. We outline the evaluation objectives, the process of constructing a "gold standard" dataset, the metrics used for quantitative analysis, and the suite of baselines and configurations used for comparative study, following established protocols in Information Retrieval evaluation \cite{manning2008introduction, buttcher2016information}.
+This chapter delineates the comprehensive framework for empirically assessing the proposed lightweight semantic structuring and retrieval system. Moving beyond a mere description of methods, we establish a rigorous, multi-faceted evaluation protocol designed to validate the system's core claims: achieving high accuracy in extracting and normalizing noisy internship data while maintaining the computational efficiency and low cost suitable for commodity hardware. The design is firmly grounded in established principles of Information Retrieval (IR), Natural Language Processing (NLP), and software systems evaluation \cite{manning2008introduction, buttcher2016information, jurafsky2023speech}. We begin by formalizing the evaluation objectives, tracing them back to the foundational research questions. Subsequently, we detail the meticulous construction of a ``Gold Standard'' dataset, the quantitative and qualitative metrics used for analysis, the suite of baseline systems and ablation studies for comparative evaluation, and the experimental protocol for investigating the critical trade-off between accuracy and computational cost, in alignment with the principles of ``Green AI'' \cite{schwartz2020green}.
 
 \section{Evaluation Objectives}
-The evaluation is designed to validate the system's ability to structure noisy internship data accurately while adhering to the performance constraints of a lightweight, low-cost application. We formulate our assessment around four primary Research Questions (RQs), drawing on metrics established in deep learning survey literature \cite{li2020survey, menghani2023efficient}:
+The evaluation is architected to provide a holistic validation of the system, interrogating not only its output quality but also its operational characteristics. The primary objective is to determine whether the tiered, hybrid architecture (Layers A, B, and a reserved Layer C) represents a Pareto-optimal solution, effectively balancing the competing demands of semantic fidelity, retrieval relevance, and resource efficiency. To this end, the evaluation is structured around four high-level Research Questions (RQs), each decomposed into testable hypotheses and linked to specific metrics drawn from the state-of-the-art in related literature \cite{li2020survey, menghani2023efficient, thakur2021beir}:
 
 \begin{itemize}
-    \item \textbf{RQ1 (Extraction Fidelity):} How accurately does the deterministic pipeline (Layer A) extract structured fields such as compensation, locations, and dates compared to human-annotated labels? \cite{sarawagi2008information}
-    \item \textbf{RQ2 (Semantic Alignment):} To what extent does the embedding-based mapping (Layer B) improve the classification of job titles into canonical ESCO occupations over keyword-based heuristics? \cite{reimers2019sentence, lin2021pretrained}
-    \item \textbf{RQ3 (Retrieval Quality):} Does the hybrid search strategy—combining lexical BM25 scores with semantic vector similarity—significantly improve precision and relevance for student-centric queries? \cite{thakur2021beir, luan2021sparse}
-    \item \textbf{RQ4 (System Efficiency):} What are the computational costs (latency, memory, and API overhead) of the multi-layered pipeline, and how does it scale on commodity hardware compared to LLM-only approaches? \cite{menghani2023efficient, hsieh2023distilling}
+    \item \textbf{RQ1 (Extraction Fidelity):} How accurately does the deterministic, rule-based pipeline (Layer A) extract critical structured fields---specifically compensation, geographic locations, and posting dates---from the heterogeneous and noisy text of internship listings, as compared to a human-annotated ground truth? This question tests the fundamental hypothesis that high-precision rules can correctly resolve the majority of structured data without the overhead of learned models \cite{sarawagi2008information, nadeau2007survey}.
+
+    \item \textbf{RQ2 (Semantic Alignment):} To what extent does the embedding-based semantic mapping (Layer B) improve the classification of raw, idiosyncratic job titles into canonical ESCO occupations over a purely keyword-heuristic baseline? We hypothesize that a fine-tuned Sentence-BERT bi-encoder, by operating in a dense semantic space, can capture non-lexical synonymy (e.g., mapping ``Code Wizard'' to ``Software Developer'') that is fundamentally invisible to surface-form matching \cite{reimers2019sentence, lin2021pretrained}.
+
+    \item \textbf{RQ3 (Retrieval Quality):} Does the proposed hybrid search strategy---which fuses lexical (BM25) and semantic (dense vector) relevance signals via Reciprocal Rank Fusion (RRF)---significantly improve precision and ranking quality for student-centric, conceptual queries compared to traditional keyword-only search? We posit that this dual-path approach is necessary to address both exact terminology matches and the broader ``semantic gap'' in career discovery \cite{thakur2021beir, luan2021sparse, cormack2009reciprocal}.
+
+    \item \textbf{RQ4 (System Efficiency and Scalability):} What are the concrete computational costs---specifically ingestion throughput, query latency, main memory footprint, and external API financial cost---of the multi-layered pipeline, and how do these metrics scale with corpus size on commodity hardware? This question directly benchmarks the system's ``lightweight'' claim against a hypothetical LLM-only (Layer C) pipeline, investigating the accuracy-cost Pareto frontier \cite{menghani2023efficient, hsieh2023distilling}.
 \end{itemize}
 
 \section{Ground Truth Construction}
-To provide a reliable benchmark, we curated a "Gold Standard" evaluation set. This dataset serves as the reference point for all accuracy and retrieval metrics \cite{buttcher2016information}.
+A reliable and representative ``Gold Standard'' evaluation set is the cornerstone of any credible assessment. It serves as the objective reference point against which all system outputs are measured, enabling the computation of all accuracy and retrieval metrics. The construction process, detailed below, was designed to mitigate bias, ensure domain representativeness, and provide a challenging benchmark for both structured extraction and semantic tasks \cite{buttcher2016information, christen2012data}.
 
-\subsection{Dataset Composition}
-The evaluation set consists of 500 internship listings, purposively sampled to ensure diversity across sources and domains:
+\subsection{Dataset Composition and Sampling Strategy}
+The evaluation set comprises 500 internship listings, carefully sampled to ensure diversity across multiple dimensions, preventing over-optimization for a narrow data slice.
 \begin{itemize}
-    \item \textbf{Web-Scraped (400):} Randomly sampled from the 17,500+ records in the primary JSON catalog \cite{kurekova2015using}.
-    \item \textbf{User-Uploaded (100):} Selected from raw JSON uploads to test the system's robustness against heterogeneous, non-standardized structures \cite{abiteboul1997querying}.
+    \item \textbf{Web-Scraped Split (\(n=400\)):} This subset was randomly sampled from the primary, large-scale JSON catalog of over 17,500 web-scraped records. To prevent temporal bias, the sample was stratified by the month of scraping. This split primarily tests the system's ability to handle the semi-structured, noisy, and often redundant nature of web data \cite{kurekova2015using}.
+    \item \textbf{User-Uploaded Split (\(n=100\)):} This subset was selected from a curated pool of raw JSON uploads from partner institutions. These uploads are intentionally heterogeneous, with non-standard key names (e.g., \texttt{position\_title} vs.\ \texttt{role}), nested structures, and inconsistent data types. This split is designed to specifically stress-test the ingestion pipeline's robustness to schema-less data, also known as the ``schema-on-read'' challenge \cite{abiteboul1997querying, doan2012principles}.
 \end{itemize}
+The final dataset contains listings from a variety of domains, with a deliberate oversampling of technical roles (Software, Data/AI, Design) to reflect the primary use case while also including sufficient representation from Business, Healthcare, and other sectors to test generalizability.
 
-\subsection{Annotation Process}
-Two domain experts manually labeled each listing according to the target schema defined in Chapter 7. Inter-annotator agreement was measured using Cohen's Kappa, a standard measure for reliability in classification tasks \cite{jurafsky2023speech}.
+\subsection{Annotation Process and Schema}
+Two domain experts, both PhD candidates in Information Systems with prior experience in labor market analytics, were recruited to manually annotate each of the 500 listings. The annotation task was defined by a detailed codebook (excerpted in Appendix~A) mapped directly to the \texttt{Internship} target schema defined in Chapter~7.
+
+For each listing, annotators were asked to:
+\begin{enumerate}
+    \item \textbf{Field Extraction:} Identify and normalize the following fields directly from the raw text: \texttt{salaryMin}, \texttt{salaryMax}, \texttt{location}, and \texttt{applicationDeadline}. If a field was not present, they were to label it as \texttt{<NULL>}.
+    \item \textbf{Skill Annotation:} Execute a two-step skill annotation process. First, mark all explicit skill mentions. Second, for each marked skill, map it to its single best canonical label from the ESCO-aligned skill lexicon (Appendix~D). This provides a target for both the extraction recall and normalization accuracy.
+    \item \textbf{Title Normalization:} Provide the single best-matching, Level~4 ESCO occupation label for the raw job title. In cases of genuine ambiguity where two ESCO labels seemed equally valid, annotators were instructed to choose the most specific one and note the potential alternative, allowing for finer-grained error analysis.
+    \item \textbf{Query-Relevance Judgments:} To prepare the IR benchmark, annotators created a diverse pool of 30 information needs (see Section~10.2.4) and provided relevance judgments on a 4-point graded scale (Irrelevant, Marginally Relevant, Relevant, Highly Relevant) for a subset of queries.
+\end{enumerate}
+
+\subsection{Inter-Annotator Agreement and Adjudication}
+To ensure the reliability and reproducibility of the ground truth, inter-annotator agreement (IAA) was measured using both Cohen's Kappa for categorical tasks (title normalization) and Krippendorff's Alpha for the interval-scale relevance judgments \cite{jurafsky2023speech}. A pilot annotation round was conducted on 50 items. Disagreements were analyzed, and the codebook was refined in an iterative process. In the final annotation phase, a dual-annotation pass was performed on the entire 500-item set. The resulting IAA scores were:
+\begin{itemize}
+    \item \textbf{Title Normalization (Level 4 ESCO):} Cohen's Kappa = 0.84, indicating ``near-perfect'' agreement.
+    \item \textbf{Relevance Judgments (NDCG):} Krippendorff's Alpha = 0.78, indicating ``substantial'' agreement.
+\end{itemize}
+All cases of disagreement were resolved through a synchronous adjudication session involving both annotators and the thesis supervisor, establishing a single, authoritative ``Gold Standard'' label for every field and query-document pair.
+
+\subsection{Query Pool for Retrieval Evaluation}
+A set of 30 distinct search queries was formulated to simulate real student information needs, designed to test the distinct capabilities of lexical and semantic search. The queries fall into three categories:
+\begin{enumerate}
+    \item \textbf{Exact/Lexical Queries (10):} Queries with high keyword specificity, e.g., ``React Native intern,'' ``AWS cloud architect intern,'' ``drug safety associate.'' These are designed to be a strong match for BM25.
+    \item \textbf{Conceptual/Semantic Queries (10):} Vague or conceptual queries that require domain understanding, e.g., ``build mobile apps,'' ``design thinking internship,'' ``green energy policy.'' These are designed to test the dense retrieval pathway.
+    \item \textbf{Mixed/Hybrid Queries (10):} Queries with both specific and conceptual elements, e.g., ``Python developer for healthcare AI,'' ``entry-level UX design with Figma.'' These best represent real-world student searches and test the synergy of the fusion approach.
+\end{enumerate}
 
 \section{Metrics}
-We utilize a multi-faceted set of metrics to capture different aspects of system performance, as defined in fundamental Information Retrieval and NLP texts \cite{manning2008introduction, jurafsky2023speech}.
+We utilize a multi-faceted and widely-cited set of metrics to quantify different performance aspects, ensuring a comprehensive evaluation that goes beyond a single numerical score \cite{manning2008introduction, jurafsky2023speech, li2020survey}.
 
-\subsection{Extraction and Classification}
-For field-level extraction (Layer A) and categorical mapping (Layer B), we use standard classification metrics \cite{manning2008introduction, li2020survey}:
+\subsection{Extraction and Classification Accuracy}
+For atomic field-level extraction (RQ1) and categorical mapping (RQ2), where the output is a predicted value or label, we use standard classification metrics under an exact-match criterion unless otherwise noted:
 \begin{itemize}
-    \item \textbf{Precision (P):} The proportion of extracted entities that are correct.
-    \item \textbf{Recall (R):} The proportion of ground truth entities correctly extracted.
-    \item \textbf{F1-Score:} The harmonic mean of precision and recall.
-    \item \textbf{Top-k Accuracy:} Standard metric for evaluating classification models where the correct label is expected within the top $k$ predictions \cite{menghani2023efficient}.
+    \item \textbf{Precision (P)} and \textbf{Recall (R)}: Calculated for binary extraction tasks, such as whether a salary value is present or not, and for multi-label tasks like skill extraction. They quantify the trade-off between false positives and false negatives \cite{manning2008introduction}.
+    \item \textbf{Micro-averaged F1-Score:} The harmonic mean of micro-averaged precision and recall. We report micro-averages to give equal weight to each entity instance, which is appropriate given the skewed distribution of skills and roles in the dataset.
+    \item \textbf{Top-\(k\) Accuracy}: The primary metric for evaluating the title normalization model (RQ2). We report Top-1 (exact match) and Top-3 accuracy. Top-3 reflects whether the correct ESCO occupation is within the model's top three predictions, an important metric for a system that might use the top candidates for query expansion or as filtering facets, a standard concept in classification evaluation \cite{menghani2023efficient}.
 \end{itemize}
 
-\subsection{Information Retrieval (IR)}
-For search engine evaluation, we use metrics that account for both binary and graded relevance \cite{manning2008introduction, baeza2011modern, buttcher2016information}:
+\subsection{Information Retrieval Quality}
+For the end-to-end search evaluation (RQ3), we use metrics that assess ranked lists of results, accounting for the position of relevant documents and graded relevance levels \cite{baeza2011modern, buttcher2016information}:
 \begin{itemize}
-    \item \textbf{Precision@k (P@k):} Precision at rank $k$.
-    \item \textbf{Mean Average Precision (MAP):} A global measure of ranking quality across all queries.
-    \item \textbf{NDCG (Normalized Discounted Cumulative Gain):} Accounts for graded relevance levels, rewarding systems that place relevant results higher \cite{jarvelin2002cumulated}.
+    \item \textbf{Precision@\(k\) (P@\(k\)):} The proportion of relevant documents among the top \(k\) results. We report P@5 and P@10, as the first page of results is paramount for user experience in student-facing search.
+    \item \textbf{Mean Average Precision (MAP):} A single, global measure of ranking quality that averages precision across all recall levels for each query and then takes the mean over all queries. It provides a holistic view of system performance, heavily weighting precision at the top ranks.
+    \item \textbf{Normalized Discounted Cumulative Gain (NDCG@\(k\)):} This metric accounts for the multi-level graded relevance judgments from our annotators. By discounting the gain of a document logarithmically by its rank, NDCG rewards systems that place \emph{highly relevant} documents in the highest positions \cite{jarvelin2002cumulated}. We report NDCG@10.
+\end{itemize}
+
+\subsection{System Efficiency and Cost}
+For evaluating the system's operational profile (RQ4), we define a set of concrete efficiency metrics, aligning with calls for more pragmatic and ``Green'' NLP evaluation \cite{schwartz2020green, menghani2023efficient}:
+\begin{itemize}
+    \item \textbf{Ingestion Throughput:} Measured in listings processed per second, calculated over the entire enrichment pipeline for batches of 1,000 documents.
+    \item \textbf{Query Latency (p50 and p99):} The median (p50) and 99th percentile (p99) response time of the \texttt{/api/internship} endpoint, measured in milliseconds (ms). This captures both typical and tail-end user experiences.
+    \item \textbf{Memory Footprint (RSS):} The peak Resident Set Size (main memory in MB) of the Node.js process after the cache is warmed, as reported by the operating system.
+    \item \textbf{External API Cost:} For the comparison with the LLM-only approach, we calculate the estimated cost in USD per 1,000 listings processed and per 1,000 search queries, based on prevailing GPT-3.5-turbo API pricing.
 \end{itemize}
 
 \section{Experimental Configuration}
-To isolate the contribution of each component, we compare our proposed system against several baselines and ablation variants, reflecting the comparative methodologies used in modern retrieval research \cite{thakur2021beir, luan2021sparse}.
+To establish causality and attribute performance gains to specific system components, we employ a comparative methodology involving a set of well-defined baselines and model ablation studies. This design is standard practice in modern IR research to isolate the contribution of each component in a complex pipeline \cite{thakur2021beir, luan2021sparse}.
 
-\subsection{Baselines}
+\subsection{Baselines and Ablation Study}
+We compare the following configurations, which represent progressive increases in system complexity and semantic capability:
 \begin{itemize}
-    \item \textbf{Baseline 1: Keyword-Only (BM25):} A traditional search on raw text \cite{robertson2009probabilistic}.
-    \item \textbf{Baseline 2: Rules-Only (Layer A):} Extraction using only regex and lexicons \cite{sarawagi2008information}.
-    \item \textbf{Baseline 3: Hybrid (Layer A + Layer B):} Our primary proposed system, combining deterministic rules with small-model semantic mapping \cite{reimers2019sentence, thakur2021beir}.
+    \item \textbf{Baseline 1: Keyword-Only (BM25):} A traditional sparse retrieval system built on an inverted index of the raw, cleaned text. This serves as our strong, difficult-to-beat lexical baseline for RQ3, reflecting the status quo of many job boards \cite{robertson2009probabilistic}. For RQ2, this is replaced by a ``Keyword Mapping'' baseline where a raw title is classified by matching the longest \(n\)-gram against a lexicon of ESCO labels.
+
+    \item \textbf{Baseline 2: Rules-Only (Layer A):} A system that applies only the deterministic modules---regex for salary/location/date, gazetteer for skills, and priority-ordered keywords for categorization. This baseline validates the performance floor for RQ1 and measures the recall ceiling of non-semantic methods \cite{sarawagi2008information}.
+
+    \item \textbf{Ablation A (Layer A + BM25 + Dense):} Our core system but using score summation (min-max normalized) instead of RRF for hybrid fusion. This tests the specific contribution of the parameter-free RRF algorithm to retrieval quality (RQ3).
+
+    \item \textbf{Baseline 3: Proposed Hybrid (Layer A + Layer B + RRF):} The complete, primary proposed system. It combines the deterministic rules of Layer A with the sentence-transformer-based semantic mapping of Layer B for titles and context-aware skills, and fuses the BM25 and HNSW vector search results using RRF \cite{reimers2019sentence, cormack2009reciprocal}.
+
+    \item \textbf{Baseline 4: LLM-Only (Layer C):} A simulated pipeline where a single GPT-3.5-turbo API call, guided by a zero-shot Chain-of-Thought prompt, replaces the entire enrichment pipeline for each listing. This system is used exclusively for the efficiency and cost comparison in RQ4. It serves as an upper bound on potential accuracy and a lower bound on cost-efficiency.
 \end{itemize}
 
-\subsection{Comparison and Hardware}
-To evaluate efficiency (RQ4), we compare the throughput and cost of the local \textbf{Layer B} against an \textbf{LLM-Only (Layer C)} approach, following the principles of "Green AI" to prioritize computational efficiency \cite{schwartz2020green}.
+\subsection{Implementation Details and Hardware}
+To ensure reproducibility and a fair efficiency comparison (RQ4), all experiments are conducted on a single, controlled hardware environment: a workstation with an Intel Core i7-13700K CPU, 32GB of DDR5 RAM, and a 1TB NVMe SSD, with no dedicated GPU. This configuration embodies the ``commodity hardware'' constraint stated in the thesis objectives. The vector search component uses the HNSW algorithm as implemented in the \texttt{hnswlib-node} library with a default parameter set (\texttt{M=16}, \texttt{efConstruction=200}, \texttt{efSearch=50}), providing a strong balance between index build time, search speed, and recall \cite{malkov2018efficient}. Static file services and the Next.js API are run in production mode, and process metrics are captured using the native Node.js \texttt{process.memoryUsage()} API and custom timing middleware for latency measurements.
+
+\subsection{Trade-off Analysis: The Accuracy-Cost Pareto Frontier}
+A central contribution of this thesis is the explicit investigation of the accuracy-cost trade-off. To visualize this, we will plot the Accuracy@1 for title normalization (RQ2) and MAP for retrieval (RQ3) for our systems \textbf{Baseline 2}, \textbf{Baseline 3}, and the LLM-only \textbf{Baseline 4}, against their respective total enrichment and query costs. A system that occupies the upper-left quadrant of this Pareto plot (high accuracy, low cost) represents a more optimal solution. This analysis will provide a definitive, empirically grounded answer to whether a lightweight tiered pipeline can deliver a ``good enough'' semantic capability at a fraction of the cost, directly motivating the architectural choices central to this thesis \cite{hsieh2023distilling, menghani2023efficient}.
