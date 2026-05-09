@@ -1,73 +1,172 @@
 \chapter{Background: Information Extraction and Semantics}
-This chapter establishes the theoretical foundations for the "internships-code" system, bridging the gap between classical Information Extraction (IE) theory \cite{sarawagi2008information} and the practical implementation of a modern, tiered recruitment data pipeline. We explore how semi-structured, noisy internship data is transformed into a clean, queryable semantic format. This chapter draws on established principles in data matching \cite{christen2012data}, natural language processing (NLP) \cite{jurafsky2023speech}, and the use of occupational taxonomies, while also framing these traditional techniques against the emerging paradigm of Large Language Models (LLMs) \cite{brown2020language}. This context is critical for motivating the thesis's core architectural choice: a lightweight, cost-effective pipeline that reserves heavy AI for only the most ambiguous cases.
 
-\section{Information Landscapes: From Unstructured to Structured}
-The core challenge in recruitment informatics is the profound heterogeneity of data sources. Internship listings exist not as a monolithic entity but as a distributed collection of documents across a wide spectrum of structure, ranging from completely unstructured free-text to highly structured databases. Managing this landscape is a fundamental problem of data integration \cite{doan2012principles}.
+This chapter lays the theoretical groundwork for the \texttt{internships-code} system.
+Our goal here is to connect the dots between classical Information Extraction (IE) theory~\cite{sarawagi2008information} and the real-world demands of a modern recruitment data pipeline.
+We will look at how messy, semi-structured internship postings get turned into something clean, structured, and genuinely searchable.
+Along the way, we will draw on established ideas from data matching~\cite{christen2012data}, natural language processing~\cite{jurafsky2023speech}, and occupational taxonomies, while also keeping an eye on the emerging role of Large Language Models (LLMs)~\cite{brown2020language}.
+This backdrop is essential for understanding the system's central architectural bet: a lightweight, cost-conscious pipeline that saves heavy-duty AI for only the trickiest edge cases.
 
-\subsection{Unstructured vs. Semi-Structured Data}
-The distinction between unstructured and semi-structured data is central to designing any processing pipeline.
+\section{The Data Landscape: Making Sense of Messy Information}
+
+At the heart of recruitment informatics lies a stubborn problem: data sources are wildly different from one another.
+Internship listings do not come in one neat format.
+Instead, they are scattered across a spectrum---from completely free-form text to rigidly structured databases.
+Navigating this landscape is, at its core, a data integration challenge~\cite{doan2012principles}.
+
+\subsection{Unstructured vs.\ Semi-Structured Data}
+
+Understanding the difference between unstructured and semi-structured data is crucial when designing any processing pipeline.
+
+\textbf{Unstructured Data} is the hard stuff.
+Think of a raw cover letter or the free-text body of a job description.
+There is no predefined model telling you where the key information lives.
+A human can read it and understand, but for a machine, all the meaning is buried in the prose.
+
+\textbf{Semi-Structured Data} is what you typically get from web scraping.
+It has organizational markers---HTML tags, CSS classes, JSON keys---that provide a loose sense of structure.
+But do not be fooled: it is not a proper database.
+You might find a salary tucked inside a \texttt{<span class="salary">} element, but the actual value will still be a messy string like ``Competitive'' or ``\$20-\$25/hr''~\cite{abiteboul1997querying}.
+
+Our system's ingestion module wrestles directly with what you might call a ``schema-on-read'' problem.
+Different platforms use different keys for the exact same thing: \texttt{platform\_link}, \texttt{url}, \texttt{apply\_href}---all meaning the same destination.
+A core job of the preprocessing layer is \textit{schema mapping}---smoothing out these inconsistencies by normalizing everything into a single, unified field like \texttt{link}.
+
+\subsection{Noise and the Art of Cleaning}
+
+Web-scraped text is inherently noisy.
+It is full of boilerplate (legal disclaimers, navigation menus, footer links) and formatting artifacts (rivers of whitespace, HTML entities, broken character encodings).
+Let us be clear: data cleaning is not just housekeeping.
+It is an absolute prerequisite.
+The quality of everything that comes later---every extraction, every classification---is bounded by how clean the input is~\cite{chu2016data}.
+
+Our preprocessing pipeline handles this with a few key operations:
+
 \begin{itemize}
-    \item \textbf{Unstructured Data:} Data such as raw cover letters or the free-text body of a job description lacks a pre-defined, rigid data model. While human-readable, it poses the greatest challenge for automated extraction because all semantic information is implicit within the narrative.
-    \item \textbf{Semi-Structured Data:} Prevalent in web-scraped job postings, this data contains organizational markers like HTML tags, CSS classes, or JSON keys that impose a loose schema. However, it lacks the strict relational consistency of a traditional database. For instance, a salary might be found in a \texttt{<span class="salary">} element, but that value will still be a free-text string like ``Competitive'' or ``\$20-\$25/hr'' \cite{abiteboul1997querying}.
-\end{itemize}
-The "internships-code" system's ingestion module directly confronts a ``schema-on-read'' challenge. Scraped data from various platforms uses different keys for the same concept (e.g., \texttt{platform\_link}, \texttt{url}, \texttt{apply\_href}). A core function of the preprocessing layer is \textit{schema mapping}—normalizing these heterogeneous source attributes into a canonical \texttt{link} field within the system's unified data model.
+    \item \textbf{Text Normalization} transforms text into a consistent, canonical form.
+    The \texttt{cleanDescription} utility handles the basics: lowercasing everything, collapsing whitespace, stripping leftover HTML.
+    This reduction in surface-level variation dramatically lightens the load on whatever NLP models come next, whether they are simple lexicons or transformer-based classifiers.
 
-\subsection{Data Noisiness and Preprocessing}
-Web-scraped text is inherently noisy, containing ``boilerplate'' content (e.g., legal disclaimers, navigation menus, footer links) and various formatting artifacts (e.g., excessive whitespace, HTML entities, broken encoding). Effective data cleaning is not a mere formality but a critical prerequisite for all downstream tasks; the quality of extraction is directly bounded by the cleanliness of the input \cite{chu2016data}. The preprocessing stage in the pipeline involves several key operations:
-\begin{itemize}
-    \item \textbf{Text Normalization:} This process transforms text into a single, consistent canonical form. The system's \texttt{cleanDescription} utility performs foundational normalization by lowercasing text, collapsing whitespace, and stripping residual HTML. This reduction in surface-form variance significantly lessens the burden on downstream NLP models, whether they be simple lexicons or transformer-based classifiers.
-    \item \textbf{Tokenization:} The crucial first step in most IE and Information Retrieval (IR) tasks involves segmenting a continuous text string into discrete tokens (words, punctuation, or subwords) \cite{manning2008introduction}. Consistent tokenization is paramount, especially for the high-precision, dictionary-based matching used in the initial skill extraction layer. A mismatch in tokenization strategy between the lexicon and the input text is a common source of extraction failure.
+    \item \textbf{Tokenization} is the critical first step for most IE and Information Retrieval (IR) tasks---breaking continuous text into discrete tokens (words, punctuation, subwords)~\cite{manning2008introduction}.
+    Consistency here is non-negotiable, especially for the dictionary-based matching we use in the first pass of skill extraction.
+    If the tokenization strategy does not match between the lexicon and the input text, things fail silently.
 \end{itemize}
 
-\section{Information Extraction (IE) Fundamentals}
-Information Extraction is the automated process of distilling structured, machine-processable information (e.g., tuples in a database) from unstructured or semi-structured machine-readable documents \cite{grishman2015information, sarawagi2008information}. In the context of this thesis, IE is the engine that converts a narrative job posting into a formal \texttt{Internship} object with fields for title, skills, and salary.
+\section{The Fundamentals of Information Extraction}
+
+Information Extraction is the process of automatically pulling structured, machine-readable information---think rows in a database---out of unstructured or semi-structured documents~\cite{grishman2015information, sarawagi2008information}.
+In our context, IE is what turns a narrative job posting into a formal \texttt{Internship} object with actual fields: title, skills, salary.
 
 \subsection{Named Entity Recognition (NER)}
-NER is a foundational subtask of IE that seeks to locate and classify named entities in text into pre-defined categories such as ``Person,'' ``Organization,'' ``Location,'' or, in our domain, ``Skill,'' ``Job Title,'' and ``Salary'' \cite{nadeau2007survey}. The system employs NER at multiple tiers of sophistication:
-\begin{itemize}
-    \item \textbf{Dictionary-Based (Gazetteer) NER:} This approach relies on a pre-defined, curated list of entities, known as a gazetteer. The project's \texttt{extractSkills} function uses this method by scanning text for known skill terms. While inherently limited by its inability to detect novel or unlisted entities, dictionary-based NER offers extremely high precision, perfect recall of the listed terms, and exceptional computational efficiency \cite{nadeau2007survey}. This makes it an ideal, cost-free first layer in a multi-tiered pipeline, resolving a high volume of straightforward cases with zero inference cost.
-    \item \textbf{Neural NER:} Modern approaches leverage sequence labeling models (e.g., BiLSTM-CRF) or Transformer-based architectures (e.g., BERT) to classify entities based on their bidirectional context \cite{lample2016neural, li2020survey}. This is essential for resolving semantic ambiguities that plague dictionary systems. For example, the token ``Java'' could refer to a programming language, an island, or a beverage; only contextual analysis can disambiguate its meaning correctly. In the proposed system, a lightweight DistilBERT model is used as the second tier for complex cases, extending the system's recall beyond the lexicon.
-\end{itemize}
+
+NER is a foundational IE subtask.
+It finds and classifies named entities in text into predefined buckets like ``Person,'' ``Organization,'' ``Location''---or, in our world, ``Skill,'' ``Job Title,'' and ``Salary''~\cite{nadeau2007survey}.
+Our system uses NER at multiple levels of sophistication:
+
+\textbf{Dictionary-Based (Gazetteer) NER} relies on a carefully curated list of known entities---a gazetteer.
+The \texttt{extractSkills} function works this way, scanning text for skill terms we already know about.
+Yes, this approach is limited: it cannot spot a brand-new technology or a skill expressed in an unexpected way.
+But what it offers in return is valuable---extremely high precision, perfect recall on its known terms, and exceptional speed~\cite{nadeau2007survey}.
+As the first layer in a multi-tiered pipeline, it handles the bulk of straightforward cases at zero inference cost.
+
+\textbf{Neural NER} takes a more sophisticated approach.
+Modern systems use sequence labeling models like BiLSTM-CRF or transformer architectures like BERT to classify entities based on their surrounding context~\cite{lample2016neural, li2020survey}.
+This matters because context resolves ambiguity---and ambiguity is everywhere.
+The word ``Java'' could mean a programming language, an Indonesian island, or coffee.
+Only context can tell you which one matters.
+In our pipeline, a lightweight DistilBERT model serves as the second tier, stepping in for trickier cases and extending the system's reach beyond what the lexicon alone can capture.
 
 \subsection{Slot Filling and Attribute Extraction}
-Slot filling, or relation extraction at the entity level, involves identifying specific values for a set of predefined attributes (slots) associated with an event or entity. In our domain, the entity is a job posting, and the slots are its attributes: salary, location, required degree, etc.
+
+Slot filling---or relation extraction at the entity level---is about identifying specific values for predefined attributes (or ``slots'') tied to an entity.
+Here, the entity is a job posting, and the slots are its attributes: salary, location, required degree, and so on.
+
 \begin{itemize}
-    \item \textbf{Regex-Based Extraction:} For highly structured text patterns like salary strings (``\$70k - \$90k''), dates, or email addresses, Regular Expressions (Regex) provide a precise, efficient, and easily maintainable mechanism. The \texttt{cleanSalary} module utilizes a tiered set of regex patterns to parse, normalize, and convert varied currency expressions into a structured numeric range, which is then queryable \cite{sarawagi2008information}.
-    \item \textbf{Heuristic Validation:} Extracted values are immediately passed through heuristic validation filters. For example, a parsed salary must fall within a plausible numeric range, and a date string must form a valid calendar date. This contextual post-processing ensures a baseline of data integrity before the information enters the database.
+    \item \textbf{Regex-Based Extraction:} For highly predictable text patterns---salary strings like ``\$70k--\$90k,'' dates, email addresses---Regular Expressions (Regex) are a precise, efficient, and easy-to-maintain tool.
+    The \texttt{cleanSalary} module uses a tiered set of regex patterns to parse, normalize, and convert the bewildering variety of salary expressions into a clean numeric range~\cite{sarawagi2008information}.
+
+    \item \textbf{Heuristic Validation:} After extraction, values pass through a sanity check.
+    A parsed salary has to fall within a believable range.
+    A date has to form a valid calendar date.
+    This contextual post-processing provides a baseline level of data integrity before anything touches the database.
 \end{itemize}
 
-\section{Semantic Categorization and Taxonomies}
-A central challenge addressed in this thesis is the ``semantic gap''—the conceptual distance between the specific, often idiosyncratic, language used by an employer in a job posting and the formal, generalizable categories a user would use to search. A position titled ``Code Wizard'' will not be discovered by a student searching for ``Software Engineer'' unless this gap is explicitly bridged.
+\section{Bridging the Semantic Gap with Taxonomies}
+
+One of the central puzzles this thesis tackles is the ``semantic gap''---the distance between the specific, often quirky language an employer uses in a job posting and the formal, general categories a job seeker would actually search for.
+A position called ``Code Wizard'' will never surface for a student searching ``Software Engineer'' unless we actively bridge that gap.
 
 \subsection{Occupational Taxonomies}
-The most robust method for bridging the semantic gap is to map raw, non-standard text to a canonical, standardized occupational taxonomy. This provides a common reference language for the entire labor market.
+
+The most robust solution is to map raw, non-standard text onto a canonical, standardized occupational taxonomy.
+This gives the entire labor market a shared reference language.
+
 \begin{itemize}
-    \item \textbf{ESCO (European Skills, Competences, Qualifications and Occupations):} This multilingual classification system, used as the primary reference in this research, organizes occupations into a hierarchical structure and explicitly links them to the skills and competences required. This dual structure—occupations and skills—makes it exceptionally well-suited as a target schema for a semantic enrichment pipeline.
-    \item \textbf{O*NET (Occupational Information Network):} A similar framework used primarily in the United States. The principles of hierarchical mapping and linking roles to skills are consistent across ESCO and O*NET, and the system's design is taxonomy-agnostic \cite{peterson2001occupational}.
-    \item \textbf{Hierarchical Mapping:} By anchoring a job posting to a node in a taxonomy, the system inherits a network of professional relationships. A ``React Developer'' is automatically understood as a descendant of ``Front-End Developer'' and, more broadly, ``Software Engineer.'' This allows for powerful, faceted search and discovery that keyword systems cannot replicate.
+    \item \textbf{ESCO (European Skills, Competences, Qualifications and Occupations):} This multilingual classification system---our primary reference in this research---organizes occupations into a hierarchy and explicitly links them to required skills and competences.
+    Its dual structure (occupations and skills) makes it a natural fit as a target schema for semantic enrichment.
+
+    \item \textbf{O*NET (Occupational Information Network):} A similar framework used mainly in the United States.
+    The core principles---hierarchical mapping, linking roles to skills---are consistent across both systems, and our design is fundamentally taxonomy-agnostic~\cite{peterson2001occupational}.
+
+    \item \textbf{Hierarchical Mapping:} By anchoring a job posting to a taxonomy node, the system inherits a whole network of professional relationships.
+    A ``React Developer'' is automatically understood as a kind of ``Front-End Developer'' and, more broadly, a ``Software Engineer.''
+    This enables powerful faceted search and discovery that pure keyword systems simply cannot replicate.
 \end{itemize}
 
-\subsection{Heuristic vs. Semantic Classification}
-This thesis implements a tiered approach to classification that mirrors the NER strategy.
+\subsection{Heuristic vs.\ Semantic Classification}
+
+Our approach to classification follows the same tiered philosophy as our NER strategy.
+
 \begin{itemize}
-    \item \textbf{Heuristic Classification (Layer A):} The baseline for categorical filtering uses a high-precision keyword-anchoring strategy. A title containing ``Accountant'' is mapped directly to the ``Finance'' category. This deterministic, zero-cost layer handles the majority of clear-cut cases with perfect accuracy and speed, a critical requirement for production systems dealing with high volumes of data \cite{boselli2018classifying}.
-    \item \textbf{Semantic Classification (Layer B):} For titles that are too vague (``Consultant'') or idiosyncratic (``Growth Hacker'') for keyword matching, the pipeline uses \textit{sentence embeddings} generated by a lightweight bi-encoder model like Sentence-BERT (SBERT) \cite{reimers2019sentence}. The title's embedding is compared against the pre-computed embeddings of all ESCO occupation labels, and the nearest neighbor is assigned. This method dramatically increases recall for non-standard roles \cite{sayfullina2018learning}. The choice to use a bi-encoder architecture is driven by efficiency, as document embeddings can be pre-computed and cosine similarity search can be accelerated with vector databases.
+    \item \textbf{Heuristic Classification (Layer A):} For categorical filtering, we start with a high-precision keyword-anchoring approach.
+    A title containing ``Accountant'' maps directly to ``Finance.''
+    This deterministic, zero-cost layer handles the clear-cut majority with perfect accuracy and speed---exactly what you need in a production system facing high data volumes~\cite{boselli2018classifying}.
+
+    \item \textbf{Semantic Classification (Layer B):} Some titles are too vague (``Consultant'') or too idiosyncratic (``Growth Hacker'') for simple keyword matching.
+    Here, we turn to \textit{sentence embeddings} from a lightweight bi-encoder model like Sentence-BERT (SBERT)~\cite{reimers2019sentence}.
+    The title's embedding is compared against pre-computed embeddings of all ESCO occupation labels, and we assign the nearest neighbor.
+    This dramatically boosts recall for non-standard roles~\cite{sayfullina2018learning}.
+    We chose a bi-encoder architecture deliberately: document embeddings can be pre-computed, and cosine similarity search can be accelerated with vector databases---keeping things fast and efficient.
 \end{itemize}
 
-\section{Record Linkage and Entity Resolution}
-Data aggregation from multiple job boards inevitably creates a new problem: duplicates. The same internship is often cross-posted to LinkedIn, Indeed, and a university portal with slight variations in title, description, or formatting.
+\section{Record Linkage and Finding Duplicates}
+
+When you aggregate data from multiple job boards, you create a new problem: duplicates.
+The same internship often appears on LinkedIn, Indeed, and a university portal, each with slight variations in title, description, or formatting.
 
 \subsection{Deduplication Strategies}
-\textit{Record Linkage} (or Entity Resolution) is the task of algorithmically identifying records in one or more datasets that refer to the same real-world entity \cite{christen2012data, elmagarmid2007duplicate}. The system integrates this logic directly into its ingestion pipeline.
+
+\textit{Record Linkage} (or Entity Resolution) is the task of algorithmically identifying which records across datasets refer to the same real-world entity~\cite{christen2012data, elmagarmid2007duplicate}.
+Our system weaves this logic directly into the ingestion pipeline.
+
 \begin{itemize}
-    \item \textbf{Deterministic Matching via Blocking:} The \texttt{generateId} function creates a canonical identifier by concatenating a stabilized, ``slugified'' version of the company name and a normalized job title. This generated ID acts as a \textit{blocking key}. By grouping records only if they share this exact key, the computationally expensive task of pairwise comparison is limited to small, manageable blocks, drastically speeding up the process \cite{christen2012data}. This is the primary deduplication strategy.
-    \item \textbf{Probabilistic Matching:} Deterministic blocking fails when titles are slightly paraphrased (e.g., ``Software Eng. Intern'' vs. ``Intern, Software Engineering''). For these cases, a second-pass probabilistic matching can be used, employing fuzzy string metrics like Levenshtein distance or Jaccard similarity on the post-blocked groups to calculate a similarity score and resolve near-duplicates \cite{elmagarmid2007duplicate}. This thesis primarily relies on deterministic blocking, leaving probabilistic resolution as an optional, offline batch process.
+    \item \textbf{Deterministic Matching via Blocking:} The \texttt{generateId} function creates a canonical identifier by combining a ``slugified'' company name with a normalized job title.
+    This ID serves as a \textit{blocking key}.
+    By only comparing records that share this exact key, we limit the expensive work of pairwise comparison to small, manageable blocks---dramatically speeding things up~\cite{christen2012data}.
+    This is our primary deduplication strategy.
+
+    \item \textbf{Probabilistic Matching:} Deterministic blocking falls short when titles are slightly rephrased---``Software Eng.\ Intern'' vs.\ ``Intern, Software Engineering.''
+    For these cases, a second pass can apply fuzzy string metrics like Levenshtein distance or Jaccard similarity on the blocked groups to calculate similarity scores and resolve near-duplicates~\cite{elmagarmid2007duplicate}.
+    For now, we rely mainly on deterministic blocking, keeping probabilistic resolution as an optional offline batch process.
 \end{itemize}
 
-\subsection{Canonicalization and Golden Record Creation}
-The final step in the normalization process is canonicalization. Once a group of records has been linked as duplicates, the system must select or construct a single ``golden'' representation for storage and indexing. The heuristic for this process might prioritize the record from the most authoritative source, the most recently updated posting, or the one with the most complete information. This step ensures the final search index presented to the student is both concise and accurate, free from redundant entries \cite{doan2012principles}.
+\subsection{Canonicalization and the Golden Record}
 
-\section{The Evolving Paradigm: From Rule-Based Systems to LLMs}
-It is essential to position the system's architecture within the rapidly evolving landscape of IE. The historical progression has moved from rule-based systems (1990s-2000s) to statistical and neural models (2010s) and now to the era of Large Language Models (LLMs) \cite{brown2020language}. LLMs have demonstrated remarkable zero-shot extraction capabilities, often outperforming fine-tuned specialist models without needing domain-specific training data. Using techniques like Chain-of-Thought prompting, an LLM could potentially perform all of the tasks described in this chapter—NER, slot-filling, and taxonomy mapping—with a single prompt \cite{wei2022chain}.
+Once we have linked a group of duplicate records, we need a single ``golden'' representation for storage and indexing.
+The heuristic for this might prefer the most authoritative source, the most recently updated posting, or the one with the most complete information.
+The goal is a search index that is both concise and accurate---no redundant clutter~\cite{doan2012principles}.
 
-However, this power comes at a steep operational cost. For a production system processing thousands of new job postings daily, an LLM-only architecture introduces critical drawbacks in latency, financial cost, and output consistency \cite{bender2021dangers, ji2023survey}. The ``internships-code'' system operationalizes the concept of a \textbf{tiered pipeline}. It establishes a foundation of free, fast, and perfectly explainable deterministic rules (Layer A) for the majority of straightforward tasks. A lightweight, fine-tuned neural model (Layer B) handles the next tier of semantic complexity. Only the most ambiguous and difficult cases, if any, are escalated to a powerful but expensive LLM (Layer C). This architecture directly embodies the principles of ``Green AI,'' prioritizing computational efficiency and sustainability without sacrificing scalability or practical accuracy \cite{schwartz2020green, menghani2023efficient}.
+\section{The Shifting Paradigm: Rules, Models, and LLMs}
+
+It is worth placing our architecture in the broader IE landscape.
+The field has evolved from rule-based systems (1990s--2000s) to statistical and neural models (2010s), and now to the era of Large Language Models~\cite{brown2020language}.
+LLMs have shown remarkable zero-shot extraction abilities, often outperforming specialist models without any domain-specific training.
+With techniques like Chain-of-Thought prompting, a single LLM call could theoretically handle everything we have discussed in this chapter---NER, slot-filling, taxonomy mapping---all at once~\cite{wei2022chain}.
+
+But raw power comes with real operational costs.
+For a production system processing thousands of new postings daily, an LLM-only architecture brings serious drawbacks: latency, cost, and inconsistency~\cite{bender2021dangers, ji2023survey}.
+
+The \texttt{internships-code} system embraces a different philosophy: the \textbf{tiered pipeline}.
+We build on a foundation of free, fast, and fully explainable deterministic rules (Layer~A) that handle the straightforward majority.
+A lightweight, fine-tuned neural model (Layer~B) takes on the next tier of semantic complexity.
+Only the genuinely ambiguous edge cases---if any---are escalated to a powerful but expensive LLM (Layer~C).
+This architecture is a direct expression of ``Green AI'' principles: prioritizing computational efficiency and sustainability without giving up the scalability or practical accuracy the problem demands~\cite{schwartz2020green, menghani2023efficient}.
