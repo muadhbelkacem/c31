@@ -1,8 +1,30 @@
 \chapter{Methodology and System Overview}
-This chapter provides the architectural blueprint for the lightweight semantic structuring system. By leveraging modern web technologies and a modular backend, the system achieves a performant data pipeline that avoids the latency of external LLM dependencies while maintaining high extraction precision, following established principles in data integration and system design \cite{doan2012principles, buttcher2016information}.
+\label{chap:methodology}
+
+This chapter establishes the architectural blueprint and methodological framework for the lightweight semantic structuring system, which forms the core contribution of this thesis. As established in the problem statement (Section 1.2), the central challenge is bridging the ``semantic gap'' between the heterogeneous, noisy language of online internship listings and the structured, precise queries of a student user, all while avoiding the prohibitive costs and latency of Large Language Model (LLM)-dependent pipelines. We propose a tiered, hybrid architecture that synthesizes the precision of deterministic rules with the conceptual understanding of lightweight neural models. This chapter details the system's functional requirements, its four-tier logical architecture mapped to a concrete project structure, the formal core data model, and the sequence of operations in both the data ingestion and retrieval flows. The design is grounded in established principles of data integration, information extraction, and modern search engine implementation \cite{doan2012principles, buttcher2016information, sarawagi2008information}.
 
 \section{Functional Requirements and Use Cases}
-The system is designed to serve two primary actors: the \textit{Student/Job Seeker}, who interacts with the search interface to discover opportunities, and the \textit{System Administrator/Data Engineer}, who manages the automated ingestion and maintenance of the data pipeline. These requirements align with standard practices in recruitment informatics \cite{faliagka2012online}.
+\label{sec:functional_requirements}
+
+The system is purpose-built to serve two primary actors, whose distinct needs directly shape the functional requirements and the system's scope, as illustrated in the UML Use Case Diagram (Figure~\ref{fig:use_case_diagram}). This approach aligns with standard practices in recruitment informatics and user-centered system design \cite{faliagka2012online, boselli2018classifying}.
+
+\begin{enumerate}
+    \item \textbf{The Student/Job Seeker:} This is the primary end-user, interacting with the system to discover relevant internship opportunities. Their core requirements are:
+    \begin{itemize}
+        \item \textbf{Semantic Search:} The ability to input conceptual queries (e.g., ``build mobile apps,'' ``data science with Python'') and receive results that match the underlying meaning, not just exact keywords.
+        \item \textbf{Faceted Filtering:} The capacity to narrow down a large corpus of results by standardized categories such as job domain (e.g., ``Software,'' ``Data/AI''), location, and required skills.
+        \item \textbf{Low-Latency Retrieval:} An interactive search experience with sub-50ms response times, a critical parameter for modern user interfaces \cite{buttcher2016information}.
+        \item \textbf{Clear Information Display:} Access to a clean, structured view of each internship, with core attributes like salary, skills, and location clearly parsed and presented.
+    \end{itemize}
+
+    \item \textbf{The System Administrator/Data Engineer:} This actor manages the backend pipeline, ensuring data freshness and quality. Their primary requirements are:
+    \begin{itemize}
+        \item \textbf{Automated Multi-Format Ingestion:} A robust module to ingest and normalize data from disparate sources, primarily a large static JSON catalog from web scraping and manually uploaded JSON files from partner institutions, each potentially with a unique schema. This addresses the ``schema-on-read'' challenge described in Section 2.1.1.
+        \item \textbf{Unattended Pipeline Execution:} The ability to run the full ingestion, cleaning, enrichment, and indexing pipeline as an automated, resilient process with robust error handling and logging.
+        \item \textbf{Data Quality Monitoring:} Tools to validate the integrity of ingested data, track the performance of deterministic extraction (Layer A), and identify cases that may require escalation or manual review.
+        \item \textbf{Performance Oversight:} Visibility into system throughput, cache hit rates, and the latency profile of each pipeline stage to ensure it meets the ``lightweight'' and ``Green AI'' design goals \cite{schwartz2020green}.
+    \end{itemize}
+\end{enumerate}
 
 \begin{figure}[H]
     \centering
@@ -12,7 +34,26 @@ The system is designed to serve two primary actors: the \textit{Student/Job Seek
 \end{figure}
 
 \section{System Architecture and Component Mapping}
-The system is organized into four logical tiers. The architecture emphasizes the separation of data processing from the presentation layer to ensure scalability \cite{doan2012principles}. The following UML Component Diagram illustrates the physical organization of the project structure and the dependencies between modules.
+\label{sec:system_architecture}
+
+The system's architecture is organized into four logical tiers, a design pattern that enforces a clean separation of concerns, enhances scalability, and facilitates independent development and testing of each layer \cite{doan2012principles}. The mapping of these logical tiers to the physical project structure is depicted in the UML Component Diagram (Figure~\ref{fig:component_diagram}).
+
+\begin{enumerate}
+    \item \textbf{Presentation Layer (\texttt{app/components/}):} This tier contains the React-based user interface. The \texttt{InternshipList.tsx} component is responsible for rendering search results, interactive filters, and detail views. It maintains its own UI state while consuming data exclusively through the API layer, preserving a clean separation from backend logic.
+
+    \item \textbf{API and Communication Layer (\texttt{app/api/internship/}):} This tier exposes a RESTful API built with Next.js API routes. The \texttt{route.ts} endpoint acts as the single, stable interface for the frontend. It handles HTTP requests, orchestrates calls to the data processing layer, manages cache policy through HTTP headers, and returns structured JSON responses, thereby decoupling the client from the underlying data implementation.
+
+    \item \textbf{Data Processing Layer (\texttt{app/lib/}):} This is the computational heart of the system, responsible for the entire ``clean-enrich-structure'' pipeline. It is divided into distinct modules to maximize cohesion:
+    \begin{itemize}
+        \item \texttt{data.ts}: The primary data access interface. It reads from the file system, manages the in-memory cache, and exposes functions like \texttt{getProcessedData()} and \texttt{getInternshipById()}. It abstracts the persistence strategy from the API layer.
+        \item \texttt{supabase-client.ts}: A dedicated utility for interacting with the relational database (Supabase/PostgreSQL) for dynamic user data like bookmarks and profiles, as discussed in Chapter 9.
+        \item This layer also contains the core enrichment logic (detailed in Section~\ref{sec:ingestion_pipeline}), including modules for cleaning, semantic mapping, and skill extraction. This is where the tiered enrichment strategy (Layers A, B, and a reserved C) is implemented.
+    \end{itemize}
+
+    \item \textbf{Data Persistence Layer (\texttt{public/} \& Database):} This tier represents the physical data stores. The static, pre-scraped internship catalog resides as a JSON file in the \texttt{public/} directory. Dynamic user data and vector embeddings are stored in the Supabase-managed PostgreSQL instance with the pgvector extension. This hybrid storage architecture, detailed in Chapter 9, balances the need for fast, version-controlled access to the core catalog with the transactional and indexing requirements of a modern search application.
+\end{enumerate}
+
+This structured decomposition ensures that a change to the skill extraction algorithm in the data processing layer does not require a corresponding change to a UI component, and vice versa.
 
 \begin{figure}[H]
     \centering
@@ -47,7 +88,18 @@ The system is organized into four logical tiers. The architecture emphasizes the
 \end{figure}
 
 \section{Core Data Model}
-The semantic integrity of the pipeline is maintained by a formal data model that acts as the contract between the ingestion logic and the frontend. This approach to structured information management is consistent with foundational work in Information Extraction \cite{sarawagi2008information}.
+\label{sec:core_data_model}
+
+The semantic integrity of the entire pipeline is maintained by a formal, strongly-typed data model. This model acts as a ``semantic contract'' \cite{sarawagi2008information} between the ingestion logic and the presentation layer, guaranteeing that data output by the pipeline conforms to the expectations of the frontend. The \texttt{Internship} interface, implemented in TypeScript and visualized in the UML Class Diagram (Figure~\ref{fig:internship_class}), is the central entity of this model.
+
+The design of this schema is directly motivated by three objectives:
+\begin{enumerate}
+    \item \textbf{Identity and Provenance:} Achieved through a stable, deterministic \texttt{id} field based on a normalized combination of the company name and job title. This ensures unique identification across ingestion cycles and maintains links to original sources \cite{christen2012data}.
+    \item \textbf{Faceted Discovery:} Enabled by a controlled vocabulary of \texttt{category} labels (e.g., ``Software'', ``Data/AI''), a list of extracted \texttt{skills}, and a parsed \texttt{salary} range with \texttt{salaryMin} and \texttt{salaryMax} fields. These structured fields provide the necessary metadata for efficient filtering and sorting \cite{baeza2011modern}.
+    \item \textbf{Semantic Enrichment:} The model contains fields for a pre-computed dense \texttt{embedding} vector and a \texttt{canonicalTitle} mapped to the ESCO taxonomy, facilitating the non-lexical semantic search described in Chapter 3 \cite{reimers2019sentence, lin2021pretrained}.
+\end{enumerate}
+
+This formalization, inspired by foundational work in Information Extraction \cite{sarawagi2008information}, ensures that every component, from the regex-based salary parser to the React search card, operates on a shared, unambiguous definition of an ``Internship.'' This approach to structured information management is critical for maintaining consistency across a complex, multi-stage data pipeline.
 
 \begin{figure}[H]
     \centering
@@ -56,8 +108,12 @@ The semantic integrity of the pipeline is maintained by a formal data model that
     \label{fig:internship_class}
 \end{figure}
 
-\section{The Ingestion and Retrieval Flow}
-The interaction between the client-side UI and the server-side data processing layer is managed through asynchronous requests, allowing for low-latency retrieval as discussed in modern search engine implementation \cite{buttcher2016information}.
+\section{The Retrieval Flow}
+\label{sec:retrieval_flow}
+
+The interaction between the client-side UI and the server-side data processing layer is managed through asynchronous, cache-optimized requests. This sequence, visualized in the UML Sequence Diagram (Figure~\ref{fig:sequence_diagram}), is designed for low-latency retrieval as discussed in modern search engine design \cite{buttcher2016information}.
+
+The flow is initiated by a user action in the \texttt{InternshipList.tsx} component, which makes a \texttt{GET} request to the \texttt{/api/internship} endpoint. The API route then checks the server-side cache via the data processing layer (\texttt{data.ts}). On a cache miss, the layer reads the raw data from the static JSON catalog, executes the enrichment and semantic mapping pipeline (process described in Section~\ref{sec:ingestion_pipeline}), and caches the result. The processed, structured \texttt{Internship} objects are then returned to the API layer and sent as a JSON response. The UI component receives the data and re-renders, completing the cycle. This architecture allows the computationally expensive enrichment to run only once after a data refresh, while subsequent user requests are served from the fast, in-memory cache, achieving the sub-50ms latency target.
 
 \begin{figure}[H]
     \centering
@@ -66,13 +122,25 @@ The interaction between the client-side UI and the server-side data processing l
     \label{fig:sequence_diagram}
 \end{figure}
 
-\section{The Ingestion Pipeline}
-The data ingestion process follows a sequence of operations to ensure raw JSON data is transformed into structured entities, employing techniques for data cleaning and normalization \cite{chu2016data}.
+\section{The Tiered Ingestion and Enrichment Pipeline}
+\label{sec:ingestion_pipeline}
+
+The data ingestion and enrichment process is the methodological core of the system, implementing a tiered strategy that directly addresses Research Question 1. It follows a strict sequence of operations, designed to progressively refine raw, noisy data into structured, semantically rich entities using the most efficient tool for each task \cite{chu2016data, grishman2015information}. This pipeline is orchestrated by a core function, \texttt{enrichInternship(rawItem)}, as described in detail in Chapter 8.
 
 \begin{enumerate}
-    \item \textbf{I/O and Safety Validation:} The system reads the source data and performs safety checks to ensure structural integrity \cite{doan2012principles}.
-    \item \textbf{Cleaning and Normalization:} Employs specialized logic to handle missing values and noisy text fields \cite{chu2016data}.
-    \item \textbf{ID Generation and Conflict Resolution:} Creates stable identifiers to enable deduplication and record linkage \cite{christen2012data}.
-    \item \textbf{Semantic Mapping:} Maps extracted information to professional taxonomies like ESCO.
-    \item \textbf{State Management:} Utilizes caching strategies to optimize response times and system throughput.
+    \item \textbf{I/O and Schema Validation (Layer 0):} The pipeline begins with a safety-first approach. The system reads source data from the file system or a parsed upload and immediately validates the structural integrity of the JSON. This ensures the data conforms to the expected top-level schema before any processing occurs, a critical step in robust data integration \cite{doan2012principles}. Any records failing schema validation are logged and quarantined for manual inspection, preventing them from corrupting the downstream data store.
+
+    \item \textbf{Deterministic Preprocessing (Layer A):} This layer handles high-confidence, high-volume tasks using rule-based systems with zero inference cost. It functions as a fast, precise, and perfectly explainable foundation.
+    \begin{enumerate}
+        \item \textbf{Text Cleaning and Normalization:} Functions like \texttt{cleanDescription} and \texttt{cleanTitle} perform foundational normalization, including lowercasing, collapsing whitespace, and stripping residual HTML to reduce surface-form variance \cite{chu2016data}. This is a critical prerequisite for all downstream tasks, as the quality of extraction is directly bounded by the cleanliness of the input.
+        \item \textbf{Regex-Based Attribute Extraction:} For highly structured patterns, regular expressions provide a precise and efficient mechanism. The \texttt{parseSalary} module uses a tiered regex strategy to extract numeric ranges from free-text strings like ``\$20--25/hr'' or ``\$70k -- \$90k a year,'' as detailed in Section 8.2.2 \cite{sarawagi2008information}.
+        \item \textbf{Stable ID Generation:} A deterministic \texttt{generateId} function creates a canonical, URL-friendly slug by concatenating a normalized company name and job title (e.g., \texttt{software-engineering-intern-acme-corp}). This ID serves as a blocking key for deduplication, a key technique for efficient record linkage as described in Chapter 2 \cite{christen2012data, elmagarmid2007duplicate}.
+        \item \textbf{Lexicon-Based Skill Extraction:} The first pass of skill extraction uses a case-insensitive, dictionary-based matcher against a curated lexicon of technical skills grounded in the ESCO framework. This provides a high-precision, zero-latency baseline for Named Entity Recognition \cite{nadeau2007survey}.
+    \end{enumerate}
+
+    \item \textbf{Lightweight Semantic Mapping (Layer B):} This layer addresses the ``semantic gap'' that deterministic rules cannot bridge. It employs a small, local transformer model (such as a fine-tuned DistilBERT or Sentence-BERT bi-encoder) for tasks requiring contextual understanding \cite{reimers2019sentence, menghani2023efficient}. The primary task is to map idiosyncratic job titles (e.g., ``Code Wizard,'' ``Frontend Guru'') to a canonical ESCO occupation label. By pre-computing an embedding for each listing and comparing it to embeddings of canonical labels via cosine similarity, the system can efficiently find the best semantic match. The classification is performed offline during ingestion, so the heavy lifting is not part of the real-time search path.
+
+    \item \textbf{Heuristic Role Categorization:} As a final enrichment step, the \texttt{categorizeJob} function applies keyword-based heuristics to map the (now normalized) title to a high-level domain category such as ``Software,'' ``Data/AI,'' or ``Design.'' This step provides immediate value for faceted filtering in the UI, as described in Section 7.3, and serves as a fallback for cases where the embedding-based mapping has low confidence.
+
+    \item \textbf{Caching and State Management (Post-Processing):} The final, fully enriched \texttt{Internship} object is placed into a server-side in-memory cache. This is the single most impactful performance optimization, as it ensures that the cost of the entire pipeline is amortized over thousands of read requests. The cache invalidation strategy is tied to the data refresh cycle, ensuring data freshness while maintaining sub-50ms response times for the user-facing API \cite{buttcher2016information}. This design choice is fundamental to the system's ``lightweight'' operational profile, as it avoids re-computation on every user query, directly contrasting with the per-query latency of LLM-dependent architectures.
 \end{enumerate}
