@@ -36,7 +36,7 @@ The system is purpose-built to serve two primary actors, whose distinct needs di
 \section{System Architecture and Component Mapping}
 \label{sec:system_architecture}
 
-The system's architecture is organized into four logical tiers, a design pattern that enforces a clean separation of concerns, enhances scalability, and facilitates independent development and testing of each layer \cite{doan2012principles}. The mapping of these logical tiers to the physical project structure is depicted in the UML Component Diagram (Figure~\ref{fig:component_diagram}).
+The system's architecture is organized into four logical tiers, a design pattern that enforces a clean separation of concerns, enhances scalability, and facilitates independent development and testing of each layer \cite{doan2012principles}.
 
 \begin{enumerate}
     \item \textbf{Presentation Layer (\texttt{app/components/}):} This tier contains the React-based user interface. The \texttt{InternshipList.tsx} component is responsible for rendering search results, interactive filters, and detail views. It maintains its own UI state while consuming data exclusively through the API layer, preserving a clean separation from backend logic.
@@ -54,38 +54,6 @@ The system's architecture is organized into four logical tiers, a design pattern
 \end{enumerate}
 
 This structured decomposition ensures that a change to the skill extraction algorithm in the data processing layer does not require a corresponding change to a UI component, and vice versa.
-
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[
-        node distance=2.5cm,
-        package/.style={rectangle, draw, thick, fill=gray!5, text width=3.8cm, align=left, minimum height=1.5cm, copy shadow={shadow xshift=0.1cm, shadow yshift=-0.1cm}},
-        file/.style={rectangle, draw, fill=white, text width=3.4cm, align=left, font=\ttfamily\scriptsize},
-        arrow/.style={-stealth, thick, dashed}
-    ]
-        % Packages
-        \node (public) [package] {\textbf{public/} \\ \scriptsize (Static Data Assets)};
-        \node (lib) [package, right of=public, xshift=3.8cm] {\textbf{app/lib/} \\ \scriptsize (Data Processing Layer)};
-        \node (api) [package, below of=lib, yshift=-0.5cm] {\textbf{app/api/internship/} \\ \scriptsize (REST Endpoints)};
-        \node (components) [package, right of=lib, xshift=4.2cm] {\textbf{app/components/} \\ \scriptsize (UI/Client Layer)};
-
-        % Files inside packages
-        \node (json) [file, below of=public, yshift=1.5cm, xshift=0.3cm] {intern\_data.json};
-        \node (dataTs) [file, below of=lib, yshift=1.5cm, xshift=0.3cm] {data.ts};
-        \node (supabase) [file, below of=dataTs, yshift=1.8cm] {supabase-client.ts};
-        \node (route) [file, below of=api, yshift=1.5cm, xshift=0.3cm] {route.ts};
-        \node (ui) [file, below of=components, yshift=1.5cm, xshift=0.3cm] {InternshipList.tsx};
-
-        % Relationships
-        \draw [arrow] (dataTs) -- (json) node[midway, above, font=\tiny] {fs.readFile};
-        \draw [arrow] (route) -- (dataTs) node[midway, right, font=\tiny] {getProcessedData};
-        \draw [arrow] (ui) -- (dataTs) node[midway, above, font=\tiny] {Interface Import};
-        \draw [arrow] (ui) -- (route) node[midway, right, xshift=1.2cm, yshift=-0.4cm, font=\tiny] {Client Fetch (GET)};
-        \draw [arrow] (dataTs) -- (supabase) node[midway, left, font=\tiny] {Database Client};
-    \end{tikzpicture}
-    \caption{UML Component Diagram: Mapping Logical Layers to the Project Structure}
-    \label{fig:component_diagram}
-\end{figure}
 
 \section{Core Data Model}
 \label{sec:core_data_model}
@@ -140,7 +108,7 @@ The data ingestion and enrichment process is the methodological core of the syst
 
     \item \textbf{Lightweight Semantic Mapping (Layer B):} This layer addresses the ``semantic gap'' that deterministic rules cannot bridge. It employs a small, local transformer model (such as a fine-tuned DistilBERT or Sentence-BERT bi-encoder) for tasks requiring contextual understanding \cite{reimers2019sentence, menghani2023efficient}. The primary task is to map idiosyncratic job titles (e.g., ``Code Wizard,'' ``Frontend Guru'') to a canonical ESCO occupation label. By pre-computing an embedding for each listing and comparing it to embeddings of canonical labels via cosine similarity, the system can efficiently find the best semantic match. The classification is performed offline during ingestion, so the heavy lifting is not part of the real-time search path.
 
-    \item \textbf{Heuristic Role Categorization:} As a final enrichment step, the \texttt{categorizeJob} function applies keyword-based heuristics to map the (now normalized) title to a high-level domain category such as ``Software,'' ``Data/AI,'' or ``Design.'' This step provides immediate value for faceted filtering in the UI, as described in Section 7.3, and serves as a fallback for cases where the embedding-based mapping has low confidence.
+    \item \textbf{Heuristic Role Categorization:} As a final enrichment step, the \texttt{categorizeJob} function applies keyword-based heuristics to map the (now normalized) title to a high-level domain category such as ``Software,'' ``Data/AI'' or ``Design.'' This step provides immediate value for faceted filtering in the UI, as described in Section 7.3, and serves as a fallback for cases where the embedding-based mapping has low confidence.
 
     \item \textbf{Caching and State Management (Post-Processing):} The final, fully enriched \texttt{Internship} object is placed into a server-side in-memory cache. This is the single most impactful performance optimization, as it ensures that the cost of the entire pipeline is amortized over thousands of read requests. The cache invalidation strategy is tied to the data refresh cycle, ensuring data freshness while maintaining sub-50ms response times for the user-facing API \cite{buttcher2016information}. This design choice is fundamental to the system's ``lightweight'' operational profile, as it avoids re-computation on every user query, directly contrasting with the per-query latency of LLM-dependent architectures.
 \end{enumerate}
