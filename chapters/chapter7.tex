@@ -98,24 +98,6 @@ A central scientific goal of this research is to map the idiosyncratic and non-s
 
 ESCO organizes occupations into a four-level hierarchical structure. For the purpose of this system, we focus on the ``Level 4'' unit groups. Level 3 groups, like ``Software and Applications Developers and Analysts,'' are too broad to be useful for differentiating a front-end intern from a data engineering intern. Level 4 provides the necessary granularity, with distinct concepts for ``Web Developer,'' ``Software Developer,'' and ``Systems Analyst,'' among others. This level strikes an optimal balance between the specificity needed for accurate retrieval and the generalizability required to map thousands of varying raw titles into a manageable target space.
 
-Table~\ref{tab:esco-levels} illustrates the hierarchical structure of ESCO with a concrete example from the software domain.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Example of the ESCO hierarchical structure for the Software Development occupation family.}
-    \label{tab:esco-levels}
-    \begin{tabular}{p{0.5cm} p{3cm} p{7cm}}
-        \toprule
-        \textbf{Level} & \textbf{Label} & \textbf{Example} \\
-        \midrule
-        1 & Major Group & Professionals \\
-        2 & Sub-Major Group & Information and Communications Technology Professionals \\
-        3 & Minor Group & Software and Applications Developers and Analysts \\
-        4 & Unit Group & \textbf{Software Developer} \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
 This granularity at Level 4 is essential because it allows the system to disambiguate roles that a coarser taxonomy would conflate. For instance, a ``Python Developer'' working on web applications, a ``Machine Learning Engineer'' building models, and a ``DevOps Engineer'' managing infrastructure might all be tagged as ``Software Developer'' at Level 2 or 3. At Level 4, however, they are mapped to distinct unit groups (\textit{Software Developer}, \textit{Data Scientist}, and \textit{Systems Administrator}, respectively), enabling precise faceted filtering and significantly improving retrieval precision. This approach is consistent with other labor market analysis frameworks, such as O*NET's Standard Occupational Classification (SOC) coding, making our research comparable and interoperable with a wider body of work \cite{peterson2001occupational}. The \texttt{canonicalTitle} field in our schema is explicitly designed to hold a Level 4 ESCO preferred label.
 
 %---------------------------------------------------------------------
@@ -124,25 +106,6 @@ This granularity at Level 4 is essential because it allows the system to disambi
 %---------------------------------------------------------------------
 
 The skill lexicon used in the extraction phase (detailed in Chapter~\ref{ch:enrichment-pipeline}) is grounded in the ESCO Skills pillar and is expanded with a curated set of common industry synonyms. ESCO's skill model is inherently linked to its occupations model, defining the essential and optional knowledge, skills, and competences for each job profile. By using ESCO as a reference, the system actively combats the ``vocabulary gap'' where different employers use divergent terms for the same competency.
-
-Table~\ref{tab:skill-synonyms} provides a representative sample of how our system maps employer-specific terminology to canonical ESCO skill concepts.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Excerpt from the Skill Lexicon: Mapping employer jargon to canonical ESCO skill labels.}
-    \label{tab:skill-synonyms}
-    \begin{tabular}{p{3.5cm} p{7cm}}
-        \toprule
-        \textbf{Canonical Skill (ESCO)} & \textbf{Recognized Synonyms \& Aliases} \\
-        \midrule
-        JavaScript & JS, ECMAScript, Node.js, Vanilla JS, ES6 \\
-        Machine Learning & ML, Statistical Learning, Deep Learning, Predictive Modeling \\
-        Project Management & PM, Project Coordination, PRINCE2, Agile Management \\
-        Python & Python 3, Py, CPython, Python Scripting \\
-        SQL & Structured Query Language, MySQL, PostgreSQL, T-SQL \\
-        \bottomrule
-    \end{tabular}
-\end{table}
 
 This ground-truth linking is a foundational step for a recommendation system that can accurately connect student skills to job requirements, a known challenge in recruitment informatics \cite{giabelli2021skills, lacic2020recommender}. The lexicon is not static; it is designed to be periodically updated to incorporate emerging technologies (e.g., new JavaScript frameworks, AI/ML libraries) as they gain traction in the labor market. This maintenance process is essential for building and sustaining a reliable, long-term knowledge base.
 
