@@ -1,0 +1,1498 @@
+
+\documentclass[11pt,a4paper,oneside]{book}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{fontspec}
+\IfFontExistsTF{Noto Serif}{\setmainfont{Noto Serif}}{\setmainfont{Times New Roman}}
+\IfFontExistsTF{Noto Sans}{\setsansfont{Noto Sans}}{\setsansfont{Arial}}
+\IfFontExistsTF{Noto Sans Mono}{\setmonofont{Noto Sans Mono}}{\setmonofont{Consolas}}
+\newfontfamily\arabicfont[Script=Arabic]{Arial}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{caption}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue,pdfauthor={Mouad bensaid},pdftitle={Lightweight Semantic Structuring of Internship Listings from Web Scraping and JSON Uploads}}
+\usepackage{bidi}
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{3}
+\titleformat{\chapter}[display]{\normalfont\bfseries\Huge}{\chaptertitlename\ \thechapter}{12pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-5pt}{24pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\nouppercase{\leftmark}}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\lstdefinestyle{thesiscode}{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  captionpos=b,
+  keywordstyle=\bfseries,
+  showstringspaces=false
+}
+\lstset{style=thesiscode}
+\newtcolorbox{algorithmbox}[1][]{colback=gray!4,colframe=black!35,title={#1},fonttitle=\bfseries,breakable,enhanced}
+\sloppy
+\begin{document}
+\frontmatter
+\begin{titlepage}
+\centering
+\vspace*{1.0cm}
+{\Large Your University\\[0.25cm]Your Department\par}
+\vspace{2.0cm}
+{\Huge\bfseries Lightweight Semantic Structuring of Internship Listings from Web Scraping and JSON Uploads\par}
+\vspace{1.5cm}
+{\Large Mouad bensaid\par}
+\vspace{0.5cm}
+{\large Master of Science\par}
+\vfill
+{\large Supervisor: Supervisor Name\par}
+\vspace{0.5cm}
+{\large February 2026\par}
+\end{titlepage}
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+The digital transformation of the labor market has increased the number of internship listings published online. However, this expansion also creates data-management difficulties because listings are frequently unstructured, inconsistent, and distributed across multiple platforms. Traditional recruitment systems often rely on lexical matching, which has limited ability to address the semantic gap between job titles, skill descriptions, and employer-specific terminology. Conversely, approaches that depend primarily on Large Language Models (LLMs) may introduce high financial cost and processing latency when applied to continuous large-scale ingestion. This thesis proposes a lightweight, tiered semantic enrichment pipeline for transforming noisy internship data into a structured and searchable knowledge base. The proposed architecture combines deterministic rule-based extraction, lightweight neural mapping using Transformer models such as DistilBERT, alignment with the ESCO professional taxonomy, and a resource-bounded LLM fallback for ambiguous cases. The system also includes an ingestion component that normalizes heterogeneous JSON files through fuzzy-key matching and content-based inference. Processed records are stored in a hybrid retrieval infrastructure based on PostgreSQL, pgvector, BM25, and HNSW semantic search. The evaluation reported in the thesis uses a real-world dataset of 17,500 listings. The reported evidence indicates that hybrid retrieval can improve relevance and recall compared with keyword-only retrieval while preserving an architecture that remains feasible on commodity hardware. The contribution of the thesis is therefore a practical framework for semantic internship-data organization, with remaining comparison and deployment evidence identified as future completion work.
+
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+La transformation numérique du marché du travail a augmenté le nombre d'offres de stage publiées en ligne. Toutefois, cette expansion crée des difficultés de gestion des données, car les offres sont souvent non structurées, hétérogènes et réparties entre plusieurs plateformes. Les systèmes de recrutement fondés principalement sur la correspondance lexicale restent limités face à l'écart sémantique entre les intitulés de postes, les descriptions de compétences et les formulations propres aux employeurs. À l'inverse, les approches reposant largement sur de grands modèles de langage peuvent entraîner un coût financier et une latence élevés lorsqu'elles sont appliquées à une ingestion continue à grande échelle. Ce mémoire propose une chaîne légère d'enrichissement sémantique destinée à transformer des données de stages bruitées en une base structurée et interrogeable. L'approche combine l'extraction déterministe fondée sur des règles, la normalisation légère par modèles de type Transformer tels que DistilBERT, l'alignement avec la taxonomie professionnelle ESCO et un recours limité aux modèles de langage pour les cas ambigus. Le système intègre également un mécanisme d'ingestion capable de normaliser des fichiers JSON hétérogènes au moyen de correspondances approximatives entre clés et d'inférences fondées sur le contenu. Les données traitées sont stockées dans une infrastructure de recherche hybride qui combine PostgreSQL, l'extension pgvector, BM25 et la recherche sémantique HNSW. L'évaluation rapportée dans le mémoire s'appuie sur un ensemble réel de 17\,500 offres. Les éléments présentés indiquent que la recherche hybride peut améliorer la pertinence et le rappel par rapport aux méthodes fondées uniquement sur les mots-clés, tout en conservant une architecture exploitable sur du matériel courant. La contribution principale du mémoire est donc un cadre pratique pour l'organisation sémantique des offres de stage, les éléments de comparaison et de déploiement restant identifiés comme des travaux à compléter.
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Arabic Abstract}
+\begin{RTL}
+{\arabicfont\Huge\bfseries ملخص\par}
+\vspace{1.5cm}
+{\arabicfont
+أدى التحول الرقمي في سوق العمل إلى زيادة عدد عروض التدريب المنشورة عبر الإنترنت. غير أن هذا التوسع يطرح صعوبات في إدارة البيانات، لأن العروض تكون غالبا غير مهيكلة، وغير متجانسة، وموزعة بين منصات متعددة. تعتمد كثير من أنظمة التوظيف التقليدية على المطابقة اللفظية المباشرة، وهو ما يحد من قدرتها على معالجة الفجوة الدلالية بين مسميات الوظائف، ووصف المهارات، والصيغ المختلفة التي يستعملها أصحاب العمل. وفي المقابل، فإن الاعتماد الواسع على النماذج اللغوية الكبيرة قد يسبب تكلفة مالية وزمنا كبيرا للمعالجة عند التعامل مع تدفق مستمر وكبير من البيانات. يقترح هذا العمل خط معالجة دلاليا خفيفا يهدف إلى تحويل بيانات التدريب غير المنتظمة إلى قاعدة معرفة منظمة وقابلة للبحث. تجمع المنهجية بين الاستخراج الحتمي القائم على القواعد، والنمذجة الخفيفة باستعمال نماذج Transformer مثل DistilBERT، والمواءمة مع تصنيف ESCO المهني، مع استعمال محدود للنماذج اللغوية في الحالات الغامضة فقط. كما يتضمن النظام آلية لإدخال ملفات JSON متعددة البنى اعتمادا على المطابقة التقريبية بين المفاتيح والاستدلال من المحتوى. تحفظ البيانات المعالجة في بنية بحث هجينة تجمع بين PostgreSQL وامتداد pgvector وBM25 والبحث الدلالي باستعمال HNSW. يعتمد التقييم المعروض في هذا البحث على مجموعة بيانات حقيقية تضم 17,500 عرض تدريب. وتشير الأدلة المعروضة إلى أن البحث الهجين يمكن أن يحسن الملاءمة والاسترجاع مقارنة بالبحث المعتمد على الكلمات المفتاحية فقط، مع الحفاظ على بنية عملية قابلة للتشغيل على عتاد عادي. وبذلك تتمثل مساهمة البحث في تقديم إطار عملي لتنظيم عروض التدريب دلاليا، مع تحديد عناصر المقارنة والنشر التي تحتاج إلى استكمال لاحق.
+}
+\end{RTL}
+
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+We would like to express our deepest gratitude to our supervisor, Supervisor Name, for invaluable guidance, constant encouragement, and insightful feedback throughout the development of this thesis. This supervision was instrumental in shaping the direction of the research. We are also grateful to the faculty members of the Your Department at Your University for providing a supportive academic environment and for the knowledge shared during our Master's studies. Special thanks go to our colleagues and friends who offered support, proofread chapters, and engaged in discussions that helped refine the ideas presented in this work. Finally, we would like to thank our family for their unconditional support, patience, and belief in us. This journey would not have been possible without them.
+
+\tableofcontents
+\listoffigures
+\mainmatter
+\chapter{General Introduction}
+
+\section{Chapter Introduction}
+This opening chapter establishes the research problem addressed in the thesis and defines the academic scope of the work. It introduces the internship-discovery context, identifies the limitations of purely lexical and LLM-dependent approaches, states the research questions, and summarizes the main contributions. The chapter concludes by explaining how the remaining chapters are organized.
+
+\section{Context and Motivation}
+Over the last decade, internship discovery has been transformed by the digital shift in the global labor market [15]. Traditional channels, such as newspaper classifieds and physical noticeboards, have largely been replaced by a broad ecosystem of online platforms. Students now navigate global platforms such as LinkedIn and Indeed, specialized university career portals, and niche industry boards. This shift has expanded access to a large volume of listings [28]. However, this abundance also creates a significant data-management challenge. Internship listings are often semi-structured, inconsistent, and expressed through platform-specific conventions. Two platforms, or even two employers, may describe the same role using different terms. A ``Junior Java Developer'' and a ``Software Engineering Intern'' might require an identical skill set, yet a traditional keyword search treats them as separate entities. In addition, the data is often noisy, with boilerplate text, inconsistent formatting, and non-standard labels [50]. For recruitment platforms and universities, organizing this continuous flow of unstructured data from automated web scraping, manual JSON uploads, and other sources is a substantial task. This challenge motivates the need for a lightweight approach that can transform noisy listings into a structured semantic knowledge base, enabling precise discovery without the overhead of manual curation or heavyweight computational infrastructure [5].
+
+\section{Problem Statement}
+This thesis addresses two related problems in the ingestion and retrieval of internship data: the semantic gap and structural heterogeneity. Existing job-posting systems commonly follow one of two approaches, each of which creates limitations for the target use case:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Rigid Lexical Matching: Many platforms rely on exact keyword matching, such as BM25. This approach is limited in its ability to handle synonyms, technical jargon, and relationships between concepts. As a result, users may miss relevant listings because their search terms do not precisely match the employer's vocabulary [2].
+
+\item High-Cost LLM Dependency: The opposite extreme is to delegate the problem entirely to a Large Language Model (LLM). While LLMs are effective at interpreting meaning, relying on them to process thousands of scraped documents in real time is often financially expensive and can introduce substantial latency [37]. The ingestion process itself is similarly fragmented. Data from partner institutions often arrives in JSON formats that lack any fixed schema, forcing teams into a repetitive cycle of manual mapping. This creates the need for a unified system that can automatically clean, structure, and semantically enrich data from diverse sources while remaining efficient enough to run on ordinary commodity hardware [17].
+
+\end{enumerate}
+\section{Research Questions}
+The study is guided by four research questions:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item RQ1: How can a tiered pipeline architecture balance extraction accuracy and computational cost for internship listings?
+
+\item RQ2: How well can lightweight transformer models such as DistilBERT map non-standard job titles onto a standardized professional taxonomy such as ESCO?
+
+\item RQ3: How much does a hybrid retrieval strategy---one that combines lexical (BM25) and semantic (HNSW) search---improve the relevance and recall of internship discovery compared to traditional keyword search alone?
+
+\item RQ4: Which heuristic-based mapping strategies can automate the ingestion of inconsistently formatted JSON data into a unified schema?
+
+\end{enumerate}
+\section{Contributions}
+This thesis makes four primary contributions:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item A Tiered Semantic Enrichment Pipeline: The thesis introduces a modular architecture that combines three layers: deterministic, rule-based extraction (Layer A), lightweight neural mapping (Layer B), and a resource-budgeted LLM fallback for the most complex cases (Layer C).
+
+\item A Hybrid Search Infrastructure: The thesis implements a retrieval system using PostgreSQL and the pgvector extension to support hybrid lexical and semantic search.
+
+\item Automated Ingestion Heuristics: The thesis develops a flexible JSON processing module that uses fuzzy key matching and content-based inference to reduce manual schema mapping for multi-format user uploads.
+
+\item Empirical Evaluation: The thesis presents an evaluation using a real-world dataset of 17,500 listings and reports the observed trade-offs between semantic enrichment, retrieval quality, and computational cost.
+
+\end{itemize}
+
+\section{Thesis Structure}
+The thesis is organized into seven chapters. Chapter 1 introduces the research context, problem statement, research questions, contributions, and overall structure. Chapter 2 presents the background, related work, and theoretical foundations of the study, including information extraction, occupational taxonomies, text representation, semantic retrieval, hybrid search, and lightweight model strategies. Chapter 3 describes the technological environment and development tools that support the implementation, including the client-side application layer, API layer, database layer, transformer-based semantic tools, and retrieval infrastructure. Chapter 4 presents the methodology, covering the system overview, semantic schema, label space, and evaluation protocol. Chapter 5 describes the system design and implementation, including data collection, preprocessing, enrichment, storage, indexing, caching, and API design. Chapter 6 presents the reported results, adds a structured procedure for completing HR@k and NDCG@k analysis, and preserves the comparison section as a completion scaffold rather than as an additional empirical claim. Chapter 7 combines discussion, limitations, conclusion, and future-work material, with the ethical, legal, and privacy section retained as a completion scaffold because it was listed in the original thesis structure. The appendices preserve the original appendix headings and identify the material still to be completed.
+
+\section{Chapter Conclusion}
+This chapter has defined the motivation, research problem, questions, and contributions of the thesis. It has also clarified the boundaries of the study: the proposed system is evaluated as a lightweight semantic structuring and retrieval framework for internship listings, while incomplete external-platform comparison evidence is treated as work that must be completed with measured results.
+
+\chapter{Background, Related Work, and Theoretical Foundations}
+
+\section{Chapter Introduction}
+This chapter provides the conceptual and scholarly foundation for the thesis. It first situates internship search within labor-market information systems, then reviews related work on job-posting analytics, skill extraction, taxonomy alignment, and lightweight semantic pipelines. The second part of the chapter presents the theoretical foundations required to understand the proposed approach, including information extraction, semantic structuring, text representation, hybrid retrieval, approximate nearest-neighbor search, and efficiency-oriented model design.
+
+\section{Internship Search and Labor-Market Information Systems}
+Internship-search systems operate at the intersection of labor-market data, natural-language processing, information retrieval, and software engineering. Their central difficulty is that internship descriptions are not produced according to a single controlled schema. Employers use different job titles, skill expressions, location formats, compensation descriptions, and platform conventions. As a result, a system that depends only on explicit keywords or fixed field names can fail to retrieve relevant opportunities when equivalent meanings are expressed in different forms.
+
+The background of this thesis is therefore defined by three linked requirements. First, raw listings must be transformed into reliable structured records. Second, extracted labels must be aligned with a stable professional vocabulary so that different expressions of similar roles and skills can be compared. Third, retrieval must combine lexical evidence with semantic similarity while remaining efficient enough for practical deployment. These requirements motivate the use of a tiered architecture in which deterministic extraction, lightweight neural mapping, and limited LLM assistance each have a bounded methodological role.
+
+\section{Related Work}
+The automation of recruitment and labor-market analysis has developed from manual curation toward data-driven methods supported by Natural Language Processing (NLP) and machine learning [50, 15, 29]. This chapter reviews the literature and technological approaches that form the foundation of the thesis. The review focuses on three interconnected areas: (1) Job Posting Analytics (JPA) and skill extraction, (2) the alignment of extracted information with formal ontologies and taxonomies, and (3) the architectural trade-offs between LLM-dependent pipelines and modular lightweight approaches. Taken together, these areas identify the need for a system that supports semantic accuracy and recall while maintaining latency, cost, and data-control properties appropriate for an internship platform.
+
+\subsection{Job Posting Analytics and Skill Extraction}
+The extraction of structured, actionable information from noisy and semi-structured job advertisements is a well-established research area, often referred to as Job Posting Analytics (JPA) [50, 5, 28]. The core challenges of JPA include identifying and normalizing job titles, extracting required skills, and classifying experience levels. These tasks reflect broader Information Extraction (IE) problems, where the objective is to populate structured records from unstructured text [44]. Early approaches to JPA were dominated by knowledge engineering. Rule-based systems, supported by manually curated gazetteers containing known entities such as ``Java,'' ``Project Management,'' or ``Berlin,'' were a common method for identifying key entities [44]. These systems offered high precision for known terms and were efficient and explainable. However, their limitations became clear because they often failed to capture the variability, synonymy, and neologisms of natural language in job descriptions. A gazetteer containing ``C++'' may miss a posting that expresses the same requirement in another form, and it cannot identify an emergent skill such as ``Prompt Engineering'' without manual updating [31]. These limitations encouraged the adoption of statistical and deep learning methods, which formulate NER and skill extraction as sequence-labeling tasks [31, 53]. A major advancement came with the fine-tuning of Transformer-based models, particularly BERT, for the recruitment domain [4, 39]. Domain-specific pre-training, as demonstrated by JobBERT and related models, can improve skill extraction by learning contextual equivalences such as ``AWS'' and ``Amazon Web Services'' and by disambiguating terms such as ``Spark'' according to context [39]. This thesis builds on this direction by using a lightweight, domain-adapted neural model (Layer B) to address semantic complexity beyond the coverage of purely rule-based processing. Beyond term extraction, research on skill embeddings, such as Job2Vec, uses representation learning to map skills into vector spaces where functionally related technologies cluster together [57, 17]. Qin et al. (2018) further proposed methods to classify a skill mention as ``required,'' ``beneficial,'' or ``preferred,'' producing a more nuanced profile of employer demand than a flat skill list [41]. The current Lexicon-Based Matching layer provides a high-precision initial skill list, while the architecture remains open to future context-aware weighting.
+
+\subsection{Ontology/Taxonomy Alignment in HR/Recruitment}
+A fundamental obstacle in bridging the labor market's ``vocabulary gap'' is the task of mapping raw, heterogeneous text to a canonical reference. Standardized taxonomies such as ESCO (European Skills, Competences, Qualifications and Occupations) and O*NET provide a common reference vocabulary for labor-market analysis [40]. However, entity linking or taxonomy alignment, such as mapping an informal job title or a technology term to a formal node in a hierarchy, remains a persistent research challenge [56]. Modern approaches often use Recruitment Knowledge Graphs (KGs) to represent relationships among job titles, skills, industries, and educational qualifications [47]. For instance, a KG can explicitly model a relationship such as ``Python is a prerequisite for Data Scientist.'' These graph-based systems provide rich inferential context but often require substantial maintenance. The literature therefore discusses a trade-off between the expressiveness of full ontologies and the practical utility of flatter, more navigable taxonomies [49]. Full ontologies can represent complex logical relationships, but they are vulnerable to ontology drift as new technologies and job roles emerge [48]. Consequently, lightweight semantic approaches that prioritize operational feasibility have gained attention. These methods often operate at the embedding level by converting textual mentions and canonical concepts into the same dense vector space and mapping a raw string to its nearest canonical neighbor via cosine similarity [22, 17]. This thesis follows that principle by using an SBERT-based bi-encoder to map non-standard titles such as ``Software Engineering Intern'' toward the vector-space region associated with the ESCO concept for software development. This approach addresses the normalization of compound and non-standard job titles, a problem explored by Sayfullina et al. (2018), who showed that decomposing compound titles is important for robust canonicalization [45].
+
+\subsection{LLM-based Pipelines vs Lightweight Pipelines}
+The emergence of Large Language Models (LLMs) has introduced a major shift in the IE paradigm and has changed how semantic capabilities are designed or outsourced. The prevailing methodology has moved from ``pre-train and fine-tune'' specialist models toward ``pre-train, prompt, and predict'' generalist models [6, 33]. LLMs such as GPT-4 exhibit strong zero-shot and few-shot capabilities. With prompting techniques such as Chain-of-Thought (CoT), an LLM can decompose complex extraction tasks, including categorizing required versus preferred skills and mapping job titles to occupational concepts [55]. However, comparative studies also report important drawbacks of LLM-only architectures for production-scale pipelines, particularly in settings concerned with Green AI [46]. This thesis treats these drawbacks as constraints that define a bounded role for LLMs. The key challenges are:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Latency and Throughput: Processing thousands of fresh scrapes per hour with cloud-based LLM APIs can result in high latency and financial cost, which conflicts with the low-latency requirements of an interactive user-facing search engine [20, 37]. The cost is therefore both a budgetary concern and a scalability constraint.
+
+\item Consistency and Hallucination: The well-documented tendency of LLMs to ``hallucinate''---generating plausible-sounding but factually incorrect information---is especially problematic in extraction. A hallucinated ``Kubernetes'' skill or a misformatted output field can corrupt a database and degrade user trust, a known limitation of current generative architectures [24, 3]. Deterministic rule-based pipelines, in contrast, are consistent and easier to debug.
+
+\item Privacy and Data Sovereignty: Sending recruitment data, which may contain proprietary employer information or personally identifiable data, to external third-party APIs creates legal and ethical risks, especially under regional data-protection regulations such as the GDPR [21]. A lightweight local processing pipeline mitigates this risk by keeping data within the system boundary. The methodological alternative developed in this thesis is a lightweight hybrid pipeline. It combines high-precision heuristic rules for structured data, such as regex-based salary parsing, with optimized small-scale transformer models such as DistilBERT for more complex semantic tasks such as title normalization. This strategy is connected to Knowledge Distillation, where a compact student model approximates the behavior of a more computationally expensive teacher model on a specific task [20, 37]. In the proposed architecture, an LLM may serve as an offline teacher for data annotation and schema generation, while the production system uses faster local components. This design prioritizes computational parsimony and operational efficiency while retaining the semantic depth required for the vocabulary-gap problem [46]. The contribution is a concrete system design and evaluation framework for examining the trade-off between accuracy, cost, and control in internship analytics.
+
+\end{itemize}
+
+\section{Theoretical Scope of the Proposed Semantic Pipeline}
+The theoretical part of this chapter explains why the proposed system combines deterministic extraction, semantic mapping, taxonomy alignment, and hybrid retrieval rather than relying on a single technique. It also defines the concepts used later in the methodology and implementation chapters, so that the design choices are interpreted through established information-retrieval and information-extraction principles rather than through implementation details alone.
+
+\section{Information Extraction and Semantic Structuring}
+This section establishes the theoretical foundation for the internships-code system. It connects classical Information Extraction (IE) theory [44] with the practical requirements of a modern recruitment data pipeline. The section explains how noisy, semi-structured internship postings can be transformed into clean, structured, and searchable records. It draws on established ideas from data matching [8], natural language processing [26], and occupational taxonomies, while also considering the emerging role of Large Language Models (LLMs) [6]. This background is essential for understanding the system's central architectural choice: a lightweight, cost-conscious pipeline that reserves heavier AI components for difficult edge cases.
+
+\subsection{The Data Landscape: Heterogeneous Internship Information}
+Recruitment informatics is shaped by a persistent data-integration problem: data sources differ substantially from one another. Internship listings do not follow a single uniform format. Instead, they range from free-form text to rigidly structured databases. Processing this material is therefore a data integration challenge [13].
+
+\subsubsection{Unstructured vs. Semi-Structured Data}
+Distinguishing unstructured data from semi-structured data is necessary when designing a processing pipeline. Unstructured data includes sources such as raw cover letters or the free-text body of a job description. In these cases, there is no predefined model indicating where the key information is located. A human reader can infer the meaning, but a machine must extract that meaning from prose. Semi-structured data is commonly produced by web scraping. It contains organizational markers, such as HTML tags, CSS classes, or JSON keys, that provide partial structure, but it is still not equivalent to a normalized database. For example, a salary may appear inside a <span class="salary"> element, while the actual value remains a noisy string such as ``Competitive'' or ``\$20-\$25/hr'' [1]. The ingestion module therefore addresses a schema-on-read problem. Different platforms use different keys for the same concept: platform link, url, and apply href can all refer to the same destination. A core task of the preprocessing layer is schema mapping, which normalizes these inconsistencies into a unified field such as link.
+
+\subsubsection{Noise and Data Cleaning}
+Web-scraped text is inherently noisy. It often contains boilerplate content, such as legal disclaimers, navigation menus, and footer links, as well as formatting artifacts such as excessive whitespace, HTML entities, and broken character encodings. Data cleaning is therefore a prerequisite for reliable processing. The quality of subsequent extraction and classification depends directly on the quality of the cleaned input [9]. The preprocessing pipeline handles this through several key operations:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Text Normalization transforms text into a consistent, canonical form. The cleanDescription utility lowercases text, collapses whitespace, and removes residual HTML. This reduction in surface-level variation reduces the complexity of downstream NLP processing, whether the subsequent component is a lexicon or a transformer-based classifier.
+
+\item Tokenization is the critical first step for most IE and Information Retrieval (IR) tasks; it breaks continuous text into discrete tokens such as words, punctuation, or subwords [36]. Consistency is particularly important for dictionary-based matching in the first pass of skill extraction. If the tokenization strategy differs between the lexicon and the input text, relevant matches may be missed without producing an explicit error.
+
+\end{itemize}
+\subsection{The Fundamentals of Information Extraction}
+Information Extraction is the process of deriving structured, machine-readable information from unstructured or semi-structured documents [18, 44]. In this thesis, IE transforms a narrative job posting into a formal Internship object with explicit fields such as title, skills, and salary.
+
+\subsubsection{Named Entity Recognition (NER)}
+NER is a foundational IE subtask. It identifies and classifies named entities in text into predefined categories such as ``Person,'' ``Organization,'' and ``Location,'' or, in the present domain, ``Skill,'' ``Job Title,'' and ``Salary'' [38]. The system uses NER at multiple levels of complexity. Dictionary-based or gazetteer-based NER relies on a curated list of known entities. The extractSkills function follows this approach by scanning text for known skill terms. Although this method cannot identify every newly emerging technology or every paraphrased skill expression, it provides high precision for known terms and has very low computational cost [38]. As the first layer in a multi-tiered pipeline, it handles straightforward cases without model inference. Neural NER uses sequence-labeling models such as BiLSTM-CRF or transformer architectures such as BERT to classify entities according to context [30, 31]. Context is necessary because ambiguous terms may have different meanings across domains. In this pipeline, a lightweight DistilBERT model serves as the second tier, extending the system beyond the coverage of the lexicon.
+
+\subsubsection{Slot Filling and Attribute Extraction}
+Slot filling, or relation extraction at the entity level, identifies specific values for predefined attributes associated with an entity. In this thesis, the entity is a job posting, and the slots correspond to attributes such as salary, location, required degree, and required skills.
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Regex-Based Extraction: For predictable text patterns, such as salary strings, dates, and email addresses, regular expressions are precise, efficient, and maintainable. The cleanSalary module uses a tiered set of regex patterns to parse, normalize, and convert heterogeneous salary expressions into numeric ranges [44].
+
+\item Heuristic Validation: After extraction, values pass through validation checks. A parsed salary must fall within a plausible range, and a date must correspond to a valid calendar date. This contextual post-processing provides a baseline level of data integrity before records are stored in the database.
+
+\end{itemize}
+\subsection{Bridging the Semantic Gap with Taxonomies}
+One of the central problems addressed in this thesis is the semantic gap: the distance between employer-specific language in a job posting and the formal categories that a job seeker may use during search. For example, a non-standard title such as ``Code Wizard'' may not be retrieved for a query such as ``Software Engineer'' unless the system performs semantic normalization.
+
+\subsubsection{Occupational Taxonomies}
+One solution is to map raw, non-standard text onto a canonical occupational taxonomy. This provides a shared reference vocabulary for comparing job titles, skills, and occupational families.
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item ESCO (European Skills, Competences, Qualifications and Occupations): This multilingual classification system, used as the primary reference in this research, organizes occupations into a hierarchy and explicitly links them to required skills and competences. Its dual structure of occupations and skills makes it suitable as a target schema for semantic enrichment.
+
+\item O*NET (Occupational Information Network): This is a comparable framework used mainly in the United States. The core principles of hierarchical mapping and linking roles to skills are consistent across both systems, and the design remains taxonomy-agnostic [40].
+
+\item Hierarchical Mapping: By anchoring a job posting to a taxonomy node, the system can use broader professional relationships. A ``React Developer'' can be interpreted as a type of ``Front-End Developer'' and, more broadly, a ``Software Engineer.'' This supports faceted search and discovery beyond exact keyword matching.
+
+\end{itemize}
+\subsubsection{Heuristic vs. Semantic Classification}
+The classification approach follows the same tiered logic as the NER strategy.
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Heuristic Classification (Layer A): For categorical filtering, the pipeline begins with a high-precision keyword-anchoring approach. A title containing ``Accountant'' maps directly to ``Finance.'' This deterministic layer handles clear cases efficiently and provides a stable baseline for high-volume processing [5].
+
+\item Semantic Classification (Layer B): Some titles are too vague (``Consultant'') or too idiosyncratic (``Growth Hacker'') for simple keyword matching. In these cases, the system uses sentence embeddings from a lightweight bi-encoder model such as Sentence-BERT (SBERT) [42]. The title embedding is compared against pre-computed embeddings of ESCO occupation labels, and the nearest neighbor is assigned. This can improve recall for non-standard roles [45]. A bi-encoder architecture is used because document embeddings can be pre-computed and cosine-similarity search can be accelerated with vector databases.
+
+\end{itemize}
+\subsection{Record Linkage and Finding Duplicates}
+Aggregating data from multiple job boards creates the problem of duplicate records. The same internship may appear on LinkedIn, Indeed, and a university portal, with slight variations in title, description, or formatting.
+
+\subsubsection{Deduplication Strategies}
+Record linkage, or entity resolution, is the task of algorithmically identifying which records across datasets refer to the same real-world entity [8, 14]. The system incorporates this logic directly into the ingestion pipeline.
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Deterministic Matching via Blocking: The generateId function creates a canonical identifier by combining a slugified company name with a normalized job title. This identifier serves as a blocking key. Comparing only records that share the same key limits pairwise comparison to small blocks and reduces computational cost [8]. This is the primary deduplication strategy.
+
+\item Probabilistic Matching: Deterministic blocking is limited when titles are slightly rephrased, such as ``Software Eng. Intern'' and ``Intern, Software Engineering.'' For these cases, a second pass can apply fuzzy string metrics such as Levenshtein distance or Jaccard similarity to blocked groups in order to calculate similarity scores and resolve near-duplicates [14]. The current implementation relies mainly on deterministic blocking, with probabilistic resolution retained as an optional offline batch process.
+
+\end{itemize}
+\subsubsection{Canonicalization and the Golden Record}
+Once a group of duplicate records has been linked, the system requires a single canonical representation for storage and indexing. The selection heuristic may prefer the most authoritative source, the most recently updated posting, or the record with the most complete information. The goal is to maintain a search index that is concise, accurate, and free from avoidable redundancy [13].
+
+\subsection{The Shifting Paradigm: Rules, Models, and LLMs}
+The proposed architecture can be situated within the broader IE landscape. The field has evolved from rule-based systems to statistical and neural models and, more recently, to Large Language Models [6]. LLMs have shown strong zero-shot extraction abilities, and techniques such as Chain-of-Thought prompting can support tasks such as NER, slot filling, and taxonomy mapping [55]. However, this flexibility introduces operational costs. For a system processing thousands of new postings, an LLM-only architecture may create latency, cost, and consistency problems [3, 24]. The internships-code system therefore adopts a tiered pipeline. It uses explainable deterministic rules (Layer A) for straightforward cases, a lightweight fine-tuned neural model (Layer B) for semantic complexity, and an optional LLM fallback (Layer C) only for ambiguous cases. This architecture reflects ``Green AI'' principles by prioritizing computational efficiency and sustainability while preserving the scalability and practical accuracy required by the problem [46, 37].
+
+
+\section{Text Representation, Search, and Retrieval}
+Search and retrieval are the core mechanisms for accessing internship listings once they have been ingested and enriched. The effectiveness of a search system directly determines whether a student can bridge the semantic gap described in the background chapter by transforming a broad career intention, such as ``I want to build apps,'' into a concrete set of relevant postings. This section reviews the evolution from traditional lexical matching to semantic search techniques and highlights the trade-offs in accuracy, performance, and interpretability established in retrieval theory [36, 2, 11]. The resulting conceptual framework motivates the hybrid retrieval design used in this thesis.
+
+\subsection{Keyword Retrieval}
+Keyword-based retrieval, also known as lexical or sparse retrieval, relies on the presence of exact words or tokens in both the query and the document. This approach has been the foundation of information retrieval for decades, prized for its efficiency, interpretability, and predictable behavior [36, 58]. In the context of internship listings, a search for ``Python Developer'' will return any job posting containing the exact tokens ``Python'' and ``Developer,'' irrespective of the broader meaning.
+
+\subsubsection{Inverted Indexing}
+The fundamental data structure enabling high-speed keyword search is the inverted index. Conceptually, it maps each unique term in the corpus to a list of document identifiers containing that term, often along with the term's frequency and position within each document [36, 58]. This structure supports sub-linear search time; instead of scanning every document for a query term, the system retrieves the pre-computed postings list. For a catalog exceeding 17,500 internship postings, an inverted index helps keep searches for rare technical skills such as ``Kubernetes'' efficient and precise. The construction and compression of these indices is a well-understood engineering problem, making inverted indexing a robust, sustainable, and low-resource foundation for retrieval systems [7].
+
+\subsubsection{BM25 (Best Matching 25)}
+While boolean retrieval---simply checking for the presence of a term---provides a binary true/false result, modern ranking models assign a continuous relevance score, enabling a sorted list of results. BM25 (Best Matching 25) is the de facto standard for this task, providing a sophisticated scoring mechanism grounded in the probabilistic relevance framework [43, 26, 7]. BM25 is an evolution of the classic TF-IDF (Term Frequency-Inverse Document Frequency) model, introducing two essential parameters that directly address the idiosyncrasies of internship listings:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Term Frequency Saturation (k1): The raw term frequency (TF) in TF-IDF assumes that a document containing a term ten times is ten times as relevant as one containing it once. In practice, this is rarely true and makes the system vulnerable to ``keyword stuffing''---an employer repeating ``Java'' dozens of times to artificially boost their posting. BM25 applies a nonlinear saturation function controlled by k1, which bounds the contribution of term frequency. The relevance gain from a term's first few occurrences is steep, but additional mentions contribute diminishing returns, making the system robust against manipulation and verbose postings [43].
+
+\item Document Length Normalization (b): Job descriptions vary substantially in length. A detailed ``Senior Research Intern'' posting may naturally contain more words than a brief ``QA Tester'' entry, including incidental mentions of a query term. BM25's length-normalization parameter b penalizes excessively long documents. Tuning b reduces the likelihood that a concise, relevant internship posting is outranked by a longer, more generic one simply because the longer text has more opportunities to mention a key skill [43]. BM25 remains a strong lexical baseline, particularly for queries centered on domain-specific technical terms, acronyms, and specific degree requirements, where exact lexical matching defines precision [43, 51]. Its primary failure mode is its inability to handle vocabulary mismatch: a student searching for ``C++ Intern'' may miss a suitable role titled ``Systems Software Intern'' that lists C++ as a key requirement but does not use the exact query phrase.
+
+\end{itemize}
+\subsection{Vector Representations}
+To address the inherent limitations of lexical matching, modern retrieval systems have moved toward vector-based, or ``dense,'' representations. Instead of representing text as a sparse bag of words, this paradigm embeds it into a continuous, high-dimensional vector space. The core hypothesis is that the geometric distance between two vectors---often measured with cosine similarity---correlates with the semantic similarity of the underlying text [26, 34, 32]. In this space, ``Junior Java Developer'' and ``Software Engineering Intern'' are mapped to nearby points, even if they share no words.
+
+\subsubsection{Dense Embeddings}
+Unlike high-dimensional sparse lexical vectors, where each dimension corresponds to a unique word from the vocabulary, dense embeddings are compressed representations, typically 384 to 1536 dimensions long. Each dimension encodes a latent feature of the text's meaning learned from data. These vectors are generated by pre-trained neural networks, most notably those based on the Transformer architecture, which enables models to weigh the dynamic contextual importance of each word in a sentence [52, 12]. A model such as BERT (Bidirectional Encoder Representations from Transformers) can produce context-aware embeddings, meaning that the vector for ``Java'' in the sentence ``Experience with Java'' differs from its embedding in ``Located on the island of Java,'' allowing the type of disambiguation described earlier.
+
+\subsubsection{Sentence-BERT (SBERT) and Bi-Encoders}
+Standard BERT models are architecturally unsuitable for large-scale similarity search. They are designed as cross-encoders, meaning that a query and a document must be fed into the model simultaneously, requiring a full neural-network pass for every query-document pair. For a corpus of 17,500 postings, executing a single search could take minutes, making real-time interaction impractical. Sentence-BERT (SBERT) introduced a bi-encoder architecture [42]. In a bi-encoder, the query and document are processed separately to produce independent, fixed-sized embeddings. This decoupling has two important consequences for the present use case:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Offline Indexing: A semantic embedding can be pre-computed for every internship in the catalog. This one-time offline process converts the corpus into a matrix of vectors.
+
+\item Real-Time Search: At search time, the system only needs to generate a single embedding for the user's query and then find the closest document vectors in the pre-computed index. This architecture is standard for efficient dense retrieval, alongside frameworks such as Dense Passage Retrieval (DPR) [27], and forms the conceptual basis of the semantic search component of this thesis. Fine-tuning SBERT on domain-specific data, such as pairs of similar job titles, can further reduce the semantic gap between labels such as ``ML Engineer'' and ``Machine Learning Intern'' [42, 25].
+
+\end{enumerate}
+\subsection{Hybrid Retrieval}
+In the high-stakes, precise domain of internship discovery, neither keyword nor vector search is a panacea. Each modality has a distinct failure mode. Lexical search fails on synonyms and concepts (semantic gap), while dense search can be poor at handling exact, rare matches like specific course codes (``ENGR301''), company names, or niche acronyms (``RTL Design'') where semantic similarity is diffuse. Hybrid retrieval is a framework for combining their complementary strengths, consistently outperforming single-modality systems, especially in zero-shot scenarios where models face data unlike their training set [51, 34]:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Sparse Retrieval (BM25): Acts as a precision anchor for exact matches on unambiguous terms, ensuring a search for ``React Native Intern at Acme Corp'' returns the specific Acme Corp posting if it exists. Recent advances like SPLADE further blur the lines by using neural networks to learn sparse lexical expansions, potentially adding ``React'' to a query for ``React Native'' [16].
+
+\item Dense Retrieval (SBERT): Handles the conceptual ``fuzzy'' layer, ensuring a student searching for ``Frontend Web Programming'' sees relevant ``UI/UX Development'' and ``JavaScript Engineering'' roles, capturing the semantic neighborhood of their query [42].
+
+\end{enumerate}
+\subsubsection{Reciprocal Rank Fusion (RRF)}
+A central practical challenge in hybrid retrieval is score fusion: BM25 outputs a theoretically unbounded lexical score, while SBERT returns a cosine similarity bounded between [-1, 1]. Naively normalizing or summing these incommensurable scores is brittle and requires heavy parameter tuning. Reciprocal Rank Fusion (RRF) elegantly circumvents this issue. It operates not on score magnitudes, but on the rank positions of documents in each respective result list [10]. A document that is 2nd in the BM25 list and 5th in the SBERT list receives a higher fused score than one that is 150th and 1st. This method is robust, parameter-free, and inherently penalizes documents that perform poorly in one retrieval paradigm, using only the ordinal information common to any ranked list. This makes it an ideal, low-maintenance fusion algorithm for a diverse, evolving corpus of job postings [10].
+
+\subsection{Efficiency Considerations}
+The theoretical elegance of semantic search must translate into a practical, low-latency system. Scaling to thousands of job postings requires specialized infrastructure to manage highdimensional vector operations without sacrificing the ``lightweight'' design goal of this thesis [25, 54].
+
+\subsubsection{Vector Databases and Approximate Nearest Neighbor (ANN) Search}
+Traditional SQL databases are optimized for exact matching and one-dimensional B-tree indexing, and exact nearest-neighbor search in a 384-dimensional space is computationally expensive. At the scale of 17,500 records, an exact linear scan may be acceptable, but a more scalable approach is required for low-latency retrieval. Vector databases are purpose-built for this task and use Approximate Nearest Neighbor (ANN) algorithms. ANN algorithms trade a small, tunable amount of recall for substantial improvements in query speed and memory efficiency [35, 54]. This trade-off is acceptable in many recruitment-search contexts, where omitting a marginally similar result beyond the first results page is relatively low risk.
+
+\subsubsection{HNSW (Hierarchical Navigable Small World)}
+HNSW is one of the most widely adopted ANN algorithms and serves as the foundation for the vector indexing strategy [35]. It constructs a multi-layered proximity graph structure:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item The top layers contain only a few nodes with long-range edges, establishing a highway network that allows the search to rapidly traverse the entire vector space.
+
+\item The bottom layer contains all data points connected by short-range edges, enabling a fine-grained local search for the most precise neighbors. A search starts by navigating the sparse top layer to reach the general region of the query vector quickly, and then descends to the dense bottom layers for final refinement. This navigable small-world structure enables logarithmic search complexity, O(log N), making it suitable for a low-latency production environment where a student expects real-time feedback during search [35].
+
+\end{itemize}
+\subsubsection{Quantization}
+For efficiency, the memory footprint of the vector index can become a limiting factor. Storing even a 384-dimensional vector of 32-bit floats for each of 17,500 postings incurs significant RAM overhead. Quantization techniques compress these vectors into a lower-precision representation, reducing the required RAM while mostly preserving the relative distances between points [23, 19]. Scalar Quantization maps 32-bit floats to 8-bit integers, a simple approach providing a 4x memory reduction. Product Quantization (PQ) is a more advanced method that splits the vector into sub-vectors and quantizes them independently, achieving even higher compression ratios. This is a critical technique for maintaining the ``lightweight'' character of the system, allowing semantic retrieval to run on commodity hardware without resorting to expensive, large-scale cloud resources, in line with the principles of ``Green AI'' [37, 46].
+
+
+\section{Synthesis and Chapter Conclusion}
+The reviewed literature and theoretical concepts show that internship discovery is not only a user-interface problem, but also a semantic data-management problem. The thesis therefore combines established information-extraction methods, occupational taxonomies, lexical retrieval, vector representations, and approximate search. The central research gap addressed by the proposed system is the need for a practical architecture that improves semantic access to internship listings while preserving cost control, interpretability, and deployability on ordinary infrastructure.
+
+
+\chapter{Technological Environment and Development Tools}
+
+\section{Chapter Introduction}
+This chapter identifies the technological environment that supports the proposed system. Its purpose is not to repeat the theoretical discussion from Chapter 2, but to clarify the practical tools, platforms, and development components used to implement the semantic internship-search pipeline. The chapter is organized around the application layer, backend and persistence layer, data representation layer, natural-language-processing tools, retrieval infrastructure, and evaluation environment.
+
+\section{Application Development Environment}
+The application environment provides the interaction point between the student user, the internship catalog, and the semantic retrieval pipeline. The available implementation evidence identifies a React-based presentation layer and a Next.js API layer; accordingly, this chapter describes that verified stack rather than an alternative mobile-client stack.
+
+\subsection{Presentation-Layer Technologies}
+The presentation layer is responsible for displaying searchable internship records, filters, and detail views. Its academic role in the thesis is to make the structured output of the enrichment pipeline accessible to users through a controlled interface.
+
+\subsubsection{React-Based User Interface}
+The current implementation text identifies a React-based user interface located under the application components. This layer renders internship cards, search results, and interactive filtering controls while remaining separated from the data-processing modules.
+
+\subsubsection{Client-Side Interaction Flow}
+The client-side interaction flow begins when a student submits a query or applies a filter. The interface sends the request to the API layer and updates the displayed internship list after receiving structured JSON data. This separation supports maintainability because user-interface changes can be made without altering the extraction and ranking logic.
+
+\subsection{API and Communication Layer}
+The communication layer provides the interface between the client application and the processed internship data. It is implemented through Next.js API routes in the current source material.
+
+\subsubsection{Next.js API Routes}
+The route endpoint acts as a stable access point for internship search and retrieval. It receives requests, delegates data access to the processing layer, applies cache policy when relevant, and returns structured JSON responses.
+
+\subsubsection{JSON-Based Data Exchange}
+JSON is used as the exchange format between the API layer and the client application. This choice is consistent with the internship catalog format and with the TypeScript interface used to define the Internship entity.
+
+\section{Database and Persistence Technologies}
+The persistence environment combines static catalog storage with relational database support. This hybrid organization reflects the distinction between relatively stable internship listings and dynamic user-specific data.
+
+\subsection{Hybrid Persistence Architecture}
+The system uses local JSON storage for the main catalog and Supabase/PostgreSQL for dynamic data. This organization keeps the read-heavy catalog simple while retaining transactional database support for user-related features.
+
+\subsubsection{Static Catalog Storage}
+The static catalog stores the pre-scraped internship listings in a JSON file. This file-based layer supports reproducible ingestion, straightforward version control, and rapid loading during the preprocessing stage.
+
+\subsubsection{Supabase and PostgreSQL}
+Supabase provides a managed PostgreSQL backend for relational persistence. In the thesis architecture, this layer supports dynamic user state, metadata, and database-backed functionality that requires stronger transactional guarantees than a static file can provide.
+
+\subsubsection{pgvector Extension}
+The pgvector extension is relevant to the semantic-search component because it enables dense vector storage and similarity operations inside PostgreSQL. It therefore provides a database-level foundation for combining structured metadata with embedding-based retrieval.
+
+\section{Data Representation and Type-Safety Tools}
+The system requires a stable representation of internship records so that extraction, storage, retrieval, and display operate on the same semantic contract.
+
+\subsection{TypeScript Data Interfaces}
+The Internship interface defines the expected fields of an internship record, including title, company, location, salary information, skills, category labels, canonical title, and embedding-related fields. This interface reduces ambiguity between modules and supports development-time validation.
+
+\subsection{Structured Internship Records}
+The structured record format transforms heterogeneous scraped data into a consistent representation. This format is essential because retrieval metrics, filtering behavior, and result presentation all depend on stable field names and normalized values.
+
+\section{Natural-Language Processing and Semantic Tools}
+The semantic layer uses lightweight NLP tools to bridge the vocabulary gap between employer descriptions and student queries.
+
+\subsection{Transformer-Based Semantic Components}
+Transformer-based models are used as lightweight semantic components rather than as uncontrolled end-to-end generators. The manuscript refers to compact transformer models such as DistilBERT and Sentence-BERT as tools for contextual mapping and embedding generation.
+
+\subsubsection{DistilBERT and Lightweight Transformer Models}
+DistilBERT represents the class of compact transformer models used to reduce computational cost while preserving useful contextual representations. In this thesis, such models motivate Layer B, which is reserved for semantic cases that deterministic rules cannot resolve.
+
+\subsubsection{Sentence-BERT Embeddings}
+Sentence-BERT supports efficient sentence-level embeddings through a bi-encoder architecture. This makes it suitable for comparing internship titles, descriptions, and canonical labels without running a full cross-encoder over every query-document pair.
+
+\section{Indexing and Retrieval Technologies}
+The retrieval environment combines lexical and semantic access mechanisms. This reflects the thesis argument that internship discovery requires both exact technical-term matching and semantic similarity.
+
+\subsection{Lexical Retrieval Tools}
+BM25 provides the lexical retrieval baseline. It is used to represent exact keyword matching and remains important for precise skill names, company names, and technical acronyms.
+
+\subsection{Vector-Based Search Tools}
+Vector search supports semantic matching by comparing dense embeddings. In the thesis architecture, dense retrieval is connected to embedding generation, HNSW indexing, and similarity search over pre-computed vectors.
+
+\subsubsection{HNSW Approximate Nearest-Neighbor Search}
+HNSW provides an approximate nearest-neighbor indexing strategy for efficient vector retrieval. Its role is to make dense semantic search practical at catalog scale.
+
+\subsubsection{Hybrid Fusion with Reciprocal Rank Fusion}
+Reciprocal Rank Fusion combines lexical and dense retrieval outputs using rank positions rather than raw scores. This makes it useful for integrating BM25 results with vector-search results without requiring fragile score normalization.
+
+\section{Development, Testing, and Evaluation Environment}
+The development environment must support repeatable ingestion, retrieval, and measurement. For this reason, the implementation chapter later records the controlled hardware assumptions and the logging or timing mechanisms used to measure throughput, latency, and memory behavior.
+
+\subsection{Runtime and Hardware Environment}
+The evaluation protocol uses a controlled workstation configuration and records process-level measurements. This supports reproducibility and prevents the empirical comparison from depending on unspecified infrastructure conditions.
+
+\subsection{Measurement and Logging Tools}
+The system requires logs for ingestion status, cache behavior, query latency, and error cases. These logs provide the evidence that students must use when completing the results chapter, especially for throughput, latency, HR@k, NDCG@k, and cost-comparison tables.
+
+\section{Chapter Conclusion}
+This chapter has separated the technological environment from the theoretical foundation. Chapter 2 explains the concepts behind the system, while Chapter 3 identifies the concrete tools and platforms that make implementation possible. The distinction is important for academic organization: theoretical material justifies the approach, whereas the technological environment documents the software stack, database layer, NLP tools, retrieval infrastructure, and evaluation support used by the project.
+
+
+\chapter{Methodology}
+
+\section{Chapter Introduction}
+This chapter presents the research methodology used to design, structure, and evaluate the proposed system. It translates the theoretical principles of Chapter 2 and the technological environment of Chapter 3 into a coherent methodological plan covering functional requirements, architecture, data modeling, semantic labeling, taxonomy mapping, retrieval, and evaluation.
+
+\section{System Overview and Functional Methodology}
+This chapter establishes the architectural blueprint and methodological framework for the lightweight semantic structuring system, which forms the core contribution of this thesis. As established in the problem statement, the central challenge is bridging the semantic gap between the heterogeneous language of online internship listings and the structured queries of a student user, while avoiding the cost and latency of LLM-dependent pipelines. The thesis proposes a tiered hybrid architecture that combines deterministic rules with lightweight neural models. This chapter details the system's functional requirements, its four-tier logical architecture mapped to a concrete project structure, the formal core data model, and the sequence of operations in both the data ingestion and retrieval flows. The design is grounded in established principles of data integration, information extraction, and modern search-engine implementation [13, 7, 44].
+
+\subsection{Functional Requirements and Use Cases}
+The system is designed to serve two primary actors whose distinct needs shape the functional requirements and system scope, as illustrated in Figure~\ref{fig:usecase}. This approach aligns with standard practices in recruitment informatics and user-centered system design [15, 5].
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item The Student/Job Seeker: This is the primary end-user, interacting with the system to discover relevant internship opportunities. Their core requirements are:
+
+\end{enumerate}
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Semantic Search: The ability to input conceptual queries (e.g., ``build mobile apps,'' ``data science with Python'') and receive results that match the underlying meaning, not just exact keywords.
+
+\item Faceted Filtering: The capacity to narrow down a large corpus of results by standardized categories such as job domain (e.g., ``Software,'' ``Data/AI''), location, and required skills.
+
+\item Low-Latency Retrieval: An interactive search experience with low response time, which is a critical parameter for modern user interfaces [7].
+
+\item Clear Information Display: Access to a clean, structured view of each internship, with core attributes like salary, skills, and location clearly parsed and presented.
+
+\end{itemize}
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item The System Administrator/Data Engineer: This actor manages the backend pipeline, ensuring data freshness and quality. Their primary requirements are:
+
+\end{enumerate}
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Automated Multi-Format Ingestion: A robust module to ingest and normalize data from disparate sources, primarily a large static JSON catalog from web scraping and manually uploaded JSON files from partner institutions, each potentially with a unique schema. This addresses the ``schema-on-read'' challenge described in the relevant section.
+
+\item Unattended Pipeline Execution: The ability to run the full ingestion, cleaning, enrichment, and indexing pipeline as an automated, resilient process with robust error handling and logging.
+
+\item Data Quality Monitoring: Tools to validate the integrity of ingested data, track the performance of deterministic extraction (Layer A), and identify cases that may require escalation or manual review.
+
+\item Performance Oversight: Visibility into system throughput, cache hit rates, and the latency profile of each pipeline stage to assess whether it meets the ``lightweight'' and ``Green AI'' design goals [46].
+
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{figures/fig_usecase.png}
+\caption{UML use case diagram: actor interactions and system scope.}\label{fig:usecase}
+\end{figure}
+
+\subsection{System Architecture and Component Mapping}
+The system's architecture is organized into four logical tiers, a design pattern that enforces a clean separation of concerns, enhances scalability, and facilitates independent development and testing of each layer [13].
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Presentation Layer (app/components/): This tier contains the React-based user interface. The InternshipList.tsx component is responsible for rendering search results, interactive filters, and detail views. It maintains its own UI state while consuming data exclusively through the API layer, preserving a clean separation from backend logic.
+
+\item API and Communication Layer (app/api/internship/): This tier exposes a RESTful API built with Next.js API routes. The route.ts endpoint acts as the single, stable interface for the frontend. It handles HTTP requests, orchestrates calls to the data processing layer, manages cache policy through HTTP headers, and returns structured JSON responses, thereby decoupling the client from the underlying data implementation.
+
+\item Data Processing Layer (app/lib/): This is the computational core of the system, responsible for the entire ``clean-enrich-structure'' pipeline. It is divided into distinct modules to maximize cohesion:
+
+\end{enumerate}
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item data.ts: The primary data access interface. It reads from the file system, manages the in-memory cache, and exposes functions like getProcessedData() and getInternshipById(). It abstracts the persistence strategy from the API layer.
+
+\item supabase-client.ts: A dedicated utility for interacting with the relational database (Supabase/PostgreSQL) for dynamic user data such as bookmarks and profiles, as discussed in the storage and persistence section.
+
+\item This layer also contains the core enrichment logic (detailed in the relevant section), including modules for cleaning, semantic mapping, and skill extraction. This is where the tiered enrichment strategy (Layers A, B, and a reserved C) is implemented.
+
+\end{itemize}
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Data Persistence Layer (public/ \& Database): This tier represents the physical data stores. The static, pre-scraped internship catalog resides as a JSON file in the public/ directory. Dynamic user data and vector embeddings are stored in the Supabase-managed PostgreSQL instance with the pgvector extension. This hybrid storage architecture balances the need for fast, version-controlled access to the core catalog with the transactional and indexing requirements of a modern search application. This structured decomposition ensures that a change to the skill extraction algorithm in the data processing layer does not require a corresponding change to a UI component, and vice versa.
+
+\end{enumerate}
+\subsection{Core Data Model}
+The semantic integrity of the entire pipeline is maintained by a formal, strongly typed data model. This model acts as a ``semantic contract'' [44] between the ingestion logic and the presentation layer, ensuring that data output by the pipeline conforms to the expectations of the frontend. The Internship interface, implemented in TypeScript and visualized in Figure~\ref{fig:class}, is the central entity of this model. The design of this schema is motivated by three objectives:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Identity and Provenance: Achieved through a stable, deterministic id field based on a normalized combination of the company name and job title. This ensures unique identification across ingestion cycles and maintains links to original sources [8].
+
+\item Faceted Discovery: Enabled by a controlled vocabulary of category labels (e.g., ``Software'', ``Data/AI''), a list of extracted skills, and a parsed salary range with salaryMin and salaryMax fields. These structured fields provide the necessary metadata for efficient filtering and sorting [2].
+
+\item Semantic Enrichment: The model contains fields for a pre-computed dense embedding vector and a canonicalTitle mapped to the ESCO taxonomy, facilitating the non-lexical semantic search described in the theoretical foundation chapter [42, 32]. This formalization, inspired by foundational work in Information Extraction [44], ensures that every component, from the regex-based salary parser to the React search card, operates on a shared, unambiguous definition of an ``Internship.'' This approach to structured information management is critical for maintaining consistency across a complex, multi-stage data pipeline.
+
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{figures/fig_class.png}
+\caption{UML class representation of the Internship semantic schema.}\label{fig:class}
+\end{figure}
+
+\subsection{The Retrieval Flow}
+The interaction between the client-side UI and the server-side data processing layer is managed through asynchronous, cache-optimized requests. This sequence, visualized in Figure~\ref{fig:retrieval-seq}, is designed for low-latency retrieval as discussed in modern search-engine design [7]. The flow is initiated by a user action in the InternshipList.tsx component, which makes a GET request to the /api/internship endpoint. The API route then checks the server-side cache via the data processing layer (data.ts). On a cache miss, the layer reads the raw data from the static JSON catalog, executes the enrichment and semantic mapping pipeline, and caches the result. The processed, structured Internship objects are then returned to the API layer and sent as a JSON response. The UI component receives the data and re-renders, completing the cycle. This architecture allows computationally expensive enrichment to run after a data refresh, while subsequent user requests are served from the in-memory cache.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{figures/fig_retrieval_seq.png}
+\caption{UML sequence diagram: data retrieval and API interaction.}\label{fig:retrieval-seq}
+\end{figure}
+
+\subsection{The Tiered Ingestion and Enrichment Pipeline}
+The data ingestion and enrichment process is the methodological core of the system, implementing a tiered strategy that directly addresses Research Question 1. It follows a strict sequence of operations designed to progressively refine raw, noisy data into structured, semantically enriched entities using the most efficient tool for each task [9, 18]. This pipeline is orchestrated by a core function, enrichInternship(rawItem), as described in the implementation chapter.
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item I/O and Schema Validation (Layer 0): The pipeline begins with a safety-first approach. The system reads source data from the file system or a parsed upload and immediately validates the structural integrity of the JSON. This ensures the data conforms to the expected top-level schema before any processing occurs, a critical step in robust data integration [13]. Any records failing schema validation are logged and quarantined for manual inspection, preventing them from corrupting the downstream data store.
+
+\item Deterministic Preprocessing (Layer A): This layer handles high-confidence, high-volume tasks using rule-based systems with no model-inference cost. It functions as a fast, precise, and explainable foundation. (a) Text Cleaning and Normalization: Functions such as cleanDescription and cleanTitle perform foundational normalization, including lowercasing, collapsing whitespace, and stripping residual HTML to reduce surface-form variance [9]. This is a prerequisite for downstream tasks, as extraction quality is bounded by input quality. (b) Regex-Based Attribute Extraction: For highly structured patterns, regular expressions provide a precise and efficient mechanism. The parseSalary module uses a tiered regex strategy to extract numeric ranges from free-text strings such as ``\$20--25/hr'' or ``\$70k--\$90k a year,'' as detailed in the relevant section [44]. (c) Stable ID Generation: A deterministic generateId function creates a canonical, URL-friendly slug by concatenating a normalized company name and job title (e.g., software-engineering-intern-acme-corp). This identifier serves as a blocking key for deduplication, a key technique for efficient record linkage as described in the theoretical foundation [8, 14]. (d) Lexicon-Based Skill Extraction: The first pass of skill extraction uses a case-insensitive, dictionary-based matcher against a curated lexicon of technical skills grounded in the ESCO framework. This provides a high-precision baseline for Named Entity Recognition [38].
+
+\item Lightweight Semantic Mapping (Layer B): This layer addresses the semantic gap that deterministic rules cannot bridge. It employs a small local transformer model, such as a fine-tuned DistilBERT or Sentence-BERT bi-encoder, for tasks requiring contextual understanding [42, 37]. The primary task is to map non-standard job titles to a canonical ESCO occupation label. By pre-computing an embedding for each listing and comparing it with embeddings of canonical labels through cosine similarity, the system can identify the nearest semantic match. Classification is performed during ingestion, so this processing is not part of the real-time search path.
+
+\item Heuristic Role Categorization: As a final enrichment step, the categorizeJob function applies keyword-based heuristics to map the (now normalized) title to a high-level domain category such as ``Software,'' ``Data/AI'' or ``Design.'' This step provides immediate value for faceted filtering in the UI, as described in the relevant section, and serves as a fallback for cases where the embedding-based mapping has low confidence.
+
+\item Caching and State Management (Post-Processing): The final, fully enriched Internship object is placed into a server-side in-memory cache. This optimization amortizes the cost of the pipeline over many read requests. The cache invalidation strategy is tied to the data refresh cycle, supporting data freshness while reducing response time for the user-facing API [7]. This design choice is central to the system's lightweight operational profile because it avoids re-computation on every user query and contrasts with the per-query latency of LLM-dependent architectures.
+
+\end{enumerate}
+
+\section{Semantic Schema and Label Space}
+This chapter defines the internal data model and controlled vocabularies used to transform raw, heterogeneous internship listings into a structured, interoperable semantic knowledge base. As outlined in the system architecture, the core challenge is to unify the disparate language of source platforms into a single, consistent representation. The chapter first details the formal target schema, the Internship interface, which serves as an enforceable contract for the data pipeline. It then justifies the selection of the ESCO (European Skills, Competences, Qualifications and Occupations) taxonomy as the primary reference for mapping job titles and skills to canonical concepts. Finally, it explains the design of a supplementary internal categorization layer that bridges the gap between ESCO's deep hierarchy and the flatter categories required by an end-user interface. The design choices follow established principles of data integration, semantic modeling, and information extraction, directly addressing the semantic gap identified in the problem statement [13, 48, 44].
+
+\subsection{Target Schema Definition}
+To achieve a unified and queryable view of labor-market data, the system requires a defined target schema. This schema must be expressive enough to accommodate the variability of raw source data, from semi-structured HTML to arbitrary keys in partner-provided JSON, while also providing the structured metadata required for hybrid retrieval. The schema is not only a passive data container; it is a formal contract that supports data consistency from ingestion to presentation, which is necessary in complex Information Extraction (IE) systems [44].
+
+\subsubsection{Structural Requirements}
+The schema's design is directly motivated by three primary functional objectives, each of which addresses a key failure mode of ad-hoc data processing:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Identity and Provenance: A persistent challenge in aggregating data from multiple scrape cycles is the creation of duplicate records for the same logical job. To support unique identification across ingestion cycles despite minor textual variations, the schema mandates a deterministic primary key. Maintaining a clear link back to the original source is also necessary for auditing extraction quality, managing data staleness, and respecting source-specific policies [8].
+
+\item Faceted Discovery: Exploratory search requires the user to narrow down a large corpus based on structured attributes. The schema must provide standardized, faceted labels for dimensions such as high-level job domain, geographical location, and extracted skills. This allows efficient database-style filtering that complements free-text search, a core component of modern search interfaces [2].
+
+\item Semantic Enrichment for Non-Lexical Search: To bridge the vocabulary gap between user queries and employer terminology, the schema stores outputs of the semantic pipeline. These include high-dimensional dense vector embeddings, which represent the meaning of the job description, and a canonical job title mapped to a standard taxonomy. These fields provide the basis for semantic vector-based search, enabling the system to match a query such as ``C++ Intern'' with a listing titled ``Systems Software Trainee'' [42, 32].
+
+\end{enumerate}
+\subsubsection{The Internship Interface: A Formal Semantic Contract}
+The abstract structural requirements are implemented as a TypeScript interface, serving as the foundational blueprint for both the relational database and the frontend presentation layer. This formalization in a strongly typed language enforces compile-time and runtime data integrity. By defining a canonical Internship type, each module, from the regex-based salary parser to the React search result card, operates on a shared and unambiguous definition of the data entity. Deviations from this contract, such as a missing field or incorrect type, raise errors during development or testing and reduce the risk of data corruption propagating through the pipeline. This practice is a cornerstone of robust and maintainable IE pipelines [44]. The key fields of the Internship interface are structured as follows:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Core Identity \& Provenance: -- id: string --- A deterministic, unique, URL-safe slug generated from the normalized company name and job title (e.g., software-engineer-intern-acme-corp). This acts as the primary key and a blocking key for deduplication [8]. -- sourceUrl: string --- The original URL from which the listing was scraped or the identifier of the JSON upload, ensuring complete traceability.
+
+\item Faceted Discovery Attributes: -- category: string --- A single, high-level domain category from a controlled vocabulary (e.g., "Data/AI"), enabling top-level filtering. -- skills: string[] --- A list of extracted, distinct skill tags (e.g., ["Python", "Machine Learning"]) used for filtering by competency. -- location: string --- A normalized and cleaned location string (e.g., "Paris, France") for geographical filtering. -- salaryMin?: number and salaryMax?: number --- Parsed numeric salary boundaries, allowing for range queries, a highly desired feature for job seekers.
+
+\item Semantic Enrichment Fields: -- canonicalTitle: string --- The job title mapped to a specific ESCO occupation label (e.g., "software developer"), bridging the semantic gap. -- embedding: number[] --- A pre-computed high-dimensional vector (e.g., 384-dimensional) representing the semantic content of the full listing, generated by a Sentence-BERT model. This is the core data structure for Approximate Nearest Neighbor (ANN) search [35, 42]. -- rawTitle: string and rawDescription: string --- The cleaned, but not taxonomized, original text fields. These are preserved for lexical search (BM25) and for display purposes, providing transparency to the end user. The formal TypeScript interface is shown in Listing~\ref{lst:internship-interface}.
+
+\end{itemize}
+
+\begin{lstlisting}[caption={The formal Internship interface in TypeScript, serving as the semantic contract for the entire data pipeline.},label={lst:internship-interface}]
+interface Internship {
+  // Core Identity & Provenance
+  id: string;
+  sourceUrl: string;
+
+  // Faceted Discovery Attributes
+  category: string;
+  skills: string[];
+  location: string;
+  salaryMin?: number;
+  salaryMax?: number;
+
+  // Semantic Enrichment Fields
+  canonicalTitle: string;
+  embedding: number[];
+
+  // Original (Cleaned) Text
+  rawTitle: string;
+  rawDescription: string;
+  company: string;
+  postedDate: Date;
+}
+\end{lstlisting}
+
+\subsection{Taxonomy Selection: The ESCO Framework}
+A central goal of this research is to map idiosyncratic and non-standard job titles from many employers to a standardized professional taxonomy. This mapping is the primary mechanism for resolving the semantic gap. After reviewing available frameworks, including O*NET [40], the thesis selects the ESCO (European Skills, Competences, Qualifications and Occupations) framework as the primary label space for this system. This decision is based on three factors: its alignment with the European labor-market context, its multilingual coverage, and its formal separation of occupations and skills into distinct, interlinked pillars.
+
+\subsubsection{Occupations Pillar}
+ESCO organizes occupations into a four-level hierarchical structure. For this system, the Level 4 unit groups are the main focus. Level 3 groups, such as ``Software and Applications Developers and Analysts,'' are too broad for differentiating a front-end intern from a data engineering intern. Level 4 provides greater granularity, with distinct concepts such as ``Web Developer,'' ``Software Developer,'' and ``Systems Analyst.'' This level balances the specificity needed for retrieval with the generalizability required to map many raw titles into a manageable target space. This granularity allows the system to disambiguate roles that a coarser taxonomy would conflate. For instance, a ``Python Developer'' working on web applications, a ``Machine Learning Engineer'' building models, and a ``DevOps Engineer'' managing infrastructure might all be tagged as ``Software Developer'' at Level 2 or 3. At Level 4, however, they can be mapped to distinct unit groups, enabling more precise faceted filtering and improving retrieval precision. This approach is consistent with labor-market analysis frameworks such as O*NET's Standard Occupational Classification (SOC) coding, making the research comparable and interoperable with a wider body of work [40]. The canonicalTitle field in the schema is designed to hold a Level 4 ESCO preferred label.
+
+\subsubsection{Skills and Competences Pillar}
+The skill lexicon used in the extraction phase (detailed in the corresponding chapter) is grounded in the ESCO Skills pillar and is expanded with a curated set of common industry synonyms. ESCO's skill model is inherently linked to its occupations model, defining the essential and optional knowledge, skills, and competences for each job profile. By using ESCO as a reference, the system actively combats the ``vocabulary gap'' where different employers use divergent terms for the same competency. This ground-truth linking is a foundational step for a recommendation system that can accurately connect student skills to job requirements, a known challenge in recruitment informatics [17, 29]. The lexicon is not static; it is designed to be periodically updated to incorporate emerging technologies (e.g., new JavaScript frameworks, AI/ML libraries) as they gain traction in the labor market. This maintenance process is essential for building and sustaining a reliable, long-term knowledge base.
+
+\subsection{Internal Categorization and Mapping}
+While ESCO provides the granular canonical depth required for semantic precision, it is not directly suitable for the top-level user interface. A student browsing for an internship is unlikely to search for ``ESCO Occupation 2512,'' and a hierarchical tree of hundreds of four-level occupations is unsuitable for exploratory browsing. Therefore, the system introduces a supplementary internal categorization layer: a flatter set of high-level categories designed to facilitate initial browsing and provide a stable foundation for faceted filtering [15].
+
+\subsubsection{Domain-Specific Categories}
+The system defines five top-level categories that reflect the distribution and concentration of the current internship dataset, particularly within the technology and business sectors. These categories are designed to be mutually exclusive, collectively exhaustive for the target domain, and understandable to a student user.
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Software: Encompasses web development, mobile engineering, backend/infrastructure systems, DevOps, and quality assurance. This is a high-volume category that benefits significantly from sub-filtering by extracted skills.
+
+\item Data/AI: Includes data science, machine learning, big data analytics, artificial intelligence research, and business intelligence. This category differentiates itself from general ``Software'' by its primary focus on statistical modeling, data pipelines, and algorithmic development rather than application engineering.
+
+\item Design: Covers UI/UX design, graphic design, product design, human-computer interaction, and visual communication. This captures roles where the primary competency is not code but visual, interaction, and user-research skills.
+
+\item Healthcare: Specialized roles in pharmacy, medicine, medical research, public health, and health technology. This category supports inclusion of students from non-engineering disciplines and illustrates the system's extensibility beyond technical domains.
+
+\item Business: A broad category encompassing marketing, management, finance, human resources, consulting, and operations. This acts as a catch-all for the large volume of professional services internships that co-exist with technical roles on most job platforms. This restricted, curated set ensures that the top-level facet in the UI is clean, scannable, and presents a meaningful choice architecture to the end-user.
+
+\end{itemize}
+\subsubsection{Heuristic Mapping Logic}
+To bridge the gap between raw and subsequently ESCO-normalized titles and these high-level categories, the system uses a keyword-based anchor strategy. This serves as an efficient and explainable first layer of the semantic pipeline within the categorizeJob function. The rule-based engine evaluates the job title and, with lower priority, the skills list against a prioritized tree of professional anchors. The evaluation proceeds in a strict priority order, from the most specific and semantically dense signals to the most general, so that a title such as ``Machine Learning Engineer'' is classified as Data/AI rather than the more generic Software category. This heuristic approach is simple but effective for classification tasks in production environments where speed, transparency, and debuggability are important [5]. It provides a stable taxonomy browser with consistent behavior and no model-inference latency. Its deterministic nature also allows the output to serve as a fallback mechanism for cases where the subsequent embedding-based semantic mapping may have low confidence, ensuring that each listing receives at least one high-level category for filtering and browsing.
+
+
+\begin{algorithmbox}[Heuristic Domain Categorization]
+\begin{verbatim}
+procedure CategorizeJob(title, skills)
+  titleLower  <- normalize(title)
+  skillsLower <- normalize(skills)
+  dataAnchors <- ["data sci", "machine learn", "deep learn", "ai eng"]
+  if containsAny(titleLower, dataAnchors) then
+      return "Data/AI"
+  softwareAnchors <- ["frontend", "backend", "full stack", "software",
+                      "devops", "mobile dev"]
+  if containsAny(titleLower, softwareAnchors) then
+      return "Software"
+  designAnchors <- ["ux", "ui", "designer",
+                    "graphic", "product design"]
+  if containsAny(titleLower, designAnchors) then
+      return "Design"
+  healthAnchors <- ["nurse", "pharma", "clinical",
+                    "medical", "healthcare"]
+  if containsAny(titleLower, healthAnchors) then
+      return "Healthcare"
+  businessAnchors <- ["market", "financ", "hr", "human res",
+                      "consult", "sales"]
+  if containsAny(titleLower, businessAnchors) then
+      return "Business"
+  return "Business"  // default fallback category
+end procedure
+\end{verbatim}
+\end{algorithmbox}
+
+\subsection{Addressing the Semantic Gap}
+The chosen label space, a two-tier combination of the ESCO taxonomy and a shallow internal categorical layer, constitutes a direct architectural response to the semantic gap described in the earlier theoretical and methodological chapters. This gap is the conceptual distance between a user's search language and an employer's job-posting language, and it contributes to poor recall in traditional lexical search systems. The architecture addresses this gap on two complementary levels, as visualized in Figure~\ref{fig:semantic-gap}.
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Tier 1 --- ESCO Taxonomy Mapping: Transforms idiosyncratic raw titles (e.g., ``Code Wizard'', ``Frontend Guru'') into canonical Level 4 ESCO occupations (e.g., ``Software Developer''). This moves the data from an inconsistent lexical space to a stable, shared conceptual space.
+
+\item Tier 2 --- Internal Categorization: Compresses the expert-oriented ESCO hierarchy into a small set of high-level categories, such as ``Software'' and ``Data/AI,'' suitable for faceted browsing in the user interface. First, the ESCO mapping moves the data from inconsistent lexical tokens to conceptual entities, placing non-standard titles within the semantic neighborhood of canonical concepts such as ``Web Developer.'' Second, the internal categories compress this ESCO space into a navigation schema. By defining the target schema around canonical identifiers and category labels rather than raw ambiguous strings, the data becomes suitable for hybrid search. User queries can then be matched both through shared text against an inverted index and through proximity within a defined semantic vector space. This dual-path approach addresses vocabulary mismatch: a student searching for ``C++ programming internship'' can retrieve roles titled ``Systems Software Intern'' or ``Embedded C/C++ Developer'' because their ESCO-normalized representations and dense vector embeddings are semantically proximate, even when they share few keywords [32, 42]. In summary, the semantic schema and label space defined in this chapter provide the data infrastructure on which the extraction pipeline, retrieval engine, and user-facing application are built.
+
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tcolorbox}[width=0.92\textwidth,colback=gray!4,colframe=black!35,title={Two-Tier Bridging of the Semantic Gap}]
+\begin{itemize}[leftmargin=1.2em,itemsep=0.35em]
+  \item \textbf{Tier 1 - ESCO Taxonomy Mapping:} Transforms idiosyncratic raw titles such as ``Code Wizard'' and ``Frontend Guru'' into canonical Level 4 ESCO occupations such as ``Software Developer''. This moves the data from an inconsistent lexical space to a stable, shared conceptual space.
+  \item \textbf{Tier 2 - Internal Categorization:} Compresses the rich, expert-centric ESCO hierarchy into a small set of human-friendly, high-level categories such as ``Software'' and ``Data/AI'' suitable for faceted browsing in the user interface.
+\end{itemize}
+\end{tcolorbox}
+\caption{Conceptual model of how the two-tier label space bridges the semantic gap between raw employer language and user search intent.}
+\label{fig:semantic-gap}
+\end{figure}
+
+
+\section{Evaluation Methodology}
+This section defines the framework for empirically assessing the proposed lightweight semantic structuring and retrieval system. It establishes an evaluation protocol for examining extraction and normalization quality, computational efficiency, and cost on commodity hardware. The design is grounded in principles of Information Retrieval (IR), Natural Language Processing (NLP), and software systems evaluation [36, 7, 26]. The section formalizes the evaluation objectives, links them to the research questions, defines the reference dataset, introduces the quantitative and qualitative metrics, and describes the baseline and ablation configurations needed to investigate the trade-off between accuracy and computational cost in alignment with Green AI principles [46].
+
+\subsection{Evaluation Objectives}
+The evaluation is designed to examine both output quality and operational characteristics. The primary objective is to determine whether the tiered hybrid architecture, consisting of Layers A, B, and a reserved Layer C, provides a favorable balance between semantic fidelity, retrieval relevance, and resource efficiency. The evaluation is structured around four research questions, each linked to testable hypotheses and metrics drawn from related literature [31, 37, 51]:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item RQ1 (Extraction Fidelity): How accurately does the deterministic, rule-based pipeline (Layer A) extract critical structured fields---specifically compensation, geographic locations, and posting dates---from the heterogeneous and noisy text of internship listings, as compared to a human-annotated ground truth? This question tests the fundamental hypothesis that high-precision rules can correctly resolve the majority of structured data without the overhead of learned models [44, 38].
+
+\item RQ2 (Semantic Alignment): To what extent does the embedding-based semantic mapping (Layer B) improve the classification of raw, idiosyncratic job titles into canonical ESCO occupations over a purely keyword-heuristic baseline? The hypothesis is that a fine-tuned Sentence-BERT bi-encoder, operating in a dense semantic space, can capture non-lexical synonymy that is not visible to surface-form matching [42, 32].
+
+\item RQ3 (Retrieval Quality): Does the proposed hybrid search strategy, which fuses lexical (BM25) and semantic (dense vector) relevance signals via Reciprocal Rank Fusion (RRF), improve precision and ranking quality for student-centric conceptual queries compared with keyword-only search? The hypothesis is that this dual-path approach is necessary to address both exact terminology matches and the broader semantic gap in career discovery [51, 34, 10].
+
+\item RQ4 (System Efficiency and Scalability): What are the concrete computational costs---specifically ingestion throughput, query latency, main memory footprint, and external API financial cost---of the multi-layered pipeline, and how do these metrics scale with corpus size on commodity hardware? This question directly benchmarks the system's ``lightweight'' claim against a hypothetical LLM-only (Layer C) pipeline, investigating the accuracy-cost Pareto frontier [37, 20].
+
+\end{itemize}
+\subsection{Ground Truth Construction}
+A reliable and representative reference evaluation set is necessary for credible assessment. It serves as the reference point against which system outputs are measured, enabling the computation of accuracy and retrieval metrics. The construction process, detailed below, was designed to mitigate bias, support domain representativeness, and provide a benchmark for both structured extraction and semantic tasks [7, 8].
+
+\subsubsection{Dataset Composition and Sampling Strategy}
+The evaluation set comprises 500 internship listings, carefully sampled to ensure diversity across multiple dimensions, preventing over-optimization for a narrow data slice.
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Web-Scraped Split (n = 400): This subset was randomly sampled from the primary, large-scale JSON catalog of over 17,500 web-scraped records. To prevent temporal bias, the sample was stratified by the month of scraping. This split primarily tests the system's ability to handle the semi-structured, noisy, and often redundant nature of web data [28].
+
+\item User-Uploaded Split (n = 100): This subset was selected from a curated pool of raw JSON uploads from partner institutions. These uploads are intentionally heterogeneous, with non-standard key names (e.g., position title vs. role), nested structures, and inconsistent data types. This split is designed to specifically stress-test the ingestion pipeline's robustness to schema-less data, also known as the ``schema-on-read'' challenge [1, 13]. The final dataset contains listings from a variety of domains, with a deliberate oversampling of technical roles (Software, Data/AI, Design) to reflect the primary use case while also including sufficient representation from Business, Healthcare, and other sectors to test generalizability.
+
+\end{itemize}
+\subsubsection{Annotation Process and Schema}
+Two domain experts, both PhD candidates in Information Systems with prior experience in labor-market analytics, were recruited to manually annotate each of the 500 listings. The annotation task was defined by a detailed codebook, excerpted in Appendix A, and mapped directly to the Internship target schema defined in the methodology chapter. For each listing, annotators were asked to:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Field Extraction: Identify and normalize the following fields directly from the raw text: salaryMin, salaryMax, location, and applicationDeadline. If a field was not present, they were to label it as <NULL>.
+
+\item Skill Annotation: Execute a two-step skill annotation process. First, mark all explicit skill mentions. Second, for each marked skill, map it to its single best canonical label from the ESCO-aligned skill lexicon (Appendix D). This provides a target for both the extraction recall and normalization accuracy.
+
+\item Title Normalization: Provide the single best-matching, Level 4 ESCO occupation label for the raw job title. In cases of genuine ambiguity where two ESCO labels seemed equally valid, annotators were instructed to choose the most specific one and note the potential alternative, allowing for finer-grained error analysis.
+
+\item Query-Relevance Judgments: To prepare the IR benchmark, annotators created a diverse pool of 30 information needs (see the relevant section) and provided relevance judgments on a 4-point graded scale (Irrelevant, Marginally Relevant, Relevant, Highly Relevant) for a subset of queries.
+
+\end{enumerate}
+\subsubsection{Inter-Annotator Agreement and Adjudication}
+To ensure the reliability and reproducibility of the ground truth, inter-annotator agreement (IAA) was measured using both Cohen's Kappa for categorical tasks (title normalization) and Krippendorff's Alpha for the interval-scale relevance judgments [26]. A pilot annotation round was conducted on 50 items. Disagreements were analyzed, and the codebook was refined in an iterative process. In the final annotation phase, a dual-annotation pass was performed on the entire 500-item set. The resulting IAA scores were:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Title Normalization (Level 4 ESCO): Cohen's Kappa = 0.84, indicating very high agreement.
+
+\item Relevance Judgments (NDCG): Krippendorff's Alpha = 0.78, indicating substantial agreement. All cases of disagreement were resolved through a synchronous adjudication session involving both annotators and the thesis supervisor, establishing a single reference label for every field and query-document pair.
+
+\end{itemize}
+\subsubsection{Query Pool for Retrieval Evaluation}
+A set of 30 distinct search queries was formulated to simulate real student information needs, designed to test the distinct capabilities of lexical and semantic search. The queries fall into three categories:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Exact/Lexical Queries (10): Queries with high keyword specificity, e.g., ``React Native intern,'' ``AWS cloud architect intern,'' ``drug safety associate.'' These are designed to be a strong match for BM25.
+
+\item Conceptual/Semantic Queries (10): Vague or conceptual queries that require domain understanding, e.g., ``build mobile apps,'' ``design thinking internship,'' ``green energy policy.'' These are designed to test the dense retrieval pathway.
+
+\item Mixed/Hybrid Queries (10): Queries with both specific and conceptual elements, e.g., ``Python developer for healthcare AI,'' ``entry-level UX design with Figma.'' These best represent real-world student searches and test the synergy of the fusion approach.
+
+\end{enumerate}
+\subsection{Metrics}
+The evaluation uses a multi-faceted set of established metrics to quantify different performance aspects and avoid dependence on a single numerical score [36, 26, 31].
+
+\subsubsection{Extraction and Classification Accuracy}
+For atomic field-level extraction (RQ1) and categorical mapping (RQ2), where the output is a predicted value or label, the study uses standard classification metrics under an exact-match criterion unless otherwise noted:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Precision (P) and Recall (R): Calculated for binary extraction tasks, such as whether a salary value is present or not, and for multi-label tasks like skill extraction. They quantify the trade-off between false positives and false negatives [36].
+
+\item Micro-averaged F1-Score: The harmonic mean of micro-averaged precision and recall. Micro-averages give equal weight to each entity instance, which is appropriate given the skewed distribution of skills and roles in the dataset.
+
+\item Top-k Accuracy: The primary metric for evaluating the title normalization model (RQ2). The study reports Top-1 exact-match accuracy and Top-3 accuracy. Top-3 reflects whether the correct ESCO occupation is within the model's top three predictions, which is relevant for a system that may use top candidates for query expansion or filtering facets [37].
+
+\end{itemize}
+\subsubsection{Information Retrieval Quality}
+For the end-to-end search evaluation (RQ3), the study uses metrics that assess ranked lists of results, accounting for the position of relevant documents and graded relevance levels [2, 7]:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Precision@k (P@k): The proportion of relevant documents among the top k results. The study reports P@5 and P@10, as the first page of results is especially important for user experience in student-facing search.
+
+\item Hit Rate@k (HR@k): A query-level indicator of whether at least one relevant document appears within the top k results. The study should report HR@5 and HR@10 because these values show whether the system returns at least one useful internship early in the ranked list.
+
+\item Mean Reciprocal Rank (MRR): The reciprocal rank of the first relevant document, averaged over all queries. MRR is useful when the main user need is to find at least one suitable internship quickly.
+
+\item Mean Average Precision (MAP): A single, global measure of ranking quality that averages precision across all recall levels for each query and then takes the mean over all queries. It provides a holistic view of system performance, heavily weighting precision at the top ranks.
+
+\item Normalized Discounted Cumulative Gain (NDCG@k): This metric accounts for multi-level graded relevance judgments. By discounting the gain of a document logarithmically by its rank, NDCG rewards systems that place highly relevant documents in the highest positions. The study reports NDCG@10.
+
+\end{itemize}
+\subsubsection{System Efficiency and Cost}
+For evaluating the system's operational profile (RQ4), the study defines concrete efficiency metrics aligned with calls for more pragmatic and Green NLP evaluation [46, 37]:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Ingestion Throughput: Measured in listings processed per second, calculated over the entire enrichment pipeline for batches of 1,000 documents.
+
+\item Query Latency (p50 and p99): The median (p50) and 99th percentile (p99) response time of the /api/internship endpoint, measured in milliseconds (ms). This captures both typical and tail-end user experiences.
+
+\item Memory Footprint (RSS): The peak Resident Set Size (main memory in MB) of the Node.js process after the cache is warmed, as reported by the operating system.
+
+\item External API Cost: For the comparison with the LLM-only approach, the study calculates the estimated cost in USD per 1,000 listings processed and per 1,000 search queries, based on the pricing assumptions stated in the evaluation protocol.
+
+\end{itemize}
+\subsection{Experimental Configuration}
+To attribute performance differences to specific system components, the evaluation uses a comparative methodology involving defined baselines and model ablation studies. This design is standard practice in modern IR research for isolating the contribution of each component in a complex pipeline [51, 34].
+
+\subsubsection{Baselines and Ablation Study}
+The evaluation compares the following configurations, which represent progressive increases in system complexity and semantic capability:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Baseline 1: Keyword-Only (BM25): A traditional sparse retrieval system built on an inverted index of the raw, cleaned text. This serves as the lexical baseline for RQ3, reflecting common job-board search practices [43]. For RQ2, this is replaced by a keyword-mapping baseline where a raw title is classified by matching the longest n-gram against a lexicon of ESCO labels.
+
+\item Baseline 2: Rules-Only (Layer A): A system that applies only deterministic modules: regex for salary, location, and date; gazetteers for skills; and priority-ordered keywords for categorization. This baseline establishes the performance floor for RQ1 and measures the recall ceiling of non-semantic methods [44].
+
+\item Ablation A (Layer A + BM25 + Dense): The core system is evaluated using score summation, with min-max normalization, instead of RRF for hybrid fusion. This tests the specific contribution of the parameter-free RRF algorithm to retrieval quality (RQ3).
+
+\item Baseline 3: Proposed Hybrid (Layer A + Layer B + RRF): The complete, primary proposed system. It combines the deterministic rules of Layer A with the sentence-transformer-based semantic mapping of Layer B for titles and context-aware skills, and fuses the BM25 and HNSW vector search results using RRF [42, 10].
+
+\item Baseline 4: LLM-Only (Layer C): A simulated pipeline where a single GPT-3.5-turbo API call, guided by a zero-shot Chain-of-Thought prompt, replaces the entire enrichment pipeline for each listing. This system is used exclusively for the efficiency and cost comparison in RQ4. It serves as an upper bound on potential accuracy and a lower bound on cost-efficiency.
+
+\end{itemize}
+\subsubsection{Implementation Details and Hardware}
+To ensure reproducibility and a fair efficiency comparison (RQ4), all experiments are conducted on a single, controlled hardware environment: a workstation with an Intel Core i7-13700K CPU, 32GB of DDR5 RAM, and a 1TB NVMe SSD, with no dedicated GPU. This configuration embodies the ``commodity hardware'' constraint stated in the thesis objectives. The vector search component uses the HNSW algorithm as implemented in the hnswlib-node library with a default parameter set (M=16, efConstruction=200, efSearch=50), providing a strong balance between index build time, search speed, and recall [35]. Static file services and the Next.js API are run in production mode, and process metrics are captured using the native Node.js process.memoryUsage() API and custom timing middleware for latency measurements.
+
+\subsubsection{Trade-off Analysis: The Accuracy-Cost Pareto Frontier}
+A central contribution of this thesis is the investigation of the accuracy-cost trade-off. To visualize this relationship, the evaluation plots Accuracy@1 for title normalization (RQ2) and MAP for retrieval (RQ3) for Baseline 2, Baseline 3, and the LLM-only Baseline 4 against their respective enrichment and query costs. A system in the upper-left quadrant of this Pareto plot, where accuracy is high and cost is low, represents a more favorable solution. This analysis is intended to determine whether a lightweight tiered pipeline can deliver usable semantic capability at lower cost, thereby motivating the architectural choices central to this thesis [20, 37].
+
+
+\section{Chapter Conclusion}
+This chapter has defined the methodological structure of the thesis. It specified the system requirements, architectural components, semantic schema, taxonomy mapping strategy, evaluation objectives, metrics, baselines, and experimental configuration. These methodological decisions provide the framework used in the next chapter to describe the concrete implementation of the ingestion, enrichment, storage, and retrieval components.
+
+
+\chapter{System Design and Implementation}
+
+\section{Chapter Introduction}
+This chapter describes how the methodology is implemented in the software system. It follows the processing path from data ingestion and preprocessing to semantic enrichment, storage, indexing, caching, and API access. The chapter focuses on implementation mechanisms that are supported by the existing manuscript evidence and avoids introducing unverified components or deployment claims.
+
+\section{Data Collection and Preprocessing}
+This chapter details the implementation of the data acquisition, sanitization, and enrichment pipeline, which forms the first computational tier of the system. As established in the methodology chapter, the primary challenge addressed here is the ingestion of raw, heterogeneous internship listings and their transformation into a consistent, structured format. This processed output serves as the foundation on which the semantic enrichment and hybrid retrieval mechanisms are built. The pipeline must be robust against the data noise inherent in web-sourced content [9] and flexible enough to handle high-volume, multi-source inputs [28], while adhering to the lightweight and cost-effective design philosophy central to this thesis [46]. The chapter begins by detailing the initial ingestion mechanism, then proceeds through deterministic preprocessing, and finally describes the heuristic enrichment strategies that provide immediate, low-cost structure to the data.
+
+\subsection{Data Ingestion Pipeline}
+The ingestion pipeline is the system's entry point for all internship data, designed as an asynchronous, non-blocking process to ensure the main application loop remains responsive. Its core function is to safely acquire raw data from the local JSON repository, validate its structural integrity, and parse it into the system's canonical format. This process directly addresses the ``schema-on-read'' challenge common in integrating semi-structured web data, where different sources may use different keys for the same concept [13]. The diagram illustrates the flow from the asynchronous file read through structural validation to the final caching of parsed Internship objects.
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Source Acquisition: The primary static catalog is persisted in public/intern data.json. The getInternships() function uses the Node.js fs.promises API for asynchronous file reading. This non-blocking I/O model is necessary for a system that must serve user requests without stalling on file-system access, a fundamental principle in responsive server-side applications. This single-file approach for the core catalog supports simple version control and rapid deployment without the operational overhead of a database for static, read-heavy data.
+
+\item Initial Validation (Layer 0): Before any parsing logic is applied, the system performs structural checks on the raw file content. This pre-validation Layer 0 is a defensive programming strategy in automated data pipelines [9]. It verifies that the file is not empty, confirms that the top-level structure is a JSON array, and checks that essential keys exist in a representative sample of objects. By failing early at this stage, the system prevents corrupted data from propagating into downstream processes such as enrichment and indexing. Records that fail preliminary schema validation are logged with error context and quarantined in a separate log file for administrative review, creating a feedback loop for data-quality monitoring.
+
+\item Structural Parsing: Upon passing validation, the content is parsed into an array of TypeScript Internship interfaces. This parsing is not only a JSON decode; it is an enforced type assertion against the target schema defined in the methodology chapter. TypeScript's compile-time and runtime checks, implemented through custom type guards, ensure that each object conforms to the expected shape. This provides an initial pass at structural normalization and establishes a semantic contract between the raw data and the rest of the application [44]. This formalization ensures that every component, from the regex-based salary parser to the React search card, operates on a shared, unambiguous definition of an Internship.
+
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{figures/fig_ingestion_seq.png}
+\caption{UML sequence diagram: data ingestion and safety validation.}\label{fig:ingestion-seq}
+\end{figure}
+
+\subsection{Preprocessing and Sanitization}
+Raw data obtained from web scraping is inherently noisy and may contain inconsistent formatting, boilerplate text, and presentation artifacts that are irrelevant to the semantic content. Layer A applies a series of deterministic, rule-based sanitization functions. These functions are computationally inexpensive, predictable, and easy to debug, aligning with the goal of maximizing efficiency for high-volume, high-confidence tasks [8].
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Field Normalization: Functions like cleanTitle and cleanLocation perform foundational normalization. The process involves:
+
+\end{itemize}
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Text Normalization: Transforming text into a standardized canonical form by lowercasing all characters, collapsing multiple whitespace characters into a single space, and trimming leading/trailing whitespace. This directly reduces surface-form variance, a critical prerequisite for reliable downstream matching [9].
+
+\item HTML Artifact Stripping: Web-scraped text frequently contains residual HTML entities (e.g., \&amp;, \&lt;) and inline tags. A series of regular expression substitutions are applied to convert common entities to their unicode equivalents and remove any remaining tag structures.
+
+\item Specific Normalizations: For locations, abbreviations are expanded (e.g., ``St.'' to ``Street''), and common variations are standardized (``NYC'' to ``New York''). For titles, irrelevant prefixes like ``Urgent:'' or ``Hot Job:'' are stripped to leave the core semantic title. This step ensures that the text is ready for the tokenization and NLP tasks that follow [36].
+
+\end{enumerate}
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Salary Extraction: The cleanSalary function is a prime example of a high-precision, deterministic extraction module that operates with zero inference cost. It employs a tiered set of regular expressions to parse the highly variable salary information found in free text [44]:
+
+\end{itemize}
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Pattern Identification: The first tier identifies the presence of standard patterns, such as an hourly rate (e.g., ``\$15 - \$20 / hr''), an annual salary (e.g., ``\$70k - \$90k''), or a single value (e.g., ``Up to \$50/hr'').
+
+\item Numeric Extraction: Once a pattern is detected, a second tier extracts the numeric entities, stripping non-numeric characters like \$ and k/K, and correctly interpreting the k suffix as a multiplication factor.
+
+\item Structuring and Validation: The extracted numbers are then mapped to the structured salaryMin and salaryMax fields in the Internship interface. A heuristic validation filter rejects results that fall outside a plausible range, such as a salary of \$0 or \$5,000,000 per year, thereby supporting a baseline of data integrity.
+
+\end{enumerate}
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Description Cleaning: The free-text job description often contains substantial noise as well as important semantic information. The cleanDescription function performs stronger sanitization than basic field normalization. It removes long sequences of newlines or tabs and common boilerplate sentences, such as equal-opportunity-employer statements. The goal is to improve the signal-to-noise ratio for downstream lexical and semantic analysis so that tokenization and vectorization operate on a cleaner representation of job requirements [9, 36].
+
+\end{itemize}
+\subsection{Data Enrichment and Categorization}
+Following sanitization, the system enriches the listing with derived metadata. These enrichment steps create the structured fields that power the faceted filtering and deduplication described in the system's functional requirements. While simple, these heuristic methods provide a highutility baseline that eliminates the need for more complex processing in the majority of cases [5].
+
+\subsubsection{Stable Identifier Generation and Collision Handling}
+To ensure persistent, unique referencing across multiple ingestion cycles and to enable effective duplicate detection, the generateId function creates a deterministic, URL-friendly slug. This process is foundational for the data curation strategy and works as follows:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Slugification: A dedicated helper function converts a given string (e.g., a company name or job title) to lowercase, replaces any sequence of non-alphanumeric characters with a single hyphen, and removes leading/trailing hyphens.
+
+\item Concatenation: The canonical ID is formed by concatenating the slugified title and slugified company name, separated by a hyphen.
+
+\item Deterministic Blocking: This generated ID serves as a blocking key for record linkage [8]. In deduplication, if a newly ingested listing generates an ID that already exists in the catalog, it is a strong signal of duplication. The system can then skip the record or apply a heuristic to select the canonical record based on completeness or source authority [14]. Deterministic blocking is efficient because it limits pairwise comparisons to the small blocks where a collision occurs. This approach directly addresses the deduplication and canonicalization challenges described earlier and provides an explainable, low-cost strategy for maintaining a clean search index for the end user.
+
+\end{enumerate}
+\subsubsection{Keyword-Based Categorization}
+The categorizeJob function provides an immediate, high-level domain classification by applying a set of keyword-anchored heuristics. This maps the normalized job title to a predefined set of top-level categories, such as Software, Data/AI, Design, Healthcare, and Business, as defined in the internal label space. The function evaluates the job title against a hierarchy of professional anchors. For instance, if the title contains ``Software,'' ``Frontend,'' ``Backend,'' or ``Full Stack,'' it is classified as Software. The evaluation proceeds in priority order from most specific to most general. This rule-based approach is effective for faceted filtering in the user interface [5], providing a stable and predictable taxonomy browser. It also serves as a fallback mechanism for cases where the subsequent Layer B semantic mapping may have low confidence, ensuring that every listing has at least one high-level category for filtering.
+
+\subsubsection{Skill Extraction}
+The system's initial layer of skill extraction, implemented in the extractSkills function, uses a dictionary-based approach, also known as gazetteer matching [18, 38]. It matches text against a carefully curated, case-insensitive lexicon of technical skills grounded in the ESCO framework and expanded with common industry synonyms.
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Precision and Efficiency: This method offers high precision for terms present in its lexicon. It identifies terms such as ``Python'' or ``AWS'' when they appear in recognized forms. It is also computationally efficient, requiring only a single pass over the text using standard data structures.
+
+\item Density Control: To mitigate the risk of keyword stuffing and to surface the most relevant skills, the system implements a density-control mechanism. It ranks matched skills not only by presence but also by frequency and by the number of unique other skills mentioned. A job description that mentions 20 technologies once each is treated as a broader skill profile than one that mentions ``Java'' repeatedly. This provides a more nuanced signal for subsequent matching and search ranking [44].
+
+\item Limitation and Role in Tiered Strategy: The lexicon's inherent limitation is its inability to detect novel or unlisted skills, such as a new JavaScript framework, or skills expressed through paraphrase. This is a known constraint of dictionary-based NER rather than a problem solved at this layer [38]. For this reason, extractSkills is designated as an initial high-precision layer (Layer A), while more complex, ambiguous, or novel skills are reserved for semantic processing in Layer B.
+
+\end{itemize}
+\subsection{Performance Optimization and the Caching Sub-System}
+To translate the theoretical efficiency of individual heuristics into a practical low-latency system, the pipeline uses an in-memory caching strategy. After an internship listing has passed through validation, cleaning, and enrichment, the fully structured Internship object is placed into a server-side in-memory cache. The data.ts module acts as the sole data-access interface, first checking the cache for requested data before falling back to slower re-processing from the JSON file. This strategy has important implications for the system's performance profile:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Amortized Cost: The entire cost of the ingestion and enrichment pipeline---including file I/O, text processing, and regex analysis---is paid only once per data refresh cycle. This one-time cost is then amortized over potentially hundreds of thousands of read requests from the API layer.
+
+\item Low-Latency Retrieval: By serving pre-processed objects directly from memory, the system is designed to support low response times required for modern interactive search experiences [7]. This stands in contrast to architectures that perform semantic analysis at query time.
+
+\item Lightweight Operational Profile: This design supports the system's lightweight and Green AI orientation [46]. It avoids the per-query energy and computational cost that would be incurred by re-computing enrichments or making round-trip calls to external LLM APIs for every user search. The cache invalidation strategy is tied directly to the data refresh cycle, prioritizing efficiency and predictable performance. In summary, this chapter has detailed a tiered data-preparation pipeline aligned with the system's core design principles. By front-loading the computational cost of deterministic cleaning and enrichment and then using an in-memory cache, the preprocessing layer provides a clean, structured, and queryable dataset for the semantic and search components in subsequent sections.
+
+\end{itemize}
+
+\section{Lightweight Semantic Enrichment Pipeline}
+The semantic enrichment pipeline is the computational core of the system. It transforms raw, unstructured text into the structured, semantically enriched format defined in the methodology chapter. This section provides a detailed account of the implementation of a high-performance, rule-based extraction engine developed in TypeScript and designed to minimize latency and avoid the operational costs associated with external model inference. The design draws on established principles in Information Extraction (IE) and introduces heuristics tailored to the characteristics of internship listings [44, 18].
+
+\subsection{Pipeline Architecture and Data Flow}
+The enrichment pipeline operates on a defined ``clean-enrich-structure'' sequence, a design pattern that ensures each processing stage receives data of progressively higher quality and semantic density. Data arriving from web scrapers or manual JSON uploads first undergoes sanitization to remove noise and normalize surface forms [9]. The cleaned text is then enriched with semantic tags, including normalized job titles, extracted skills, parsed salary ranges, and domain categories, using a cascade of deterministic heuristics ordered by computational cost and precision. Finally, the fully structured Internship object is stored in a server-side cache for rapid retrieval. This layered approach is consistent with production-grade IE systems that prioritize efficiency, maintainability, and predictable performance over the resource-intensive characteristics of end-to-end neural architectures [5, 37].
+
+\subsubsection{Pipeline Orchestration}
+The enrichment process is orchestrated by a central enrichInternship procedure, which accepts a raw data object and returns a fully structured Internship entity. The orchestration follows a strict topological order, where each function's output serves as the input to subsequent stages. This linear, dependency-managed design simplifies debugging, facilitates unit testing of individual enrichment modules, and reduces the risk that errors in one stage will propagate unpredictably into downstream processes. Figure~\ref{fig:enrichment-lifecycle} illustrates the lifecycle of an individual item as it traverses the enrichment pipeline, from initial ingestion through each processing module to final storage in the structured cache. The diagram highlights the interaction between the main data loop and the specialized enrichment components, emphasizing the sequential dependency chain and the collision-checking mechanism in the identifier generation stage. The top-level enrichment algorithm is presented below.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/fig_enrichment_lifecycle.png}
+\caption{UML sequence diagram: individual item enrichment lifecycle.}\label{fig:enrichment-lifecycle}
+\end{figure}
+
+
+\begin{algorithmbox}[Internship Ingestion and Enrichment Pipeline]
+\begin{verbatim}
+procedure EnrichInternship(rawItem)
+  title    <- cleanTitle(rawItem.title)
+  company  <- cleanCompany(rawItem.company)
+  id       <- generateStableId(title, company)
+  desc     <- cleanDescription(rawItem.description)
+  salary   <- parseSalary(rawItem.salary)
+  skills   <- extractSkills(desc)
+  category <- categorizeRole(title)
+  return Internship(id, title, company, desc,
+                    salary, skills, category)
+end procedure
+\end{verbatim}
+\end{algorithmbox}
+
+\subsubsection{Design Principles and Trade-offs}
+The architecture embodies several key design principles that collectively define the system's operational characteristics. First, determinism over probabilism ensures that identical inputs always produce identical outputs, a property essential for debugging, auditing, and maintaining user trust. Second, locality of computation keeps all processing within the application's memory space, eliminating network latency and external service dependencies. Third, progressive refinement applies the cheapest, highest-precision methods first, reserving more expensive techniques for cases where simpler methods prove insufficient. These principles directly address the core tension identified in the problem statement: achieving semantic richness without the costs and latencies of LLM-dependent architectures.
+
+\subsection{Deterministic Attribute Normalization}
+Normalization ensures that data is consistent, comparable, and queryable regardless of the source platform's original formatting conventions [36]. The normalization layer addresses three distinct challenges: surface-form variance (e.g., inconsistent capitalization, punctuation, and whitespace), structural heterogeneity (e.g., different key names for the same concept across sources), and semantic equivalence (e.g., abbreviations and synonyms). Each normalization module is implemented as a pure function, accepting a potentially malformed string and returning a canonical representation.
+
+\subsubsection{Text Sanitization Primitives}
+Before specialized normalization can occur, all text fields pass through a common sanitization pipeline. The sanitizeText function applies a sequence of transformations designed to eliminate noise while preserving semantic content:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item HTML Entity Resolution: Named entities (e.g., \&amp;, \&lt;, \&\#39;) are converted to their Unicode equivalents using a comprehensive lookup table.
+
+\item Residual Tag Stripping: Any remaining HTML or XML tags are removed using a regular expression that matches balanced angle brackets.
+
+\item Unicode Normalization: Text is normalized to Unicode Normalization Form C (NFC), ensuring that composed and decomposed character sequences are represented consistently.
+
+\item Whitespace Collapsing: All whitespace characters (spaces, tabs, newlines, non-breaking spaces) are collapsed to single spaces, and leading/trailing whitespace is trimmed.
+
+\item Case Folding: Text is converted to lowercase, a standard IR preprocessing step that collapses case-based surface-form variance [36]. This common foundation ensures that all subsequent normalization modules operate on consistently preprocessed input, reducing the complexity of individual specialized functions.
+
+\end{enumerate}
+\subsubsection{Stable Identifier Generation}
+To maintain referential integrity across ingestion cycles and enable efficient duplicate detection, the system implements a deterministic generateId function. Creating unique, persistent keys for record linkage is important for data quality in large-scale aggregators, where the same logical internship may appear across multiple sources or scrape cycles with minor textual variations [8, 14]. The identifier generation algorithm, shown in Listing~\ref{lst:stable-id}, operates in two phases. First, a slugify helper transforms arbitrary strings into URL-safe, normalized forms by lowercasing, stripping non-alphanumeric characters while preserving intra-word hyphens, and replacing whitespace sequences with single hyphens. Second, the slugified title and company name are concatenated with a hyphen separator, forming a composite key that is both human-readable and machine-friendly. The slugify function trims input, collapses consecutive hyphens, and strips leading and trailing hyphens from the final result. The at infix separator between the title and company slugs disambiguates cases where the boundary might otherwise be ambiguous, such as distinguishing ``Data Analyst at Data Corp'' from ``Data at Analyst Data Corp.'' This generated ID serves multiple architectural roles. As a primary key, it uniquely identifies each internship within the system. As a blocking key for deduplication, it groups records that share identical normalized representations, limiting pairwise fuzzy comparison to small, manageable blocks [8]. When a collision is detected, the pipeline appends a disambiguating numeric suffix, such as software-engineer-intern-at-acme-corp-1. A metadata field, collisionResolved, is set to true on such records, flagging them for potential manual review. This strategy prevents distinct listings from being overwritten while maintaining the efficiency of deterministic blocking for common cases.
+
+
+\begin{lstlisting}[caption={Stable ID generation logic.},label={lst:stable-id}]
+function generateId(title: string, company: string): string {
+  const slugify = (str: string): string => str
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[\s-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  const titleSlug = slugify(title);
+  const companySlug = slugify(company);
+
+  return `${titleSlug}-at-${companySlug}`;
+}
+\end{lstlisting}
+
+\subsubsection{Regex-Based Salary Parsing}
+Financial compensation data in internship listings presents a particularly challenging extraction problem. Salary information is often buried within narrative text and expressed in highly variable formats: hourly rates (``\$15-20/hr''), annual salaries (``\$70k-\$90k''), single values (``Up to \$50/hr''), or narrative forms (``competitive salary''). The parseSalary module addresses this variability through a tiered regex strategy, employing a cascade of increasingly specific patterns that attempt to extract structured numeric ranges from free-text input [44]. Tier 1: Range Patterns. The first tier attempts to match the most information-rich format---explicit numeric ranges. Patterns are compiled for common currency prefixes (\$, USD, EUR), optional magnitude suffixes (k, K for thousands), and per-unit qualifiers (/hr, /hour, per hour, /yr, /year, per year, annually). The extraction logic handles both space-separated and hyphen-separated range delimiters, as well as the common ``k'' suffix convention where ``\$70k'' represents \$70,000. Tier 2: Single-Value Patterns. If no range is detected, the second tier matches single values, which may represent either a minimum (``From \$20/hr'') or a maximum (``Up to \$50/hr''). Contextual keywords (from, starting at, up to, maximum) are used to determine whether the extracted value should populate salaryMin, salaryMax, or both (in the case of an exact figure). Tier 3: Narrative Fallback. The final tier applies lightweight heuristics to detect nonnumeric salary indicators. Phrases like ``competitive,'' ``commensurate with experience,'' ``unpaid,'' and ``stipend provided'' are mapped to structured boolean flags (salaryCompetitive, salaryUnpaid) that enable faceted filtering even in the absence of precise figures. Validation and Normalization. All extracted numeric values pass through a validation filter that enforces domain-specific plausibility constraints. Hourly rates must fall within \$0- \$500, annual salaries within \$0-\$1,000,000. Values outside these bounds are discarded and logged for review. Extracted ranges are normalized to a common unit (annual salary equivalent) to enable cross-listing comparison, using a standard conversion factor of 2,080 working hours per year for full-time positions and a configurable factor for part-time roles. This tiered approach achieves high precision on structured salary expressions while gracefully degrading to partial or boolean information for narrative forms. The modular design also facilitates incremental improvement: new patterns can be added to any tier without modifying the overall extraction logic.
+
+\subsubsection{Location Normalization}
+Geographic location information exhibits substantial surface-form variance across sources. The cleanLocation function normalizes location strings through a sequence of transformations: abbreviation expansion (e.g., ``St.'' to ``Street'', ``NYC'' to ``New York''), removal of redundant qualifiers (e.g., ``Remote --'' prefix when a separate remote boolean field captures this information), and standardization of country names to ISO 3166-1 codes where possible. The normalized location is stored alongside the raw source string, preserving provenance while enabling reliable geographic filtering.
+
+\subsection{Skill Extraction and Semantic Alignment}
+As established in the research objectives, the system must identify professional competencies from unstructured job descriptions without the overhead of heavy NLP models. The skill extraction module implements a hybrid approach that combines the precision and efficiency of lexicon-based matching with a novel density-ranking heuristic that surfaces the most salient skills for each listing.
+
+\subsubsection{Lexicon Construction and Maintenance}
+The skill lexicon serves as the knowledge base for the extraction module. Its construction follows a methodology designed to maximize coverage while maintaining precision. Canonical Skill Selection: The lexicon's canonical skill labels are grounded in the ESCO Skills and Competences pillar, ensuring interoperability with the broader European labor-market taxonomy framework. From the full ESCO skill hierarchy, approximately 800 skills relevant to the internship domain were selected, spanning technical competencies, methodological competencies, and transferable skills. Synonym Expansion: For each canonical skill, a set of recognized synonyms and aliases is curated through analysis of the 17,500-listing corpus. Common variations include abbreviations, version-specific references, vendor-specific terminology, and common shortened forms such as ML for Machine Learning. This synonym expansion is necessary for bridging the vocabulary gap between employer terminology and canonical skill labels [17]. Lexicon Maintenance: The technology landscape evolves rapidly, with new frameworks and tools emerging continuously. The lexicon is designed for periodic maintenance through a semi-automated pipeline: frequency analysis of unextracted n-grams in recent listings surfaces candidate new skills, which are then reviewed by a domain expert for inclusion. This approach balances the need for currency with the quality assurance of expert curation.
+
+\subsubsection{Matching Algorithm}
+The extractSkills function implements a case-insensitive, whole-word matching algorithm against the curated lexicon. The algorithm processes the job description text through the following stages:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Tokenization and Normalization: The description is tokenized using a whitespace-aware tokenizer that preserves multi-word skill phrases; for example, ``Machine Learning'' is treated as a single candidate. Tokens are lowercased and stripped of trailing punctuation.
+
+\item Phrase Matching: For each lexicon entry (both canonical labels and synonyms), the algorithm scans the normalized token sequence for exact matches. To handle multi-word skills, the algorithm employs a greedy longest-match strategy: it first attempts to match the longest possible phrase at each position before falling back to shorter sub-phrases. This prevents, for example, the word ``learning'' from being extracted when ``Machine Learning'' is present.
+
+\item Contextual Filtering: A post-processing filter removes matches that appear in negated contexts, such as ``no experience with Python required,'' or within section headings that are unlikely to represent actual requirements, such as boilerplate ``About Us'' sections. The filter uses a set of negation cues within a configurable window of tokens before the matched skill.
+
+\item Canonical Mapping: Each matched synonym is mapped to its canonical ESCO-aligned label, ensuring that downstream processing (filtering, search, analytics) operates on a consistent vocabulary. Dictionary-based methods provide a high-precision baseline for entity recognition in specialized domains, where the vocabulary of relevant entities is relatively stable and well-documented [38]. The primary limitation---inability to detect novel or unlisted skills---is addressed through the periodic lexicon maintenance process and, in future work, through the integration of contextual embedding-based extraction as a secondary tier for low-confidence cases.
+
+\end{enumerate}
+\subsubsection{Ranking and Density Control}
+A raw list of matched skills, while informative, does not distinguish between a job's core requirements and incidental mentions. A listing that mentions ``Python'' once in a list of 20 other technologies has a different skill profile than one that mentions ``Python'' extensively. To surface the most salient skills while avoiding ``keyword stuffing'' amplification, the system employs a density control mechanism inspired by TF-IDF principles but adapted for the skill extraction domain [17, 4]. The ranking algorithm assigns each extracted skill a composite score based on three factors:
+
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Normalized Frequency: The raw count of the skill's occurrences in the description, divided by the total token count, preventing longer descriptions from dominating.
+
+\item Diversity Bonus: A multiplicative factor that rewards descriptions mentioning a broader range of distinct skills. This directly counteracts keyword stuffing: a description that mentions ``Java'' 50 times but no other technologies receives a lower diversity bonus than one mentioning 10 distinct tools.
+
+\item Position Weighting: Skills appearing earlier in the description (which typically corresponds to the ``Requirements'' or ``Qualifications'' section) receive a higher weight than those appearing in boilerplate footer text. The final skill list presented to users is truncated to a configurable maximum (default: 10 skills), with skills ranked by this composite score. This ensures that the displayed skills represent the core requirements of the role, facilitating both accurate search matching and quick comprehension by browsing users.
+
+\end{enumerate}
+\subsection{Heuristic Role Categorization}
+The final enrichment step maps each internship to a high-level domain category, enabling the faceted filtering that is a core functional requirement of the system. The categorizeJob function evaluates the (now normalized) job title against a hierarchy of professional ``anchors'' [2, 11]. This categorization serves dual purposes: it provides immediate value for UI navigation even before more sophisticated semantic mapping is applied, and it serves as a fallback classification for cases where embedding-based mapping (Layer B) has low confidence.
+
+\subsubsection{Category Taxonomy Design}
+The category taxonomy defines five mutually exclusive, collectively exhaustive top-level domains: Software, Data/AI, Design, Healthcare, and Business. This design reflects the empirical distribution of internships in the corpus and is intentionally flat, using a shallow taxonomy optimized for user navigation rather than an exhaustive ontological hierarchy. Each category is associated with a set of anchor terms that serve as high-precision signals for membership.
+
+\subsubsection{Priority-Ordered Classification}
+The classification algorithm includes several design features intended to enhance robustness. Anchor terms are defined as substrings rather than requiring exact token matches, capturing morphological variations; for example, ``designer'' matches both ``Designer'' and ``Designing.'' The normalization step applies the same sanitization pipeline described earlier, ensuring consistent matching regardless of source formatting. The default fallback to ``Business'' reflects the empirical observation that many unclassifiable listings in the corpus fall within professional-services domains. This categorization supports the discovery mechanisms discussed in retrieval theory by providing a stable and predictable taxonomy browser [2, 11].
+
+
+\begin{algorithmbox}[Heuristic Role Categorization]
+\begin{verbatim}
+procedure CategorizeJob(title, skills)
+  titleLower  <- normalize(title)
+  skillsLower <- normalize(skills)
+  dataAnchors <- ["data sci", "machine learn", "deep learn",
+                  "ai eng", "data analy", "business intell"]
+  if containsAny(titleLower, dataAnchors) then
+      return "Data/AI"
+  softwareAnchors <- ["frontend", "backend", "full stack", "software",
+                      "devops", "mobile dev", "web dev", "qa",
+                      "cloud eng"]
+  if containsAny(titleLower, softwareAnchors) then
+      return "Software"
+  designAnchors <- ["ux", "ui", "designer", "graphic",
+                    "product design", "visual", "interaction"]
+  if containsAny(titleLower, designAnchors) then
+      return "Design"
+  healthAnchors <- ["nurse", "pharma", "clinical", "medical",
+                    "healthcare", "biomed", "public health"]
+  if containsAny(titleLower, healthAnchors) then
+      return "Healthcare"
+  businessAnchors <- ["market", "finance", "hr", "human res",
+                      "consult", "sales", "account", "operat"]
+  if containsAny(titleLower, businessAnchors) then
+      return "Business"
+  return "Business"  // default fallback
+end procedure
+\end{verbatim}
+\end{algorithmbox}
+
+\subsection{Caching and Performance Considerations}
+To translate the theoretical efficiency of individual enrichment modules into practical, low-latency system performance, the results of the enrichment pipeline are stored in a server-side in-memory cache. This caching strategy is the single most impactful performance optimization in the system, fundamentally shaping its operational profile and cost characteristics.
+
+\subsubsection{Cache Architecture}
+The cache is implemented as a server-side Map<string, Internship> structure, keyed by the stable identifier generated in the relevant section. The data.ts module serves as the sole access interface, implementing a read-through caching pattern: on a cache miss, the module reads the raw data from the static JSON catalog, executes the full enrichment pipeline, stores the result in the cache, and returns the enriched object. Subsequent requests for the same identifier are served directly from memory.
+
+\subsubsection{Amortized Cost Model}
+This architecture embodies an amortized cost model that is central to the system's lightweight operational philosophy. The computational cost of the enrichment pipeline, including file I/O, text sanitization, regex processing, skill extraction, and categorization, is paid once per data refresh cycle. This one-time cost is then amortized over read requests from the API layer. The cost model contrasts with architectures that perform semantic analysis at query time, where each user request incurs the full computational burden [7, 37].
+
+\subsubsection{Cache Invalidation Strategy}
+Cache invalidation is tied directly to the data refresh cycle. When new scrape data is ingested or the enrichment logic is updated, the cache is cleared and repopulated lazily on subsequent requests. This strategy eliminates the complexity of partial invalidation while ensuring that users always receive data processed by the most recent pipeline version. For production deployments with continuous ingestion, a time-to-live (TTL) mechanism can be layered on top, automatically refreshing cached entries after a configurable interval to accommodate incremental data updates.
+
+\subsubsection{Performance Targets}
+With the caching layer in place, the system is designed to support low-latency read requests, a requirement for modern interactive search systems [7]. This performance profile is intended to run on commodity hardware without specialized infrastructure, directly addressing the lightweight design goal articulated in the problem statement. The contrast with LLM-dependent architectures is instructive: a single LLM API call for semantic enrichment can introduce substantial latency and per-request financial cost, making caching-amortized local processing an important architectural mechanism for sustainable operation at scale.
+
+\subsection{Summary}
+This section has presented the lightweight semantic enrichment pipeline, detailing the architecture, algorithms, and design principles used to transform raw, heterogeneous internship listings into structured, semantically enriched entities. The pipeline's tiered and deterministic design supports accurate extraction across salary, skill, and category dimensions while reducing external API dependency. The caching strategy amortizes computational cost across many user requests, supporting responsive and cost-conscious search. Together with the semantic schema and retrieval infrastructure described in this thesis, the enrichment pipeline forms the foundation for a sustainable internship discovery platform.
+
+
+\section{Storage, Indexing, and Persistence}
+This chapter describes the data persistence and retrieval mechanisms that support the internship search platform. It details the hybrid storage strategy that combines local file-based data for the internship catalog with cloud-based relational storage for user interactions, following established patterns in data integration and vector management [13, 54].
+
+\subsection{Hybrid Data Storage Architecture}
+The system adopts a hybrid approach to data management, balancing the high-speed read requirements of a large catalog with the transactional persistence needed for user-specific features [13].
+
+\subsubsection{Static Catalog and Data Normalization}
+The primary repository for internship listings is a large-scale intern data.json file. To ensure data integrity, the system implements a robust ingestion pipeline:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Data Cleaning: Raw strings are normalized using techniques described in data cleaning literature [9].
+
+\item Stable Identifier Generation: The system generates deterministic IDs to enable effective record linkage and deduplication [8, 14].
+
+\item Type Safety: Ingested objects are transformed into a formal semantic schema [44].
+
+\end{itemize}
+\subsubsection{Relational Persistence (Supabase)}
+For dynamic user state, the system utilizes Supabase, a backend leveraging PostgreSQL. This relational foundation provides the necessary transactional support for features like user bookmarks and saved roles, adhering to the principles of reliable data systems [13].
+
+\subsection{Indexing and Metadata Enrichment}
+Beyond simple storage, the system enriches the data to facilitate efficient discovery, particularly for high-dimensional semantic search [25, 54].
+
+\subsubsection{Heuristic Categorization}
+As the source data is often unstructured, the system performs real-time metadata enrichment:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Category Mapping: Roles are classified into domains using keyword-based heuristics [5].
+
+\item Skill Extraction: Descriptions are parsed against a predefined taxonomy to create a tag-based index [17, 4].
+
+\end{itemize}
+\subsubsection{Performance Optimization}
+To handle the overhead of processing thousands of records, two layers of caching are implemented. This ensures that the system maintains sub-100 ms response times even during heavy query loads [7, 37].
+
+\subsection{Retrieval and API Design}
+The system's data access layer is exposed via REST endpoints, designed for resilience and scalability.
+
+\subsubsection{The Internship API}
+The API serves as the unified data source, incorporating fail-safe logic to handle malformed input or missing catalog files.
+
+\subsubsection{Search and Similarity Foundations}
+The architecture includes utilities for similarity search. While current filtering relies on category matches, the system is structured to support future vector-based recommendation engines by leveraging Approximate Nearest Neighbor (ANN) indexing techniques such as HNSW [35, 25].
+
+
+\section{Chapter Conclusion}
+This chapter has described the implementation of the main system components: ingestion, preprocessing, enrichment, stable identifier generation, skill extraction, categorization, caching, persistence, indexing, and API access. The implementation supports the evaluation described in the next chapter by producing structured internship records and retrieval outputs that can be measured with extraction, classification, ranking, latency, and cost metrics.
+
+
+\chapter{Results and Comparative Evaluation}
+
+\section{Chapter Introduction}
+This chapter presents the reported evaluation evidence and explains how the remaining comparative analysis must be completed. It separates measured or reported findings from completion instructions so that the thesis does not claim results that have not yet been produced. The chapter also adds explicit guidance for HR@k and NDCG@k evaluation, because these ranking metrics are necessary for a defensible retrieval-comparison section.
+
+\section{Reported Experimental Results}
+This chapter presents the reported evaluation findings using two sources of evidence: the internships.click extraction output and a multi-site job-search simulation. It summarizes the performance of the extraction and classification modules, discusses retrieval quality, and analyzes the system's operational efficiency. Because the available evidence is partly narrative and not accompanied by complete benchmark tables, the findings are interpreted as reported experimental evidence rather than as a fully reproducible external-platform benchmark. The chapter is organized as follows:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item The extraction-results subsection reports on Layer A parsing of structured fields from the internships.click dataset.
+
+\item The classification-results subsection evaluates semantic mapping from raw job titles to canonical roles.
+
+\item The retrieval-results subsection analyzes aggregation performance across multiple job platforms.
+
+\item The efficiency-and-cost subsection examines the operational implications of the tiered architecture.
+
+\end{itemize}
+\subsection{Extraction Results}
+The first stage of evaluation used the internships.click output dataset, where job fields such as company, location, and salary were often embedded within a single raw text block, for example ``Matrox Graphics Inc Dorval \$95K - \$124K.'' The reported results indicate that the rule-based Layer A reached 98\% precision for compensation extraction, identifying patterns such as ``\$95K - \$124K'' and ``\$23.00/hour.'' Recall for explicit location fields was lower, reported at 76\%, when geographic markers were ambiguous within the title string. These findings suggest that deterministic patterns are stable for highly regular fields [44], while semantic fallback is still required for higher coverage.
+
+\subsection{Classification Results}
+Layer B was evaluated by its ability to normalize raw titles from the internships.click data, such as ``Spring 2026 Electronics Software Development Intern (MS),'' into canonical occupations. The reported Top-3 accuracy was 91\%. The qualitative analysis indicates that, even when the exact label was missed, the bi-encoder architecture [42] often mapped roles to the appropriate professional family, such as mapping ``General Software Developer Intern- Humanoid Robot'' to ``Software Engineer.'' This result indicates an improvement over keyword matching for titles with diverse employer-specific phrasing.
+
+\subsection{Retrieval Results}
+Retrieval quality was assessed using the multi-site job simulation, which aggregated results across four platforms: We Work Remotely, Palantir (Lever), Saronic (Lever), and Box (Greenhouse). The reported simulation included 416 unique listings across five search categories: Software, AI, Data, Web, and Developer. The integration of dense embeddings allowed the system to retrieve relevant results even when keyword overlap was limited, such as retrieving ``Forward Deployed AI Engineer'' roles for ``Software'' queries. The reported comparison indicates a +22\% gain in P@5 relative to lexical-only baselines, although the final thesis still requires the complete query set and relevance judgments for full reproducibility.
+
+\subsection{Student Procedure for HR@k and NDCG@k Analysis}
+The final version of this chapter must include a reproducible retrieval-ranking evaluation. Students should complete this part as a measured experiment, not as a narrative comparison. The following procedure should be followed before inserting numerical values in the thesis:
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+
+\item Freeze the query set before running the comparison. The same queries must be used for the proposed system, the keyword-only baseline, and any external platform included in the comparative analysis.
+
+\item For each query and each system, export the top 10 results with rank, title, company, source platform, URL, retrieval score if available, and the date on which the result was captured.
+
+\item Judge each query-result pair using the same relevance scale. A practical three-level scale is 0 for not relevant, 1 for partially relevant, and 2 for highly relevant. The criteria must be written before scoring begins.
+
+\item Convert the judged lists into ranking metrics. HR@5 and HR@10 should record whether at least one relevant result appears in the first 5 or 10 results. NDCG@10 should use the graded relevance labels, so that highly relevant results placed near the top receive more credit than weakly relevant or lower-ranked results.
+
+\item Report the mean value of each metric across the complete query set. Do not compare systems on different query sets, different capture dates, or incomplete result lists.
+
+\item Insert screenshots only as qualitative evidence. Screenshots should support the numerical table; they should not replace HR@k, NDCG@k, MRR, MAP, or Precision@k.
+
+\end{enumerate}
+
+The table below is a completion template. It must remain empty or marked as not measured until the students compute the values from the frozen query set and relevance judgments.
+
+\begingroup
+\small
+\begin{longtable}{p{0.18\textwidth}p{0.18\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.09\textwidth}}
+\caption{Template for retrieval-ranking metrics to be completed with measured evidence.}\\
+\toprule
+\textbf{System} & \textbf{Query group} & \textbf{HR@5} & \textbf{HR@10} & \textbf{MRR} & \textbf{MAP} & \textbf{NDCG}\newline\textbf{@10}\\
+\midrule
+Proposed hybrid system & To be measured & -- & -- & -- & -- & --\\
+Keyword-only baseline & To be measured & -- & -- & -- & -- & --\\
+External platform comparison & To be measured & -- & -- & -- & -- & --\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsection{Efficiency and Cost}
+The computational metrics from the multi-site simulation provide evidence for the feasibility of the tiered pipeline. The reported configuration used Layer B for 95.4\% of the 416 simulated listings and reserved Layer C for the most ambiguous cases. Under this reported configuration, LLM API cost was reduced by 92\% relative to an LLM-only approach. This evidence supports the Green AI [46] objective of reducing unnecessary model calls while maintaining usable extraction and classification quality.
+
+
+
+\section{Comparison with Other Platforms and Baselines}
+This section is retained as an organizational scaffold for the final thesis. The original thesis discusses the need to compare keyword-based search, LLM-dependent processing, general recruitment platforms, and university career portals, but it does not provide an independently measured external-platform benchmark. Therefore, the comparison below does not introduce new empirical findings; it records what evidence must be inserted when the student completes the evaluation.
+
+\begin{longtable}{p{0.24\textwidth}p{0.34\textwidth}p{0.32\textwidth}}
+\caption{Comparison scaffold to be completed with measured evidence.}\\
+\toprule
+\textbf{Comparison target} & \textbf{Purpose in the thesis} & \textbf{Evidence still required}\\
+\midrule
+Keyword-only internship search & Test whether the proposed hybrid retrieval approach improves over exact lexical matching. & Same query set, keyword-only results, judged relevance, and HR@k, Precision@k, MRR, MAP, and NDCG@k tables.\\
+LLM-only enrichment pipeline & Test the cost and latency trade-off against a system that delegates extraction and normalization to an external LLM. & Cost per 1,000 listings, latency distribution, failure examples, and a clear prompt/protocol.\\
+General recruitment platforms & Contextualize the proposed platform against mature public internship/job-search systems. & Side-by-side screenshots for identical queries and manually judged relevance.\\
+University career portals & Compare against the institutional use case targeted by the thesis. & Partner JSON upload examples, before/after normalization outputs, and search screenshots.\\
+\bottomrule
+\end{longtable}
+
+\section{Interpretation of the Results}
+The interpretation in this section is limited to the results already reported in the original thesis. The current evidence supports an architectural argument for a staged semantic pipeline, but the final comparison requires measured tables, screenshots, and reproducible benchmark artifacts before it can be treated as a complete empirical comparison.
+
+\section{Chapter Conclusion}
+This chapter has reported the evidence currently available and has defined the missing retrieval-comparison evidence that must be completed before final defense. The added HR@k and NDCG@k procedure ensures that future result values will be based on a fixed query set, explicit relevance judgments, and reproducible ranked lists rather than unsupported comparative claims.
+
+\chapter{Discussion, Conclusion, and Future Work}
+
+\section{Chapter Introduction}
+This final chapter discusses the meaning and limitations of the reported findings. It examines error sources, trade-offs between accuracy and cost, validity threats, ethical and privacy considerations, and future research directions. The discussion remains bounded by the evidence available in the results chapter and does not treat incomplete comparison scaffolds as established findings.
+
+\section{Discussion}
+This chapter discusses the experimental results presented in the results chapter. It analyzes the failure modes of the extraction and classification modules, discusses trade-offs between system accuracy and computational cost, and identifies limitations and threats to validity according to established methodologies for empirical software and NLP evaluation [7, 36].
+
+\subsection{Error Analysis}
+Although the reported results indicate useful performance across extraction and retrieval tasks, qualitative error analysis remains necessary for understanding the challenges of processing semi-structured job data [44, 50].
+
+\subsubsection{Extraction Failures and Implicit Information}
+The lower recall for lexical skill extraction highlights the challenge of implicit skill requirements. Many job postings omit foundational skills that are assumed for a role. This semantic gap is a known issue in recruitment informatics, where requirements are often latent rather than explicit [17, 41]. In date extraction, errors primarily occurred in rolling recruitment cycles. The regex-based Layer A often failed to normalize these expressions into precise temporal ranges, which is a common limitation of rule-based Information Extraction systems when linguistic variability is high [18].
+
+\subsubsection{Ambiguity in Semantic Mapping}
+The gap between Top-1 and Top-3 accuracy for title normalization reveals the impact of professional ambiguity. Generic titles lack sufficient semantic density for the bi-encoder to map them to a specific occupation without analyzing the full text body. This challenge of entity resolution and disambiguation is central to modern taxonomy alignment research [56, 45].
+
+\subsection{Trade-offs: Accuracy vs Cost}
+The design of the tiered architecture was motivated by the need to balance performance with operational feasibility, a core principle in Green AI and efficient deep learning [46, 37].
+
+\subsubsection{Marginal Accuracy and Operational Cost}
+While Large Language Models (LLMs) offer strong zero-shot capabilities, marginal accuracy gains may come with substantial latency and financial cost [20, 3]. By delegating most of the workload to local, small-scale models, the system aims to maintain usable accuracy while reducing reliance on external APIs [37].
+
+\subsubsection{Latency and User Experience}
+The reported search latency of 45 ms supports a responsive user interface. A system relying on real-time LLM inference for search-time semantic expansion would likely exceed common thresholds for interactive systems [7]. The use of pre-computed HNSW indices and RRF-based fusion is intended to deliver semantic results with efficiency close to traditional lexical search [35, 10].
+
+\subsection{Threats to Validity}
+Several factors may affect the generalizability and robustness of this study, as is common in Information Retrieval and machine learning research [36, 51].
+
+\subsubsection{Internal Validity: Annotation Bias}
+The evaluation relies on an expert-annotated reference set. Although inter-annotator agreement was reported as high, subjectivity in labeling relevant skills remains a threat, which is a known challenge in creating benchmarks for specialized domains [26, 51].
+
+\subsubsection{External Validity: Generalizability}
+The dataset is primarily focused on technology and business sectors within North American and European contexts and is shaped by the ESCO framework. The effectiveness of the system may decrease when applied to different linguistic domains or regions with different occupational structures [28].
+
+\subsubsection{Construct Validity: Metric Selection}
+The study uses standard IR metrics such as MAP and NDCG. However, these metrics do not always correlate directly with real-world user satisfaction in job discovery, where factors such as freshness and company reputation may also play important roles [2, 29].
+
+
+
+\section{Ethical, Legal, and Privacy Considerations}
+This section is retained as a completion scaffold because the original thesis structure listed ethical, legal, and privacy considerations, but the original body did not provide a complete standalone chapter for them. The final version should fill this section with the exact institutional, legal, and data-protection requirements that apply to the deployment context. Until those details are supplied, this section should not be read as an evaluated result.
+
+\section{Conclusion and Future Work}
+This thesis has presented an approach to the lightweight semantic structuring of internship listings, addressing the challenges of high-volume, noisy recruitment data. By combining rule-based extraction with small-scale Transformer models, the work shows how a structured knowledge base can be built while reducing dependence on costly and latency-prone LLM-based processing, consistent with the direction of sustainable and efficient AI [46, 37].
+
+\subsection{Summary of Findings}
+The reported experimental results support the central hypothesis that a tiered, hybrid architecture can improve semantic alignment while remaining computationally feasible for practical deployment. The key findings are summarized as follows:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Efficiency and Scalability: The reported throughput suggests that the system can support frequent updates on commodity hardware, supporting the responsiveness required for interactive applications [7, 25].
+
+\item Extraction Accuracy: Deterministic fields were extracted with high reported precision, while semantic mapping of job roles achieved high reported Top-3 accuracy using lightweight bi-encoders.
+
+\item Search Relevance: The hybrid retrieval strategy reportedly outperformed keyword-only search for conceptual queries in the recruitment domain [51, 34].
+
+\item Operational Cost: By using local models for most processing, the system reduces reliance on external APIs and remains consistent with principles of Knowledge Distillation and efficient inference [20, 37].
+
+\end{itemize}
+\subsection{Future Directions}
+While the current system provides a foundation for internship analytics, several areas remain for future exploration and improvement [50, 29].
+
+\subsubsection{Multilingual Extraction}
+A primary limitation is the current focus on English-language listings. Expanding the pipeline to support multilingual extraction using cross-lingual models would be essential for a truly global internship platform, leveraging the multilingual definitions in the ESCO framework [32].
+
+\subsubsection{Better Section Segmentation}
+Future work could employ more specialized models to segment job postings into structured blocks such as ``Responsibilities'' and ``Benefits.'' This would allow more granular skill weighting and better context-aware matching [41, 4].
+
+\subsubsection{Self-training and Distillation}
+A future extension could implement a continuous self-training loop in which high-confidence labels generated by larger models are used to periodically fine-tune local models. This distillation process would allow the lightweight components to improve gradually without inheriting high latency [20].
+
+\subsubsection{Continuous Monitoring for Taxonomy Drift}
+The technical landscape is in constant flux, with new frameworks and job roles emerging frequently. Implementing automated ``drift detection'' would allow the system's semantic schema to stay up-to-date with minimal manual effort, addressing the challenges of ontology evolution in the labor market [48, 49].
+
+
+\section{Chapter Conclusion}
+This chapter has interpreted the reported findings, identified the principal error sources and validity threats, and outlined future work required to strengthen the platform. The thesis concludes that the proposed lightweight semantic pipeline is a practical direction for organizing internship listings, provided that the final comparative evaluation is completed with measured ranking, latency, cost, and external-platform evidence.
+
+
+\appendix
+\chapter{Reorganization Map and Completeness Notes}
+\section{Reorganization Map}
+\begin{longtable}{p{0.28\textwidth}p{0.62\textwidth}}
+\caption{Mapping from the original thesis organization to the revised academic thesis organization.}\\
+\toprule
+\textbf{Revised chapter} & \textbf{Original material included}\\
+\midrule
+Chapter 1 - General Introduction & Original Chapter 1 sections on context, problem statement, research questions, contributions, and thesis structure, with a chapter introduction and conclusion added.\\
+Chapter 2 - Background, Related Work, and Theoretical Foundations & Original related-work material plus the former theoretical-foundation material, covering information extraction, semantics, taxonomies, retrieval, embeddings, BM25, RRF, ANN, HNSW, and quantization.\\
+Chapter 3 - Technological Environment and Development Tools & Technology-stack material reorganized into client/API, persistence, type-safety, NLP, retrieval, testing, and evaluation-tool subsections. No unsupported Flutter/Dart implementation claim is added because the available implementation text identifies React/Next.js.\\
+Chapter 4 - Methodology & Original Chapters 5, 7, and 10, bringing the system overview, schema/label-space design, and evaluation setup into one methodological chapter. HR@k and MRR are added to the retrieval-metric definitions.\\
+Chapter 5 - System Design and Implementation & Original Chapters 6, 8, and 9, covering ingestion, preprocessing, enrichment, caching, storage, indexing, and API implementation.\\
+Chapter 6 - Results and Comparative Evaluation & Original Chapter 11 plus a comparison scaffold and student-facing instructions for completing HR@k, MRR, MAP, and NDCG@k analysis. The scaffold is retained for completion and does not add new measured claims.\\
+Chapter 7 - Discussion, Conclusion, and Future Work & Original Chapters 12 and 13 plus an ethical/legal/privacy scaffold that was listed in the original thesis structure but not completed in the original body.\\
+Appendices & The original appendix headings A--D are preserved and marked as content to be filled.\\
+\bottomrule
+\end{longtable}
+
+\section{Completeness Check}
+All substantive chapter text available from the original PDF has been preserved and reorganized. The main remaining gaps are completion tasks already visible from the original thesis: institutional placeholders on the title page, empty appendices, incomplete quantitative result tables, and missing external-platform evidence for the comparison section.
+
+\chapter{Original Appendices to Complete}
+The source PDF contained the following appendix titles, but the appendix bodies were empty. They are included here as required completion tasks rather than invented content.
+
+\section{Annotation Guidelines}
+Add the final annotation protocol used for the gold-standard dataset: label definitions, examples of positive/negative cases, adjudication rules, and annotator instructions.
+
+\section{Regex and Heuristic Rules}
+Add the concrete salary-parsing rules, cleaning regexes, categorization anchors, examples of accepted/rejected matches, and edge-case handling decisions.
+
+\section{Schema Documentation}
+Add a full data dictionary for the Internship schema, database tables, API response fields, and validation rules.
+
+\section{Skill Lexicon and Synonyms (Excerpt)}
+Add a representative excerpt of the ESCO-aligned skill lexicon, including canonical labels, synonyms, aliases, and maintenance procedure.
+
+\chapter{Editorial Critique and Required Corrections}
+\section{Brief Critique}
+The revised thesis is structurally stronger than the source because related theory, methodology, implementation, results, and conclusion are now separated into compact chapters. However, it still needs stronger empirical evidence. The main weakness is that the results chapter remains mostly narrative, while a Master's thesis should contain reproducible tables, screenshots, and quantitative comparison against baselines. The second weakness is that several placeholders remain from the original document. The third weakness is that the platform comparison remains a scaffold until external-platform evidence is inserted.
+
+\section{Three Corrections Needed Before Final Submission}
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.35em]
+  \item \textbf{Front matter and title page:} Replace ``Your University'', ``Your Department'', and ``Supervisor Name'' with the real institutional information. Also standardize the author name capitalization.
+  \item \textbf{Chapter 6 results and comparison sections:} Add numeric result tables for extraction precision/recall/F1, classification accuracy, retrieval HR@k/Precision@k/MRR/MAP/NDCG@k, latency, throughput, and cost. The current result text is useful but not yet enough for final defense.
+  \item \textbf{Appendix B and Appendix D:} Complete the missing regex rules and skill lexicon examples so that the implementation can be inspected and reproduced by the committee.
+\end{enumerate}
+
+\section{Three Screens or Images to Add}
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.35em]
+  \item \textbf{Implementation chapter - Data Collection and Preprocessing:} Add screenshots of a raw scraped listing, a partner JSON upload, and the normalized output after validation.
+  \item \textbf{Implementation chapter - Enrichment and Storage:} Add screenshots of the running enrichment pipeline, cache status or logs, and the Supabase/PostgreSQL schema or pgvector index configuration.
+  \item \textbf{Results chapter - Comparison with Other Platforms:} Add side-by-side screenshots for the same query on the proposed system, LinkedIn/Indeed or a university portal, and a keyword-only baseline. Include a small table showing judged relevance and response time.
+\end{enumerate}
+
+\backmatter
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliography}
+\begin{thebibliography}{99}
+\bibitem{ref1} Serge Abiteboul. Querying semi-structured data. International Conference on Database Theory (ICDT), pages 1--18, 1997.
+\bibitem{ref2} Ricardo Baeza-Yates and Berthier Ribeiro-Neto. Modern information retrieval: The concepts and technology behind search. Pearson Education, 2011.
+\bibitem{ref3} Emily M Bender, Timnit Gebru, Angelina McMillan-Major, and Shmargaret Shmitchell. On the dangers of stochastic parrots: Can language models be too big? In Proceedings of the 2021 ACM Conference on Fairness, Accountability, and Transparency, pages 610--623, 2021.
+\bibitem{ref4} Aman Bhola, Shady Ahmed, and Vitaly Klyuev. Retrieving skills from job descriptions: A deep learning based language model approach. In Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery \& Data Mining, pages 3130--3138, 2020.
+\bibitem{ref5} Roberto Boselli, Mirko Cesarini, Fabio Mercorio, and Mario Mezzanzanica. Classifying online job advertisements through machine learning. Future Generation Computer Systems, 86:319--328, 2018.
+\bibitem{ref6} Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. Language models are few-shot learners. Advances in neural information processing systems, 33:1877--1901, 2020.
+\bibitem{ref7} Stefan B¨uttcher, Charles LA Clarke, and Gordon V Cormack. Information retrieval: Implementing and evaluating search engines. MIT Press, 2016.
+\bibitem{ref8} Peter Christen. Data matching: concepts and techniques for record linkage, entity resolution, and duplicate detection. Springer Science \& Business Media, 2012.
+\bibitem{ref9} Xu Chu, Ihab F Ilyas, Sanjay Krishnan, and Jiannan Wang. Data cleaning: Challenges and opportunities. In Proceedings of the 2016 International Conference on Management of Data (SIGMOD), pages 2201--2206, 2016.
+\bibitem{ref10} Gordon V Cormack, Charles LA Clarke, and Stefan Buettcher. Reciprocal rank fusion reshapes l1-retrieval. In Proceedings of the 32nd international ACM SIGIR conference on Research and development in information retrieval, pages 758--759, 2009.
+\bibitem{ref11} W Bruce Croft, Donald Metzler, and Trevor Strohman. Search engines: Information retrieval in practice. Pearson Education, 2010.
+\bibitem{ref12} Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. Bert: Pre-training of deep bidirectional transformers for language understanding. In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers), pages 4171--4186, 2019.
+\bibitem{ref13} AnHai Doan, Alon Halevy, and Zachary Ives. Principles of data integration. Morgan Kaufmann, 2012.
+\bibitem{ref14} Ahmed K Elmagarmid, Panagiotis G Ipeirotis, and Vassilios S Verykios. Duplicate record detection: A survey. IEEE Transactions on Knowledge and Data Engineering, 19(1):1--16, 2007.
+\bibitem{ref15} Evanthia Faliagka, Kostas Ramantas, Athanasios Tsakalidis, and Giannis Tzimas. Online recruitment systems: Another survey of techniques, constraints and open issues. Information Systems Management, 29(4):262--276, 2012.
+\bibitem{ref16} Thibault Formal, Benjamin Piwowarski, and Stephane Clinchant. SPLADE: Sparse lexical and expansion model for first stage ranking. In Proceedings of the 44th International ACM SIGIR Conference on Research and Development in Information Retrieval, pages 2288-- 2292, 2021.
+\bibitem{ref17} Anna Giabelli, Lorenzo Malandri, Fabio Mercorio, Mario Mezzanzanica, and Andrea Seveso. Skills-to-job: A recommendation system for skills gap analysis. IEEE Access, 9:25549--25563, 2021.
+\bibitem{ref18} Ralph Grishman. Information extraction. IEEE Intelligent Systems, 30(5):8--15, 2015.
+\bibitem{ref19} Ruiqi Guo, Philip Sun, Erik Lindgren, Quan Geng, Dominic e Chao, Hanqi Hu, Fan Hu, and Sanjiv Kumar. Accelerating large-scale inference with anisotropic vector quantization. In International Conference on Machine Learning, pages 3887--3896. PMLR, 2020.
+\bibitem{ref20} Cheng-Yu Hsieh, Chun-Liang Li, Chih-Kuan Yeh, Hootan Nakhost, Michihiro Yasunaga, Zhe Xu, Leyang Wei, Jiaming Feng, Jure Leskovec, and Hieu Pham. Distilling step-bystep! outperforming larger language models with less training data and smaller models. In Findings of the Association for Computational Linguistics: ACL 2023, pages 8035--8057, 2023.
+\bibitem{ref21} Anne Luise Hunkenschr¨oer and Christoph Luetge. Ethics of ai-enabled recruiting and selection: A review and research agenda. Business \& Information Systems Engineering, 64(4):435--452, 2022.
+\bibitem{ref22} Itrat Javed, Asad Masood Khattak, Muhammad Mansoor Alam, and Ahmad Almogren. A review of content-based job recommendation systems. IEEE Access, 9:10023--10043, 2021.
+\bibitem{ref23} Herv´e J´egou, Matthijs Douze, and Cordelia Schmid. Product quantization for nearest neighbor search. IEEE Transactions on Pattern Analysis and Machine Intelligence, 33(1):117--128, 2010.
+\bibitem{ref24} Ziwei Ji, Nayeon Lee, Rita Frieske, Tiezheng Yu, Dan Su, Yan Xu, Etsuko Ishii, Yejin Bang, Andrea Madotto, and Pascale Fung. Survey of hallucination in natural language generation. ACM Computing Surveys, 55(12):1--38, 2023.
+\bibitem{ref25} Jeff Johnson, Matthijs Douze, and Herv´e J´egou. Billion-scale similarity search with GPUs. IEEE Transactions on Big Data, 7(3):535--547, 2019.
+\bibitem{ref26} Dan Jurafsky and James H Martin. Speech and Language Processing (3rd ed. draft). Stanford University, 2023.
+\bibitem{ref27} Vladimir Karpukhin, Bargin Oguz, Sewon Min, Patrick Lewis, Ledell Wu, Sergey Edunov, Danqi Chen, and Wen-tau Yih. Dense passage retrieval for open-domain question answering. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 6769--6781, 2020.
+\bibitem{ref28} Lucia M´ytna Kurekov´a, Miroslav Beblav´y, and Anna Thum-Thysen. Using online job vacancies for the analysis of labour market: A methodological inquiry. Work, Employment and Society, 29(5):826--843, 2015.
+\bibitem{ref29} Emanuel Lacic et al. Recommendation systems for the labor market: A survey. ACM Computing Surveys, 2020.
+\bibitem{ref30} Guillaume Lample, Miguel Ballesteros, Sandeep Subramanian, Kazuya Kawakami, and Chris Dyer. Neural architectures for named entity recognition. In Proceedings of the 2016 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, pages 260--270, 2016.
+\bibitem{ref31} Jing Li, Aixin Sun, Jianglei Han, and Chenliang Li. A survey on deep learning for named entity recognition. IEEE Transactions on Knowledge and Data Engineering, 34(1):50--70, 2020.
+\bibitem{ref32} Jimmy Lin, Rodrigo Nogueira, and Andrew Yates. Pretrained transformers for text ranking: Bert and beyond. Foundations and Trends in Information Retrieval, 15(4):301--461, 2021.
+\bibitem{ref33} Pengfei Liu, Weizhe Yuan, Jinlan Fu, Zhengbao Jiang, Hiroaki Hayashi, and Graham Neubig. Pre-train, prompt, and predict: A systematic survey of prompting methods in natural language processing. ACM Computing Surveys, 55(9):1--35, 2023.
+\bibitem{ref34} Yi Luan, Jacob Eisenstein, Hannaneh Hajishirzi, and Mari Mari. Sparse, dense, and attentional representations for text retrieval. Transactions of the Association for Computational Linguistics, 9:329--345, 2021.
+\bibitem{ref35} Yu A Malkov and Dmitry A Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. IEEE Transactions on Pattern Analysis and Machine Intelligence, 42(4):824--336, 2018.
+\bibitem{ref36} Christopher D Manning, Prabhakar Raghavan, and Hinrich Sch¨utze. Introduction to information retrieval. Cambridge University Press, 2008.
+\bibitem{ref37} Gaurav Menghani. Efficient deep learning: A survey on making deep learning models smaller, faster, and better. ACM Computing Surveys, 55(12):1--37, 2023.
+\bibitem{ref38} David Nadeau and Satoshi Sekine. A survey of named entity recognition and classification. Lingvisticae Investigationes, 30(1):3--26, 2007.
+\bibitem{ref39} Dimitris Pappas et al. Jobbert: Understanding job titles through domain-specific bert. Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, 2022.
+\bibitem{ref40} Norman G Peterson, Michael D Mumford, Walter C Borman, Paul R Jeanneret, Edwin A Fleishman, Kyra J Levin, Michael A Campion, Morgeson S Mayfield, et al. The occupational information network (O*NET) project. Personnel Psychology, 54(2):451--492, 2001.
+\bibitem{ref41} Chuan Qin, Hengshu Zhu, Tong Xu, Chen Zhu, Liang Jiang, Enhong Chen, and Hui Xiong. Enhancing person-job fit for both recruiters and job seekers: A joint learning approach. In Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery \& Data Mining, pages 685--694, 2018.
+\bibitem{ref42} Nils Reimers and Iryna Gurevych. Sentence-bert: Sentence embeddings using siamese bert-networks. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing, 2019.
+\bibitem{ref43} Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: Bm25 and beyond. Foundations and Trends in Information Retrieval, 3(4):333--389, 2009.
+\bibitem{ref44} Sunita Sarawagi. Information extraction. Foundations and Trends in Databases, 1(3):261--446, 2008.
+\bibitem{ref45} Mariya Sayfullina, Lorenzo Malandri, Fabio Mercorio, Mario Mezzanzanica, and Andrea Seveso. Learning compound titles from job advertisements. IEEE Access, 6:46803--46813, 2018.
+\bibitem{ref46} Roy Schwartz, Jesse Dodge, Noah A Smith, and Oren Etzioni. Green ai. Communications of the ACM, 63(12):54--63, 2020.
+\bibitem{ref47} Chuan Shi et al. Recruitment knowledge graph construction and application. In Proceedings of the 2020 IEEE International Conference on Data Mining (ICDM), 2020.
+\bibitem{ref48} Pavel Shvaiko and J´erˆome Euzenat. Ontology matching: state of the art and future challenges. IEEE Transactions on Knowledge and Data Engineering, 25(1):158--176, 2013.
+\bibitem{ref49} Steffen Staab and Rudi Studer. Handbook on ontologies. Springer Science \& Business Media, 2009.
+\bibitem{ref50} Damian Andrew Tamburri, Anne Kayem, and Patricia Lago. Data-driven labor market analytics: A systematic literature review. Computer Science Review, 38:100303, 2020.
+\bibitem{ref51} Nandan Thakur, Nils Reimers, Johannes Daxenberger, and Iryna Gurevych. BEIR: A heterogeneous benchmark for zero-shot out-of-distribution retrieval. In Proceedings of the 35th Conference on Neural Information Processing Systems (NeurIPS 2021) Track on Datasets and Benchmarks, 2021.
+\bibitem{ref52} Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Lukasz Kaiser, and Illia Polosukhin. Attention is all you need. In Advances in neural information processing systems, pages 5998--6008, 2017.
+\bibitem{ref53} David Wadden, Ulme Wennberg, Yi Luan, and Hannaneh Hajishirzi. Entity, relation, and event extraction with contextualized span representations. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing, pages 5784--5789, 2019.
+\bibitem{ref54} Jianguo Wang, Xiaomeng Yi, Rentong Guo, Haiyong Zhao, Chao Xu, Fan Li, Can Liu, Yi Zhan, Yuan Zhou, Jiang Guo, et al. Milvus: A purpose-built vector data management system. In Proceedings of the 2021 International Conference on Management of Data (SIGMOD), pages 2614--2627, 2021.
+\bibitem{ref55} Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le, and Denny Zhou. Chain-of-thought prompting elicits reasoning in large language models. In Advances in Neural Information Processing Systems, volume 35, pages 24824--24837, 2022.
+\bibitem{ref56} Wei Zhang, Wen Hua, Jian Tan, Xiaofeng Wang, Jialin Shen, and Peidong Zhao. A survey on entity linking. IEEE Transactions on Knowledge and Data Engineering, 2022.
+\bibitem{ref57} Wayne Xin Zhao et al. Job2vec: Learning joint vectors of courts and jobs. In Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery \& Data Mining, 2018.
+\bibitem{ref58} Justin Zobel and Alistair Moffat. Inverted files for text search engines. ACM Computing Surveys (CSUR), 38(2):6--es, 2006.
+\end{thebibliography}
+\end{document}
