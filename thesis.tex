@@ -1,70 +1,110 @@
 
-\documentclass[11pt,a4paper,oneside]{book}
-\usepackage[a4paper,margin=2.5cm]{geometry}
-\usepackage{fontspec}
-\IfFontExistsTF{Noto Serif}{\setmainfont{Noto Serif}}{\setmainfont{Times New Roman}}
-\IfFontExistsTF{Noto Sans}{\setsansfont{Noto Sans}}{\setsansfont{Arial}}
-\IfFontExistsTF{Noto Sans Mono}{\setmonofont{Noto Sans Mono}}{\setmonofont{Consolas}}
-\newfontfamily\arabicfont[Script=Arabic]{Arial}
-\usepackage{microtype}
-\usepackage{setspace}
-\onehalfspacing
-\usepackage{graphicx}
-\usepackage{float}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{xcolor}
-\usepackage{enumitem}
-\usepackage{listings}
+\documentclass[11pt,a4paper,oneside]{report}
+
+% ----------------------------
+% Packages (keep it reasonable)
+% ----------------------------
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{setspace}          % line spacing
+\usepackage{graphicx}          % figures
+\usepackage{booktabs}          % nice tables
+\usepackage{longtable}         % long tables across pages
+\usepackage{amsmath,amssymb}   % math
+\usepackage{hyperref}          % links and references
+\usepackage{url}               % url formatting
+\usepackage{caption}           % captions
+\usepackage{subcaption}        % subfigures
+\usepackage{float}             % figure placement
+\usepackage{enumitem}          % nicer lists
+\usepackage{csquotes}          % recommended for biblatex
+\usepackage{listings}          % code listings
+\usepackage{xcolor}            % code colors
+\usepackage{algorithm}
+\usepackage{algpseudocode}     % algorithms pseudocode
+\usepackage{glossaries}        % glossary / acronyms
+\usepackage{eurosym}           % Euro symbol support
+\usepackage{sectsty}           % easy heading customization
+
+% TikZ for diagrams
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows,positioning,calc}
+
+% Additional configs for content support
+\usepackage[utf8]{inputenc}
+\usepackage[LAE,T1]{fontenc}
+\usepackage[arabic,english]{babel}
 \usepackage[most]{tcolorbox}
-\usepackage{caption}
-\usepackage{titlesec}
-\usepackage{fancyhdr}
-\setlength{\headheight}{14pt}
-\usepackage{hyperref}
-\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue,pdfauthor={Mouad bensaid},pdftitle={Lightweight Semantic Structuring of Internship Listings from Web Scraping and JSON Uploads}}
-\usepackage{bidi}
-\setcounter{tocdepth}{2}
-\setcounter{secnumdepth}{3}
-\titleformat{\chapter}[display]{\normalfont\bfseries\Huge}{\chaptertitlename\ \thechapter}{12pt}{\Huge}
-\titlespacing*{\chapter}{0pt}{-5pt}{24pt}
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[L]{\nouppercase{\leftmark}}
-\fancyhead[R]{\thepage}
-\renewcommand{\headrulewidth}{0.4pt}
-\lstdefinestyle{thesiscode}{
+\newtcolorbox{algorithmbox}[1][]{colback=gray!4,colframe=black!35,title={#1},fonttitle=\bfseries,breakable,enhanced}
+
+% ----------------------------
+% Formatting
+% ----------------------------
+\onehalfspacing
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  pdftitle={Lightweight Semantic Structuring of Internship Listings from Web Scraping and JSON Uploads},
+  pdfauthor={Mouad bensaid}
+}
+
+% Heading sizes
+\chapterfont{\LARGE}
+\sectionfont{\Large}
+\subsectionfont{\large}
+
+% ----------------------------
+% Listings configuration
+% ----------------------------
+\lstset{
   basicstyle=\ttfamily\small,
   breaklines=true,
-  columns=fullflexible,
   frame=single,
   numbers=left,
   numberstyle=\tiny,
-  captionpos=b,
-  keywordstyle=\bfseries,
-  showstringspaces=false
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{teal}
 }
-\lstset{style=thesiscode}
-\newtcolorbox{algorithmbox}[1][]{colback=gray!4,colframe=black!35,title={#1},fonttitle=\bfseries,breakable,enhanced}
-\sloppy
+
+% ----------------------------
+% Acronyms / Glossary (optional)
+% ----------------------------
+\makeglossaries
+
+% ----------------------------
+% Thesis metadata
+% ----------------------------
+\newcommand{\ThesisTitle}{Lightweight Semantic Structuring of Internship Listings from Web Scraping and JSON Uploads}
+\newcommand{\AuthorName}{Mouad bensaid}
+\newcommand{\DegreeName}{Master of Science}
+\newcommand{\UniversityName}{Your University}
+\newcommand{\DepartmentName}{Your Department}
+\newcommand{\SupervisorName}{Supervisor Name}
+\newcommand{\SubmissionDate}{February 2026}
+
 \begin{document}
-\frontmatter
 \begin{titlepage}
-\centering
-\vspace*{1.0cm}
-{\Large Your University\\[0.25cm]Your Department\par}
-\vspace{2.0cm}
-{\Huge\bfseries Lightweight Semantic Structuring of Internship Listings from Web Scraping and JSON Uploads\par}
-\vspace{1.5cm}
-{\Large Mouad bensaid\par}
-\vspace{0.5cm}
-{\large Master of Science\par}
-\vfill
-{\large Supervisor: Supervisor Name\par}
-\vspace{0.5cm}
-{\large February 2026\par}
+  \centering
+  {\large \UniversityName \par}
+  \vspace{0.5cm}
+  {\normalsize \DepartmentName \par}
+  \vspace{2.0cm}
+  {\LARGE \bfseries \ThesisTitle \par}
+  \vspace{2.0cm}
+  {\large \AuthorName \par}
+  \vspace{0.5cm}
+  {\normalsize \DegreeName \par}
+  \vspace{1.5cm}
+  {\normalsize Supervisor: \SupervisorName \par}
+  \vfill
+  {\normalsize \SubmissionDate \par}
 \end{titlepage}
+
+% ----------------------------
+% Front matter
+% ----------------------------
+\pagenumbering{roman}
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
@@ -77,13 +117,11 @@ La transformation numérique du marché du travail a augmenté le nombre d'offre
 \cleardoublepage
 \phantomsection
 \addcontentsline{toc}{chapter}{Arabic Abstract}
-\begin{RTL}
-{\arabicfont\Huge\bfseries ملخص\par}
+\begin{otherlanguage}{arabic}
+{\Huge\bfseries ملخص\par}
 \vspace{1.5cm}
-{\arabicfont
 أدى التحول الرقمي في سوق العمل إلى زيادة عدد عروض التدريب المنشورة عبر الإنترنت. غير أن هذا التوسع يطرح صعوبات في إدارة البيانات، لأن العروض تكون غالبا غير مهيكلة، وغير متجانسة، وموزعة بين منصات متعددة. تعتمد كثير من أنظمة التوظيف التقليدية على المطابقة اللفظية المباشرة، وهو ما يحد من قدرتها على معالجة الفجوة الدلالية بين مسميات الوظائف، ووصف المهارات، والصيغ المختلفة التي يستعملها أصحاب العمل. وفي المقابل، فإن الاعتماد الواسع على النماذج اللغوية الكبيرة قد يسبب تكلفة مالية وزمنا كبيرا للمعالجة عند التعامل مع تدفق مستمر وكبير من البيانات. يقترح هذا العمل خط معالجة دلاليا خفيفا يهدف إلى تحويل بيانات التدريب غير المنتظمة إلى قاعدة معرفة منظمة وقابلة للبحث. تجمع المنهجية بين الاستخراج الحتمي القائم على القواعد، والنمذجة الخفيفة باستعمال نماذج Transformer مثل DistilBERT، والمواءمة مع تصنيف ESCO المهني، مع استعمال محدود للنماذج اللغوية في الحالات الغامضة فقط. كما يتضمن النظام آلية لإدخال ملفات JSON متعددة البنى اعتمادا على المطابقة التقريبية بين المفاتيح والاستدلال من المحتوى. تحفظ البيانات المعالجة في بنية بحث هجينة تجمع بين PostgreSQL وامتداد pgvector وBM25 والبحث الدلالي باستعمال HNSW. يعتمد التقييم المعروض في هذا البحث على مجموعة بيانات حقيقية تضم 17,500 عرض تدريب. وتشير الأدلة المعروضة إلى أن البحث الهجين يمكن أن يحسن الملاءمة والاسترجاع مقارنة بالبحث المعتمد على الكلمات المفتاحية فقط، مع الحفاظ على بنية عملية قابلة للتشغيل على عتاد عادي. وبذلك تتمثل مساهمة البحث في تقديم إطار عملي لتنظيم عروض التدريب دلاليا، مع تحديد عناصر المقارنة والنشر التي تحتاج إلى استكمال لاحق.
-}
-\end{RTL}
+\end{otherlanguage}
 
 \chapter*{Acknowledgements}
 \addcontentsline{toc}{chapter}{Acknowledgements}
@@ -91,7 +129,10 @@ We would like to express our deepest gratitude to our supervisor, Supervisor Nam
 
 \tableofcontents
 \listoffigures
-\mainmatter
+
+\printglossaries
+\clearpage
+\pagenumbering{arabic}
 \chapter{General Introduction}
 
 \section{Chapter Introduction}
