@@ -1,6 +1,6 @@
 #!/bin/bash
-echo "Pdf"
-pdflatex -output-directory=out main.tex
-bibtex out/main
-pdflatex -output-directory=out main.tex
-pdflatex -output-directory=out main.tex
+echo "Thesis"
+pdflatex -output-directory=out thesis.tex
+bibtex out/thesis
+pdflatex -output-directory=out thesis.tex
+pdflatex -output-directory=out thesis.tex

@@ -1,217 +1,79 @@
-\chapter{Semantic Schema and Label Space}
+\chapter{Discussion, Conclusion, and Future Work}
 
-This chapter defines the internal data model and the controlled vocabularies that are fundamental to transforming raw, heterogeneous internship listings into a structured, interoperable semantic knowledge base. As outlined in the system architecture (Chapter~\ref{ch:methodology}), the core challenge is to unify the disparate language of dozens of source platforms into a single, consistent representation. This chapter first details the formal target schema—the \texttt{Internship} interface—which serves as an enforceable contract for the entire data pipeline. Subsequently, it provides a rigorous justification for the selection of the \textbf{ESCO (European Skills, Competences, Qualifications and Occupations)} taxonomy as the primary reference for mapping both job titles and skills to canonical concepts. Finally, it explains the design and rationale behind a supplementary internal categorization layer, which bridges the gap between ESCO's deep, expert-centric hierarchy and the flatter, more navigable categories required by an end-user interface. Throughout, the design choices adhere to established principles of data integration, semantic modeling, and information extraction, directly addressing the ``semantic gap'' identified in the problem statement (Section~\ref{sec:problem-statement}) \cite{doan2012principles, shvaiko2013ontology, sarawagi2008information}.
+\section{Chapter Introduction}
+This final chapter discusses the meaning and limitations of the reported findings. It examines error sources, trade-offs between accuracy and cost, validity threats, ethical and privacy considerations, and future research directions. The discussion remains bounded by the evidence available in the results chapter and does not treat incomplete comparison scaffolds as established findings.
 
-%=====================================================================
-\section{Target Schema Definition}
-%=====================================================================
+\section{Discussion}
+This chapter discusses the experimental results presented in the results chapter. It analyzes the failure modes of the extraction and classification modules, discusses trade-offs between system accuracy and computational cost, and identifies limitations and threats to validity according to established methodologies for empirical software and NLP evaluation [7, 36].
 
-To achieve a unified and queryable view of the labor market data, the system requires a rigid target schema. This schema must be expressive enough to accommodate the high variability of raw source data—from the semi-structured HTML of web-scraped pages to the arbitrary keys in partner-provided JSON—while simultaneously providing the precise, structured metadata necessary for the hybrid retrieval engine detailed in Chapter~\ref{ch:storage}. The schema is not merely a passive data container but an active, formal contract that guarantees data consistency from the ingestion point to the presentation layer, a critical necessity in complex Information Extraction (IE) systems \cite{sarawagi2008information}.
+\subsection{Error Analysis}
+Although the reported results indicate useful performance across extraction and retrieval tasks, qualitative error analysis remains necessary for understanding the challenges of processing semi-structured job data [44, 50].
 
-%---------------------------------------------------------------------
-\subsection{Structural Requirements}
-%---------------------------------------------------------------------
+\subsubsection{Extraction Failures and Implicit Information}
+The lower recall for lexical skill extraction highlights the challenge of implicit skill requirements. Many job postings omit foundational skills that are assumed for a role. This semantic gap is a known issue in recruitment informatics, where requirements are often latent rather than explicit [17, 41]. In date extraction, errors primarily occurred in rolling recruitment cycles. The regex-based Layer A often failed to normalize these expressions into precise temporal ranges, which is a common limitation of rule-based Information Extraction systems when linguistic variability is high [18].
 
-The schema's design is directly motivated by three primary functional objectives, each of which addresses a key failure mode of ad-hoc data processing:
+\subsubsection{Ambiguity in Semantic Mapping}
+The gap between Top-1 and Top-3 accuracy for title normalization reveals the impact of professional ambiguity. Generic titles lack sufficient semantic density for the bi-encoder to map them to a specific occupation without analyzing the full text body. This challenge of entity resolution and disambiguation is central to modern taxonomy alignment research [56, 45].
 
-\begin{enumerate}
-    \item \textbf{Identity and Provenance:} A persistent challenge in aggregating data from multiple scrape cycles is the creation of duplicate records for the same logical job. To ensure unique identification across ingestion cycles, undamaged by minor textual variations, the schema mandates a deterministic primary key. Furthermore, maintaining a clear link back to the original source (provenance) is essential for auditing extraction quality, managing data staleness, and respecting source-specific policies \cite{christen2012data}.
+\subsection{Trade-offs: Accuracy vs Cost}
+The design of the tiered architecture was motivated by the need to balance performance with operational feasibility, a core principle in Green AI and efficient deep learning [46, 37].
 
-    \item \textbf{Faceted Discovery:} Exploratory search requires the user to narrow down a large corpus based on structured attributes. The schema must provide standardized, faceted labels for key dimensions like high-level job domain (e.g., ``Software,'' ``Design''), geographical location, and a list of extracted, non-redundant skills. This allows for efficient, database-style filtering that complements free-text search, a core component of modern search interfaces \cite{baeza2011modern}.
+\subsubsection{Marginal Accuracy and Operational Cost}
+While Large Language Models (LLMs) offer strong zero-shot capabilities, marginal accuracy gains may come with substantial latency and financial cost [20, 3]. By delegating most of the workload to local, small-scale models, the system aims to maintain usable accuracy while reducing reliance on external APIs [37].
 
-    \item \textbf{Semantic Enrichment for Non-Lexical Search:} To bridge the ``vocabulary gap'' between user queries and employer terminology, the schema must store the outputs of the semantic pipeline. This includes high-dimensional dense vector embeddings, which capture the latent meaning of the job description, and a canonical job title mapped to a standard taxonomy. These fields are the raw material for the semantic, vector-based search path described in Chapter~\ref{ch:background-retrieval}, enabling the system to match a query for ``C++ Intern'' with a listing titled ``Systems Software Trainee'' \cite{reimers2019sentence, lin2021pretrained}.
-\end{enumerate}
+\subsubsection{Latency and User Experience}
+The reported search latency of 45 ms supports a responsive user interface. A system relying on real-time LLM inference for search-time semantic expansion would likely exceed common thresholds for interactive systems [7]. The use of pre-computed HNSW indices and RRF-based fusion is intended to deliver semantic results with efficiency close to traditional lexical search [35, 10].
 
-%---------------------------------------------------------------------
-\subsection{The Internship Interface: A Formal Semantic Contract}
-\label{sec:internship-interface}
-%---------------------------------------------------------------------
+\subsection{Threats to Validity}
+Several factors may affect the generalizability and robustness of this study, as is common in Information Retrieval and machine learning research [36, 51].
 
-The abstract structural requirements are concretely implemented as a TypeScript \texttt{interface}, serving as the foundational blueprint for both the relational database (Chapter~\ref{ch:storage}) and the frontend presentation layer. This formalization in a strongly-typed language is a deliberate engineering choice to enforce compile-time and runtime data integrity. By defining a canonical \texttt{Internship} type, we ensure that every module—from the regex-based salary parser to the React search result card—operates on a shared, unambiguous definition of the data entity. Any deviation from this contract, such as a missing field or incorrect type, will immediately raise an error during development or testing, preventing subtle data corruption from propagating through the pipeline. This practice is a cornerstone of robust, maintainable IE pipelines \cite{sarawagi2008information}.
+\subsubsection{Internal Validity: Annotation Bias}
+The evaluation relies on an expert-annotated reference set. Although inter-annotator agreement was reported as high, subjectivity in labeling relevant skills remains a threat, which is a known challenge in creating benchmarks for specialized domains [26, 51].
 
-The key fields of the \texttt{Internship} interface are structured as follows:
+\subsubsection{External Validity: Generalizability}
+The dataset is primarily focused on technology and business sectors within North American and European contexts and is shaped by the ESCO framework. The effectiveness of the system may decrease when applied to different linguistic domains or regions with different occupational structures [28].
 
-\begin{itemize}
-    \item \textbf{Core Identity \& Provenance:}
-    \begin{itemize}
-        \item \texttt{id: string} — A deterministic, unique, URL-safe slug generated from the normalized company name and job title (e.g., \texttt{software-engineer-intern-acme-corp}). This acts as the primary key and a blocking key for deduplication \cite{christen2012data}.
-        \item \texttt{sourceUrl: string} — The original URL from which the listing was scraped or the identifier of the JSON upload, ensuring complete traceability.
-    \end{itemize}
+\subsubsection{Construct Validity: Metric Selection}
+The study uses standard IR metrics such as MAP and NDCG. However, these metrics do not always correlate directly with real-world user satisfaction in job discovery, where factors such as freshness and company reputation may also play important roles [2, 29].
 
-    \item \textbf{Faceted Discovery Attributes:}
-    \begin{itemize}
-        \item \texttt{category: string} — A single, high-level domain category from a controlled vocabulary (e.g., \texttt{"Data/AI"}), enabling top-level filtering.
-        \item \texttt{skills: string[]} — A list of extracted, distinct skill tags (e.g., \texttt{["Python", "Machine Learning"]}) used for filtering by competency.
-        \item \texttt{location: string} — A normalized and cleaned location string (e.g., \texttt{"Paris, France"}) for geographical filtering.
-        \item \texttt{salaryMin?: number} and \texttt{salaryMax?: number} — Parsed numeric salary boundaries, allowing for range queries, a highly desired feature for job seekers.
-    \end{itemize}
 
-    \item \textbf{Semantic Enrichment Fields:}
-    \begin{itemize}
-        \item \texttt{canonicalTitle: string} — The job title mapped to a specific ESCO occupation label (e.g., \texttt{"software developer"}), bridging the semantic gap.
-        \item \texttt{embedding: number[]} — A pre-computed high-dimensional vector (e.g., 384-dimensional) representing the semantic content of the full listing, generated by a Sentence-BERT model. This is the core data structure for Approximate Nearest Neighbor (ANN) search \cite{malkov2018efficient, reimers2019sentence}.
-        \item \texttt{rawTitle: string} and \texttt{rawDescription: string} — The cleaned, but not taxonomized, original text fields. These are preserved for lexical search (BM25) and for display purposes, providing transparency to the end-user.
-    \end{itemize}
+
+\section{Ethical, Legal, and Privacy Considerations}
+This section is retained as a completion scaffold because the original thesis structure listed ethical, legal, and privacy considerations, but the original body did not provide a complete standalone chapter for them. The final version should fill this section with the exact institutional, legal, and data-protection requirements that apply to the deployment context. Until those details are supplied, this section should not be read as an evaluated result.
+
+\section{Conclusion and Future Work}
+This thesis has presented an approach to the lightweight semantic structuring of internship listings, addressing the challenges of high-volume, noisy recruitment data. By combining rule-based extraction with small-scale Transformer models, the work shows how a structured knowledge base can be built while reducing dependence on costly and latency-prone LLM-based processing, consistent with the direction of sustainable and efficient AI [46, 37].
+
+\subsection{Summary of Findings}
+The reported experimental results support the central hypothesis that a tiered, hybrid architecture can improve semantic alignment while remaining computationally feasible for practical deployment. The key findings are summarized as follows:
+
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\item Efficiency and Scalability: The reported throughput suggests that the system can support frequent updates on commodity hardware, supporting the responsiveness required for interactive applications [7, 25].
+
+\item Extraction Accuracy: Deterministic fields were extracted with high reported precision, while semantic mapping of job roles achieved high reported Top-3 accuracy using lightweight bi-encoders.
+
+\item Search Relevance: The hybrid retrieval strategy reportedly outperformed keyword-only search for conceptual queries in the recruitment domain [51, 34].
+
+\item Operational Cost: By using local models for most processing, the system reduces reliance on external APIs and remains consistent with principles of Knowledge Distillation and efficient inference [20, 37].
+
 \end{itemize}
+\subsection{Future Directions}
+While the current system provides a foundation for internship analytics, several areas remain for future exploration and improvement [50, 29].
 
-\begin{figure}[htbp]
-    \centering
-    \begin{verbatim}
-interface Internship {
-  // Core Identity & Provenance
-  id: string;
-  sourceUrl: string;
+\subsubsection{Multilingual Extraction}
+A primary limitation is the current focus on English-language listings. Expanding the pipeline to support multilingual extraction using cross-lingual models would be essential for a truly global internship platform, leveraging the multilingual definitions in the ESCO framework [32].
 
-  // Faceted Discovery Attributes
-  category: string;
-  skills: string[];
-  location: string;
-  salaryMin?: number;
-  salaryMax?: number;
+\subsubsection{Better Section Segmentation}
+Future work could employ more specialized models to segment job postings into structured blocks such as ``Responsibilities'' and ``Benefits.'' This would allow more granular skill weighting and better context-aware matching [41, 4].
 
-  // Semantic Enrichment Fields
-  canonicalTitle: string;
-  embedding: number[];
+\subsubsection{Self-training and Distillation}
+A future extension could implement a continuous self-training loop in which high-confidence labels generated by larger models are used to periodically fine-tune local models. This distillation process would allow the lightweight components to improve gradually without inheriting high latency [20].
 
-  // Original (Cleaned) Text
-  rawTitle: string;
-  rawDescription: string;
-  company: string;
-  postedDate: Date;
-}
-    \end{verbatim}
-    \caption{The formal \texttt{Internship} interface in TypeScript, serving as the semantic contract for the entire data pipeline.}
-    \label{fig:internship-interface}
-\end{figure}
+\subsubsection{Continuous Monitoring for Taxonomy Drift}
+The technical landscape is in constant flux, with new frameworks and job roles emerging frequently. Implementing automated ``drift detection'' would allow the system's semantic schema to stay up-to-date with minimal manual effort, addressing the challenges of ontology evolution in the labor market [48, 49].
 
-%=====================================================================
-\section{Taxonomy Selection: The ESCO Framework}
-\label{sec:esco-framework}
-%=====================================================================
 
-A central scientific goal of this research is to map the idiosyncratic and non-standard job titles from thousands of employers to a standardized, comprehensive professional taxonomy. This mapping is the primary mechanism for resolving the semantic gap. After a review of available frameworks, including O*NET \cite{peterson2001occupational}, we selected the \textbf{ESCO (European Skills, Competences, Qualifications and Occupations)} framework as the primary label space for this system. This decision is based on three critical factors: its direct alignment with the European labor market context, its rich multilingual coverage, and its clear, formal separation of occupations and skills into distinct, interlinked pillars.
-
-%---------------------------------------------------------------------
-\subsection{Occupations Pillar}
-\label{sec:esco-occupations}
-%---------------------------------------------------------------------
-
-ESCO organizes occupations into a four-level hierarchical structure. For the purpose of this system, we focus on the ``Level 4'' unit groups. Level 3 groups, like ``Software and Applications Developers and Analysts,'' are too broad to be useful for differentiating a front-end intern from a data engineering intern. Level 4 provides the necessary granularity, with distinct concepts for ``Web Developer,'' ``Software Developer,'' and ``Systems Analyst,'' among others. This level strikes an optimal balance between the specificity needed for accurate retrieval and the generalizability required to map thousands of varying raw titles into a manageable target space.
-
-This granularity at Level 4 is essential because it allows the system to disambiguate roles that a coarser taxonomy would conflate. For instance, a ``Python Developer'' working on web applications, a ``Machine Learning Engineer'' building models, and a ``DevOps Engineer'' managing infrastructure might all be tagged as ``Software Developer'' at Level 2 or 3. At Level 4, however, they are mapped to distinct unit groups (\textit{Software Developer}, \textit{Data Scientist}, and \textit{Systems Administrator}, respectively), enabling precise faceted filtering and significantly improving retrieval precision. This approach is consistent with other labor market analysis frameworks, such as O*NET's Standard Occupational Classification (SOC) coding, making our research comparable and interoperable with a wider body of work \cite{peterson2001occupational}. The \texttt{canonicalTitle} field in our schema is explicitly designed to hold a Level 4 ESCO preferred label.
-
-%---------------------------------------------------------------------
-\subsection{Skills and Competences Pillar}
-\label{sec:esco-skills}
-%---------------------------------------------------------------------
-
-The skill lexicon used in the extraction phase (detailed in Chapter~\ref{ch:enrichment-pipeline}) is grounded in the ESCO Skills pillar and is expanded with a curated set of common industry synonyms. ESCO's skill model is inherently linked to its occupations model, defining the essential and optional knowledge, skills, and competences for each job profile. By using ESCO as a reference, the system actively combats the ``vocabulary gap'' where different employers use divergent terms for the same competency.
-
-This ground-truth linking is a foundational step for a recommendation system that can accurately connect student skills to job requirements, a known challenge in recruitment informatics \cite{giabelli2021skills, lacic2020recommender}. The lexicon is not static; it is designed to be periodically updated to incorporate emerging technologies (e.g., new JavaScript frameworks, AI/ML libraries) as they gain traction in the labor market. This maintenance process is essential for building and sustaining a reliable, long-term knowledge base.
-
-%=====================================================================
-\section{Internal Categorization and Mapping}
-\label{sec:internal-categorization}
-%=====================================================================
-
-While ESCO provides the granular, canonical depth required for semantic precision, it is not directly suitable for the top-level user interface. A student browsing for an internship will not search for ``ESCO Occupation 2512,'' and a hierarchical tree of hundreds of four-level occupations is overwhelming for exploratory browsing. Therefore, we introduce a supplementary internal categorization layer: a flatter, more intuitive set of high-level categories designed to facilitate efficient initial browsing and provide a stable foundation for faceted filtering \cite{faliagka2012online}.
-
-%---------------------------------------------------------------------
-\subsection{Domain-Specific Categories}
-\label{sec:domain-categories}
-%---------------------------------------------------------------------
-
-We define a set of five top-level categories that empirically reflect the distribution and concentration of the current internship market, particularly within the tech and business sectors that dominate our initial dataset. These categories are designed to be mutually exclusive, collectively exhaustive for the target domain, and immediately understandable by a student user.
-
-\begin{itemize}
-    \item \textbf{Software:} Encompasses web development, mobile engineering, backend/infrastructure systems, DevOps, and quality assurance. This is a high-volume category that benefits significantly from sub-filtering by extracted skills.
-
-    \item \textbf{Data/AI:} Includes data science, machine learning, big data analytics, artificial intelligence research, and business intelligence. This category differentiates itself from general ``Software'' by its primary focus on statistical modeling, data pipelines, and algorithmic development rather than application engineering.
-
-    \item \textbf{Design:} Covers UI/UX design, graphic design, product design, human-computer interaction, and visual communication. This captures roles where the primary competency is not code but visual, interaction, and user-research skills.
-
-    \item \textbf{Healthcare:} Specialized roles in pharmacy, medicine, medical research, public health, and health technology. This category is crucial for attracting students from non-engineering disciplines and demonstrates the system's extensibility beyond pure tech domains.
-
-    \item \textbf{Business:} A broad category encompassing marketing, management, finance, human resources, consulting, and operations. This acts as a catch-all for the large volume of professional services internships that co-exist with technical roles on most job platforms.
-\end{itemize}
-
-This restricted, curated set ensures that the top-level facet in the UI is clean, scannable, and presents a meaningful choice architecture to the end-user.
-
-%---------------------------------------------------------------------
-\subsection{Heuristic Mapping Logic}
-\label{sec:heuristic-mapping}
-%---------------------------------------------------------------------
-
-To bridge the gap between raw (and subsequently ESCO-normalized) titles and these high-level categories, the system utilizes a keyword-based anchor strategy. This serves as an efficient and perfectly explainable first layer of the semantic pipeline within the \texttt{categorizeJob} function, as detailed in Section~\ref{sec:pipeline-enrichment}. This rule-based engine evaluates the job title and, with lower priority, the skills list against a prioritized tree of professional ``anchors.'' The evaluation proceeds in a strict priority order, from the most specific and semantically dense signals to the most general, ensuring that a ``Machine Learning Engineer'' is classified as \textbf{Data/AI} rather than the more generic \textbf{Software}.
-
-The algorithmic logic for this heuristic classification is formalized in Algorithm~\ref{alg:categorization}.
-
-\begin{algorithm}[htbp]
-\caption{Heuristic Domain Categorization}
-\label{alg:categorization}
-\begin{algorithmic}[1]
-\Procedure{CategorizeJob}{$\mathit{title}, \mathit{skills}$}
-    \State $\mathit{titleLower} \gets \text{normalize}(\mathit{title})$
-    \State $\mathit{skillsLower} \gets \text{normalize}(\mathit{skills})$
-
-    \If{$\text{containsAny}(\mathit{titleLower}, [\text{``data sci''}, \text{``machine learn''}, \text{``deep learn''}, \text{``ai eng''}])$}
-        \State \Return $\text{``Data/AI''}$
-    \EndIf
-
-    \If{$\text{containsAny}(\mathit{titleLower}, [\text{``frontend''}, \text{``backend''}, \text{``full stack''}, \text{``software''}, \text{``devops''}, \text{``mobile dev''}])$}
-        \State \Return $\text{``Software''}$
-    \EndIf
-
-    \If{$\text{containsAny}(\mathit{titleLower}, [\text{``ux''}, \text{``ui''}, \text{``designer''}, \text{``graphic''}, \text{``product design''}])$}
-        \State \Return $\text{``Design''}$
-    \EndIf
-
-    \If{$\text{containsAny}(\mathit{titleLower}, [\text{``nurse''}, \text{``pharma''}, \text{``clinical''}, \text{``medical''}, \text{``healthcare''}])$}
-        \State \Return $\text{``Healthcare''}$
-    \EndIf
-
-    \If{$\text{containsAny}(\mathit{titleLower}, [\text{``market''}, \text{``financ''}, \text{``hr''}, \text{``human res''}, \text{``consult''}, \text{``sales''}])$}
-        \State \Return $\text{``Business''}$
-    \EndIf
-
-    \State \Return $\text{``Business''}$ \Comment{Default fallback category}
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
-
-This heuristic approach, while simple, is highly effective for classification tasks in production environments where speed, transparency, and debuggability are paramount \cite{boselli2018classifying}. It provides a stable, predictable taxonomy browser with perfect consistency and zero inference latency. Furthermore, its deterministic nature means its outputs serve as a reliable fallback mechanism for cases where the subsequent embedding-based semantic mapping (Layer B in Chapter~\ref{ch:enrichment-pipeline}) may have low confidence, ensuring that every listing is guaranteed at least one high-level category for filtering and browsing.
-
-%=====================================================================
-\section{Addressing the Semantic Gap}
-\label{sec:addressing-semantic-gap}
-%=====================================================================
-
-The chosen label space—a deliberate, two-tier combination of the deep ESCO taxonomy and a shallow internal categorical layer—constitutes a direct architectural response to the ``semantic gap'' described in Chapters~\ref{ch:background-ie} and~\ref{ch:background-retrieval}. This gap, the conceptual distance between a user's search language and an employer's job-posting language, is the root cause of poor recall in traditional lexical search systems.
-
-Our architecture addresses this gap on two distinct but complementary levels, as visualized in Figure~\ref{fig:semantic-gap-bridge}.
-
-\begin{figure}[htbp]
-    \centering
-% Placeholder for a conceptual diagram
-    \fbox{\begin{minipage}{0.85\textwidth}
-              \vspace{0.5cm}
-              \begin{center}
-                  \textbf{Two-Tier Bridging of the Semantic Gap}
-              \end{center}
-
-              \small
-              \begin{itemize}
-                  \item \textbf{Tier 1 — ESCO Taxonomy Mapping:} Transforms idiosyncratic raw titles (e.g., ``Code Wizard'', ``Frontend Guru'') into canonical Level 4 ESCO occupations (e.g., ``Software Developer''). This moves the data from an inconsistent lexical space to a stable, shared conceptual space.
-                  \item \textbf{Tier 2 — Internal Categorization:} Compresses the rich, expert-centric ESCO hierarchy into a small set of human-friendly, high-level categories (e.g., ``Software'', ``Data/AI'') suitable for faceted browsing in the UI.
-              \end{itemize}
-              \vspace{0.5cm}
-    \end{minipage}}
-    \caption{Conceptual model of how the two-tier label space bridges the semantic gap between raw employer language and user search intent.}
-    \label{fig:semantic-gap-bridge}
-\end{figure}
-
-First, the ESCO mapping moves the data from a space of inconsistent lexical tokens—where a ``Code Wizard'' and a ``Frontend Guru'' are infinitely distant—to a space of conceptual entities, placing them within the semantic neighborhood of the canonical concept ``Web Developer.'' This is a transformation from a discrete, sparse keyword space to a continuous, dense semantic space where proximity represents conceptual similarity.
-
-Second, the internal categories compress this rich ESCO space into a human-friendly navigation schema. By defining the target schema around these canonical identifiers (ESCO labels) and category labels rather than raw, ambiguous strings, we prepare the data for a genuinely hybrid search experience. In the architecture detailed in Chapter~\ref{ch:storage}, user queries are matched not only on shared text against an inverted index (the lexical path) but also on their geometric proximity within a defined semantic vector space (the semantic path). This dual-path approach directly solves the vocabulary mismatch problem: a student searching for ``C++ programming internship'' will find roles titled ``Systems Software Intern'' or ``Embedded C/C++ Developer'' because their ESCO-normalized canonical representations and dense vector embeddings are semantically proximate, even if they share few or no keywords \cite{lin2021pretrained, reimers2019sentence}.
-
-In summary, the semantic schema and label space defined in this chapter provide the foundational data infrastructure upon which the extraction pipeline (Chapter~\ref{ch:enrichment-pipeline}), the retrieval engine (Chapter~\ref{ch:storage}), and ultimately the entire user-facing application are built. The next chapter will detail the computational pipeline that operationalizes this schema, transforming raw, noisy text into the structured, semantically rich \texttt{Internship} objects defined here.
+\section{Chapter Conclusion}
+This chapter has interpreted the reported findings, identified the principal error sources and validity threats, and outlined future work required to strengthen the platform. The thesis concludes that the proposed lightweight semantic pipeline is a practical direction for organizing internship listings, provided that the final comparative evaluation is completed with measured ranking, latency, cost, and external-platform evidence.

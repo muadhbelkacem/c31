@@ -1,99 +1,89 @@
-\chapter{Data Collection and Preprocessing}
-\label{chap:data_collection}
+\chapter{Results and Comparative Evaluation}
 
-This chapter details the implementation of the data acquisition, sanitization, and enrichment pipeline, forming the critical first computational tier of the system. As established in the system overview (Chapter 5), the primary challenge addressed here is the ingestion of raw, heterogeneous internship listings and their transformation into a consistent, structured format. This processed output serves as the essential foundation upon which the semantic enrichment (Chapter 8) and hybrid retrieval (Chapter 9) engines are built. The pipeline must be robust against the "data noisiness" inherent in web-sourced content \cite{chu2016data} and flexible enough to handle the "data deluge" of high-volume, multi-source inputs \cite{kurekova2015using}, all while adhering to the "lightweight" and cost-effective design philosophy central to this thesis \cite{schwartz2020green}. We begin by detailing the initial ingestion mechanism, then proceed through the layers of deterministic preprocessing, and finally describe the heuristic enrichment strategies that provide immediate, low-cost structure to the data.
+\section{Chapter Introduction}
+This chapter presents the reported evaluation evidence and explains how the remaining comparative analysis must be completed. It separates measured or reported findings from completion instructions so that the thesis does not claim results that have not yet been produced. The chapter also adds explicit guidance for HR@k and NDCG@k evaluation, because these ranking metrics are necessary for a defensible retrieval-comparison section.
 
-\section{Data Ingestion Pipeline}
-\label{sec:ingestion}
+\section{Reported Experimental Results}
+This chapter presents the reported evaluation findings using two sources of evidence: the internships.click extraction output and a multi-site job-search simulation. It summarizes the performance of the extraction and classification modules, discusses retrieval quality, and analyzes the system's operational efficiency. Because the available evidence is partly narrative and not accompanied by complete benchmark tables, the findings are interpreted as reported experimental evidence rather than as a fully reproducible external-platform benchmark. The chapter is organized as follows:
 
-The ingestion pipeline is the system's entry point for all internship data, designed as an asynchronous, non-blocking process to ensure the main application loop remains responsive. Its core function is to safely acquire raw data from the local JSON repository, validate its structural integrity, and parse it into the system's canonical format. This process directly addresses the "schema-on-read" challenge common in integrating semi-structured web data, where different sources may use different keys for the same concept \cite{doan2012principles}.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{uml/sequenceDiagramInternshipsFetcher.png}
-    \caption{UML Sequence Diagram: Data Ingestion and Safety Validation. The diagram illustrates the flow from the asynchronous file read through structural validation to the final caching of parsed \texttt{Internship} objects.}
-    \label{fig:ingestion_sequence}
-\end{figure}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
-\begin{itemize}
-    \item \textbf{Source Acquisition:} The primary static catalog is persisted in \texttt{public/intern\_data.json}. The \texttt{getInternships()} function utilizes the Node.js \texttt{fs.promises} API for asynchronous file reading. This non-blocking I/O model is crucial for a system that must serve user requests without stalling on file system access, a fundamental principle in building responsive server-side applications. This single-file approach for the core catalog is intentional, allowing for simple version control and rapid deployment without the operational overhead of a database for static, read-heavy data.
+\item The extraction-results subsection reports on Layer A parsing of structured fields from the internships.click dataset.
 
-    \item \textbf{Initial Validation (Layer 0):} Before any parsing logic is applied, the system performs rigorous "sanity checks" on the raw file content. This pre-validation "Layer 0" is a critical defensive programming strategy in automated data pipelines \cite{chu2016data}. It checks for structural integrity, such as verifying the file is not empty, confirming the top-level structure is a JSON array, and ensuring that essential keys exist in a representative sample of objects. By failing fast at this stage, the system prevents corrupted data from propagating into downstream processes like enrichment and indexing, which could lead to cascading errors and require expensive cache invalidations. Any records failing this preliminary schema validation are logged with detailed error context and quarantined in a separate log file for administrative review, effectively creating a feedback loop for data quality monitoring, a key requirement for the System Administrator actor identified in Section 5.1.
+\item The classification-results subsection evaluates semantic mapping from raw job titles to canonical roles.
 
-    \item \textbf{Structural Parsing:} Upon passing validation, the content is parsed into an array of TypeScript \texttt{Internship} interfaces. This parsing is not merely a JSON decode; it is an enforced type assertion against the target schema defined in Chapter 7. TypeScript's compile-time and runtime checks (via custom type guards) ensure that each object conforms to the expected shape, providing a rigid first pass at structural normalization and establishing a "semantic contract" between the raw data and the rest of the application \cite{sarawagi2008information}. This formalization is the critical first step in guaranteeing that every component, from the regex-based salary parser to the React search card, operates on a shared, unambiguous definition of an "Internship."
+\item The retrieval-results subsection analyzes aggregation performance across multiple job platforms.
+
+\item The efficiency-and-cost subsection examines the operational implications of the tiered architecture.
+
 \end{itemize}
+\subsection{Extraction Results}
+The first stage of evaluation used the internships.click output dataset, where job fields such as company, location, and salary were often embedded within a single raw text block, for example ``Matrox Graphics Inc Dorval \$95K - \$124K.'' The reported results indicate that the rule-based Layer A reached 98\% precision for compensation extraction, identifying patterns such as ``\$95K - \$124K'' and ``\$23.00/hour.'' Recall for explicit location fields was lower, reported at 76\%, when geographic markers were ambiguous within the title string. These findings suggest that deterministic patterns are stable for highly regular fields [44], while semantic fallback is still required for higher coverage.
 
-\section{Preprocessing and Sanitization}
-\label{sec:preprocessing}
+\subsection{Classification Results}
+Layer B was evaluated by its ability to normalize raw titles from the internships.click data, such as ``Spring 2026 Electronics Software Development Intern (MS),'' into canonical occupations. The reported Top-3 accuracy was 91\%. The qualitative analysis indicates that, even when the exact label was missed, the bi-encoder architecture [42] often mapped roles to the appropriate professional family, such as mapping ``General Software Developer Intern- Humanoid Robot'' to ``Software Engineer.'' This result indicates an improvement over keyword matching for titles with diverse employer-specific phrasing.
 
-Raw data obtained from web scraping is inherently noisy, containing inconsistent formatting, "boilerplate" text, and various presentation artifacts that are irrelevant to the semantic content. This layer, Layer A in our tiered architecture, applies a series of deterministic, rule-based sanitization functions. These functions are designed to be computationally inexpensive, predictable, and perfectly debuggable, aligning with our goal of maximizing efficiency for high-volume, high-confidence tasks \cite{christen2012data}.
+\subsection{Retrieval Results}
+Retrieval quality was assessed using the multi-site job simulation, which aggregated results across four platforms: We Work Remotely, Palantir (Lever), Saronic (Lever), and Box (Greenhouse). The reported simulation included 416 unique listings across five search categories: Software, AI, Data, Web, and Developer. The integration of dense embeddings allowed the system to retrieve relevant results even when keyword overlap was limited, such as retrieving ``Forward Deployed AI Engineer'' roles for ``Software'' queries. The reported comparison indicates a +22\% gain in P@5 relative to lexical-only baselines, although the final thesis still requires the complete query set and relevance judgments for full reproducibility.
 
-\begin{itemize}
-    \item \textbf{Field Normalization:} Functions like \texttt{cleanTitle} and \texttt{cleanLocation} perform foundational normalization. The process involves:
-    \begin{enumerate}
-        \item \textbf{Text Normalization:} Transforming text into a standardized canonical form by lowercasing all characters, collapsing multiple whitespace characters into a single space, and trimming leading/trailing whitespace. This directly reduces surface-form variance, a critical prerequisite for reliable downstream matching \cite{chu2016data}.
-        \item \textbf{HTML Artifact Stripping:} Web-scraped text frequently contains residual HTML entities (e.g., \texttt{\&amp;}, \texttt{\&lt;}) and inline tags. A series of regular expression substitutions are applied to convert common entities to their unicode equivalents and remove any remaining tag structures.
-        \item \textbf{Specific Normalizations:} For locations, abbreviations are expanded (e.g., "St." to "Street"), and common variations are standardized ("NYC" to "New York"). For titles, irrelevant prefixes like "Urgent:" or "Hot Job:" are stripped to leave the core semantic title. This step ensures that the text is ready for the tokenization and NLP tasks that follow \cite{manning2008introduction}.
-    \end{enumerate}
+\subsection{Student Procedure for HR@k and NDCG@k Analysis}
+The final version of this chapter must include a reproducible retrieval-ranking evaluation. Students should complete this part as a measured experiment, not as a narrative comparison. The following procedure should be followed before inserting numerical values in the thesis:
 
-    \item \textbf{Salary Extraction:} The \texttt{cleanSalary} function is a prime example of a high-precision, deterministic extraction module that operates with zero inference cost. It employs a tiered set of regular expressions to parse the highly variable salary information found in free text \cite{sarawagi2008information}:
-    \begin{enumerate}
-        \item \textbf{Pattern Identification:} The first tier identifies the presence of standard patterns, such as an hourly rate (e.g., "\$15 - \$20 / hr"), an annual salary (e.g., "\$70k - \$90k"), or a single value (e.g., "Up to \$50/hr").
-        \item \textbf{Numeric Extraction:} Once a pattern is detected, a second tier extracts the numeric entities, stripping non-numeric characters like \texttt{\$} and \texttt{k}/\texttt{K}, and correctly interpreting the \texttt{k} suffix as a multiplication factor.
-        \item \textbf{Structuring and Validation:} The extracted numbers are then mapped to the structured \texttt{salaryMin} and \texttt{salaryMax} fields in the \texttt{Internship} interface. A heuristic validation filter is applied, rejecting results that fall outside a plausible range (e.g., a salary of \$0 or \$5,000,000 per year), ensuring a baseline of data integrity.
-    \end{enumerate}
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
 
-    \item \textbf{Description Cleaning:} The free-text job description often contains the most noise and the most semantic value. The \texttt{cleanDescription} function is more aggressive in its sanitization. Beyond basic normalization, it removes "whitespace bloat" (long sequences of newlines or tabs) and common boilerplate sentences (e.g., "We are an equal opportunity employer\ldots"). The goal is to maximize the signal-to-noise ratio for downstream lexical and semantic analysis, ensuring the subsequent tokenization and vectorization processes operate on the cleanest possible representation of the job's true requirements \cite{chu2016data, manning2008introduction}.
-\end{itemize}
+\item Freeze the query set before running the comparison. The same queries must be used for the proposed system, the keyword-only baseline, and any external platform included in the comparative analysis.
 
-\section{Data Enrichment and Categorization}
-\label{sec:enrichment}
+\item For each query and each system, export the top 10 results with rank, title, company, source platform, URL, retrieval score if available, and the date on which the result was captured.
 
-Following sanitization, the system enriches the listing with derived metadata. These enrichment steps create the structured fields that power the faceted filtering and deduplication described in the system's functional requirements. While simple, these heuristic methods provide a high-utility baseline that eliminates the need for more complex processing in the majority of cases \cite{boselli2018classifying}.
+\item Judge each query-result pair using the same relevance scale. A practical three-level scale is 0 for not relevant, 1 for partially relevant, and 2 for highly relevant. The criteria must be written before scoring begins.
 
-\subsection{Stable Identifier Generation and Collision Handling}
-\label{subsec:stable_id}
+\item Convert the judged lists into ranking metrics. HR@5 and HR@10 should record whether at least one relevant result appears in the first 5 or 10 results. NDCG@10 should use the graded relevance labels, so that highly relevant results placed near the top receive more credit than weakly relevant or lower-ranked results.
 
-To ensure persistent, unique referencing across multiple ingestion cycles and to enable effective duplicate detection, the \texttt{generateId} function creates a deterministic, URL-friendly slug. This process is foundational for the data curation strategy and works as follows:
+\item Report the mean value of each metric across the complete query set. Do not compare systems on different query sets, different capture dates, or incomplete result lists.
 
-\begin{enumerate}
-    \item \textbf{Slugification:} A dedicated helper function converts a given string (e.g., a company name or job title) to lowercase, replaces any sequence of non-alphanumeric characters with a single hyphen, and removes leading/trailing hyphens.
-    \item \textbf{Concatenation:} The canonical ID is formed by concatenating the slugified title and slugified company name, separated by a hyphen.
-    \item \textbf{Deterministic Blocking:} This generated ID serves as a perfect blocking key for record linkage \cite{christen2012data}. In the context of deduplication, if a newly ingested listing generates an ID that already exists in the catalog, it is a strong signal of a duplicate. The system can then either skip the record or, for a more nuanced approach, apply a heuristic to select the "golden record" based on completeness or source authority \cite{elmagarmid2007duplicate}. This method of deterministic blocking is exceptionally efficient, limiting computationally expensive pairwise comparisons to the small blocks where a collision occurs.
+\item Insert screenshots only as qualitative evidence. Screenshots should support the numerical table; they should not replace HR@k, NDCG@k, MRR, MAP, or Precision@k.
+
 \end{enumerate}
 
-This approach is not merely a technical convenience but a core architectural decision. It directly addresses the deduplication and canonicalization challenges described in Section 2.4, providing a robust, explainable, and low-cost strategy for maintaining a clean search index for the end-user.
+The table below is a completion template. It must remain empty or marked as not measured until the students compute the values from the frozen query set and relevance judgments.
 
-\subsection{Keyword-Based Categorization}
-\label{subsec:categorization}
+\begingroup
+\small
+\begin{longtable}{p{0.18\textwidth}p{0.18\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.09\textwidth}}
+\caption{Template for retrieval-ranking metrics to be completed with measured evidence.}\\
+\toprule
+\textbf{System} & \textbf{Query group} & \textbf{HR@5} & \textbf{HR@10} & \textbf{MRR} & \textbf{MAP} & \textbf{NDCG}\newline\textbf{@10}\\
+\midrule
+Proposed hybrid system & To be measured & -- & -- & -- & -- & --\\
+Keyword-only baseline & To be measured & -- & -- & -- & -- & --\\
+External platform comparison & To be measured & -- & -- & -- & -- & --\\
+\bottomrule
+\end{longtable}
+\endgroup
 
-The \texttt{categorizeJob} function provides an immediate, high-level domain classification by applying a set of keyword-anchored heuristics. This maps the (now normalized) job title to a predefined set of top-level categories, such as \texttt{Software}, \texttt{Data/AI}, \texttt{Design}, \texttt{Healthcare}, and \texttt{Business}, as defined in Chapter 7's internal label space.
+\subsection{Efficiency and Cost}
+The computational metrics from the multi-site simulation provide evidence for the feasibility of the tiered pipeline. The reported configuration used Layer B for 95.4\% of the 416 simulated listings and reserved Layer C for the most ambiguous cases. Under this reported configuration, LLM API cost was reduced by 92\% relative to an LLM-only approach. This evidence supports the Green AI [46] objective of reducing unnecessary model calls while maintaining usable extraction and classification quality.
 
-The function evaluates the job title against a hierarchy of professional "anchors." For instance, if the title contains "Software," "Frontend," "Backend," or "Full Stack," it is immediately classified as \texttt{Software}. The evaluation proceeds in a priority order from most specific to most general. This simple, rule-based approach is highly effective for faceted filtering in the user interface \cite{boselli2018classifying}, providing a stable and predictable taxonomy browser that performs with perfect consistency and zero latency. It serves as a critical fallback mechanism for cases where the subsequent Layer B semantic mapping may have low confidence, ensuring that every listing has at least one high-level category for filtering.
 
-\subsection{Skill Extraction}
-\label{subsec:skill_extraction}
 
-The system's initial layer of skill extraction, implemented in the \texttt{extractSkills} function, uses a dictionary-based approach, also known as gazetteer matching \cite{grishman2015information, nadeau2007survey}. It matches text against a carefully curated, case-insensitive lexicon of technical skills grounded in the ESCO framework and expanded with common industry synonyms.
+\section{Comparison with Other Platforms and Baselines}
+This section is retained as an organizational scaffold for the final thesis. The original thesis discusses the need to compare keyword-based search, LLM-dependent processing, general recruitment platforms, and university career portals, but it does not provide an independently measured external-platform benchmark. Therefore, the comparison below does not introduce new empirical findings; it records what evidence must be inserted when the student completes the evaluation.
 
-\begin{itemize}
-    \item \textbf{Precision and Efficiency:} This method offers extremely high precision for the terms in its lexicon. It will identify "Python" or "AWS" with near-perfect accuracy. Furthermore, it is computationally efficient, requiring only a single pass over the text using standard data structures, contributing zero latency to the ingestion pipeline.
-    \item \textbf{Density Control:} To mitigate the risk of "keyword stuffing" and to surface the most relevant skills, the system implements a density control mechanism. It ranks matched skills not only by presence but by frequency and, crucially, by the number of unique other skills mentioned. A job description that mentions 20 technologies once each is, in our heuristic, a more broadly skilled role than one that mentions "Java" 50 times. This provides a more nuanced signal for subsequent matching and search ranking \cite{sarawagi2008information}.
-    \item \textbf{Limitation and Role in Tiered Strategy:} The lexicon's inherent limitation is its inability to detect novel or unlisted skills (e.g., a new JavaScript framework) or skills expressed through paraphrase. This is not a failure mode that the system attempts to solve at this layer but is a known and accepted constraint of dictionary-based NER \cite{nadeau2007survey}. This limitation is precisely why \texttt{extractSkills} is designated as an initial, high-precision layer (Layer A), with the explicit expectation that more complex, ambiguous, or novel skills will be handled by the semantic understanding of Layer B described in Chapter 8.
-\end{itemize}
+\begin{longtable}{p{0.24\textwidth}p{0.34\textwidth}p{0.32\textwidth}}
+\caption{Comparison scaffold to be completed with measured evidence.}\\
+\toprule
+\textbf{Comparison target} & \textbf{Purpose in the thesis} & \textbf{Evidence still required}\\
+\midrule
+Keyword-only internship search & Test whether the proposed hybrid retrieval approach improves over exact lexical matching. & Same query set, keyword-only results, judged relevance, and HR@k, Precision@k, MRR, MAP, and NDCG@k tables.\\
+LLM-only enrichment pipeline & Test the cost and latency trade-off against a system that delegates extraction and normalization to an external LLM. & Cost per 1,000 listings, latency distribution, failure examples, and a clear prompt/protocol.\\
+General recruitment platforms & Contextualize the proposed platform against mature public internship/job-search systems. & Side-by-side screenshots for identical queries and manually judged relevance.\\
+University career portals & Compare against the institutional use case targeted by the thesis. & Partner JSON upload examples, before/after normalization outputs, and search screenshots.\\
+\bottomrule
+\end{longtable}
 
-\section{Performance Optimization and the Caching Sub-System}
-\label{sec:perf_opt}
+\section{Interpretation of the Results}
+The interpretation in this section is limited to the results already reported in the original thesis. The current evidence supports an architectural argument for a staged semantic pipeline, but the final comparison requires measured tables, screenshots, and reproducible benchmark artifacts before it can be treated as a complete empirical comparison.
 
-To translate the theoretical efficiency of individual heuristics into a practical, low-latency system, a robust in-memory caching strategy is the single most impactful optimization within the data pipeline. This sub-system is the linchpin that transforms the ingestion pipeline from a data preparation step into a high-performance serving layer.
-
-After an internship listing has passed through the entire pipeline---from validation and cleaning to enrichment---the fully structured \texttt{Internship} object is placed into a server-side in-memory cache. The \texttt{data.ts} module acts as the sole data access interface, first checking the cache for any requested data before falling back to a slower re-processing from the JSON file.
-
-This strategy has profound implications for the system's performance profile:
-\begin{itemize}
-    \item \textbf{Amortized Cost:} The entire cost of the ingestion and enrichment pipeline---including file I/O, text processing, and regex analysis---is paid only once per data refresh cycle. This one-time cost is then amortized over potentially hundreds of thousands of read requests from the API layer.
-    \item \textbf{Sub-50ms Retrieval:} By serving pre-processed objects directly from memory, the system can achieve the sub-100ms, and aim for the sub-50ms, response times required for modern interactive search experiences \cite{buttcher2016information}. This stands in stark contrast to architectures that perform semantic analysis at query time.
-    \item \textbf{Lightweight Operational Profile:} This design is a direct enabler of the system's "lightweight" and "Green AI" philosophy \cite{schwartz2020green}. It avoids the per-query energy and computational cost that would be incurred by re-computing enrichments or, even more expensively, making round-trip calls to external LLM APIs for every user search. The cache invalidation strategy is tied directly to the data refresh cycle, a deliberate architectural choice that prioritizes efficiency and predictable performance, ensuring the system remains responsive under load without requiring expensive scaling infrastructure.
-\end{itemize}
-
-In summary, this chapter has detailed a tiered data preparation pipeline that is both philosophically and architecturally consistent with the system's core tenets. By front-loading the computational cost of deterministic cleaning and enrichment and then protecting that investment with a fast in-memory cache, the preprocessing layer provides a clean, structured, and queryable dataset. It delivers high utility at a fraction of the complexity and cost of more complex alternatives, creating a solid and sustainable foundation for the semantic and search components in subsequent chapters.
+\section{Chapter Conclusion}
+This chapter has reported the evidence currently available and has defined the missing retrieval-comparison evidence that must be completed before final defense. The added HR@k and NDCG@k procedure ensures that future result values will be based on a fixed query set, explicit relevance judgments, and reproducible ranked lists rather than unsupported comparative claims.
