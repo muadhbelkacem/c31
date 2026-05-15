@@ -8,7 +8,7 @@ The chapter is organized into six main areas: (1) the application development en
 
 \section{Application Development Environment}
 
-The application environment provides the user interaction point for students searching internship listings and for administrators managing the data pipeline. Based on the available implementation evidence, the system uses a React-based presentation layer and a Next.js API layer. This stack was selected because it supports server-side rendering for performance, provides a unified TypeScript development experience, and enables rapid prototyping without sacrificing production-grade reliability.
+The application environment provides the user interaction point for students searching internship listings and for administrators managing the data pipeline. Based on the implementation evidence, the system uses a React-based presentation layer and a Next.js API layer. This stack reflects a shift toward hybrid, server-first architectures that are optimized for streaming NLP outputs and reducing client-side overhead [riva2025realworld]. This stack was selected because it supports server-side rendering for performance, provides a unified TypeScript development experience, and enables rapid prototyping without sacrificing production-grade reliability.
 
 \subsection{Presentation-Layer Technologies}
 
@@ -16,7 +16,7 @@ The presentation layer is responsible for displaying searchable internship recor
 
 \subsubsection{React-Based User Interface}
 
-The user interface is implemented in React (version 18.2.0), a component-based JavaScript library for building interactive UIs. React was chosen for three interconnected reasons. First, its declarative component model aligns well with the structured \texttt{Internship} data model defined in the methodology chapter, allowing each component to map cleanly to a specific field or set of fields. For example, \texttt{InternshipList.tsx} renders a collection of \texttt{InternshipCard} components, each of which displays a subset of the \texttt{Internship} interface fields. Second, the virtual DOM ensures efficient re-rendering of search results even with large result sets—a non-functional requirement for interactive search interfaces where users expect sub-second response times. Third, the extensive React ecosystem provides mature libraries for state management (Zustand), routing (React Router), and UI component design (Material-UI), reducing development overhead.
+The user interface is implemented in React (version 18.2.0), a component-based JavaScript library for building interactive UIs. React was chosen for three interconnected reasons. First, its declarative component model aligns well with the structured \texttt{Internship} data model defined in the methodology chapter, allowing each component to map cleanly to a specific field or set of fields. For example, \texttt{InternshipList.tsx} renders a collection of \texttt{InternshipCard} components, each of which displays a subset of the \texttt{Internship} interface fields. Second, the virtual DOM ensures efficient re-rendering of search results even with large result sets—a non-functional requirement for interactive search interfaces where users expect sub-second response times. Third, the architectural trend for 2025–2026 emphasizes the use of React Server Components (RSC) to move the "heavy lifting" of NLP data fetching to the server, keeping the client bundle small [csontos2026designing].
 
 The main UI components identified in the implementation include:
 
@@ -94,9 +94,9 @@ PostgreSQL was chosen because it offers strong transactional guarantees (ACID co
 
 The pgvector extension (version 0.5.0) enables dense vector storage and similarity operations directly inside PostgreSQL. This is critical for the semantic search component because it allows the system to store and query the 384-dimensional Sentence-BERT embeddings alongside structured fields, eliminating the need for a separate vector database.
 
-pgvector supports three distance metrics: cosine similarity (for semantic similarity), inner product (for unnormalized embeddings), and L2 distance (Euclidean). For this system, cosine similarity is used because the Sentence-BERT embeddings are normalized to unit length, making cosine similarity equivalent to dot product. pgvector also supports approximate nearest neighbor (ANN) indexes using IVFFlat (inverted file with flat quantization) or HNSW (Hierarchical Navigable Small World). The HNSW index type is used because it provides faster query times at the cost of increased index build time, which is acceptable given that the index is rebuilt only during ingestion cycles (daily or weekly).
+pgvector supports three distance metrics: cosine similarity (for semantic similarity), inner product (for unnormalized embeddings), and L2 distance (Euclidean). For this system, cosine similarity is used because the Sentence-BERT embeddings are normalized to unit length, making cosine similarity equivalent to dot product. pgvector also supports approximate nearest neighbor (ANN) indexes using IVFFlat (inverted file with flat quantization) or HNSW (Hierarchical Navigable Small World). Recent benchmarks from 2024–2026 indicate that pgvector 0.8.0+ achieves up to a 9$\times$ faster query processing rate compared to earlier versions through SIMD optimizations and parallel HNSW index builds [jones2025performance].
 
-By using pgvector, the system avoids maintaining a separate vector database (e.g., Pinecone, Milvus, Weaviate), reducing infrastructure complexity and cost. This choice directly supports the "commodity hardware" objective: a single PostgreSQL instance handles both relational and vector data, and the entire stack can run on a \$20/month virtual private server.
+By using pgvector, the system avoids maintaining a separate vector database (e.g., Pinecone, Milvus, Weaviate), reducing infrastructure complexity and cost. This choice directly supports the "commodity hardware" objective: a single PostgreSQL instance handles both relational and vector data, and the entire stack can run on a affordable virtual private server. In production-grade environments, the literature suggests using half-precision (\texttt{halfvec}) to reduce the memory footprint of HNSW indexes by 50\% with negligible impact on recall [trex2026pgvector].
 
 \section{Data Representation and Type-Safety Tools}
 
@@ -186,11 +186,11 @@ The semantic enrichment pipeline relies on lightweight NLP tools that balance ex
 
 \subsection{Transformer-Based Semantic Components}
 
-Transformer-based models are used as modular semantic components, not as black-box generators. The system employs two specific model types: DistilBERT for sequence classification and Sentence-BERT for embedding generation. Both models are loaded from the Hugging Face Hub using the \texttt{transformers.js} library (version 2.14.0), a pure JavaScript implementation that runs in Node.js without Python dependencies.
+Transformer-based models are used as modular semantic components, not as black-box generators. The system employs two specific model types: DistilBERT for sequence classification and Sentence-BERT for embedding generation. Both models are loaded from the Hugging Face Hub using the \texttt{transformers.js} library (version 2.14.0 or later), which relies on ONNX Runtime kernels optimized for CPU performance [spuler2024generative]. This library provides a pure JavaScript implementation that runs in Node.js without Python dependencies.
 
 \subsubsection{DistilBERT and Lightweight Transformer Models}
 
-DistilBERT is a distilled version of BERT that retains approximately 95\% of BERT's performance while reducing parameters by 40\% (from 110 million to 66 million) and increasing inference speed by 60\%. In this system, DistilBERT serves as Layer B of the tiered extraction pipeline, handling cases that deterministic rules (Layer A) cannot resolve:
+DistilBERT is a distilled version of BERT that retains approximately 95\% of BERT's performance while reducing parameters by 40\% and increasing inference speed by 60\% [huggingface2025inference]. In this system, DistilBERT serves as Layer B of the tiered extraction pipeline, handling cases that deterministic rules (Layer A) cannot resolve:
 
 \begin{itemize}
     \item \textbf{Disambiguating ambiguous job titles}: Titles such as "Consultant" could refer to Business Consulting, Technology Consulting, or Healthcare Consulting. DistilBERT classifies the title in the context of the full job description.
