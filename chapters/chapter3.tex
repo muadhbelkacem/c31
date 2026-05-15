@@ -142,20 +142,6 @@ where \(k\) is a constant (typically 60). This method avoids the fragility of sc
 
 The development environment must support reproducible ingestion, retrieval benchmarking, and performance measurement. All experiments described in Chapter 6 are conducted on a controlled hardware configuration to ensure that performance comparisons are fair and reproducible.
 
-\subsection{Runtime and Hardware Environment}
-
-All experiments run on a workstation with the following specifications:
-\begin{itemize}
-    \item CPU: Intel Core i7-13700K (16 cores, 24 threads)
-    \item RAM: 32 GB DDR5
-    \item Storage: 1 TB NVMe SSD
-    \item GPU: None (all models run on CPU)
-    \item OS: Ubuntu 22.04 LTS
-    \item Node.js: Version 20.x
-\end{itemize}
-
-This configuration represents a typical "commodity hardware" environment, consistent with the thesis's lightweight and Green AI objectives. No cloud-based GPU instances or specialized ML hardware are required. This is a deliberate design choice: the system should be deployable by a university career center or a small recruitment platform without a dedicated machine learning infrastructure budget.
-
 \subsection{Measurement and Logging Tools}
 
 To support quantitative evaluation, the system includes built-in measurement and logging utilities:
