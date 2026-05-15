@@ -92,25 +92,7 @@ All experiments were conducted on commodity hardware matching the ``lightweight'
 
 \subsection{Extraction Accuracy Results (RQ1)}
 
-Table~\ref{tab:extraction} reports the extraction accuracy for structured fields comparing Layer~A (rules-only) against the ground truth annotations.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Extraction accuracy for structured fields}
-    \label{tab:extraction}
-    \begin{tabular}{lcccc}
-        \toprule
-        \textbf{Field} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Sample size} \\
-        \midrule
-        Salary (numeric) & 0.98 & 0.81 & 0.89 & n=190 (38\% of corpus) \\
-        Salary (boolean flags) & 0.94 & 0.73 & 0.82 & n=500 \\
-        Location (explicit) & 0.89 & 0.76 & 0.82 & n=500 \\
-        Location (inferred) & 0.72 & 0.58 & 0.64 & n=110 (ambiguous cases) \\
-        Date (posted) & 0.95 & 0.88 & 0.91 & n=500 \\
-        Company name & 0.97 & 0.94 & 0.95 & n=500 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+The extraction accuracy for structured fields comparing Layer~A (rules-only) against the ground truth annotations is discussed below.
 
 \paragraph{Salary Extraction.}
 The rule-based parser achieved 98\% precision for numeric salary extraction, successfully identifying patterns such as ``\$95K -- \$124K'', ``\$23.00/hour'', and ``€45,000--€55,000 per year''. The primary failure mode (19\% of salary-present cases) involved non-standard formats like ``competitive salary plus bonus'' or ``DOE'' (depends on experience), where no numeric pattern matched. Recall of 81\% reflects that salary information was present but in forms requiring semantic interpretation beyond regex capabilities.
@@ -123,23 +105,7 @@ Posted dates and company names achieved high accuracy (F1 > 0.91), confirming th
 
 \subsection{Classification Results (RQ2)}
 
-Table~\ref{tab:classification} reports the accuracy of ESCO title normalization and domain categorization.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Classification accuracy for semantic mapping}
-    \label{tab:classification}
-    \begin{tabular}{lcccc}
-        \toprule
-        \textbf{Task} & \textbf{Method} & \textbf{Top-1 Acc} & \textbf{Top-3 Acc} & \textbf{Top-5 Acc} \\
-        \midrule
-        ESCO title normalization & Keyword baseline & 0.63 & 0.74 & 0.79 \\
-        ESCO title normalization & Sentence-BERT (Layer B) & 0.78 & 0.91 & 0.94 \\
-        Domain categorization & Heuristic (Layer A) & 0.86 & --- & --- \\
-        Domain categorization & Heuristic + embedding & 0.89 & --- & --- \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+The accuracy of ESCO title normalization and domain categorization was evaluated.
 
 \paragraph{Title Normalization.}
 The Sentence-BERT bi-encoder substantially outperformed the keyword baseline (Top-1: 0.78 vs. 0.63; Top-3: 0.91 vs. 0.74). The improvement was most pronounced for compound titles and employer-specific phrasing. For example, ``Spring 2026 Electronics Software Development Intern (MS)'' was correctly mapped to ``software developer'' (ESCO Level~4), while the keyword baseline incorrectly favored ``electronics engineer'' due to the presence of ``Electronics'' in the title string.
@@ -151,43 +117,13 @@ The heuristic keyword-anchoring approach achieved 86\% exact-match accuracy on t
 
 \subsection{Retrieval Quality Results (RQ3)}
 
-Table~\ref{tab:retrieval} reports the retrieval ranking metrics comparing the proposed hybrid system against lexical-only and dense-only baselines across the 30-query test set.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Retrieval ranking metrics (mean over 30 queries)}
-    \label{tab:retrieval}
-    \begin{tabular}{lccccccc}
-        \toprule
-        \textbf{System} & \textbf{P@5} & \textbf{P@10} & \textbf{HR@5} & \textbf{HR@10} & \textbf{MRR} & \textbf{MAP} & \textbf{NDCG@10} \\
-        \midrule
-        BM25 (lexical-only) & 0.42 & 0.38 & 0.67 & 0.80 & 0.58 & 0.44 & 0.52 \\
-        Dense-only (SBERT) & 0.44 & 0.40 & 0.70 & 0.83 & 0.61 & 0.47 & 0.56 \\
-        Proposed hybrid (BM25 + SBERT + RRF) & 0.53 & 0.47 & 0.80 & 0.90 & 0.72 & 0.58 & 0.67 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+Retrieval ranking metrics comparing the proposed hybrid system against lexical-only and dense-only baselines across the 30-query test set are analyzed below.
 
 \paragraph{Improvement Over Baselines.}
 The proposed hybrid system achieved statistically significant improvements over BM25 ($p < 0.01$, paired $t$-test) across all metrics. P@5 increased by 26\% (0.42 $\rightarrow$ 0.53), HR@5 by 19\% (0.67 $\rightarrow$ 0.80), and NDCG@10 by 29\% (0.52 $\rightarrow$ 0.67). Compared to dense-only retrieval, the hybrid system improved P@5 by 20\% (0.44 $\rightarrow$ 0.53) and HR@10 by 8\% (0.83 $\rightarrow$ 0.90), demonstrating that lexical and semantic signals are complementary rather than redundant.
 
 \paragraph{Query Category Analysis.}
-Table~\ref{tab:querycat} breaks down performance by query type, revealing the differential strengths of each retrieval modality.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Retrieval metrics by query category (NDCG@10)}
-    \label{tab:querycat}
-    \begin{tabular}{lcccc}
-        \toprule
-        \textbf{Query category} & \textbf{BM25} & \textbf{Dense-only} & \textbf{Hybrid} & \textbf{Hybrid advantage over best single} \\
-        \midrule
-        Exact/lexical (n=10) & 0.64 & 0.51 & 0.68 & +0.04 (vs. BM25) \\
-        Conceptual/semantic (n=10) & 0.38 & 0.61 & 0.65 & +0.04 (vs. dense) \\
-        Mixed/hybrid (n=10) & 0.54 & 0.56 & 0.68 & +0.12 (vs. best) \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+Performance by query type reveals the differential strengths of each retrieval modality.
 
 For exact/lexical queries, BM25 alone performed strongly (NDCG@10=0.64), and the hybrid system preserved this capability (0.68). For conceptual queries requiring semantic understanding, dense-only retrieval substantially outperformed BM25 (0.61 vs. 0.38), and the hybrid system matched or slightly exceeded dense-only performance (0.65). The largest hybrid advantage emerged for mixed queries (0.68 vs. 0.56 for the better single modality), confirming the synergy between lexical precision and semantic recall.
 
@@ -196,25 +132,7 @@ The 10\% of queries where HR@10 $<$ 1.0 (no relevant result in top-10) shared co
 
 \subsection{Efficiency and Cost Results (RQ4)}
 
-Table~\ref{tab:efficiency} reports the operational characteristics of the proposed system compared to an LLM-only alternative.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Efficiency and cost comparison}
-    \label{tab:efficiency}
-    \begin{tabular}{lccc}
-        \toprule
-        \textbf{Metric} & \textbf{Proposed hybrid} & \textbf{LLM-only (GPT-3.5-turbo)} & \textbf{Improvement} \\
-        \midrule
-        Ingestion throughput (listings/sec) & 47.3 & 2.1 & 22.5$\times$ faster \\
-        Query latency p50 (ms) & 47 & 1,240 & 26$\times$ faster \\
-        Query latency p99 (ms) & 128 & 2,850 & 22$\times$ faster \\
-        Memory footprint (MB) & 1,240 & N/A (external API) & --- \\
-        Cost per 1,000 listings (USD) & \$0.12 (electricity) & \$3.50 & 29$\times$ cheaper \\
-        Cost per 1,000 queries (USD) & \$0.01 (electricity) & \$1.20 & 120$\times$ cheaper \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+The operational characteristics of the proposed system compared to an LLM-only alternative are analyzed below.
 
 \paragraph{Ingestion Throughput.}
 The proposed system processed 47.3 listings per second on commodity hardware, completing the full 17,500-listing ingestion in approximately 6.2 minutes. The LLM-only pipeline, constrained by API rate limits and per-request latency, processed only 2.1 listings per second, requiring nearly 2.5 hours for the same corpus. The 22.5$\times$ throughput advantage reflects both the overhead of external API calls and the efficiency of local processing.
@@ -255,23 +173,7 @@ The rule-only system's categorization accuracy of 0.86 proved sufficient for bas
 
 \subsection{Comparison with LLM-Only Pipeline}
 
-Table~\ref{tab:llmcompare} compares extraction and classification accuracy between the proposed system and the LLM-only baseline.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Accuracy comparison with LLM-only pipeline}
-    \label{tab:llmcompare}
-    \begin{tabular}{lccc}
-        \toprule
-        \textbf{Task} & \textbf{Proposed hybrid} & \textbf{LLM-only (GPT-3.5-turbo)} & \textbf{Difference} \\
-        \midrule
-        Salary extraction F1 & 0.89 & 0.92 & -0.03 \\
-        Location extraction F1 & 0.82 & 0.85 & -0.03 \\
-        ESCO title Top-1 Acc & 0.78 & 0.81 & -0.03 \\
-        Domain categorization Acc & 0.89 & 0.91 & -0.02 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+Extraction and classification accuracy between the proposed system and the LLM-only baseline were compared.
 
 The LLM-only pipeline achieved marginally higher accuracy across all tasks (2--3\% absolute improvement). However, this small accuracy gain came at substantial cost: 29$\times$ higher financial cost per listing, 22$\times$ higher query latency, and inability to run without external API dependencies. The accuracy-cost Pareto frontier clearly favors the proposed hybrid system for production deployment where cost and latency constraints apply.
 
@@ -279,27 +181,7 @@ Qualitative analysis of the LLM's advantage cases revealed they were primarily e
 
 \subsection{Comparison with Existing Platforms}
 
-Table~\ref{tab:platforms} provides a qualitative comparison with existing internship platforms based on feature analysis and limited side-by-side testing on 10 shared queries.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Feature comparison with existing platforms}
-    \label{tab:platforms}
-    \begin{tabular}{lccccc}
-        \toprule
-        \textbf{Feature} & \textbf{Proposed system} & \textbf{LinkedIn Jobs} & \textbf{Indeed} & \textbf{University portal} \\
-        \midrule
-        Semantic search (concept matching) & Yes & Partial & No & No \\
-        Hybrid lexical+semantic ranking & Yes & No & No & No \\
-        ESCO taxonomy alignment & Yes & No & No & No \\
-        Automatic skill extraction & Yes & Yes & Partial & No \\
-        Salary parsing (numeric ranges) & Yes & Partial & Partial & No \\
-        Faceted filtering by category & Yes & Yes & Yes & Yes \\
-        JSON upload normalization & Yes & No & No & Yes \\
-        Running cost (per 1K queries) & \$0.01 & Free (ad-supported) & Free (ad-supported) & Free (institutional) \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+A qualitative comparison with existing internship platforms was conducted based on feature analysis and limited side-by-side testing on 10 shared queries.
 
 On the 10 shared queries, the proposed system achieved higher precision for conceptual searches (e.g., ``design thinking internship'' retrieved relevant UX/UI roles that LinkedIn's keyword search missed) but slightly lower recall for highly localized queries (e.g., ``internship in Austin, TX'') due to smaller corpus size. The university portal comparison showed that the proposed system's JSON normalization significantly reduced manual curation effort: a 500-listing upload that typically required 4 hours of manual field mapping was processed automatically in 12 seconds.
 
@@ -332,25 +214,7 @@ For the 3 queries where HR@10 $<$ 1.0 (no relevant result), the failure was attr
 
 \subsection{Ablation Study}
 
-To isolate the contribution of individual components, an ablation study progressively removed features from the full hybrid system:
-
-\begin{table}[htbp]
-    \centering
-    \caption{Ablation study results (NDCG@10)}
-    \label{tab:ablation}
-    \begin{tabular}{lc}
-        \toprule
-        \textbf{Configuration} & \textbf{NDCG@10} \\
-        \midrule
-        Full hybrid (BM25 + dense + RRF) & 0.667 \\
-        - RRF (use score summation instead) & 0.632 \\
-        - Dense component (BM25 only) & 0.521 \\
-        - BM25 component (dense only) & 0.561 \\
-        - ESCO normalization (raw titles only) & 0.608 \\
-        - Skill extraction (no skill filtering) & 0.643 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+To isolate the contribution of individual components, an ablation study progressively removed features from the full hybrid system.
 
 RRF contributed a 0.035 gain over simple score summation, confirming that rank-based fusion is more robust than normalized score combination. The dense component contributed the largest individual gain (0.146), followed by BM25 (0.106), supporting the complementarity claim. ESCO normalization contributed 0.059, while skill extraction contributed a smaller 0.024 gain—likely because skill information is already partially captured in the dense embeddings.
 
