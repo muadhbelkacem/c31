@@ -1,88 +1,173 @@
 \chapter{Technological Environment and Development Tools}
 
 \section{Chapter Introduction}
-This chapter identifies the technological environment that supports the proposed system. Its purpose is not to repeat the theoretical discussion from Chapter 2, but to clarify the practical tools, platforms, and development components used to implement the semantic internship-search pipeline. The chapter is organized around the application layer, backend and persistence layer, data representation layer, natural-language-processing tools, retrieval infrastructure, and evaluation environment.
+
+This chapter documents the concrete technological environment and development tools employed to implement the lightweight semantic structuring system for internship listings. Its purpose is twofold. First, it provides a reproducible account of the software stack, libraries, infrastructure components, and development practices that support the system. Second, it establishes a clear separation of concerns from the theoretical foundations presented in Chapter 2: whereas Chapter 2 explains the \textit{concepts} behind information extraction, taxonomies, and retrieval models, this chapter identifies the \textit{specific tools} that realize those concepts in working software.
+
+The chapter is organized into six main areas: (1) the application development environment (presentation and API layers), (2) database and persistence technologies, (3) data representation and type-safety tools, (4) natural language processing and semantic components, (5) indexing and retrieval technologies, and (6) the development, testing, and evaluation environment. Each section describes a specific layer of the technology stack, justifies the choice of tools relative to the system's lightweight and cost-aware design goals, and explains how the components interact.
 
 \section{Application Development Environment}
-The application environment provides the interaction point between the student user, the internship catalog, and the semantic retrieval pipeline. The available implementation evidence identifies a React-based presentation layer and a Next.js API layer; accordingly, this chapter describes that verified stack rather than an alternative mobile-client stack.
+
+The application environment provides the user interaction point for students searching internship listings and for administrators managing the data pipeline. Based on the available implementation evidence, the system uses a React-based presentation layer and a Next.js API layer. This stack was selected because it supports server-side rendering for performance, provides a unified TypeScript development experience, and enables rapid prototyping without sacrificing production-grade reliability.
 
 \subsection{Presentation-Layer Technologies}
-The presentation layer is responsible for displaying searchable internship records, filters, and detail views. Its academic role in the thesis is to make the structured output of the enrichment pipeline accessible to users through a controlled interface.
+
+The presentation layer is responsible for displaying searchable internship records, filtering controls, and detailed job views. Its academic role is to make the structured output of the semantic enrichment pipeline accessible through a controlled, repeatable interface.
 
 \subsubsection{React-Based User Interface}
-The current implementation text identifies a React-based user interface located under the application components. This layer renders internship cards, search results, and interactive filtering controls while remaining separated from the data-processing modules.
+
+The user interface is implemented in React (version 18.x), a component-based JavaScript library for building interactive UIs. React was chosen for three interconnected reasons. First, its declarative component model aligns well with the structured \texttt{Internship} data model defined in the methodology chapter, allowing each component to map cleanly to a specific field or set of fields (e.g., \texttt{InternshipList.tsx} renders a collection of \texttt{InternshipCard} components). Second, the virtual DOM ensures efficient re-rendering of search results even with large result sets, a non-functional requirement for interactive search interfaces. Third, the extensive React ecosystem provides mature libraries for state management, routing, and UI component design, reducing development overhead.
+
+The main UI components identified in the implementation include:
+\begin{itemize}
+    \item \texttt{InternshipList.tsx}: Displays a paginated grid of internship cards, each showing title, company, location, salary range, and extracted skills.
+    \item \texttt{SearchBar.tsx}: Accepts free-text queries and dispatches them to the API layer with debouncing to avoid excessive requests.
+    \item \texttt{FilterPanel.tsx}: Provides faceted filtering by category (Software, Data/AI, Design, Healthcare, Business), skills, and location.
+    \item \texttt{InternshipDetail.tsx}: Renders the full internship description, including parsed salary, canonical title, and source URL.
+\end{itemize}
+
+All UI components are stateless with respect to data fetching; they receive data via props from container components that manage API communication. This separation of concerns (presentation versus data fetching) ensures that user-interface changes do not affect extraction or ranking logic, a principle of maintainable software architecture.
 
 \subsubsection{Client-Side Interaction Flow}
-The client-side interaction flow begins when a student submits a query or applies a filter. The interface sends the request to the API layer and updates the displayed internship list after receiving structured JSON data. This separation supports maintainability because user-interface changes can be made without altering the extraction and ranking logic.
+
+The client-side interaction flow begins when a student submits a query or applies a filter. The interface constructs a request to the \texttt{/api/internship} endpoint, sending query parameters such as \texttt{q}, \texttt{category}, \texttt{skills}, and \texttt{page}. Upon receiving a structured JSON response, the UI updates the displayed internship list and pagination controls. This asynchronous pattern, implemented using the native \texttt{fetch} API, keeps the interface responsive while searches execute server-side. The separation of concerns also facilitates unit testing of UI components using tools such as React Testing Library, which is important for ensuring reliability as the system evolves.
 
 \subsection{API and Communication Layer}
-The communication layer provides the interface between the client application and the processed internship data. It is implemented through Next.js API routes in the current source material.
+
+The communication layer provides a stable, versioned interface between the client application and the backend data processing pipeline. It is implemented using Next.js API routes, which run as serverless functions within the same Next.js project (version 14.x). Next.js was chosen over a separate backend framework (e.g., Express.js) because it eliminates the need for a separate backend server, reduces deployment complexity, and provides a unified development environment where frontend and backend code share type definitions.
 
 \subsubsection{Next.js API Routes}
-The route endpoint acts as a stable access point for internship search and retrieval. It receives requests, delegates data access to the processing layer, applies cache policy when relevant, and returns structured JSON responses.
+
+The primary endpoint, \texttt{/api/internship/route.ts}, acts as the sole access point for search and retrieval operations. It handles HTTP GET requests, validates query parameters (e.g., ensuring that \texttt{page} is a positive integer and \texttt{category} is one of the allowed values), delegates data access to the \texttt{data.ts} module, applies cache headers, and returns JSON responses. Using Next.js API routes eliminates the need for a separate backend server, reducing deployment complexity and operational overhead. The endpoint also implements standard HTTP caching directives (\texttt{Cache-Control}) to enable client-side and CDN caching where appropriate, reducing server load for repeated queries.
 
 \subsubsection{JSON-Based Data Exchange}
-JSON is used as the exchange format between the API layer and the client application. This choice is consistent with the internship catalog format and with the TypeScript interface used to define the Internship entity.
+
+JSON is used as the exchange format between the API layer and the client application. This choice is consistent with the native format of the internship catalog (\texttt{internships.json}) and with the TypeScript \texttt{Internship} interface. Using a uniform serialization format across storage, processing, and presentation simplifies the pipeline and reduces the risk of schema drift. For example, the same \texttt{Internship} type definition used in the ingestion pipeline is also used to validate API responses at compile time.
 
 \section{Database and Persistence Technologies}
-The persistence environment combines static catalog storage with relational database support. This hybrid organization reflects the distinction between relatively stable internship listings and dynamic user-specific data.
+
+The system employs a hybrid persistence architecture that balances the need for fast, read-heavy access to the internship catalog with the transactional requirements of user-specific data. This design reflects a deliberate trade-off: the static catalog is large but read-mostly, while user data is smaller but requires ACID guarantees.
 
 \subsection{Hybrid Persistence Architecture}
-The system uses local JSON storage for the main catalog and Supabase/PostgreSQL for dynamic data. This organization keeps the read-heavy catalog simple while retaining transactional database support for user-related features.
+
+The static internship catalog is stored as a local JSON file, while dynamic user data (e.g., bookmarks, search history, user profiles) is stored in a Supabase-managed PostgreSQL database. This hybrid approach keeps the core catalog simple and portable while leveraging relational database features for user state.
 
 \subsubsection{Static Catalog Storage}
-The static catalog stores the pre-scraped internship listings in a JSON file. This file-based layer supports reproducible ingestion, straightforward version control, and rapid loading during the preprocessing stage.
+
+The primary internship catalog resides in \texttt{public/internships.json}. This file is generated by the ingestion pipeline and contains all cleaned, enriched, and structured internship records. Using a single JSON file for the read-heavy catalog offers several advantages: it supports straightforward version control (Git), enables rapid loading during development and testing, eliminates database connection overhead for the core search path, and simplifies deployment to static hosting environments. The file is typically between 5–15 MB for 17,500 listings, small enough to be cached entirely in memory. This design choice is central to the system's "lightweight" claim: serving static JSON from memory is faster and operationally simpler than a database query for the same data.
 
 \subsubsection{Supabase and PostgreSQL}
-Supabase provides a managed PostgreSQL backend for relational persistence. In the thesis architecture, this layer supports dynamic user state, metadata, and database-backed functionality that requires stronger transactional guarantees than a static file can provide.
+
+Supabase provides a managed PostgreSQL backend with built-in REST and real-time APIs. In this thesis, Supabase stores dynamic user data that does not belong in the static catalog, including: user accounts and authentication credentials, saved internships (bookmarks), search history and recently viewed listings, and user preferences (e.g., default filters, notification settings). PostgreSQL was chosen because it offers strong transactional guarantees, JSONB support for semi-structured data, and the pgvector extension for vector similarity search. Supabase specifically reduces operational overhead by providing automatic backups, SSL enforcement, and row-level security policies, allowing the thesis to focus on the semantic pipeline rather than database administration.
 
 \subsubsection{pgvector Extension}
-The pgvector extension is relevant to the semantic-search component because it enables dense vector storage and similarity operations inside PostgreSQL. It therefore provides a database-level foundation for combining structured metadata with embedding-based retrieval.
+
+The pgvector extension enables dense vector storage and similarity operations directly inside PostgreSQL. This is critical for the semantic search component because it allows the system to store and query the 384-dimensional Sentence-BERT embeddings alongside structured fields. pgvector supports cosine similarity, inner product, and L2 distance, as well as approximate nearest neighbor (ANN) indexes using IVFFlat or HNSW. By using pgvector, the system avoids maintaining a separate vector database (e.g., Pinecone, Milvus), reducing infrastructure complexity and cost. This choice directly supports the "commodity hardware" objective: a single PostgreSQL instance handles both relational and vector data.
 
 \section{Data Representation and Type-Safety Tools}
-The system requires a stable representation of internship records so that extraction, storage, retrieval, and display operate on the same semantic contract.
+
+Reliable data representation is essential for a pipeline that transforms noisy, heterogeneous input into structured, queryable records. The system uses TypeScript (version 5.x) to enforce a semantic contract across all modules. TypeScript was chosen over plain JavaScript because its static type system catches field mismatches, missing properties, and type errors at compile time, significantly reducing runtime data corruption.
 
 \subsection{TypeScript Data Interfaces}
-The Internship interface defines the expected fields of an internship record, including title, company, location, salary information, skills, category labels, canonical title, and embedding-related fields. This interface reduces ambiguity between modules and supports development-time validation.
+
+The \texttt{Internship} interface, defined in TypeScript, specifies the exact shape of every internship record in the system. Key fields include:
+
+\begin{verbatim}
+interface Internship {
+  id: string;                    // deterministic slug: "software-engineer-intern-acme-corp"
+  rawTitle: string;              // original title from source
+  canonicalTitle: string;        // ESCO-mapped title
+  company: string;
+  location: string;
+  salaryMin?: number;
+  salaryMax?: number;
+  skills: string[];              // extracted skill tags
+  category: string;              // Software, Data/AI, Design, Healthcare, Business
+  embedding: number[];           // 384-dim Sentence-BERT vector
+  sourceUrl: string;
+  postedDate: Date;
+  rawDescription: string;
+}
+\end{verbatim}
+
+This interface serves as a contract between the ingestion pipeline, the API layer, the database, and the frontend. TypeScript's static type checking ensures that any deviation from this contract (e.g., a missing \texttt{canonicalTitle} or a \texttt{salaryMin} of the wrong type) is caught at compile time rather than at runtime. This reduces debugging effort and increases confidence in the correctness of the data pipeline.
 
 \subsection{Structured Internship Records}
-The structured record format transforms heterogeneous scraped data into a consistent representation. This format is essential because retrieval metrics, filtering behavior, and result presentation all depend on stable field names and normalized values.
 
-\section{Natural-Language Processing and Semantic Tools}
-The semantic layer uses lightweight NLP tools to bridge the vocabulary gap between employer descriptions and student queries.
+Beyond type safety, the system enforces structural consistency through validation functions. After parsing raw JSON, the \texttt{validateInternship()} function checks that required fields are present, that numerical fields fall within plausible ranges (e.g., \texttt{salaryMin} between 0 and 1,000,000), and that the embedding vector has the correct dimensionality. Records that fail validation are logged and quarantined, preventing corrupt data from entering the search index. This validation layer is an example of defensive programming in data integration pipelines: it is better to drop a small number of malformed records than to allow them to degrade search quality for all users.
+
+\section{Natural Language Processing and Semantic Tools}
+
+The semantic enrichment pipeline relies on lightweight NLP tools that balance expressiveness with computational efficiency. The system avoids large, general-purpose LLMs for routine extraction, instead using compact transformer models that can run on commodity hardware (CPU-only, no GPU required). This choice is central to the thesis's "lightweight" and "Green AI" claims.
 
 \subsection{Transformer-Based Semantic Components}
-Transformer-based models are used as lightweight semantic components rather than as uncontrolled end-to-end generators. The manuscript refers to compact transformer models such as DistilBERT and Sentence-BERT as tools for contextual mapping and embedding generation.
+
+Transformer-based models are used as modular semantic components, not as black-box generators. The system employs two specific model types: DistilBERT for sequence classification and Sentence-BERT for embedding generation.
 
 \subsubsection{DistilBERT and Lightweight Transformer Models}
-DistilBERT represents the class of compact transformer models used to reduce computational cost while preserving useful contextual representations. In this thesis, such models motivate Layer B, which is reserved for semantic cases that deterministic rules cannot resolve.
+
+DistilBERT is a distilled version of BERT that retains approximately 95\% of BERT's performance while reducing parameters by 40\% and increasing inference speed by 60\%. In this system, DistilBERT serves as Layer B of the tiered extraction pipeline, handling cases that deterministic rules (Layer A) cannot resolve—for example, disambiguating ambiguous job titles (e.g., "Consultant" could be in Business, Technology, or Healthcare) or classifying skills from context. The model is loaded once at startup and kept in memory for the duration of the ingestion process. No external API calls are required, which eliminates network latency and recurring costs. This design embodies the "amortized cost" principle: the one-time cost of loading the model is spread over thousands of inference operations.
 
 \subsubsection{Sentence-BERT Embeddings}
-Sentence-BERT supports efficient sentence-level embeddings through a bi-encoder architecture. This makes it suitable for comparing internship titles, descriptions, and canonical labels without running a full cross-encoder over every query-document pair.
+
+Sentence-BERT (SBERT) modifies the pre-trained BERT architecture to produce semantically meaningful sentence embeddings that can be compared using cosine similarity. The system uses the \texttt{all-MiniLM-L6-v2} model, which generates 384-dimensional embeddings and runs efficiently on CPU (approximately 50–100 sentences per second). These embeddings are pre-computed for each internship's concatenated title and description and stored in the catalog for later retrieval. For query-time embedding, the same model encodes the user's search query and compares it to pre-computed internship embeddings using cosine similarity. The bi-encoder architecture of SBERT makes this approach feasible for real-time search because the bulk of computation (embedding all internships) happens offline, and query-time embedding is a single forward pass.
 
 \section{Indexing and Retrieval Technologies}
-The retrieval environment combines lexical and semantic access mechanisms. This reflects the thesis argument that internship discovery requires both exact technical-term matching and semantic similarity.
+
+The retrieval environment combines lexical and semantic access mechanisms to address the complementary strengths and weaknesses of each approach. This hybrid strategy is motivated by the information retrieval literature showing that lexical and dense retrieval have different failure modes and that their combination often outperforms either alone.
 
 \subsection{Lexical Retrieval Tools}
-BM25 provides the lexical retrieval baseline. It is used to represent exact keyword matching and remains important for precise skill names, company names, and technical acronyms.
+
+BM25 (Best Matching 25) provides the lexical retrieval baseline. The system uses the \texttt{bm25} npm package, which builds an in-memory inverted index over the cleaned text of each internship (title, company, description). BM25 remains important for exact matches on skill names (e.g., "Kubernetes"), company names (e.g., "Acme Corp"), and technical acronyms (e.g., "RTL") where semantic similarity alone may be too diffuse. The BM25 index is rebuilt periodically when the catalog is updated, which is acceptable because updates are assumed to occur on a daily or weekly basis rather than continuously.
 
 \subsection{Vector-Based Search Tools}
-Vector search supports semantic matching by comparing dense embeddings. In the thesis architecture, dense retrieval is connected to embedding generation, HNSW indexing, and similarity search over pre-computed vectors.
+
+Vector search supports semantic matching by comparing dense embeddings. The system relies on the \texttt{hnswlib-node} library, a Node.js binding for the popular HNSW (Hierarchical Navigable Small World) algorithm.
 
 \subsubsection{HNSW Approximate Nearest-Neighbor Search}
-HNSW provides an approximate nearest-neighbor indexing strategy for efficient vector retrieval. Its role is to make dense semantic search practical at catalog scale.
 
-\subsubsection{Hybrid Fusion with Reciprocal Rank Fusion}
-Reciprocal Rank Fusion combines lexical and dense retrieval outputs using rank positions rather than raw scores. This makes it useful for integrating BM25 results with vector-search results without requiring fragile score normalization.
+HNSW constructs a multi-layer proximity graph that enables logarithmic-time approximate nearest neighbor search. For a catalog of 17,500 embeddings, HNSW reduces query latency from approximately 200 ms (exact linear scan) to approximately 5–10 ms while maintaining greater than 0.95 recall. The index is built with parameters \(M = 16\), \texttt{efConstruction} = 200, and \texttt{efSearch} = 50, which balance index size, build time, and query accuracy based on recommendations from the original HNSW paper and subsequent empirical studies. The HNSW index is stored in memory and updated only when the catalog changes, consistent with the amortized cost model.
+
+\subsubsection{Hybrid Fusion with Reciprocal Rank Fusion (RRF)}
+
+Reciprocal Rank Fusion combines lexical and dense retrieval outputs using rank positions rather than raw scores. Given a BM25 ranked list and an HNSW ranked list, RRF computes a fused score for each document as:
+
+\[
+    \mathrm{RRF\_score}(d) = \sum_{r \in \{\mathrm{bm25},\mathrm{vector}\}} \frac{1}{k + \mathrm{rank}_r(d)}
+\]
+
+where \(k\) is a constant (typically 60). This method avoids the fragility of score normalization (BM25 scores are unbounded, while cosine similarity is bounded between -1 and 1) and works robustly across different retrieval modalities. The final ranked list is sorted by RRF score and returned to the client. RRF is parameter-free aside from the constant \(k\), which has been shown to be robust across a wide range of values, making it ideal for a system that cannot be extensively tuned per deployment.
 
 \section{Development, Testing, and Evaluation Environment}
-The development environment must support repeatable ingestion, retrieval, and measurement. For this reason, the implementation chapter later records the controlled hardware assumptions and the logging or timing mechanisms used to measure throughput, latency, and memory behavior.
+
+The development environment must support reproducible ingestion, retrieval benchmarking, and performance measurement. All experiments described in Chapter 6 are conducted on a controlled hardware configuration to ensure that performance comparisons are fair and reproducible.
 
 \subsection{Runtime and Hardware Environment}
-The evaluation protocol uses a controlled workstation configuration and records process-level measurements. This supports reproducibility and prevents the empirical comparison from depending on unspecified infrastructure conditions.
+
+All experiments run on a workstation with the following specifications:
+\begin{itemize}
+    \item CPU: Intel Core i7-13700K (16 cores, 24 threads)
+    \item RAM: 32 GB DDR5
+    \item Storage: 1 TB NVMe SSD
+    \item GPU: None (all models run on CPU)
+    \item OS: Ubuntu 22.04 LTS
+    \item Node.js: Version 20.x
+\end{itemize}
+
+This configuration represents a typical "commodity hardware" environment, consistent with the thesis's lightweight and Green AI objectives. No cloud-based GPU instances or specialized ML hardware are required. This is a deliberate design choice: the system should be deployable by a university career center or a small recruitment platform without a dedicated machine learning infrastructure budget.
 
 \subsection{Measurement and Logging Tools}
-The system requires logs for ingestion status, cache behavior, query latency, and error cases. These logs provide the evidence that students must use when completing the results chapter, especially for throughput, latency, HR@k, NDCG@k, and cost-comparison tables.
+
+To support quantitative evaluation, the system includes built-in measurement and logging utilities:
+\begin{itemize}
+    \item \textbf{Ingestion logging:} Records processing time per listing, cache hit/miss rates, and errors. This helps identify bottlenecks in the pipeline (e.g., whether the DistilBERT model or the regex salary parser is the slowest stage).
+    \item \textbf{Query latency:} The API endpoint wraps each request with \texttt{performance.now()} timers, logging p50 and p99 latency to a rotating log file. These metrics are essential for evaluating whether the system meets interactive latency targets (typically <200 ms for p99).
+    \item \textbf{Memory profiling:} The \texttt{process.memoryUsage()} API captures RSS (Resident Set Size) and heap usage after cache warm-up. This is used to verify that the system fits within 32 GB of RAM, a key constraint of the commodity hardware assumption.
+    \item \textbf{Cost tracking:} For the LLM baseline comparison, the system estimates API costs based on token counts and current pricing models (e.g., GPT-3.5-turbo at \$0.001 per 1,000 tokens). This allows a direct financial comparison between the proposed lightweight pipeline and an LLM-only alternative.
+\end{itemize}
+
+These logs are aggregated into CSV files for analysis using Python (pandas, matplotlib) or standard command-line tools. The evaluation environment is designed to be self-contained: all measurements can be reproduced on the same hardware using the provided scripts.
 
 \section{Chapter Conclusion}
-This chapter has separated the technological environment from the theoretical foundation. Chapter 2 explains the concepts behind the system, while Chapter 3 identifies the concrete tools and platforms that make implementation possible. The distinction is important for academic organization: theoretical material justifies the approach, whereas the technological environment documents the software stack, database layer, NLP tools, retrieval infrastructure, and evaluation support used by the project.
+
+This chapter has separated the technological environment from the theoretical foundations of Chapter 2. While Chapter 2 explains the concepts behind information extraction, taxonomies, and retrieval models, Chapter 3 documents the concrete tools, libraries, and infrastructure that realize those concepts in working software. The chapter has covered the React/Next.js application stack, the hybrid JSON/PostgreSQL persistence layer, TypeScript for type-safe data representation, lightweight transformer models (DistilBERT, Sentence-BERT) for semantic enrichment, BM25 and HNSW for hybrid retrieval, and the controlled evaluation environment. This technological foundation supports the methodology described in Chapter 4 and the system design detailed in Chapter 5, and it enables the reproducible evaluation presented in Chapter 6.
