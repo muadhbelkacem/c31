@@ -171,30 +171,59 @@
 % ===== SECTION: SYSTEM DESIGN =====
     \section{System Design}
 
+% --- FIXED TIERED PIPELINE SLIDE (3-column layout, correct LaTeX) ---
     \begin{frame}{Tiered Semantic Enrichment Pipeline}
         \textbf{Design principle:} Cheap, fast methods handle most cases; expensive ones only for edge cases.
-        \vspace{0.4cm}
+        \vspace{0.5cm}
 
-        \begin{block}{Layer A – Deterministic (78\% of cases)}
-            \begin{itemize}
-                \item Regex salary parsing (98\% precision), location/date cleaning
-                \item Gazetteer‑based skill extraction (800+ ESCO‑aligned skills)
-                \item Keyword‑anchored role categorisation
-            \end{itemize}
-        \end{block}
+        \begin{columns}[T]
+            \begin{column}{0.32\textwidth}
+                \centering
+                \textcolor{myteal}{\faCheckCircle~ \textbf{Layer A}} \\
+                \textcolor{myteal}{\textbf{Deterministic}} \\
+                \textcolor{myteal}{\textbf{(78\% of cases)}}
+                \vspace{0.2cm}
 
-        \begin{block}{Layer B – Lightweight Neural (19\% of cases)}
-            \begin{itemize}
-                \item DistilBERT for ambiguous title disambiguation
-                \item Sentence‑BERT to map titles to ESCO Level 4 occupations (Top‑3 accuracy 91\%)
+                \begin{itemize}
+                    \item Regex salary parsing (98\% precision)
+                    \item Location/date cleaning
+                    \item Gazetteer‑based skill extraction (800+ ESCO skills)
+                    \item Keyword‑anchored role categorisation
+                \end{itemize}
+            \end{column}
+
+            \begin{column}{0.32\textwidth}
+                \centering
+                \textcolor{myaccent}{\faBrain~ \textbf{Layer B}} \\
+                \textcolor{myaccent}{\textbf{Lightweight Neural}} \\
+                \textcolor{myaccent}{\textbf{(19\% of cases)}}
+                \vspace{0.2cm}
+
+                \begin{itemize}
+                    \item DistilBERT for ambiguous title disambiguation
+                    \item SBERT maps titles to ESCO Level 4
+\item Top‑3 accuracy: \textbf{91\%}
 \end{itemize}
-\end{block}
+\end{column}
 
-\begin{block}{Layer C – LLM Fallback (3\% of cases)}
+\begin{column}{0.32\textwidth}
+\centering
+\textcolor{red}{\faRobot~ \textbf{Layer C}} \\
+\textcolor{red}{\textbf{LLM Fallback}} \\
+\textcolor{red}{\textbf{(3\% of cases)}}
+\vspace{0.2cm}
+
 \begin{itemize}
-\item Reserved for highly idiosyncratic titles (e.g., “Prompt Engineer”)
+\item Reserved for highly idiosyncratic titles
+\item Example: “Prompt Engineer”
+\item GPT‑3.5 / local LLM on demand
 \end{itemize}
-\end{block}
+\end{column}
+\end{columns}
+
+\vspace{0.5cm}
+\centering
+\textcolor{myteal}{\faLongArrowAltRight}~ \textbf{Fallback flow:} Layer A → (if fails) → Layer B → (if fails) → Layer C
 \end{frame}
 
 \begin{frame}{Data Ingestion and Schema Normalisation}
