@@ -1,10 +1,29 @@
-\documentclass[aspectratio=169]{beamer}
+% !TeX program = pdflatex
+\documentclass[aspectratio=169, 10pt]{beamer}
 
-% Theme selection
-\usetheme{Madrid}
-\usecolortheme{default}
+% ===== MODERN THEME (Metropolis) =====
+\usetheme{metropolis}
+\usepackage{appendixnumberbeamer}
 
-% Packages
+% ===== CUSTOM COLORS (overriding metropolis defaults) =====
+\definecolor{myteal}{RGB}{0, 128, 128}
+\definecolor{mydarkblue}{RGB}{0, 50, 100}
+\definecolor{mygray}{RGB}{240, 240, 240}
+\setbeamercolor{palette primary}{bg=mydarkblue, fg=white}
+\setbeamercolor{palette secondary}{bg=myteal, fg=white}
+\setbeamercolor{title separator}{fg=myteal}
+\setbeamercolor{frametitle}{bg=white, fg=mydarkblue}
+\setbeamercolor{block title}{bg=myteal, fg=white}
+\setbeamercolor{block body}{bg=mygray, fg=black}
+\setbeamercolor{normal text}{fg=black, bg=white}
+\setbeamercolor{alerted text}{fg=myteal}
+\setbeamercolor{footline}{fg=myteal}
+
+% ===== TYPOGRAPHY (modern sans-serif) =====
+\usepackage[sfdefault]{FiraSans}
+\usepackage{FiraMono}
+
+% ===== PACKAGES =====
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
@@ -12,9 +31,34 @@
 \usepackage{hyperref}
 \usepackage{tikz}
 \usepackage{listings}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage[table]{xcolor}
+\usepackage{colortbl}
 \usetikzlibrary{shapes,arrows,shadows,positioning,calc}
 
-% Metadata
+% ===== TABLE ROW COLORS =====
+\rowcolors{2}{mygray}{white}
+
+% ===== FOOTLINE (with slide numbers) =====
+\setbeamertemplate{footline}{
+    \leavevmode%
+    \hbox{%
+        \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm plus1fill,rightskip=.3cm]{author in head/foot}%
+            \usebeamerfont{author in head/foot}\insertshortauthor
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{title in head/foot}%
+            \usebeamerfont{title in head/foot}\insertshorttitle
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.2\paperwidth,ht=2.5ex,dp=1.125ex,rightskip=.3cm]{date in head/foot}%
+            \usebeamerfont{date in head/foot}\insertframenumber{} / \inserttotalframenumber
+        \end{beamercolorbox}}%
+    \vskip0pt%
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+% ===== METADATA =====
 \title[Lightweight Semantic Structuring]{Lightweight Semantic Structuring of Internship Listings from Web Scraping and JSON Uploads}
 \author[M. Bensaid]{Mouad Bensaid}
 \institute[University]{Your University \\ Department Name}
@@ -22,17 +66,25 @@
 
 \begin{document}
 
-% Title Slide
-    \begin{frame}
-        \titlepage
-    \end{frame}
+% ----------------------------------------------------------------------
+% TITLE SLIDE (restyled)
+% ----------------------------------------------------------------------
+    {
+        \setbeamertemplate{footline}{}
+        \begin{frame}[plain]
+            \titlepage
+            \vfill
+            \centering
+            \tiny{© 2026 Mouad Bensaid – All content for academic presentation}
+        \end{frame}
+    }
 
-% Table of Contents
+% ----------------------------------------------------------------------
     \begin{frame}{Outline}
         \tableofcontents
     \end{frame}
 
-% --- Introduction ---
+% ===== SECTION: INTRODUCTION =====
     \section{Introduction}
 
     \begin{frame}{Context and Motivation}
@@ -50,8 +102,8 @@
 
     \begin{frame}{Problem Statement and Research Questions}
         \textbf{Problem:} Unstructured internship data + semantic gap + heterogeneous JSON inputs.
-
         \vspace{0.3cm}
+
         \textbf{Research Questions:}
         \begin{enumerate}
             \item \textbf{RQ1:} How to balance extraction accuracy and computational cost using a tiered pipeline?
@@ -61,7 +113,7 @@
         \end{enumerate}
     \end{frame}
 
-% --- Technological Environment ---
+% ===== SECTION: TECHNOLOGICAL ENVIRONMENT =====
     \section{Technological Environment}
 
     \begin{frame}{Technology Stack Overview}
@@ -97,26 +149,28 @@
         \end{columns}
     \end{frame}
 
-% --- System Design ---
-\section{System Design}
+% ===== SECTION: SYSTEM DESIGN =====
+    \section{System Design}
 
-\begin{frame}{Tiered Semantic Enrichment Pipeline}
-\textbf{Design principle:} Cheap, fast methods handle most cases; expensive ones only for edge cases.
+    \begin{frame}{Tiered Semantic Enrichment Pipeline}
+        \textbf{Design principle:} Cheap, fast methods handle most cases; expensive ones only for edge cases.
+        \vspace{0.3cm}
 
-\vspace{0.3cm}
-\begin{block}{Layer A – Deterministic (78\% of cases)}
-\begin{itemize}
-\item Regex salary parsing (98\% precision), location/date cleaning
-\item Gazetteer‑based skill extraction (800+ ESCO‑aligned skills)
-\item Keyword‑anchored role categorisation (Software, Data/AI, Design, Healthcare, Business)
+        \begin{block}{Layer A – Deterministic (78\% of cases)}
+            \begin{itemize}
+                \item Regex salary parsing (98\% precision), location/date cleaning
+                \item Gazetteer‑based skill extraction (800+ ESCO‑aligned skills)
+                \item Keyword‑anchored role categorisation (Software, Data/AI, Design, Healthcare, Business)
+            \end{itemize}
+        \end{block}
+
+        \begin{block}{Layer B – Lightweight Neural (19\% of cases)}
+            \begin{itemize}
+                \item DistilBERT for ambiguous title disambiguation
+                \item Sentence‑BERT to map titles to ESCO Level 4 occupations (Top‑3 accuracy 91\%)
 \end{itemize}
 \end{block}
-\begin{block}{Layer B – Lightweight Neural (19\% of cases)}
-\begin{itemize}
-\item DistilBERT for ambiguous title disambiguation
-\item Sentence‑BERT to map titles to ESCO Level 4 occupations (Top‑3 accuracy 91\%)
-\end{itemize}
-\end{block}
+
 \begin{block}{Layer C – LLM Fallback (3\% of cases)}
 \begin{itemize}
 \item Reserved for highly idiosyncratic titles (e.g., “Prompt Engineer”)
@@ -156,13 +210,13 @@
 \begin{itemize}
 \item Scale‑invariant, no score normalisation
 \item Robust to outliers
-\item Encourages consensus between lexcial and semantic signals
+\item Encourages consensus between lexical and semantic signals
 \end{itemize}
 \end{column}
 \end{columns}
 \end{frame}
 
-% --- Evaluation ---
+% ===== SECTION: EVALUATION =====
 \section{Evaluation}
 
 \begin{frame}{Experimental Setup}
@@ -261,7 +315,7 @@ Cost per 1 000 queries & \textbf{\$0.01} & \$1.20 \\
 \end{itemize}
 \end{frame}
 
-% --- Conclusion ---
+% ===== SECTION: CONCLUSION =====
 \section{Conclusion}
 
 \begin{frame}{Contributions}
@@ -298,7 +352,7 @@ Cost per 1 000 queries & \textbf{\$0.01} & \$1.20 \\
 \end{itemize}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[standout]
 \centering
 \Huge Thank you! \\ \vspace{1cm} \large Questions?
 \end{frame}
