@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Thesis"
+echo "Presentation"
 pdflatex -output-directory=out presentation.tex
 bibtex out/presentation
 pdflatex -output-directory=out presentation.tex

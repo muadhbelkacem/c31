@@ -23,203 +23,284 @@
 \begin{document}
 
 % Title Slide
-\begin{frame}
-    \titlepage
-\end{frame}
+    \begin{frame}
+        \titlepage
+    \end{frame}
 
 % Table of Contents
-\begin{frame}{Outline}
-    \tableofcontents
-\end{frame}
+    \begin{frame}{Outline}
+        \tableofcontents
+    \end{frame}
 
 % --- Introduction ---
-\section{Introduction}
+    \section{Introduction}
 
-\begin{frame}{Context and Motivation}
-    \begin{itemize}
-        \item Digital shift in global labor market for internship discovery.
-        \item Abundance of data from diverse platforms (LinkedIn, Indeed, etc.).
-        \item \textbf{Challenges:}
+    \begin{frame}{Context and Motivation}
+        \begin{itemize}
+            \item Digital labor market: internship listings are abundant but \textbf{semi-structured, inconsistent, and noisy}.
+            \item Sources: LinkedIn, Indeed, university portals, direct JSON uploads, each with its own schema.
+            \item \textbf{Two extreme approaches fail:}
             \begin{itemize}
-                \item Semi-structured and inconsistent data.
-                \item Platform-specific conventions and noisy text.
-                \item Lexical gap: ``Junior Java Developer'' vs. ``Software Engineering Intern''.
+                \item \textit{Lexical only (e.g., BM25):} cannot handle synonyms, semantic gap (e.g., “Code Wizard” vs. “Software Engineer”).
+                \item \textit{Pure LLM pipeline:} high cost, high latency, privacy concerns, and inconsistency (hallucinations).
             \end{itemize}
-        \item \textbf{Need:} A lightweight approach for semantic structuring and precise discovery.
-    \end{itemize}
-\end{frame}
+            \item \textbf{Goal:} A lightweight, tiered semantic enrichment pipeline that runs on commodity hardware.
+        \end{itemize}
+    \end{frame}
 
-\begin{frame}{Problem Statement}
-    \begin{enumerate}
-        \item \textbf{Rigid Lexical Matching:}
-            \begin{itemize}
-                \item Reliance on exact keywords (e.g., BM25).
-                \item Fails to handle synonyms, jargon, and relationships.
-            \end{itemize}
-        \item \textbf{High-Cost LLM Dependency:}
-            \begin{itemize}
-                \item Real-time processing with LLMs is expensive and has high latency.
-                \item Schema mapping for diverse JSON formats is manual and repetitive.
-            \end{itemize}
-    \end{enumerate}
-\end{frame}
+    \begin{frame}{Problem Statement and Research Questions}
+        \textbf{Problem:} Unstructured internship data + semantic gap + heterogeneous JSON inputs.
 
-\begin{frame}{Research Questions}
-    \begin{itemize}
-        \item \textbf{RQ1:} How to balance extraction accuracy and computational cost?
-        \item \textbf{RQ2:} Effectiveness of lightweight models (DistilBERT) for ESCO mapping?
-        \item \textbf{RQ3:} Improvement from hybrid retrieval (BM25 + HNSW)?
-        \item \textbf{RQ4:} Automating JSON ingestion via heuristic-based mapping?
-    \end{itemize}
-\end{frame}
+        \vspace{0.3cm}
+        \textbf{Research Questions:}
+        \begin{enumerate}
+            \item \textbf{RQ1:} How to balance extraction accuracy and computational cost using a tiered pipeline?
+            \item \textbf{RQ2:} How well can lightweight transformers (DistilBERT, SBERT) map non‑standard titles to the ESCO taxonomy?
+            \item \textbf{RQ3:} How much does hybrid retrieval (BM25 + HNSW) improve relevance and recall over keyword‑only search?
+            \item \textbf{RQ4:} Can heuristic‑based mapping automate ingestion of arbitrarily structured JSON files?
+        \end{enumerate}
+    \end{frame}
 
 % --- Technological Environment ---
-\section{Technological Environment}
+    \section{Technological Environment}
 
-\begin{frame}{Technology Stack}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{Frontend \& API:}
-            \begin{itemize}
-                \item React 18 (Client)
-                \item Next.js 14 (API \& SSR)
-                \item TypeScript (Type-safety)
-            \end{itemize}
-            \textbf{Database:}
-            \begin{itemize}
-                \item Static JSON (Catalog)
-                \item Supabase / PostgreSQL (User data)
-                \item \texttt{pgvector} (Vector storage)
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \textbf{NLP \& AI:}
-            \begin{itemize}
-                \item \texttt{transformers.js} (In-browser/Node)
-                \item \textbf{DistilBERT:} Sequence classification
-                \item \textbf{Sentence-BERT:} Embeddings (\texttt{all-MiniLM-L6-v2})
-            \end{itemize}
-            \textbf{Search Indexing:}
-            \begin{itemize}
-                \item \texttt{bm25} (Lexical)
-                \item \texttt{hnswlib-node} (Semantic)
-            \end{itemize}
-        \end{column}
-    \end{columns}
+    \begin{frame}{Technology Stack Overview}
+        \begin{columns}[T]
+            \begin{column}{0.48\textwidth}
+                \textbf{Application \& API}
+                \begin{itemize}
+                    \item React 18 (component‑based UI)
+                    \item Next.js 14 API routes (serverless)
+                    \item TypeScript (compile‑time type safety)
+                \end{itemize}
+                \textbf{Persistence}
+                \begin{itemize}
+                    \item Static JSON catalog (17 500 listings)
+\item Supabase/PostgreSQL + \texttt{pgvector}
+\item In‑memory cache (Map$<$string, Internship$>$)
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{NLP \& Semantic Enrichment}
+\begin{itemize}
+\item \texttt{transformers.js} (ONNX runtime, CPU only)
+\item DistilBERT (sequence classification, 60\% faster than BERT)
+\item Sentence‑BERT (\texttt{all-MiniLM-L6-v2}, 384‑dim embeddings)
+\end{itemize}
+\textbf{Retrieval Infrastructure}
+\begin{itemize}
+\item BM25 (lexical, inverted index)
+\item HNSW (\texttt{hnswlib-node}) for approximate nearest neighbour
+\item Reciprocal Rank Fusion (RRF) for hybrid ranking
+\end{itemize}
+\end{column}
+\end{columns}
 \end{frame}
 
 % --- System Design ---
 \section{System Design}
 
-\begin{frame}{Tiered Enrichment Pipeline}
-    \begin{itemize}
-        \item \textbf{Layer A (Deterministic):}
-            \begin{itemize}
-                \item Rule-based sanitization & regex-based salary parsing.
-                \item Dictionary-based skill extraction (800+ ESCO-aligned skills).
-                \item Keyword-anchored role categorization.
-            \end{itemize}
-        \item \textbf{Layer B (Neural):}
-            \begin{itemize}
-                \item DistilBERT for disambiguation and taxonomy mapping.
-                \item Sentence-BERT for generating 384-dim semantic embeddings.
-            \end{itemize}
-        \item \textbf{Layer C (LLM Fallback):}
-            \begin{itemize}
-                \item Resource-budgeted LLM for complex/noisy cases.
-            \end{itemize}
-    \end{itemize}
+\begin{frame}{Tiered Semantic Enrichment Pipeline}
+\textbf{Design principle:} Cheap, fast methods handle most cases; expensive ones only for edge cases.
+
+\vspace{0.3cm}
+\begin{block}{Layer A – Deterministic (78\% of cases)}
+\begin{itemize}
+\item Regex salary parsing (98\% precision), location/date cleaning
+\item Gazetteer‑based skill extraction (800+ ESCO‑aligned skills)
+\item Keyword‑anchored role categorisation (Software, Data/AI, Design, Healthcare, Business)
+\end{itemize}
+\end{block}
+\begin{block}{Layer B – Lightweight Neural (19\% of cases)}
+\begin{itemize}
+\item DistilBERT for ambiguous title disambiguation
+\item Sentence‑BERT to map titles to ESCO Level 4 occupations (Top‑3 accuracy 91\%)
+\end{itemize}
+\end{block}
+\begin{block}{Layer C – LLM Fallback (3\% of cases)}
+\begin{itemize}
+\item Reserved for highly idiosyncratic titles (e.g., “Prompt Engineer”)
+\end{itemize}
+\end{block}
 \end{frame}
 
-\begin{frame}{Pipeline Lifecycle}
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/fig_enrichment_lifecycle}
-    \caption{Sequential processing from raw ingestion to structured cache.}
+\begin{frame}{Data Ingestion and Schema Normalisation}
+\begin{itemize}
+\item \textbf{Schema‑on‑read:} fuzzy key matching for JSON uploads (“link”, “url”, “apply\_href” → unified \texttt{sourceUrl}).
+\item \textbf{Deterministic ID generation:} \texttt{slugify(title) + "-at-" + slugify(company)} → blocking key for deduplication.
+\item \textbf{Validation (Layer 0):} type guards, range checks, required fields; malformed records quarantined.
+\item \textbf{Sanitisation:} HTML entity resolution, whitespace collapsing, boilerplate removal.
+\item \textbf{Caching:} enriched objects stored in server‑side Map; amortised cost – enrichment done once per data refresh, queries served from memory.
+\end{itemize}
 \end{frame}
 
-\begin{frame}{Hybrid Retrieval Strategy}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{Lexical (BM25):}
-            \begin{itemize}
-                \item Matches exact skill names and acronyms.
-                \item Handles branded searches (Company names).
-            \end{itemize}
-            \textbf{Semantic (HNSW):}
-            \begin{itemize}
-                \item Captures meaning and synonyms.
-                \item Overcomes the lexical gap.
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \centering
-            \includegraphics[width=1.1\textwidth]{figures/fig_retrieval_seq}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}{Fusion with Reciprocal Rank Fusion (RRF)}
-    \begin{itemize}
-        \item Combines lexical and dense retrieval outputs using rank positions.
-        \item \textbf{Formula:}
-            \[ \text{RRF\_score}(d) = \sum_{r \in \{\text{bm25}, \text{vector}\}} \frac{1}{k + \text{rank}_r(d)} \]
-        \item \textbf{Properties:}
-            \begin{itemize}
-                \item \textbf{Scale-invariant:} No need to normalize disparate scores.
-                \item \textbf{Robust:} Constant $k=60$ smooths outliers.
-                \item \textbf{Effective:} Prioritizes consensus between retrieval models.
-            \end{itemize}
-    \end{itemize}
+\begin{frame}{Hybrid Retrieval with RRF}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\textbf{Lexical (BM25)}
+\begin{itemize}
+\item Inverted index over \texttt{rawTitle} (weight 3), \texttt{rawDescription} (1), \texttt{company} (1.5)
+\item Exact matches for skills (“Kubernetes”), acronyms, company names
+\end{itemize}
+\textbf{Semantic (HNSW)}
+\begin{itemize}
+\item Pre‑computed 384‑dim SBERT embeddings
+\item HNSW graph: $M=16$, \texttt{efConstruction}=200, $\log N$ search time
+\end{itemize}
+\end{column}
+\begin{column}{0.5\textwidth}
+\textbf{Reciprocal Rank Fusion}
+\[
+\text{RRF\_score}(d) = \sum_{r\in\{\text{bm25},\text{vector}\}} \frac{1}{60 + \text{rank}_r(d)}
+\]
+\begin{itemize}
+\item Scale‑invariant, no score normalisation
+\item Robust to outliers
+\item Encourages consensus between lexcial and semantic signals
+\end{itemize}
+\end{column}
+\end{columns}
 \end{frame}
 
 % --- Evaluation ---
 \section{Evaluation}
 
-\begin{frame}{Evaluation Methodology}
-    \begin{itemize}
-        \item \textbf{Dataset:} 17,500 real-world internship listings.
-        \item \textbf{Metrics:}
-            \begin{itemize}
-                \item \textbf{Retrieval Quality:} HR@10, NDCG@10.
-                \item \textbf{Accuracy:} Precision/Recall for ESCO classification.
-                \item \textbf{Efficiency:} p50/p99 Latency, Memory RSS.
-                \item \textbf{Cost:} Comparative cost vs. pure LLM approach.
-            \end{itemize}
-        \item \textbf{Hardware:} Commodity Workstation (i7-13700K, 32GB RAM, No GPU).
-    \end{itemize}
+\begin{frame}{Experimental Setup}
+\begin{itemize}
+\item \textbf{Dataset:} 17 500 real internship listings (LinkedIn, Indeed, university portals, direct uploads).
+\item \textbf{Ground truth:} 500 manually annotated listings (ESCO Level 4, skills, salary, location), inter‑annotator agreement $\kappa = 0.84$.
+\item \textbf{Query set:} 30 queries – 10 lexical, 10 conceptual, 10 mixed.
+\item \textbf{Metrics:}
+\begin{itemize}
+\item Retrieval: P@5, HR@10, NDCG@10, MAP, MRR
+\item Extraction: Precision, Recall, F1, Top‑k accuracy
+\item Efficiency: throughput (listings/s), p50/p99 latency (ms), memory (RSS), cost (USD)
+\end{itemize}
+\item \textbf{Hardware:} Intel Core i7‑13700K, 32 GB DDR5, no GPU (commodity, $\approx$ \$1200).
+\end{itemize}
 \end{frame}
 
-\begin{frame}{Results Highlights}
-    \begin{itemize}
-        \item \textbf{Performance:} Median retrieval latency of $\sim$47 ms.
-        \item \textbf{Semantic Lift:} $\sim$29\% improvement in NDCG@10 with hybrid search.
-        \item \textbf{Cost Efficiency:} $>95\%$ reduction in inference cost compared to per-query LLM.
-        \item \textbf{Classification:} DistilBERT achieves high F1 for standard professional domains.
-    \end{itemize}
+\begin{frame}{Results – Extraction and Classification (RQ1, RQ2)}
+\begin{table}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Task & Precision & Recall & F1 / Top‑k \\
+\midrule
+Salary extraction (regex) & 0.98 & 0.81 & – \\
+Location extraction & 0.89 & 0.76 & – \\
+Skill extraction (gazetteer) & 0.94 & 0.64 & F1=0.71 \\
+ESCO title norm. (SBERT) & – & – & Top‑1: 0.78, Top‑3: 0.91 \\
+Domain categorisation & – & – & Exact match: 0.86 (heuristic), 0.89 (+embedding) \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{itemize}
+\item Layer A handles 78\% of extractions independently.
+\item SBERT improves Top‑1 accuracy by 24\% over keyword baseline.
+\item Main failure modes: implicit information (“familiar with modern frontend frameworks”), relative dates, monthly salary rates.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Results – Retrieval Quality (RQ3)}
+\begin{table}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Metric & BM25 (lexical) & Dense only & \textbf{Hybrid (RRF)} \\
+\midrule
+P@5 & 0.42 & 0.44 & \textbf{0.53} \\
+HR@5 & 0.67 & 0.70 & \textbf{0.80} \\
+NDCG@10 & 0.52 & 0.56 & \textbf{0.67} \\
+MAP & 0.48 & 0.51 & \textbf{0.63} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{itemize}
+\item Hybrid improves NDCG@10 by \textbf{29\%} over BM25 alone (p < 0.001).
+\item Largest gains on mixed queries (lexical + conceptual): +12\% over best single modality.
+\item RRF contributes +0.035 over simple score summation (ablation study).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Results – Efficiency and Cost (RQ4)}
+\begin{table}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Metric & Proposed hybrid & LLM‑only (GPT‑3.5) \\
+\midrule
+Ingestion throughput (listings/s) & \textbf{47.3} & 2.1 \\
+Total ingestion time (17 500 listings) & \textbf{6.2 min} & $\approx$2.5 h \\
+Median query latency & \textbf{47 ms} & 1.2–2.9 s \\
+p99 query latency & \textbf{128 ms} & >3 s \\
+Cost per 1 000 listings & \textbf{\$0.12} (electricity) & \$3.50 \\
+Cost per 1 000 queries & \textbf{\$0.01} & \$1.20 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{itemize}
+\item 22–26× speedup, 29–120× cheaper than LLM‑only pipeline.
+\item Runs on commodity CPU, no GPU required.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Error Analysis and Trade‑offs}
+\textbf{Extraction error categories:}
+\begin{enumerate}
+\item Implicit/latent information (48\% of errors) – requires knowledge graph reasoning.
+\item Format variance beyond regex coverage (32\%) – e.g., “€3k‑3.5k/mo”.
+\item Ambiguity requiring external knowledge (20\%) – e.g., “top‑tier university”.
+\end{enumerate}
+\vspace{0.2cm}
+\textbf{Accuracy–cost Pareto frontier:}
+\begin{itemize}
+\item Layer A: low cost, moderate recall.
+\item Layer B (SBERT) gives large accuracy gains for modest cost.
+\item LLM gives +2–3\% absolute improvement at 30–120× higher cost – not justified for bulk processing.
+\end{itemize}
 \end{frame}
 
 % --- Conclusion ---
 \section{Conclusion}
 
-\begin{frame}{Summary and Future Work}
-    \textbf{Key Takeaways:}
-    \begin{itemize}
-        \item Modular, tiered architecture successfully balances cost and accuracy.
-        \item Lightweight models provide sufficient semantic power for the internship domain.
-        \item Hybrid search significantly improves discovery relevance.
-    \end{itemize}
+\begin{frame}{Contributions}
+\begin{enumerate}
+\item \textbf{Tiered semantic enrichment pipeline} (deterministic + lightweight neural + bounded LLM fallback).
+\item \textbf{Hybrid search infrastructure} (BM25 + HNSW + RRF) integrated into PostgreSQL/pgvector.
+\item \textbf{Automated JSON ingestion heuristics} (fuzzy key matching, content‑based inference).
+\item \textbf{Empirical evaluation} on 17 500 real listings, showing:
+\begin{itemize}
+\item 29\% NDCG@10 improvement over BM25.
+\item 47 ms median latency, 6.2 min full ingestion on commodity hardware.
+\item 78\% of extractions handled by deterministic rules alone.
+\end{itemize}
+\end{enumerate}
+\end{frame}
 
-    \textbf{Future Work:}
-    \begin{itemize}
-        \item Real-time stream processing for scraping ingestion.
-        \item Expansion to multi-lingual listings and global taxonomies.
-        \item Integration of personalized user-profile embeddings for recommendation.
-    \end{itemize}
+\begin{frame}{Future Work}
+\begin{itemize}
+\item \textbf{Multilingual support:} Cross‑lingual dense retrieval (Translate‑Distill) for ESCO.
+\item \textbf{Contextual skill weighting:} Section segmentation (Requirements vs. Nice‑to‑have) using BiLSTM‑CRF.
+\item \textbf{Self‑training / distillation:} Use LLM to generate rationales and distil into DistilBERT.
+\item \textbf{Taxonomy drift monitoring:} Detect emerging skills (e.g., “LangChain”) via OOV n‑gram frequency.
+\item \textbf{User interaction integration:} A/B testing, click‑through models, collaborative filtering.
+\item \textbf{Complete comparative evaluation} against LinkedIn Jobs, Indeed, Handshake (blind relevance assessment).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Ethical and Practical Considerations}
+\begin{itemize}
+\item \textbf{Privacy:} Listings may contain PII; production deployment must implement redaction and comply with GDPR/CCPA.
+\item \textbf{Bias:} Automated pipelines can inherit societal biases; EU AI Act classifies recruitment systems as “high‑risk”.
+\item \textbf{Transparency:} Rule‑based Layer A is fully explainable; embedding layer less so, but tools like attention visualisation can help.
+\item \textbf{Deployment:} Tiered design allows incremental investment – start with rules, add neural only where needed. No GPU required → accessible to universities and SMEs.
+\end{itemize}
 \end{frame}
 
 \begin{frame}
-    \centering
-    \Huge Thank you! \\ \vspace{1cm} \large Questions?
+\centering
+\Huge Thank you! \\ \vspace{1cm} \large Questions?
 \end{frame}
 
 \end{document}
