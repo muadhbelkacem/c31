@@ -69,33 +69,34 @@
             \begin{column}{0.48\textwidth}
                 \textbf{Application \& API}
                 \begin{itemize}
-                    \item React 18 (component‑based UI)
-                    \item Next.js 14 API routes (serverless)
-                    \item TypeScript (compile‑time type safety)
+                    \item \textbf{React 19}: Server Components \& Streaming
+                    \item \textbf{Next.js 16}: App Router \& Server Actions
+                    \item \textbf{TypeScript 5.x}: Strict type safety
                 \end{itemize}
-                \textbf{Persistence}
+                \textbf{Persistence \& Scale}
                 \begin{itemize}
-                    \item Static JSON catalog (17 500 listings)
-\item Supabase/PostgreSQL + \texttt{pgvector}
-\item In‑memory cache (Map$<$string, Internship$>$)
-\end{itemize}
-\end{column}
-\begin{column}{0.48\textwidth}
-\textbf{NLP \& Semantic Enrichment}
-\begin{itemize}
-\item \texttt{transformers.js} (ONNX runtime, CPU only)
-\item DistilBERT (sequence classification, 60\% faster than BERT)
-\item Sentence‑BERT (\texttt{all-MiniLM-L6-v2}, 384‑dim embeddings)
-\end{itemize}
-\textbf{Retrieval Infrastructure}
-\begin{itemize}
-\item BM25 (lexical, inverted index)
-\item HNSW (\texttt{hnswlib-node}) for approximate nearest neighbour
-\item Reciprocal Rank Fusion (RRF) for hybrid ranking
-\end{itemize}
-\end{column}
-\end{columns}
-\end{frame}
+                    \item \textbf{17,500+ Listings}: Multi‑site Simulation
+                    \item \textbf{Supabase / PostgreSQL 16}: \texttt{pgvector}
+                    \item \textbf{In‑memory RRF Cache}: Amortised cost
+                    \item \textbf{Multi‑source}: RSS, JSON \& Web Ingestion
+                \end{itemize}
+            \end{column}
+            \begin{column}{0.48\textwidth}
+                \textbf{NLP \& Semantic Enrichment}
+                \begin{itemize}
+                    \item \textbf{\texttt{transformers.js} v3}: ONNX (CPU‑only)
+                    \item \textbf{DistilBERT}: Contextual disambiguation
+                    \item \textbf{SBERT}: \texttt{all‑MiniLM‑L6‑v2} (384‑dim)
+                \end{itemize}
+                \textbf{Retrieval Infrastructure}
+                \begin{itemize}
+                    \item \textbf{BM25}: Lexical, weighted field matching
+                    \item \textbf{HNSW}: \texttt{hnswlib‑node} for Vector ANN
+                    \item \textbf{RRF}: Reciprocal Rank Hybrid Fusion
+                \end{itemize}
+            \end{column}
+        \end{columns}
+    \end{frame}
 
 % --- System Design ---
 \section{System Design}
