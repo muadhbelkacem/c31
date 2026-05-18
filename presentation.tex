@@ -146,7 +146,7 @@
                 \textbf{\faDatabase~ Persistence \& Scale}
                 \begin{itemize}
                     \item 17,500+ Listings: Multi‑site Simulation
-                    \item Supabase / PostgreSQL 16: \texttt{pgvector}
+                    \item Supabase / PostgreSQL 16: Authentication \& User data
                     \item In‑memory RRF Cache: Amortised cost
                     \item Multi‑source: RSS, JSON \& Web Ingestion
                 \end{itemize}
@@ -365,7 +365,7 @@ Cost per 1,000 queries & \textbf{\$0.01} & \$1.20 \\
 \begin{frame}{Contributions}
 \begin{enumerate}
 \item \textbf{Tiered semantic enrichment pipeline} (deterministic + lightweight neural + bounded LLM fallback).
-\item \textbf{Hybrid search infrastructure} (BM25 + HNSW + RRF) integrated into PostgreSQL/pgvector.
+\item \textbf{Hybrid search infrastructure} (BM25 + HNSW + RRF) using in-memory indices.
 \item \textbf{Automated JSON ingestion heuristics} (fuzzy key matching, content‑based inference).
 \item \textbf{Empirical evaluation} on 17,500 real listings, showing:
 \begin{itemize}

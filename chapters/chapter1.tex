@@ -40,7 +40,7 @@ This thesis makes four primary contributions:
 
 \item A Tiered Semantic Enrichment Pipeline: The thesis introduces a modular architecture that combines three layers: deterministic, rule-based extraction (Layer A), lightweight neural mapping (Layer B), and a resource-budgeted LLM fallback for the most complex cases (Layer C).
 
-\item A Hybrid Search Infrastructure: The thesis implements a retrieval system using PostgreSQL and the pgvector extension to support hybrid lexical and semantic search.
+\item A Hybrid Search Infrastructure: The thesis implements a retrieval system using an in-memory HNSW index and BM25 to support hybrid lexical and semantic search.
 
 \item Automated Ingestion Heuristics: The thesis develops a flexible JSON processing module that uses fuzzy key matching and content-based inference to reduce manual schema mapping for multi-format user uploads.
 

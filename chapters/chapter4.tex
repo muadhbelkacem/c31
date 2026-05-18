@@ -54,11 +54,11 @@ The system's architecture is organized into four logical tiers, a design pattern
 
 \item data.ts: The primary data access interface. It reads from the file system, manages the in-memory cache, and exposes functions like getProcessedData() and getInternshipById(). It abstracts the persistence strategy from the API layer.
 
-\item supabase-client.ts: A dedicated utility for interacting with the relational database (Supabase/PostgreSQL) for dynamic user data such as bookmarks and profiles, as discussed in the storage and persistence section.
+\item supabase-client.ts: A dedicated utility for interacting with the relational database (Supabase/PostgreSQL) for user authentication and dynamic user data such as bookmarks and profiles.
 
 \item This layer also contains the core enrichment logic (detailed in the relevant section), including modules for cleaning, semantic mapping, and skill extraction. This is where the tiered enrichment strategy (Layers A, B, and a reserved C) is implemented.
 
-\item Data Persistence Layer (public/ \& Database): This tier represents the physical data stores. The static, pre-scraped internship catalog resides as a JSON file in the public/ directory. Dynamic user data and vector embeddings are stored in the Supabase-managed PostgreSQL instance with the pgvector extension. This hybrid storage architecture balances the need for fast, version-controlled access to the core catalog with the transactional and indexing requirements of a modern search application. This structured decomposition ensures that a change to the skill extraction algorithm in the data processing layer does not require a corresponding change to a UI component, and vice versa.
+\item Data Persistence Layer (public/ \& Database): This tier represents the physical data stores. The static, pre-scraped internship catalog resides as a JSON file in the public/ directory. Dynamic user data is stored in the Supabase-managed PostgreSQL instance for authentication and persistence, while vector embeddings are managed via an in-memory HNSW index. This hybrid storage architecture balances the need for fast, version-controlled access to the core catalog with the transactional and indexing requirements of a modern application. This structured decomposition ensures that a change to the skill extraction algorithm in the data processing layer does not require a corresponding change to a UI component, and vice versa.
 
 \end{itemize}
 \subsection{Core Data Model}
