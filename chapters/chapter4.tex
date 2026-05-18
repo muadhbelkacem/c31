@@ -10,13 +10,9 @@ This chapter establishes the architectural blueprint and methodological framewor
 The system is designed to serve two primary actors whose distinct needs shape the functional requirements and system scope, as illustrated in Figure~\ref{fig:usecase}. This approach aligns with standard practices in recruitment informatics and user-centered system design [15, 5].
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item The Student/Job Seeker: This is the primary end-user, interacting with the system to discover relevant internship opportunities. Their core requirements are:
-
-\end{enumerate}
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Semantic Search: The ability to input conceptual queries (e.g., ``build mobile apps,'' ``data science with Python'') and receive results that match the underlying meaning, not just exact keywords.
 
@@ -26,15 +22,7 @@ The system is designed to serve two primary actors whose distinct needs shape th
 
 \item Clear Information Display: Access to a clean, structured view of each internship, with core attributes like salary, skills, and location clearly parsed and presented.
 
-\end{itemize}
-
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
-
 \item The System Administrator/Data Engineer: This actor manages the backend pipeline, ensuring data freshness and quality. Their primary requirements are:
-
-\end{enumerate}
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Automated Multi-Format Ingestion: A robust module to ingest and normalize data from disparate sources, primarily a large static JSON catalog from web scraping and manually uploaded JSON files from partner institutions, each potentially with a unique schema. This addresses the ``schema-on-read'' challenge described in the relevant section.
 
@@ -56,7 +44,7 @@ The system is designed to serve two primary actors whose distinct needs shape th
 The system's architecture is organized into four logical tiers, a design pattern that enforces a clean separation of concerns, enhances scalability, and facilitates independent development and testing of each layer [13].
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Presentation Layer (app/components/): This tier contains the React-based user interface. The InternshipList.tsx component is responsible for rendering search results, interactive filters, and detail views. It maintains its own UI state while consuming data exclusively through the API layer, preserving a clean separation from backend logic.
 
@@ -64,28 +52,20 @@ The system's architecture is organized into four logical tiers, a design pattern
 
 \item Data Processing Layer (app/lib/): This is the computational core of the system, responsible for the entire ``clean-enrich-structure'' pipeline. It is divided into distinct modules to maximize cohesion:
 
-\end{enumerate}
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
 \item data.ts: The primary data access interface. It reads from the file system, manages the in-memory cache, and exposes functions like getProcessedData() and getInternshipById(). It abstracts the persistence strategy from the API layer.
 
 \item supabase-client.ts: A dedicated utility for interacting with the relational database (Supabase/PostgreSQL) for dynamic user data such as bookmarks and profiles, as discussed in the storage and persistence section.
 
 \item This layer also contains the core enrichment logic (detailed in the relevant section), including modules for cleaning, semantic mapping, and skill extraction. This is where the tiered enrichment strategy (Layers A, B, and a reserved C) is implemented.
 
-\end{itemize}
-
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
-
 \item Data Persistence Layer (public/ \& Database): This tier represents the physical data stores. The static, pre-scraped internship catalog resides as a JSON file in the public/ directory. Dynamic user data and vector embeddings are stored in the Supabase-managed PostgreSQL instance with the pgvector extension. This hybrid storage architecture balances the need for fast, version-controlled access to the core catalog with the transactional and indexing requirements of a modern search application. This structured decomposition ensures that a change to the skill extraction algorithm in the data processing layer does not require a corresponding change to a UI component, and vice versa.
 
-\end{enumerate}
+\end{itemize}
 \subsection{Core Data Model}
 The semantic integrity of the entire pipeline is maintained by a formal, strongly typed data model. This model acts as a ``semantic contract'' [44] between the ingestion logic and the presentation layer, ensuring that data output by the pipeline conforms to the expectations of the frontend. This approach to structured information management is consistent with recent work on generic traceability link recovery through Retrieval-Augmented Generation, where schemas act as enforceable specifications for system artifacts [fuchss2026linking]. The Internship interface, implemented in TypeScript and visualized in Figure~\ref{fig:class}, is the central entity of this model. The design of this schema is motivated by three objectives:
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Identity and Provenance: Achieved through a stable, deterministic id field based on a normalized combination of the company name and job title. This ensures unique identification across ingestion cycles and maintains links to original sources [8].
 
@@ -93,7 +73,7 @@ The semantic integrity of the entire pipeline is maintained by a formal, strongl
 
 \item Semantic Enrichment: The model contains fields for a pre-computed dense embedding vector and a canonicalTitle mapped to the ESCO taxonomy, facilitating the non-lexical semantic search described in the theoretical foundation chapter [42, 32]. This formalization, inspired by foundational work in Information Extraction [44], ensures that every component, from the regex-based salary parser to the React search card, operates on a shared, unambiguous definition of an ``Internship.'' This approach to structured information management is critical for maintaining consistency across a complex, multi-stage data pipeline.
 
-\end{enumerate}
+\end{itemize}
 
 \begin{figure}[H]
 \centering
@@ -115,7 +95,7 @@ The interaction between the client-side UI and the server-side data processing l
 The data ingestion and enrichment process is the methodological core of the system, implementing a tiered strategy that directly addresses Research Question 1. It follows a strict sequence of operations designed to progressively refine raw, noisy data into structured, semantically enriched entities using the most efficient tool for each task [9, 18]. This pipeline is orchestrated by a core function, enrichInternship(rawItem), as described in the implementation chapter.
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item I/O and Schema Validation (Layer 0): The pipeline begins with a safety-first approach. The system reads source data from the file system or a parsed upload and immediately validates the structural integrity of the JSON. This ensures the data conforms to the expected top-level schema before any processing occurs, a critical step in robust data integration [13]. Any records failing schema validation are logged and quarantined for manual inspection, preventing them from corrupting the downstream data store.
 
@@ -127,7 +107,7 @@ The data ingestion and enrichment process is the methodological core of the syst
 
 \item Caching and State Management (Post-Processing): The final, fully enriched Internship object is placed into a server-side in-memory cache. This optimization amortizes the cost of the pipeline over many read requests. The cache invalidation strategy is tied to the data refresh cycle, supporting data freshness while reducing response time for the user-facing API [7]. This design choice is central to the system's lightweight operational profile because it avoids re-computation on every user query and contrasts with the per-query latency of LLM-dependent architectures.
 
-\end{enumerate}
+\end{itemize}
 
 \section{Semantic Schema and Label Space}
 This chapter defines the internal data model and controlled vocabularies used to transform raw, heterogeneous internship listings into a structured, interoperable semantic knowledge base. As outlined in the system architecture, the core challenge is to unify the disparate language of source platforms into a single, consistent representation. The chapter first details the formal target schema, the Internship interface, which serves as an enforceable contract for the data pipeline. It then justifies the selection of the ESCO (European Skills, Competences, Qualifications and Occupations) taxonomy as the primary reference for mapping job titles and skills to canonical concepts. Finally, it explains the design of a supplementary internal categorization layer that bridges the gap between ESCO's deep hierarchy and the flatter categories required by an end-user interface. The design choices follow established principles of data integration, semantic modeling, and information extraction, directly addressing the semantic gap identified in the problem statement [13, 48, 44].
@@ -139,7 +119,7 @@ To achieve a unified and queryable view of labor-market data, the system require
 The schema's design is directly motivated by three primary functional objectives, each of which addresses a key failure mode of ad-hoc data processing:
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Identity and Provenance: A persistent challenge in aggregating data from multiple scrape cycles is the creation of duplicate records for the same logical job. To support unique identification across ingestion cycles despite minor textual variations, the schema mandates a deterministic primary key. Maintaining a clear link back to the original source is also necessary for auditing extraction quality, managing data staleness, and respecting source-specific policies [8].
 
@@ -147,7 +127,7 @@ The schema's design is directly motivated by three primary functional objectives
 
 \item Semantic Enrichment for Non-Lexical Search: To bridge the vocabulary gap between user queries and employer terminology, the schema stores outputs of the semantic pipeline. These include high-dimensional dense vector embeddings, which represent the meaning of the job description, and a canonical job title mapped to a standard taxonomy. These fields provide the basis for semantic vector-based search, enabling the system to match a query such as ``C++ Intern'' with a listing titled ``Systems Software Trainee'' [42, 32].
 
-\end{enumerate}
+\end{itemize}
 \subsubsection{The Internship Interface: A Formal Semantic Contract}
 The abstract structural requirements are implemented as a TypeScript interface, serving as the foundational blueprint for both the relational database and the frontend presentation layer. This formalization in a strongly typed language enforces compile-time and runtime data integrity. By defining a canonical Internship type, each module, from the regex-based salary parser to the React search result card, operates on a shared and unambiguous definition of the data entity. Deviations from this contract, such as a missing field or incorrect type, raise errors during development or testing and reduce the risk of data corruption propagating through the pipeline. This practice is a cornerstone of robust and maintainable IE pipelines [44]. The key fields of the Internship interface are structured as follows:
 
