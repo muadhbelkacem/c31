@@ -58,7 +58,7 @@ JSON is used as the exchange format between the API layer and the client applica
 
 \section{Database and Persistence Technologies}
 
-The system employs a hybrid persistence architecture that balances the need for fast, read-heavy access to the internship catalog with the transactional requirements of user-specific data. This design reflects a deliberate trade-off: the static catalog is large (17,500 records) but read-mostly (updates occur only during daily ingestion cycles), while user data is smaller (per-user bookmarks and preferences) but requires ACID guarantees for concurrent access.
+The system employs a hybrid persistence architecture that balances the need for fast, read-heavy access to the internship catalog with the transactional requirements of user-specific data. This design reflects a deliberate trade-off: the static catalog is small (327 records) but read-mostly (updates occur only during daily ingestion cycles), while user data is smaller (per-user bookmarks and preferences) but requires ACID guarantees for concurrent access.
 
 \subsection{Hybrid Persistence Architecture}
 
@@ -72,7 +72,7 @@ The primary internship catalog resides in \texttt{public/internships.json}. This
     \item \textbf{Version control}: The file can be tracked in Git, allowing complete rollback to any previous state and enabling reproducible experiments across thesis versions.
     \item \textbf{Rapid loading}: During development and testing, the file can be read from disk in under 100 ms, eliminating database connection overhead.
     \item \textbf{Simplified deployment}: The system can be deployed to static hosting environments (e.g., Vercel, Netlify) without a database dependency for read-only operations.
-    \item \textbf{Memory caching}: The file is typically 5–15 MB for 17,500 listings (approximately 300–800 bytes per record after compression), small enough to be cached entirely in memory. This design choice is central to the system's "lightweight" claim: serving static JSON from memory is faster (microseconds vs. milliseconds) and operationally simpler than a database query for the same data.
+    \item \textbf{Memory caching}: The file is typically 5–15 MB for 327 listings (approximately 300–800 bytes per record after compression), small enough to be cached entirely in memory. This design choice is central to the system's "lightweight" claim: serving static JSON from memory is faster (microseconds vs. milliseconds) and operationally simpler than a database query for the same data.
 \end{itemize}
 
 The primary disadvantage of this approach—lack of query flexibility—is mitigated by the fact that all searches are served from the in-memory index rather than from direct file queries. The JSON file serves as a serialization format, not a query engine.
@@ -199,11 +199,11 @@ Sentence-BERT (SBERT) modifies the pre-trained BERT architecture to produce sema
 
 \begin{itemize}
     \item \textbf{Dimensionality}: 384-dimensional embeddings, a deliberate trade-off between expressiveness (higher dimensions) and computational efficiency (lower dimensions). The original BERT-base produces 768-dimensional embeddings, but the 384-dimensional version retains sufficient semantic discriminative power for the internship domain while reducing storage and computation by 50\%.
-    \item \textbf{Performance}: Approximately 50-100 sentences per second on the reference CPU (Intel Core i7-13700K). For the 17,500-listing corpus, generating embeddings for each listing (title and description concatenated) takes approximately 3-5 minutes, which is acceptable for batch ingestion.
+    \item \textbf{Performance}: Approximately 50-100 sentences per second on the reference CPU (Intel Core i7-13700K). For the 327-listing corpus, generating embeddings for each listing (title and description concatenated) takes approximately 3-5 minutes, which is acceptable for batch ingestion.
     \item \textbf{Model size}: 80 MB on disk, loading into approximately 120 MB of RAM. This is small enough to fit comfortably within the 32 GB commodity hardware constraint.
 \end{itemize}
 
-These embeddings are pre-computed for each internship's concatenated title and description and stored in the catalog for later retrieval. For query-time embedding, the same model encodes the user's search query and compares it to pre-computed internship embeddings using cosine similarity. The bi-encoder architecture of SBERT makes this approach feasible for real-time search because the bulk of computation (embedding all internships) happens offline during ingestion, and query-time embedding is a single forward pass (approximately 10 ms per query). Without this pre-computation, each query would require embedding 17,500 listings, which would take approximately 3-5 minutes per query—clearly unacceptable for interactive use.
+These embeddings are pre-computed for each internship's concatenated title and description and stored in the catalog for later retrieval. For query-time embedding, the same model encodes the user's search query and compares it to pre-computed internship embeddings using cosine similarity. The bi-encoder architecture of SBERT makes this approach feasible for real-time search because the bulk of computation (embedding all internships) happens offline during ingestion, and query-time embedding is a single forward pass (approximately 10 ms per query). Without this pre-computation, each query would require embedding 327 listings, which would take approximately 3-5 minutes per query—clearly unacceptable for interactive use.
 
 \section{Indexing and Retrieval Technologies}
 
@@ -219,7 +219,7 @@ BM25 (Best Matching 25) provides the lexical retrieval baseline. The system uses
     \item \texttt{company} (weight: 1.5): Company names are moderately important, especially for branded searches.
 \end{itemize}
 
-BM25 remains important for exact matches on skill names (e.g., "Kubernetes"), company names (e.g., "Acme Corp"), and technical acronyms (e.g., "RTL") where semantic similarity alone may be too diffuse. The BM25 index is rebuilt periodically when the catalog is updated, which is acceptable because updates are assumed to occur on a daily or weekly basis rather than continuously. The index build time for 17,500 listings is approximately 2-3 seconds.
+BM25 remains important for exact matches on skill names (e.g., "Kubernetes"), company names (e.g., "Acme Corp"), and technical acronyms (e.g., "RTL") where semantic similarity alone may be too diffuse. The BM25 index is rebuilt periodically when the catalog is updated, which is acceptable because updates are assumed to occur on a daily or weekly basis rather than continuously. The index build time for 327 listings is approximately 2-3 seconds.
 
 The BM25 implementation uses the default parameters: \(k_1 = 1.2\) (term frequency saturation) and \(b = 0.75\) (document length normalization). These values are standard in the IR literature and have been shown to perform well across a wide range of corpora.
 
@@ -236,7 +236,7 @@ HNSW constructs a multi-layer proximity graph that enables logarithmic-time appr
     \item \textbf{Query processing}: A search starts at the top layer, greedily traversing to the node closest to the query vector. The search then descends to the next layer, starting from the best candidate found in the layer above, and repeats. This hierarchical navigation enables \(O(\log N)\) search complexity.
 \end{enumerate}
 
-For a catalog of 17,500 embeddings, HNSW reduces query latency from approximately 200 ms (exact linear scan) to approximately 5-10 ms while maintaining greater than 0.95 recall (i.e., the top-10 results from HNSW overlap 95\% or more with the top-10 results from exact search). The index is built with the following parameters:
+For a catalog of 327 embeddings, HNSW reduces query latency from approximately 200 ms (exact linear scan) to approximately 5-10 ms while maintaining greater than 0.95 recall (i.e., the top-10 results from HNSW overlap 95\% or more with the top-10 results from exact search). The index is built with the following parameters:
 
 \begin{itemize}
     \item \(M = 16\): Maximum number of bidirectional connections per node in the graph. Higher values improve recall at the cost of increased index size and build time. The value 16 is a standard default.
@@ -244,7 +244,7 @@ For a catalog of 17,500 embeddings, HNSW reduces query latency from approximatel
     \item \texttt{efSearch} = 50: Size of the dynamic candidate list during query. Higher values improve recall at the cost of higher query latency.
 \end{itemize}
 
-The HNSW index is stored in memory and updated only when the catalog changes, consistent with the amortized cost model. Index build time for 17,500 embeddings is approximately 10-15 seconds, which is acceptable for daily batch updates.
+The HNSW index is stored in memory and updated only when the catalog changes, consistent with the amortized cost model. Index build time for 327 embeddings is approximately 10-15 seconds, which is acceptable for daily batch updates.
 
 \subsubsection{Hybrid Fusion with Reciprocal Rank Fusion (RRF)}
 
@@ -309,7 +309,7 @@ To ensure that the experimental results reported in Chapter 6 can be reproduced 
     \item \textbf{Fixed random seeds}: All libraries with stochastic behavior (HNSW index construction, DistilBERT inference) use fixed random seeds (seed = 42) to ensure deterministic outputs across runs.
     \item \textbf{Version pinning}: All dependencies are pinned to exact versions in \texttt{package-lock.json}, which is included in the thesis repository.
     \item \textbf{Environment specification}: A \texttt{Dockerfile} is provided that replicates the exact Ubuntu 22.04 environment, including system-level dependencies (e.g., Python for token counting, CUDA libraries—though GPU is not required).
-    \item \textbf{Data anonymization}: The 17,500-listing corpus cannot be redistributed due to terms-of-service constraints, but a synthetic dataset with identical statistical properties (skill distribution, salary range distribution, title length distribution) is provided for testing. The synthetic dataset is generated by resampling from the original corpus with perturbation to avoid copyright concerns.
+    \item \textbf{Data anonymization}: The 327-listing corpus cannot be redistributed due to terms-of-service constraints, but a synthetic dataset with identical statistical properties (skill distribution, salary range distribution, title length distribution) is provided for testing. The synthetic dataset is generated by resampling from the original corpus with perturbation to avoid copyright concerns.
     \item \textbf{Benchmark scripts}: The \texttt{evaluation/run-benchmarks.sh} script executes the complete evaluation pipeline and outputs the metrics reported in Chapter 6.
 \end{enumerate}
 

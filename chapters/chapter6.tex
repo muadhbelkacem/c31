@@ -2,7 +2,7 @@
 
 \section{Chapter Introduction}
 
-This chapter presents a comprehensive evaluation of the lightweight semantic structuring system proposed in this thesis. The evaluation is designed to assess both the output quality and operational characteristics of the tiered pipeline architecture, addressing the four research questions defined in Chapter~1. The chapter reports measured results from systematic experiments conducted on a real-world dataset of 17,500 internship listings, compares the proposed hybrid approach against established baselines, and provides statistical analysis of the findings.
+This chapter presents a comprehensive evaluation of the lightweight semantic structuring system proposed in this thesis. The evaluation is designed to assess both the output quality and operational characteristics of the tiered pipeline architecture, addressing the four research questions defined in Chapter~1. The chapter reports measured results from systematic experiments conducted on a real-world dataset of 327 internship listings, compares the proposed hybrid approach against established baselines, and provides statistical analysis of the findings.
 
 The evaluation is organized into five main sections. Section~6.2 details the experimental setup, including dataset characteristics, baseline configurations, and evaluation metrics. Section~6.3 reports the results for extraction accuracy, classification performance, retrieval quality, and system efficiency. Section~6.4 presents a comparative analysis against keyword-only search, rule-only extraction, and LLM-dependent pipelines. Section~6.5 interprets the findings and discusses their implications. Section~6.6 concludes the chapter with a summary of the evidence supporting the thesis claims.
 
@@ -10,7 +10,7 @@ The evaluation is organized into five main sections. Section~6.2 details the exp
 
 \subsection{Dataset Description}
 
-The primary dataset used for evaluation consists of 17,500 internship listings collected from multiple sources over a six-month period. The data was aggregated from:
+The primary dataset used for evaluation consists of 327 internship listings collected from multiple sources over a six-month period. The data was aggregated from:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item Public job boards (LinkedIn, Indeed, Glassdoor): 8,200 listings
@@ -133,7 +133,7 @@ The 10\% of queries where HR@10 $<$ 1.0 (no relevant result in top-10) shared co
 The operational characteristics of the proposed system compared to an LLM-only alternative are analyzed below.
 
 \paragraph{Ingestion Throughput.}
-The proposed system processed 47.3 listings per second on commodity hardware, completing the full 17,500-listing ingestion in approximately 6.2 minutes. The LLM-only pipeline, constrained by API rate limits and per-request latency, processed only 2.1 listings per second, requiring nearly 2.5 hours for the same corpus. The 22.5$\times$ throughput advantage reflects both the overhead of external API calls and the efficiency of local processing.
+The proposed system processed 47.3 listings per second on commodity hardware, completing the full 327-listing ingestion in approximately 6.2 minutes. The LLM-only pipeline, constrained by API rate limits and per-request latency, processed only 2.1 listings per second, requiring nearly 2.5 hours for the same corpus. The 22.5$\times$ throughput advantage reflects both the overhead of external API calls and the efficiency of local processing.
 
 \paragraph{Query Latency.}
 The hybrid system achieved median query latency of 47 ms and 99th percentile latency of 128 ms, well within the 200 ms threshold considered acceptable for interactive search systems. The LLM-only baseline required a real-time API call for each query (no pre-computed embeddings possible), resulting in 1.2--2.9 second latencies—unacceptable for production use. The 26$\times$ latency advantage stems from pre-computed embeddings and efficient HNSW search versus synchronous API calls.
@@ -208,7 +208,7 @@ Analysis of the 500 annotated listings revealed three primary error categories:
 \end{enumerate}
 
 \paragraph{Retrieval Errors.}
-For the 3 queries where HR@10 $<$ 1.0 (no relevant result), the failure was attributed to corpus coverage rather than retrieval quality. Manual inspection confirmed that the relevant listings simply did not exist in the 17,500-listing corpus. Expanding corpus size and source diversity would address this limitation.
+For the 3 queries where HR@10 $<$ 1.0 (no relevant result), the failure was attributed to corpus coverage rather than retrieval quality. Manual inspection confirmed that the relevant listings simply did not exist in the 327-listing corpus. Expanding corpus size and source diversity would address this limitation.
 
 \subsection{Ablation Study}
 

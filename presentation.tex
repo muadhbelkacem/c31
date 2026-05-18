@@ -145,7 +145,7 @@
                 \vspace{0.3cm}
                 \textbf{\faDatabase~ Persistence \& Scale}
                 \begin{itemize}
-                    \item 17,500+ Listings: Multi‑site Simulation
+                    \item 327+ Listings: Multi‑site Simulation
                     \item Supabase / PostgreSQL 16: Authentication \& User data
                     \item In‑memory RRF Cache: Amortised cost
                     \item Multi‑source: RSS, JSON \& Web Ingestion
@@ -270,7 +270,7 @@
 
 \begin{frame}{Experimental Setup}
 \begin{itemize}
-\item \textbf{Dataset:} 17,500 real internship listings (LinkedIn, Indeed, university portals, direct uploads).
+\item \textbf{Dataset:} 327 real internship listings (LinkedIn, Indeed, university portals, direct uploads).
 \item \textbf{Ground truth:} 500 manually annotated listings (ESCO Level 4, skills, salary, location), inter‑annotator agreement $\kappa = 0.84$.
 \item \textbf{Query set:} 30 queries – 10 lexical, 10 conceptual, 10 mixed.
 \item \textbf{Metrics:} Retrieval (P@5, HR@10, NDCG@10, MAP, MRR), Extraction (Precision, Recall, F1, Top‑k), Efficiency (throughput, latency, memory, cost)
@@ -329,7 +329,7 @@ MAP & 0.48 & 0.51 & \textbf{0.63} \\
 Metric & Proposed hybrid & LLM‑only (GPT‑3.5) \\
 \midrule
 Ingestion throughput (listings/s) & \textbf{47.3} & 2.1 \\
-Total ingestion time (17,500 listings) & \textbf{6.2 min} & ≈2.5 h \\
+Total ingestion time (327 listings) & \textbf{6.2 min} & ≈2.5 h \\
 Median query latency & \textbf{47 ms} & 1.2–2.9 s \\
 p99 query latency & \textbf{128 ms} & >3 s \\
 Cost per 1,000 listings & \textbf{\$0.12} (electricity) & \$3.50 \\
@@ -367,7 +367,7 @@ Cost per 1,000 queries & \textbf{\$0.01} & \$1.20 \\
 \item \textbf{Tiered semantic enrichment pipeline} (deterministic + lightweight neural + bounded LLM fallback).
 \item \textbf{Hybrid search infrastructure} (BM25 + HNSW + RRF) using in-memory indices.
 \item \textbf{Automated JSON ingestion heuristics} (fuzzy key matching, content‑based inference).
-\item \textbf{Empirical evaluation} on 17,500 real listings, showing:
+\item \textbf{Empirical evaluation} on 327 real listings, showing:
 \begin{itemize}
 \item 29\% NDCG@10 improvement over BM25.
 \item 47 ms median latency, 6.2 min full ingestion on commodity hardware.

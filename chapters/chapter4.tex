@@ -281,7 +281,7 @@ The evaluation set comprises 500 internship listings, carefully sampled to ensur
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
-\item Web-Scraped Split (n = 400): This subset was randomly sampled from the primary, large-scale JSON catalog of over 17,500 web-scraped records. To prevent temporal bias, the sample was stratified by the month of scraping. This split primarily tests the system's ability to handle the semi-structured, noisy, and often redundant nature of web data [28].
+\item Web-Scraped Split (n = 400): This subset was randomly sampled from the primary, large-scale JSON catalog of over 327 web-scraped records. To prevent temporal bias, the sample was stratified by the month of scraping. This split primarily tests the system's ability to handle the semi-structured, noisy, and often redundant nature of web data [28].
 
 \item User-Uploaded Split (n = 100): This subset was selected from a curated pool of raw JSON uploads from partner institutions. These uploads are intentionally heterogeneous, with non-standard key names (e.g., position title vs. role), nested structures, and inconsistent data types. This split is designed to specifically stress-test the ingestion pipeline's robustness to schema-less data, also known as the ``schema-on-read'' challenge [1, 13]. The final dataset contains listings from a variety of domains, with a deliberate oversampling of technical roles (Software, Data/AI, Design) to reflect the primary use case while also including sufficient representation from Business, Healthcare, and other sectors to test generalizability.
 
