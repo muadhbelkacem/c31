@@ -290,7 +290,7 @@ The evaluation set comprises 500 internship listings, carefully sampled to ensur
 Two domain experts, both PhD candidates in Information Systems with prior experience in labor-market analytics, were recruited to manually annotate each of the 500 listings. The annotation task was defined by a detailed codebook, excerpted in Appendix A, and mapped directly to the Internship target schema defined in the methodology chapter. For each listing, annotators were asked to:
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}
 
 \item Field Extraction: Identify and normalize the following fields directly from the raw text: salaryMin, salaryMax, location, and applicationDeadline. If a field was not present, they were to label it as <NULL>.
 
@@ -300,7 +300,7 @@ Two domain experts, both PhD candidates in Information Systems with prior experi
 
 \item Query-Relevance Judgments: To prepare the IR benchmark, annotators created a diverse pool of 30 information needs (see the relevant section) and provided relevance judgments on a 4-point graded scale (Irrelevant, Marginally Relevant, Relevant, Highly Relevant) for a subset of queries.
 
-\end{enumerate}
+\end{itemize}
 \subsubsection{Inter-Annotator Agreement and Adjudication}
 To ensure the reliability and reproducibility of the ground truth, inter-annotator agreement (IAA) was measured using both Cohen's Kappa for categorical tasks (title normalization) and Krippendorff's Alpha for the interval-scale relevance judgments [26]. A pilot annotation round was conducted on 50 items. Disagreements were analyzed, and the codebook was refined in an iterative process. In the final annotation phase, a dual-annotation pass was performed on the entire 500-item set. The resulting IAA scores were:
 
@@ -316,7 +316,7 @@ To ensure the reliability and reproducibility of the ground truth, inter-annotat
 A set of 30 distinct search queries was formulated to simulate real student information needs, designed to test the distinct capabilities of lexical and semantic search. The queries fall into three categories:
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}
 
 \item Exact/Lexical Queries (10): Queries with high keyword specificity, e.g., ``React Native intern,'' ``AWS cloud architect intern,'' ``drug safety associate.'' These are designed to be a strong match for BM25.
 
@@ -324,7 +324,7 @@ A set of 30 distinct search queries was formulated to simulate real student info
 
 \item Mixed/Hybrid Queries (10): Queries with both specific and conceptual elements, e.g., ``Python developer for healthcare AI,'' ``entry-level UX design with Figma.'' These best represent real-world student searches and test the synergy of the fusion approach.
 
-\end{enumerate}
+\end{itemize}
 \subsection{Metrics}
 The evaluation uses a multi-faceted set of established metrics to quantify different performance aspects and avoid dependence on a single numerical score [36, 26, 31].
 
