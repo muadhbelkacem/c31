@@ -110,7 +110,7 @@
             \item Sources: LinkedIn, Indeed, university portals, direct JSON uploads, each with its own schema.
             \item \textbf{Two extreme approaches fail:}
             \begin{itemize}
-                \item \textit{Lexical only (e.g., BM25):} cannot handle synonyms, semantic gap (e.g., “Code Wizard” vs. “Software Engineer”).
+                \item \textit{Lexical only:} cannot handle synonyms, semantic gap (e.g., “Code Wizard” vs. “Software Engineer”).
                 \item \textit{Pure LLM pipeline:} high cost, high latency, privacy concerns, and inconsistency.
             \end{itemize}
             \item \textbf{Goal:} A lightweight, tiered semantic enrichment pipeline that runs on commodity hardware.
@@ -125,7 +125,7 @@
         \begin{enumerate}
             \item \textbf{RQ1:} How to balance extraction accuracy and computational cost using a tiered pipeline?
             \item \textbf{RQ2:} How well can lightweight transformers map non‑standard titles to the ESCO taxonomy?
-            \item \textbf{RQ3:} How much does hybrid retrieval (BM25 + vector) improve relevance over keyword‑only search?
+            \item \textbf{RQ3:} How much does hybrid retrieval (lexical + vector) improve relevance over keyword‑only search?
             \item \textbf{RQ4:} Can heuristic‑based mapping automate ingestion of arbitrarily structured JSON files?
         \end{enumerate}
     \end{frame}
@@ -160,7 +160,7 @@
                 \vspace{0.3cm}
                 \textbf{\faSearch~ Retrieval Infrastructure}
                 \begin{itemize}
-                    \item BM25: Lexical, weighted field matching
+                    \item Lexical Search: Weighted field matching
                     \item Vector Search: In-memory vector indexing
                     \item RRF: Reciprocal Rank Hybrid Fusion
                 \end{itemize}
@@ -239,7 +239,7 @@
 \begin{frame}{Hybrid Retrieval with RRF}
 \begin{columns}[T]
 \begin{column}{0.5\textwidth}
-\textbf{\faKeyboard~ Lexical (BM25)}
+\textbf{\faKeyboard~ Lexical Search}
 \begin{itemize}
 \item Inverted index over \texttt{rawTitle} (weight 3), \texttt{rawDescription} (1), \texttt{company} (1.5)
 \item Exact matches for skills (“Kubernetes”), acronyms, company names
@@ -254,7 +254,7 @@
 \begin{column}{0.5\textwidth}
 \textbf{\faLink~ Reciprocal Rank Fusion}
 \[
-\text{RRF\_score}(d) = \sum_{r\in\{\text{bm25},\text{vector}\}} \frac{1}{60 + \text{rank}_r(d)}
+\text{RRF\_score}(d) = \sum_{r\in\{\text{lexical},\text{vector}\}} \frac{1}{60 + \text{rank}_r(d)}
 \]
 \begin{itemize}
 \item Scale‑invariant, no score normalisation
@@ -305,7 +305,7 @@ Domain categorisation & – & – & Exact match: 0.86 (heuristic), 0.89 (+embedd
 \centering
 \begin{tabular}{lccc}
 \toprule
-Metric & BM25 (lexical) & Dense only & \textbf{Hybrid (RRF)} \\
+Metric & Lexical only & Dense only & \textbf{Hybrid (RRF)} \\
 \midrule
 P@5 & 0.42 & 0.44 & \textbf{0.53} \\
 HR@5 & 0.67 & 0.70 & \textbf{0.80} \\
@@ -315,7 +315,7 @@ MAP & 0.48 & 0.51 & \textbf{0.63} \\
 \end{tabular}
 \end{table}
 \begin{itemize}
-\item Hybrid improves NDCG@10 by \textbf{29\%} over BM25 alone (p < 0.001).
+\item Hybrid improves NDCG@10 by \textbf{29\%} over lexical alone (p < 0.001).
 \item Largest gains on mixed queries: +12\% over best single modality.
 \item RRF contributes +0.035 over simple score summation (ablation).
 \end{itemize}
@@ -365,11 +365,11 @@ Cost per 1,000 queries & \textbf{\$0.01} & \$1.20 \\
 \begin{frame}{Contributions}
 \begin{enumerate}
 \item \textbf{Tiered semantic enrichment pipeline} (deterministic + lightweight neural + bounded LLM fallback).
-\item \textbf{Hybrid search infrastructure} (BM25 + Vector + RRF) using in-memory indices.
+\item \textbf{Hybrid search infrastructure} (Lexical + Vector + RRF) using in-memory indices.
 \item \textbf{Automated JSON ingestion heuristics} (fuzzy key matching, content‑based inference).
 \item \textbf{Empirical evaluation} on 327 real listings, showing:
 \begin{itemize}
-\item 29\% NDCG@10 improvement over BM25.
+\item 29\% NDCG@10 improvement over lexical baseline.
 \item 47 ms median latency, 6.2 min full ingestion on commodity hardware.
 \item 78\% of extractions handled by deterministic rules alone.
 \end{itemize}

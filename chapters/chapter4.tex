@@ -267,7 +267,7 @@ The evaluation is designed to examine both output quality and operational charac
 
 \item RQ2 (Semantic Alignment): To what extent does the embedding-based semantic mapping (Layer B) improve the classification of raw, idiosyncratic job titles into canonical ESCO occupations over a purely keyword-heuristic baseline? The hypothesis is that a fine-tuned Sentence-BERT bi-encoder, operating in a dense semantic space, can capture non-lexical synonymy that is not visible to surface-form matching~\cite{reimers2019sentence, lin2021pretrained}.
 
-\item RQ3 (Retrieval Quality): Does the proposed hybrid search strategy, which fuses lexical (BM25) and semantic (dense vector) relevance signals via Reciprocal Rank Fusion (RRF), improve precision and ranking quality for student-centric conceptual queries compared with keyword-only search? The evaluation focuses on retrieval utility, assessing whether retrieved documents effectively satisfy user information needs~\cite{salemi2024erag}. The hypothesis is that this dual-path approach is necessary to address both exact terminology matches and the broader semantic gap in career discovery~\cite{thakur2021beir, luan2021sparse, cormack2009reciprocal}.
+\item RQ3 (Retrieval Quality): Does the proposed hybrid search strategy, which fuses lexical and semantic (dense vector) relevance signals via Reciprocal Rank Fusion (RRF), improve precision and ranking quality for student-centric conceptual queries compared with keyword-only search? The evaluation focuses on retrieval utility, assessing whether retrieved documents effectively satisfy user information needs~\cite{salemi2024erag}. The hypothesis is that this dual-path approach is necessary to address both exact terminology matches and the broader semantic gap in career discovery~\cite{thakur2021beir, luan2021sparse, cormack2009reciprocal}.
 
 \item RQ4 (System Efficiency and Scalability): What are the concrete computational costs---specifically ingestion throughput, query latency, main memory footprint, and external API financial cost---of the multi-layered pipeline, and how do these metrics scale with corpus size on commodity hardware? This question directly benchmarks the system's ``lightweight'' claim against a hypothetical LLM-only (Layer C) pipeline, investigating the accuracy-cost Pareto frontier~\cite{menghani2023efficient, hsieh2023distilling}.
 
@@ -318,7 +318,7 @@ A set of 30 distinct search queries was formulated to simulate real student info
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
-\item Exact/Lexical Queries (10): Queries with high keyword specificity, e.g., ``React Native intern,'' ``AWS cloud architect intern,'' ``drug safety associate.'' These are designed to be a strong match for BM25.
+\item Exact/Lexical Queries (10): Queries with high keyword specificity, e.g., ``React Native intern,'' ``AWS cloud architect intern,'' ``drug safety associate.'' These are designed to be a strong match for keyword-based search.
 
 \item Conceptual/Semantic Queries (10): Vague or conceptual queries that require domain understanding, e.g., ``build mobile apps,'' ``design thinking internship,'' ``green energy policy.'' These are designed to test the dense retrieval pathway.
 
@@ -382,13 +382,13 @@ The evaluation compares the following configurations, which represent progressiv
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
-\item Baseline 1: Keyword-Only (BM25): A traditional sparse retrieval system built on an inverted index of the raw, cleaned text. This serves as the lexical baseline for RQ3, reflecting common job-board search practices~\cite{robertson2009probabilistic}. For RQ2, this is replaced
+\item Baseline 1: Keyword-Only: A traditional sparse retrieval system built on an inverted index of the raw, cleaned text. This serves as the lexical baseline for RQ3, reflecting common job-board search practices~\cite{robertson2009probabilistic}. For RQ2, this is replaced
 
 \item Baseline 2: Rules-Only (Layer A): A system that applies only deterministic modules: regex for salary, location, and date; gazetteers for skills; and priority-ordered keywords for categorization. This baseline establishes the performance floor for RQ1 and measures the recall ceiling of non-semantic methods~\cite{sarawagi2008information}.
 
-\item Ablation A (Layer A + BM25 + Dense): The core system is evaluated using score summation, with min-max normalization, instead of RRF for hybrid fusion. This tests the specific contribution of the parameter-free RRF algorithm to retrieval quality (RQ3).
+\item Ablation A (Layer A + Lexical + Dense): The core system is evaluated using score summation, with min-max normalization, instead of RRF for hybrid fusion. This tests the specific contribution of the parameter-free RRF algorithm to retrieval quality (RQ3).
 
-\item Baseline 3: Proposed Hybrid (Layer A + Layer B + RRF): The complete, primary proposed system. It combines the deterministic rules of Layer A with the sentence-transformer-based semantic mapping of Layer B for titles and context-aware skills, and fuses the BM25 and vector search results using RRF~\cite{reimers2019sentence, cormack2009reciprocal}.
+\item Baseline 3: Proposed Hybrid (Layer A + Layer B + RRF): The complete, primary proposed system. It combines the deterministic rules of Layer A with the sentence-transformer-based semantic mapping of Layer B for titles and context-aware skills, and fuses the lexical and vector search results using RRF~\cite{reimers2019sentence, cormack2009reciprocal}.
 
 \item Baseline 4: LLM-Only (Layer C): A simulated pipeline where a single GPT-3.5-turbo API call, guided by a zero-shot Chain-of-Thought prompt, replaces the entire enrichment pipeline for each listing. This system is used exclusively for the efficiency and cost comparison in RQ4. It serves as an upper bound on potential accuracy and a lower bound on cost-efficiency.
 

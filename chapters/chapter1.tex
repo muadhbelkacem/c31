@@ -12,7 +12,7 @@ This thesis addresses two related problems in the ingestion and retrieval of int
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
-\item Rigid Lexical Matching: Many platforms rely on exact keyword matching, such as BM25. This approach is limited in its ability to handle synonyms, technical jargon, and relationships between concepts. As a result, users may miss relevant listings because their search terms do not precisely match the employer's vocabulary \cite{baeza2011modern}.
+\item Rigid Lexical Matching: Many platforms rely on exact keyword matching. This approach is limited in its ability to handle synonyms, technical jargon, and relationships between concepts. As a result, users may miss relevant listings because their search terms do not precisely match the employer's vocabulary \cite{baeza2011modern}.
 
 \item High-Cost LLM Dependency: The opposite extreme is to delegate the problem entirely to a Large Language Model (LLM). While LLMs are effective at interpreting meaning, relying on them to process thousands of scraped documents in real time is often financially expensive and can introduce substantial latency \cite{menghani2023efficient}. The ingestion process itself is similarly fragmented. Data from partner institutions often arrives in JSON formats that lack any fixed schema, forcing teams into a repetitive cycle of manual mapping. This creates the need for a unified system that can automatically clean, structure, and semantically enrich data from diverse sources while remaining efficient enough to run on ordinary commodity hardware \cite{giabelli2021skills}.
 
@@ -27,7 +27,7 @@ The study is guided by four research questions:
 
 \item RQ2: How well can lightweight transformer models such as DistilBERT map non-standard job titles onto a standardized professional taxonomy such as ESCO?
 
-\item RQ3: How much does a hybrid retrieval strategy---one that combines lexical (BM25) and semantic (vector) search---improve the relevance and recall of internship discovery compared to traditional keyword search alone?
+\item RQ3: How much does a hybrid retrieval strategy---one that combines lexical and semantic (vector) search---improve the relevance and recall of internship discovery compared to traditional keyword search alone?
 
 \item RQ4: Which heuristic-based mapping strategies can automate the ingestion of inconsistently formatted JSON data into a unified schema?
 
@@ -40,7 +40,7 @@ This thesis makes four primary contributions:
 
 \item A Tiered Semantic Enrichment Pipeline: The thesis introduces a modular architecture that combines three layers: deterministic, rule-based extraction (Layer A), lightweight neural mapping (Layer B), and a resource-budgeted LLM fallback for the most complex cases (Layer C).
 
-\item A Hybrid Search Infrastructure: The thesis implements a retrieval system using an in-memory vector index and BM25 to support hybrid lexical and semantic search.
+\item A Hybrid Search Infrastructure: The thesis implements a retrieval system using an in-memory vector index and lexical search to support hybrid search functionality.
 
 \item Automated Ingestion Heuristics: The thesis develops a flexible JSON processing module that uses fuzzy key matching and content-based inference to reduce manual schema mapping for multi-format user uploads.
 
