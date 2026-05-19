@@ -43,12 +43,12 @@ The communication layer provides a stable, versioned interface between the clien
 
 The primary endpoint, \texttt{/api/internship/route.ts}, acts as the sole access point for search and retrieval operations. It handles HTTP GET requests through the following pipeline:
 
-\begin{enumerate}
+\begin{itemize}
     \item \textbf{Parameter validation}: Query parameters are validated using Zod, a TypeScript-first schema validation library. This ensures that \texttt{page} is a positive integer (default 1), \texttt{category} is one of the allowed enum values, \texttt{skills} is a valid comma-separated list, and \texttt{q} does not exceed 200 characters (to prevent excessively long queries from degrading performance).
     \item \textbf{Cache header processing}: The endpoint reads the \texttt{If-None-Match} header to support conditional requests. If the client's ETag matches the current cache version (computed as a hash of the last modification time of the JSON catalog), the endpoint returns a 304 Not Modified response with an empty body, saving bandwidth and processing time.
     \item \textbf{Data access delegation}: The validated parameters are passed to the \texttt{data.ts} module, which abstracts the underlying persistence strategy (in-memory cache, JSON file, or Supabase). This delegation layer allows the API route to remain agnostic about where or how the data is stored.
     \item \textbf{Response serialization}: The retrieved \texttt{Internship} objects are serialized to JSON with dates formatted as ISO 8601 strings and embeddings omitted from the response payload to reduce network transfer size (embeddings are 384 floats × 4 bytes ≈ 1.5 KB per listing, which would substantially increase response size). The full embedding is used only for server-side ranking, not transmitted to the client.
-\end{enumerate}
+\end{itemize}
 
 Using Next.js API routes eliminates the need for a separate backend server, reducing deployment complexity and operational overhead. The endpoint also implements standard HTTP caching directives (\texttt{Cache-Control: public, max-age=300, stale-while-revalidate=60}) to enable client-side and CDN caching where appropriate, reducing server load for repeated queries.
 
@@ -130,12 +130,12 @@ This interface serves as a contract between the ingestion pipeline, the API laye
 
 Beyond type safety, the system enforces structural consistency through validation functions. After parsing raw JSON, the \texttt{validateInternship()} function (Listing 3.2) performs the following checks:
 
-\begin{enumerate}
+\begin{itemize}
     \item \textbf{Required field presence}: Confirms that \texttt{id}, \texttt{rawTitle}, \texttt{company}, \texttt{rawDescription}, and \texttt{sourceUrl} are defined and non-empty strings.
     \item \textbf{Type validation}: Verifies that \texttt{salaryMin} and \texttt{salaryMax} (if present) are numbers, that \texttt{skills} is an array of strings, and that \texttt{embedding} (if present) is an array of numbers.
     \item \textbf{Range validation}: Ensures that \texttt{salaryMin} is between 0 and 1,000,000 (annualized USD), that \texttt{salaryMax} is greater than or equal to \texttt{salaryMin} (if both present), and that the \texttt{embedding} array has exactly 384 elements (the output dimensionality of the Sentence-BERT model).
     \item \textbf{Date validation}: Checks that \texttt{postedDate} is a valid Date object and not a future date (by more than 7 days, allowing for timezone differences).
-\end{enumerate}
+\end{itemize}
 
 Records that fail validation are logged with error context (including the failing field and the reason) and quarantined in a separate log file, preventing corrupt data from entering the search index. This validation layer is an example of defensive programming in data integration pipelines: it is better to drop a small number of malformed records (typically <0.1\% of the corpus) than to allow them to degrade search quality for all users.
 
@@ -231,10 +231,10 @@ Vector search supports semantic matching by comparing dense embeddings. The syst
 
 HNSW constructs a multi-layer proximity graph that enables logarithmic-time approximate nearest neighbor search. The algorithm works as follows:
 
-\begin{enumerate}
+\begin{itemize}
     \item \textbf{Graph construction}: During indexing, each embedding vector is inserted into a layered graph structure. The top layers contain only a few nodes with long-range edges (the "highway network"), while the bottom layer contains all data points connected by short-range edges.
     \item \textbf{Query processing}: A search starts at the top layer, greedily traversing to the node closest to the query vector. The search then descends to the next layer, starting from the best candidate found in the layer above, and repeats. This hierarchical navigation enables \(O(\log N)\) search complexity.
-\end{enumerate}
+\end{itemize}
 
 For a catalog of 327 embeddings, HNSW reduces query latency from approximately 200 ms (exact linear scan) to approximately 5-10 ms while maintaining greater than 0.95 recall (i.e., the top-10 results from HNSW overlap 95\% or more with the top-10 results from exact search). The index is built with the following parameters:
 
@@ -256,11 +256,11 @@ Reciprocal Rank Fusion combines lexical and dense retrieval outputs using rank p
 
 where \(k\) is a constant (typically 60). This formula has three important properties:
 
-\begin{enumerate}
+\begin{itemize}
     \item \textbf{Scale invariance}: Because it operates on ranks rather than raw scores, RRF does not require normalization of BM25 scores (which are theoretically unbounded) or cosine similarity (bounded between -1 and 1). This eliminates a common source of fragility in hybrid retrieval systems.
     \item \textbf{Diminishing returns}: The \(1/(k + \text{rank})\) function gives high weight to top-ranked documents but quickly diminishes as rank increases. A document that ranks 1st in one system receives score \(1/(60+1) \approx 0.0164\), while a document that ranks 100th receives \(1/(60+100) \approx 0.0063\). This reflects the practical observation that users rarely look beyond the first page of results.
     \item \textbf{Robustness}: The constant \(k\) smooths the contribution of low-ranked documents. Even a document that ranks 1000th in one system still contributes a small positive score \(1/(60+1000) \approx 0.00094\), ensuring that a document that is extremely relevant in one modality but missing from the other is not completely excluded.
-\end{enumerate}
+\end{itemize}
 
 The final ranked list is sorted by RRF score and returned to the client. RRF is parameter-free aside from the constant \(k\), which has been shown to be robust across a wide range of values (typically 50-100) in the original RRF paper and subsequent studies. This makes it ideal for a system that cannot be extensively tuned per deployment.
 
@@ -305,13 +305,13 @@ These logs are aggregated into CSV files for analysis using Python (pandas for d
 
 To ensure that the experimental results reported in Chapter 6 can be reproduced by other researchers, the following measures are implemented:
 
-\begin{enumerate}
+\begin{itemize}
     \item \textbf{Fixed random seeds}: All libraries with stochastic behavior (HNSW index construction, DistilBERT inference) use fixed random seeds (seed = 42) to ensure deterministic outputs across runs.
     \item \textbf{Version pinning}: All dependencies are pinned to exact versions in \texttt{package-lock.json}, which is included in the thesis repository.
     \item \textbf{Environment specification}: A \texttt{Dockerfile} is provided that replicates the exact Ubuntu 22.04 environment, including system-level dependencies (e.g., Python for token counting, CUDA libraries—though GPU is not required).
     \item \textbf{Data anonymization}: The 327-listing corpus cannot be redistributed due to terms-of-service constraints, but a synthetic dataset with identical statistical properties (skill distribution, salary range distribution, title length distribution) is provided for testing. The synthetic dataset is generated by resampling from the original corpus with perturbation to avoid copyright concerns.
     \item \textbf{Benchmark scripts}: The \texttt{evaluation/run-benchmarks.sh} script executes the complete evaluation pipeline and outputs the metrics reported in Chapter 6.
-\end{enumerate}
+\end{itemize}
 
 \section{Chapter Conclusion}
 
