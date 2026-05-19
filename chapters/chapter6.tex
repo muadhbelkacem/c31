@@ -201,11 +201,11 @@ The differences are statistically significant at conventional thresholds, suppor
 \paragraph{Extraction Errors.}
 Analysis of the 500 annotated listings revealed three primary error categories:
 
-\begin{enumerate}
+\begin{itemize}
     \item \textbf{Implicit or latent information (48\% of extraction errors):} Required skills or qualifications mentioned indirectly (e.g., ``familiar with modern frontend frameworks'' without naming React or Vue). Rule-based and embedding methods both struggled with implicit signals.
     \item \textbf{Format variance beyond regex coverage (32\% of errors):} Salary expressed as ``€3k--3.5k/mo'' (monthly rate requiring annualization) or ``£25--30k pro-rated'' (part-time adjustments). These patterns can be addressed through extended regex coverage.
     \item \textbf{Ambiguity requiring external knowledge (20\% of errors):} ``Top-tier university preferred'' (no explicit degree requirement) or ``startup experience valued'' (subjective criteria). These cases likely require LLM fallback or are inherently unsuitable for automated extraction.
-\end{enumerate}
+\end{itemize}
 
 \paragraph{Retrieval Errors.}
 For the 3 queries where HR@10 $<$ 1.0 (no relevant result), the failure was attributed to corpus coverage rather than retrieval quality. Manual inspection confirmed that the relevant listings simply did not exist in the 327-listing corpus. Expanding corpus size and source diversity would address this limitation.
