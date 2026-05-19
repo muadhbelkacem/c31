@@ -36,7 +36,7 @@ Raw data obtained from web scraping is inherently noisy and may contain inconsis
 
 \end{itemize}
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Text Normalization: Transforming text into a standardized canonical form by lowercasing all characters, collapsing multiple whitespace characters into a single space, and trimming leading/trailing whitespace. This directly reduces surface-form variance, a critical prerequisite for reliable downstream matching [9].
 
@@ -66,7 +66,7 @@ Following sanitization, the system enriches the listing with derived metadata. T
 To ensure persistent, unique referencing across multiple ingestion cycles and to enable effective duplicate detection, the generateId function creates a deterministic, URL-friendly slug. This process is foundational for the data curation strategy and works as follows:
 
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Slugification: A dedicated helper function converts a given string (e.g., a company name or job title) to lowercase, replaces any sequence of non-alphanumeric characters with a single hyphen, and removes leading/trailing hyphens.
 
@@ -146,7 +146,7 @@ Normalization ensures that data is consistent, comparable, and queryable regardl
 Before specialized normalization can occur, all text fields pass through a common sanitization pipeline. The sanitizeText function applies a sequence of transformations designed to eliminate noise while preserving semantic content:
 
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item HTML Entity Resolution: Named entities (e.g., \&amp;, \&lt;, \&\#39;) are converted to their Unicode equivalents using a comprehensive lookup table.
 
@@ -195,7 +195,7 @@ The skill lexicon serves as the knowledge base for the extraction module. Its co
 The extractSkills function implements a case-insensitive, whole-word matching algorithm against the curated lexicon. The algorithm processes the job description text through the following stages:
 
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Tokenization and Normalization: The description is tokenized using a whitespace-aware tokenizer that preserves multi-word skill phrases; for example, ``Machine Learning'' is treated as a single candidate. Tokens are lowercased and stripped of trailing punctuation.
 
@@ -210,7 +210,7 @@ The extractSkills function implements a case-insensitive, whole-word matching al
 A raw list of matched skills, while informative, does not distinguish between a job's core requirements and incidental mentions. A listing that mentions ``Python'' once in a list of 20 other technologies has a different skill profile than one that mentions ``Python'' extensively. To surface the most salient skills while avoiding ``keyword stuffing'' amplification, the system employs a density control mechanism inspired by TF-IDF principles but adapted for the skill extraction domain [17, 4]. The ranking algorithm assigns each extracted skill a composite score based on three factors:
 
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Normalized Frequency: The raw count of the skill's occurrences in the description, divided by the total token count, preventing longer descriptions from dominating.
 
