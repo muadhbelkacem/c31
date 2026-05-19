@@ -125,7 +125,7 @@
         \begin{enumerate}
             \item \textbf{RQ1:} How to balance extraction accuracy and computational cost using a tiered pipeline?
             \item \textbf{RQ2:} How well can lightweight transformers map non‑standard titles to the ESCO taxonomy?
-            \item \textbf{RQ3:} How much does hybrid retrieval (BM25 + HNSW) improve relevance over keyword‑only search?
+            \item \textbf{RQ3:} How much does hybrid retrieval (BM25 + vector) improve relevance over keyword‑only search?
             \item \textbf{RQ4:} Can heuristic‑based mapping automate ingestion of arbitrarily structured JSON files?
         \end{enumerate}
     \end{frame}
@@ -161,7 +161,7 @@
                 \textbf{\faSearch~ Retrieval Infrastructure}
                 \begin{itemize}
                     \item BM25: Lexical, weighted field matching
-                    \item HNSW: \texttt{hnswlib‑node} for Vector ANN
+                    \item Vector Search: In-memory vector indexing
                     \item RRF: Reciprocal Rank Hybrid Fusion
                 \end{itemize}
             \end{column}
@@ -245,10 +245,10 @@
 \item Exact matches for skills (“Kubernetes”), acronyms, company names
 \end{itemize}
 \vspace{0.3cm}
-\textbf{\faBrain~ Semantic (HNSW)}
+\textbf{\faBrain~ Semantic (Vector)}
 \begin{itemize}
 \item Pre‑computed 384‑dim SBERT embeddings
-\item HNSW graph: $M=16$, \texttt{efConstruction}=200, $\log N$ search time
+\item Vector index: Optimized approximate nearest neighbor search
 \end{itemize}
 \end{column}
 \begin{column}{0.5\textwidth}
@@ -365,7 +365,7 @@ Cost per 1,000 queries & \textbf{\$0.01} & \$1.20 \\
 \begin{frame}{Contributions}
 \begin{enumerate}
 \item \textbf{Tiered semantic enrichment pipeline} (deterministic + lightweight neural + bounded LLM fallback).
-\item \textbf{Hybrid search infrastructure} (BM25 + HNSW + RRF) using in-memory indices.
+\item \textbf{Hybrid search infrastructure} (BM25 + Vector + RRF) using in-memory indices.
 \item \textbf{Automated JSON ingestion heuristics} (fuzzy key matching, content‑based inference).
 \item \textbf{Empirical evaluation} on 327 real listings, showing:
 \begin{itemize}

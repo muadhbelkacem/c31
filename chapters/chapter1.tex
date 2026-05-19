@@ -27,7 +27,7 @@ The study is guided by four research questions:
 
 \item RQ2: How well can lightweight transformer models such as DistilBERT map non-standard job titles onto a standardized professional taxonomy such as ESCO?
 
-\item RQ3: How much does a hybrid retrieval strategy---one that combines lexical (BM25) and semantic (HNSW) search---improve the relevance and recall of internship discovery compared to traditional keyword search alone?
+\item RQ3: How much does a hybrid retrieval strategy---one that combines lexical (BM25) and semantic (vector) search---improve the relevance and recall of internship discovery compared to traditional keyword search alone?
 
 \item RQ4: Which heuristic-based mapping strategies can automate the ingestion of inconsistently formatted JSON data into a unified schema?
 
@@ -40,7 +40,7 @@ This thesis makes four primary contributions:
 
 \item A Tiered Semantic Enrichment Pipeline: The thesis introduces a modular architecture that combines three layers: deterministic, rule-based extraction (Layer A), lightweight neural mapping (Layer B), and a resource-budgeted LLM fallback for the most complex cases (Layer C).
 
-\item A Hybrid Search Infrastructure: The thesis implements a retrieval system using an in-memory HNSW index and BM25 to support hybrid lexical and semantic search.
+\item A Hybrid Search Infrastructure: The thesis implements a retrieval system using an in-memory vector index and BM25 to support hybrid lexical and semantic search.
 
 \item Automated Ingestion Heuristics: The thesis develops a flexible JSON processing module that uses fuzzy key matching and content-based inference to reduce manual schema mapping for multi-format user uploads.
 

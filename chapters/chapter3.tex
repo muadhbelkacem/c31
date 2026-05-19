@@ -225,30 +225,19 @@ The BM25 implementation uses the default parameters: \(k_1 = 1.2\) (term frequen
 
 \subsection{Vector-Based Search Tools}
 
-Vector search supports semantic matching by comparing dense embeddings. The system relies on the \texttt{hnswlib-node} library (version 3.0.0), a Node.js binding for the popular HNSW (Hierarchical Navigable Small World) algorithm implemented in C++.
+Vector search supports semantic matching by comparing dense embeddings. The system relies on a vector indexing library to perform efficient similarity search across the high-dimensional embedding space.
 
-\subsubsection{HNSW Approximate Nearest-Neighbor Search}
+\subsubsection{Approximate Nearest-Neighbor Search}
 
-HNSW constructs a multi-layer proximity graph that enables logarithmic-time approximate nearest neighbor search. The algorithm works as follows:
+The system employs Approximate Nearest-Neighbor (ANN) indexing to enable fast retrieval even as the dataset grows. ANN algorithms trade a small amount of retrieval precision for substantial gains in search speed.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Graph construction}: During indexing, each embedding vector is inserted into a layered graph structure. The top layers contain only a few nodes with long-range edges (the "highway network"), while the bottom layer contains all data points connected by short-range edges.
-    \item \textbf{Query processing}: A search starts at the top layer, greedily traversing to the node closest to the query vector. The search then descends to the next layer, starting from the best candidate found in the layer above, and repeats. This hierarchical navigation enables \(O(\log N)\) search complexity.
-\end{itemize}
+For a catalog of 327 embeddings, vector-based indexing reduces query latency to approximately 5-10 ms while maintaining high recall (greater than 0.95 relative to exact search). The index is configured to balance build time, memory usage, and retrieval accuracy, ensuring that the system remains responsive on commodity hardware.
 
-For a catalog of 327 embeddings, HNSW reduces query latency from approximately 200 ms (exact linear scan) to approximately 5-10 ms while maintaining greater than 0.95 recall (i.e., the top-10 results from HNSW overlap 95\% or more with the top-10 results from exact search). The index is built with the following parameters:
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \(M = 16\): Maximum number of bidirectional connections per node in the graph. Higher values improve recall at the cost of increased index size and build time. The value 16 is a standard default.
-    \item \texttt{efConstruction} = 200: Size of the dynamic candidate list during index construction. Higher values improve index quality at the cost of longer build time.
-    \item \texttt{efSearch} = 50: Size of the dynamic candidate list during query. Higher values improve recall at the cost of higher query latency.
-\end{itemize}
-
-The HNSW index is stored in memory and updated only when the catalog changes, consistent with the amortized cost model. Index build time for 327 embeddings is approximately 10-15 seconds, which is acceptable for daily batch updates.
+The vector index is stored in memory and updated only when the catalog changes, consistent with the amortized cost model. Index build time for the current dataset is approximately 10-15 seconds, which is acceptable for daily batch updates.
 
 \subsubsection{Hybrid Fusion with Reciprocal Rank Fusion (RRF)}
 
-Reciprocal Rank Fusion combines lexical and dense retrieval outputs using rank positions rather than raw scores. Given a BM25 ranked list and an HNSW ranked list, RRF computes a fused score for each document as:
+Reciprocal Rank Fusion combines lexical and dense retrieval outputs using rank positions rather than raw scores. Given a BM25 ranked list and a vector-based ranked list, RRF computes a fused score for each document as:
 
 \[
     \mathrm{RRF\_score}(d) = \sum_{r \in \{\mathrm{bm25},\mathrm{vector}\}} \frac{1}{k + \mathrm{rank}_r(d)}
@@ -292,7 +281,7 @@ To support quantitative evaluation, the system includes built-in measurement and
     \item \textbf{Query latency}: The API endpoint wraps each request with \texttt{performance.now()} timers, logging p50 and p99 latency to a rotating log file (rotated daily, retained for 30 days). These metrics are essential for evaluating whether the system meets interactive latency targets (typically <200 ms for p99). Latency is measured at three points:
     \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
         \item \textit{End-to-end}: From receipt of HTTP request to response transmission
-        \item \textit{Retrieval}: Time spent in BM25 + HNSW + RRF (excluding JSON serialization)
+        \item \textit{Retrieval}: Time spent in BM25 + Vector Search + RRF (excluding JSON serialization)
         \item \textit{Serialization}: Time spent converting results to JSON
     \end{itemize}
     \item \textbf{Memory profiling}: The \texttt{process.memoryUsage()} API captures RSS (Resident Set Size) and heap usage after cache warm-up. This is used to verify that the system fits within 32 GB of RAM, a key constraint of the commodity hardware assumption. Memory snapshots are taken at pipeline start (after model loading), after cache warm-up, and during peak query load.
@@ -306,7 +295,7 @@ These logs are aggregated into CSV files for analysis using Python (pandas for d
 To ensure that the experimental results reported in Chapter 6 can be reproduced by other researchers, the following measures are implemented:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Fixed random seeds}: All libraries with stochastic behavior (HNSW index construction, DistilBERT inference) use fixed random seeds (seed = 42) to ensure deterministic outputs across runs.
+    \item \textbf{Fixed random seeds}: All libraries with stochastic behavior (vector index construction, DistilBERT inference) use fixed random seeds (seed = 42) to ensure deterministic outputs across runs.
     \item \textbf{Version pinning}: All dependencies are pinned to exact versions in \texttt{package-lock.json}, which is included in the thesis repository.
     \item \textbf{Environment specification}: A \texttt{Dockerfile} is provided that replicates the exact Ubuntu 22.04 environment, including system-level dependencies (e.g., Python for token counting, CUDA libraries—though GPU is not required).
     \item \textbf{Data anonymization}: The 327-listing corpus cannot be redistributed due to terms-of-service constraints, but a synthetic dataset with identical statistical properties (skill distribution, salary range distribution, title length distribution) is provided for testing. The synthetic dataset is generated by resampling from the original corpus with perturbation to avoid copyright concerns.
@@ -317,6 +306,6 @@ To ensure that the experimental results reported in Chapter 6 can be reproduced 
 
 This chapter has separated the technological environment from the theoretical foundations of Chapter 2. While Chapter 2 explains the concepts behind information extraction, taxonomies, and retrieval models, Chapter 3 documents the concrete tools, libraries, and infrastructure that realize those concepts in working software.
 
-The chapter has covered the Next.js application framework (presentation and API layers), the hybrid JSON/PostgreSQL persistence layer (static catalog plus dynamic user state), TypeScript for type-safe data representation (including the \texttt{Internship} interface and validation functions), lightweight transformer models (DistilBERT for classification, Sentence-BERT for embeddings) for semantic enrichment, BM25 for lexical retrieval and HNSW for dense retrieval with Reciprocal Rank Fusion for hybrid ranking, and the controlled evaluation environment (hardware specifications, measurement tools, and reproducibility measures).
+The chapter has covered the Next.js application framework (presentation and API layers), the hybrid JSON/PostgreSQL persistence layer (static catalog plus dynamic user state), TypeScript for type-safe data representation (including the \texttt{Internship} interface and validation functions), lightweight transformer models (DistilBERT for classification, Sentence-BERT for embeddings) for semantic enrichment, BM25 for lexical retrieval and vector indexing for dense retrieval with Reciprocal Rank Fusion for hybrid ranking, and the controlled evaluation environment (hardware specifications, measurement tools, and reproducibility measures).
 
 This technological foundation supports the methodology described in Chapter 4 (which defines the functional requirements, system architecture, and evaluation protocol) and the system design detailed in Chapter 5 (which implements the ingestion, enrichment, storage, and retrieval components). It also enables the reproducible evaluation presented in Chapter 6, where the specific numbers reported (e.g., 47 ms median latency, 29\% NDCG@10 improvement) are grounded in the concrete tools and hardware described here.
