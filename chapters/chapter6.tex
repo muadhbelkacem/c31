@@ -23,7 +23,7 @@ The dataset spans five primary domains: Software Development (38\%), Data Scienc
 \paragraph{Data Characteristics.}
 The raw listings exhibit significant heterogeneity in format, completeness, and terminology. Key challenges include:
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Structural variance:} 42\% of listings use custom JSON schemas with non-standard field names
     \item \textbf{Lexical noise:} Average of 15\% boilerplate text per description (legal disclaimers, navigation elements)
     \item \textbf{Terminology variation:} Over 3,200 unique job title strings, many referring to similar roles (e.g., ``Software Engineer Intern'', ``Dev Intern'', ``SWE Intern'')
@@ -49,14 +49,14 @@ To isolate the contribution of each system component, the evaluation compares fo
 The evaluation employs a multi-faceted metric suite aligned with the research questions:
 
 \paragraph{Extraction and Classification Metrics (RQ1, RQ2):}
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Precision, Recall, F1-score:} For atomic field extraction (salary, location, skills)
     \item \textbf{Top-k accuracy:} For ESCO title normalization (k=1,3,5)
     \item \textbf{Exact-match accuracy:} For categorical classification
 \end{itemize}
 
 \paragraph{Retrieval Quality Metrics (RQ3):}
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Precision@k (P@5, P@10):} Proportion of relevant documents in top-k results
     \item \textbf{Hit Rate@k (HR@5, HR@10):} Query-level indicator of at least one relevant result in top-k
     \item \textbf{Mean Reciprocal Rank (MRR):} Average reciprocal rank of first relevant document
@@ -65,7 +65,7 @@ The evaluation employs a multi-faceted metric suite aligned with the research qu
 \end{itemize}
 
 \paragraph{Efficiency Metrics (RQ4):}
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Ingestion throughput:} Listings processed per second
     \item \textbf{Query latency:} Median (p50) and 99th percentile (p99) response time in milliseconds
     \item \textbf{Memory footprint:} Peak Resident Set Size (RSS) in MB
@@ -76,7 +76,7 @@ The evaluation employs a multi-faceted metric suite aligned with the research qu
 
 A set of 30 search queries was constructed to simulate realistic student information needs, stratified into three categories:
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Exact/Lexical Queries (10):} High keyword specificity testing precise matching: e.g., ``React Native intern'', ``AWS cloud architect intern'', ``drug safety associate''.
     \item \textbf{Conceptual/Semantic Queries (10):} Vague or meaning-based queries requiring domain understanding: e.g., ``build mobile apps'', ``design thinking internship'', ``green energy policy''.
     \item \textbf{Mixed/Hybrid Queries (10):} Combining specific and conceptual elements, representing real-world searches: e.g., ``Python developer for healthcare AI'', ``entry-level UX design with Figma'', ``data science internship with Python and statistics''.
@@ -150,7 +150,7 @@ Analysis of the tiered pipeline showed that Layer A (deterministic rules) handle
 
 The hybrid system's 29\% improvement in NDCG@10 over BM25 (0.67 vs. 0.52) represents a substantial gain in ranking quality. To contextualize this improvement, consider two illustrative queries:
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Query: ``machine learning intern with Python''} — BM25 retrieved listings containing ``Python'' and ``intern'' but missed listings using ``deep learning'' or ``PyTorch'' without explicit ``Python''. The hybrid system correctly retrieved semantically similar listings, improving HR@5 from 0.60 to 0.90.
     \item \textbf{Query: ``frontend web development''} — BM25 favored listings containing ``frontend'' or ``web'' but ranked ``React Developer'' and ``UI Engineer'' lower due to lexical mismatch. The hybrid system's dense component correctly identified these as semantically relevant, improving P@5 from 0.40 to 0.70.
 \end{itemize}
@@ -161,7 +161,7 @@ The primary limitation of the hybrid system relative to BM25 occurred for highly
 
 Adding Layer B (neural mapping) to Layer A (rules-only) improved ESCO title normalization Top-1 accuracy from 0.63 to 0.78, a 24\% relative improvement. The benefit was most pronounced for:
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Vague titles:} ``Consultant'' (ambiguous across domains) resolved to appropriate ESCO concepts when context from description was available
     \item \textbf{Compound titles:} ``Software Engineer Intern — Data Platform'' correctly mapped to ``software developer'' rather than ``database administrator''
     \item \textbf{Neologisms:} ``Growth Hacker'' and ``DevOps Evangelist'' mapped to ``marketing specialist'' and ``devops engineer'' respectively
@@ -189,7 +189,7 @@ On the 10 shared queries, the proposed system achieved higher precision for conc
 
 Paired $t$-tests were conducted on the per-query NDCG@10 scores to determine whether observed differences between systems were statistically significant:
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item Hybrid vs. BM25: $t(29) = 4.82$, $p < 0.001$ (95\% CI: [0.09, 0.21])
     \item Hybrid vs. dense-only: $t(29) = 3.94$, $p < 0.001$ (95\% CI: [0.05, 0.16])
 \end{itemize}
@@ -201,7 +201,7 @@ The differences are statistically significant at conventional thresholds, suppor
 \paragraph{Extraction Errors.}
 Analysis of the 500 annotated listings revealed three primary error categories:
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Implicit or latent information (48\% of extraction errors):} Required skills or qualifications mentioned indirectly (e.g., ``familiar with modern frontend frameworks'' without naming React or Vue). Rule-based and embedding methods both struggled with implicit signals.
     \item \textbf{Format variance beyond regex coverage (32\% of errors):} Salary expressed as ``€3k--3.5k/mo'' (monthly rate requiring annualization) or ``£25--30k pro-rated'' (part-time adjustments). These patterns can be addressed through extended regex coverage.
     \item \textbf{Ambiguity requiring external knowledge (20\% of errors):} ``Top-tier university preferred'' (no explicit degree requirement) or ``startup experience valued'' (subjective criteria). These cases likely require LLM fallback or are inherently unsuitable for automated extraction.
