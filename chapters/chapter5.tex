@@ -36,7 +36,7 @@ Raw data obtained from web scraping is inherently noisy and may contain inconsis
 
 \end{itemize}
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}
 
 \item Text Normalization: Transforming text into a standardized canonical form by lowercasing all characters, collapsing multiple whitespace characters into a single space, and trimming leading/trailing whitespace. This directly reduces surface-form variance, a critical prerequisite for reliable downstream matching [9].
 
@@ -44,25 +44,17 @@ Raw data obtained from web scraping is inherently noisy and may contain inconsis
 
 \item Specific Normalizations: For locations, abbreviations are expanded (e.g., ``St.'' to ``Street''), and common variations are standardized (``NYC'' to ``New York''). For titles, irrelevant prefixes like ``Urgent:'' or ``Hot Job:'' are stripped to leave the core semantic title. This step ensures that the text is ready for the tokenization and NLP tasks that follow [36].
 
-\end{enumerate}
+\end{itemize}
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Salary Extraction: The cleanSalary function is a prime example of a high-precision, deterministic extraction module that operates with zero inference cost. It follows a ``Select-then-Extract'' paradigm [liu2024survey], where high-confidence patterns are first identified to isolate the target text before applying specific parsing rules. It employs a tiered set of regular expressions to parse the highly variable salary information found in free text [44]:
-
-\end{itemize}
-
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
 
 \item Pattern Identification: The first tier identifies the presence of standard patterns, such as an hourly rate (e.g., ``\$15 - \$20 / hr''), an annual salary (e.g., ``\$70k - \$90k''), or a single value (e.g., ``Up to \$50/hr'').
 
 \item Numeric Extraction: Once a pattern is detected, a second tier extracts the numeric entities, stripping non-numeric characters like \$ and k/K, and correctly interpreting the k suffix as a multiplication factor.
 
 \item Structuring and Validation: The extracted numbers are then mapped to the structured salaryMin and salaryMax fields in the Internship interface. A heuristic validation filter rejects results that fall outside a plausible range, such as a salary of \$0 or \$5,000,000 per year, thereby supporting a baseline of data integrity.
-
-\end{enumerate}
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Description Cleaning: The free-text job description often contains substantial noise as well as important semantic information. The cleanDescription function performs stronger sanitization than basic field normalization. It removes long sequences of newlines or tabs and common boilerplate sentences, such as equal-opportunity-employer statements. The goal is to improve the signal-to-noise ratio for downstream lexical and semantic analysis so that tokenization and vectorization operate on a cleaner representation of job requirements [9, 36].
 
@@ -74,7 +66,7 @@ Following sanitization, the system enriches the listing with derived metadata. T
 To ensure persistent, unique referencing across multiple ingestion cycles and to enable effective duplicate detection, the generateId function creates a deterministic, URL-friendly slug. This process is foundational for the data curation strategy and works as follows:
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}
 
 \item Slugification: A dedicated helper function converts a given string (e.g., a company name or job title) to lowercase, replaces any sequence of non-alphanumeric characters with a single hyphen, and removes leading/trailing hyphens.
 
@@ -82,7 +74,7 @@ To ensure persistent, unique referencing across multiple ingestion cycles and to
 
 \item Deterministic Blocking: This generated ID serves as a blocking key for record linkage [8]. In deduplication, if a newly ingested listing generates an ID that already exists in the catalog, it is a strong signal of duplication. Recent surveys of record linkage in medical and professional informatics confirm that deterministic rules remain a robust foundation for identifying matches in large-scale datasets where persistent identifiers are required [sariyar2026record]. The system can then skip the record or apply a heuristic to select the canonical record based on completeness or source authority [14]. Deterministic blocking is efficient because it limits pairwise comparisons to the small blocks where a collision occurs. This approach directly addresses the deduplication and canonicalization challenges described earlier and provides an explainable, low-cost strategy for maintaining a clean search index for the end user.
 
-\end{enumerate}
+\end{itemize}
 \subsubsection{Keyword-Based Categorization}
 The categorizeJob function provides an immediate, high-level domain classification by applying a set of keyword-anchored heuristics. This maps the normalized job title to a predefined set of top-level categories, such as Software, Data/AI, Design, Healthcare, and Business, as defined in the internal label space. The function evaluates the job title against a hierarchy of professional anchors. For instance, if the title contains ``Software,'' ``Frontend,'' ``Backend,'' or ``Full Stack,'' it is classified as Software. The evaluation proceeds in priority order from most specific to most general. This rule-based approach is effective for faceted filtering in the user interface [5], providing a stable and predictable taxonomy browser. It also serves as a fallback mechanism for cases where the subsequent Layer B semantic mapping may have low confidence, ensuring that every listing has at least one high-level category for filtering.
 
@@ -154,7 +146,7 @@ Normalization ensures that data is consistent, comparable, and queryable regardl
 Before specialized normalization can occur, all text fields pass through a common sanitization pipeline. The sanitizeText function applies a sequence of transformations designed to eliminate noise while preserving semantic content:
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}
 
 \item HTML Entity Resolution: Named entities (e.g., \&amp;, \&lt;, \&\#39;) are converted to their Unicode equivalents using a comprehensive lookup table.
 
@@ -166,7 +158,7 @@ Before specialized normalization can occur, all text fields pass through a commo
 
 \item Case Folding: Text is converted to lowercase, a standard IR preprocessing step that collapses case-based surface-form variance [36]. This common foundation ensures that all subsequent normalization modules operate on consistently preprocessed input, reducing the complexity of individual specialized functions.
 
-\end{enumerate}
+\end{itemize}
 \subsubsection{Stable Identifier Generation}
 To maintain referential integrity across ingestion cycles and enable efficient duplicate detection, the system implements a deterministic generateId function. Creating unique, persistent keys for record linkage is important for data quality in large-scale aggregators, where the same logical internship may appear across multiple sources or scrape cycles with minor textual variations [8, 14]. The identifier generation algorithm, shown in Listing~\ref{lst:stable-id}, operates in two phases. First, a slugify helper transforms arbitrary strings into URL-safe, normalized forms by lowercasing, stripping non-alphanumeric characters while preserving intra-word hyphens, and replacing whitespace sequences with single hyphens. Second, the slugified title and company name are concatenated with a hyphen separator, forming a composite key that is both human-readable and machine-friendly. The slugify function trims input, collapses consecutive hyphens, and strips leading and trailing hyphens from the final result. The at infix separator between the title and company slugs disambiguates cases where the boundary might otherwise be ambiguous, such as distinguishing ``Data Analyst at Data Corp'' from ``Data at Analyst Data Corp.'' This generated ID serves multiple architectural roles. As a primary key, it uniquely identifies each internship within the system. As a blocking key for deduplication, it groups records that share identical normalized representations, limiting pairwise fuzzy comparison to small, manageable blocks [8]. When a collision is detected, the pipeline appends a disambiguating numeric suffix, such as software-engineer-intern-at-acme-corp-1. A metadata field, collisionResolved, is set to true on such records, flagging them for potential manual review. This strategy prevents distinct listings from being overwritten while maintaining the efficiency of deterministic blocking for common cases.
 
@@ -203,7 +195,7 @@ The skill lexicon serves as the knowledge base for the extraction module. Its co
 The extractSkills function implements a case-insensitive, whole-word matching algorithm against the curated lexicon. The algorithm processes the job description text through the following stages:
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}
 
 \item Tokenization and Normalization: The description is tokenized using a whitespace-aware tokenizer that preserves multi-word skill phrases; for example, ``Machine Learning'' is treated as a single candidate. Tokens are lowercased and stripped of trailing punctuation.
 
@@ -213,12 +205,12 @@ The extractSkills function implements a case-insensitive, whole-word matching al
 
 \item Canonical Mapping: Each matched synonym is mapped to its canonical ESCO-aligned label, ensuring that downstream processing (filtering, search, analytics) operates on a consistent vocabulary. Dictionary-based methods provide a high-precision baseline for entity recognition in specialized domains, where the vocabulary of relevant entities is relatively stable and well-documented [38]. The primary limitation---inability to detect novel or unlisted skills---is addressed through the periodic lexicon maintenance process and, in future work, through the integration of contextual embedding-based extraction as a secondary tier for low-confidence cases.
 
-\end{enumerate}
+\end{itemize}
 \subsubsection{Ranking and Density Control}
 A raw list of matched skills, while informative, does not distinguish between a job's core requirements and incidental mentions. A listing that mentions ``Python'' once in a list of 20 other technologies has a different skill profile than one that mentions ``Python'' extensively. To surface the most salient skills while avoiding ``keyword stuffing'' amplification, the system employs a density control mechanism inspired by TF-IDF principles but adapted for the skill extraction domain [17, 4]. The ranking algorithm assigns each extracted skill a composite score based on three factors:
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}
 
 \item Normalized Frequency: The raw count of the skill's occurrences in the description, divided by the total token count, preventing longer descriptions from dominating.
 
@@ -226,7 +218,7 @@ A raw list of matched skills, while informative, does not distinguish between a 
 
 \item Position Weighting: Skills appearing earlier in the description (which typically corresponds to the ``Requirements'' or ``Qualifications'' section) receive a higher weight than those appearing in boilerplate footer text. The final skill list presented to users is truncated to a configurable maximum (default: 10 skills), with skills ranked by this composite score. This ensures that the displayed skills represent the core requirements of the role, facilitating both accurate search matching and quick comprehension by browsing users.
 
-\end{enumerate}
+\end{itemize}
 \subsection{Heuristic Role Categorization}
 The final enrichment step maps each internship to a high-level domain category, enabling the faceted filtering that is a core functional requirement of the system. The categorizeJob function evaluates the (now normalized) job title against a hierarchy of professional ``anchors'' [2, 11]. This categorization serves dual purposes: it provides immediate value for UI navigation even before more sophisticated semantic mapping is applied, and it serves as a fallback classification for cases where embedding-based mapping (Layer B) has low confidence.
 
