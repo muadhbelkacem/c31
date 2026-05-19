@@ -10,7 +10,7 @@ This chapter establishes the architectural blueprint and methodological framewor
 The system is designed to serve two primary actors whose distinct needs shape the functional requirements and system scope, as illustrated in Figure~\ref{fig:usecase}. This approach aligns with standard practices in recruitment informatics and user-centered system design [15, 5].
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item The Student/Job Seeker: This is the primary end-user, interacting with the system to discover relevant internship opportunities. Their core requirements are:
 
@@ -44,7 +44,7 @@ The system is designed to serve two primary actors whose distinct needs shape th
 The system's architecture is organized into four logical tiers, a design pattern that enforces a clean separation of concerns, enhances scalability, and facilitates independent development and testing of each layer [13].
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Presentation Layer (app/components/): This tier contains the React-based user interface. The InternshipList.tsx component is responsible for rendering search results, interactive filters, and detail views. It maintains its own UI state while consuming data exclusively through the API layer, preserving a clean separation from backend logic.
 
@@ -65,7 +65,7 @@ The system's architecture is organized into four logical tiers, a design pattern
 The semantic integrity of the entire pipeline is maintained by a formal, strongly typed data model. This model acts as a ``semantic contract'' [44] between the ingestion logic and the presentation layer, ensuring that data output by the pipeline conforms to the expectations of the frontend. This approach to structured information management is consistent with recent work on generic traceability link recovery through Retrieval-Augmented Generation, where schemas act as enforceable specifications for system artifacts [fuchss2026linking]. The Internship interface, implemented in TypeScript and visualized in Figure~\ref{fig:class}, is the central entity of this model. The design of this schema is motivated by three objectives:
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Identity and Provenance: Achieved through a stable, deterministic id field based on a normalized combination of the company name and job title. This ensures unique identification across ingestion cycles and maintains links to original sources [8].
 
@@ -95,7 +95,7 @@ The interaction between the client-side UI and the server-side data processing l
 The data ingestion and enrichment process is the methodological core of the system, implementing a tiered strategy that directly addresses Research Question 1. It follows a strict sequence of operations designed to progressively refine raw, noisy data into structured, semantically enriched entities using the most efficient tool for each task [9, 18]. This pipeline is orchestrated by a core function, enrichInternship(rawItem), as described in the implementation chapter.
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item I/O and Schema Validation (Layer 0): The pipeline begins with a safety-first approach. The system reads source data from the file system or a parsed upload and immediately validates the structural integrity of the JSON. This ensures the data conforms to the expected top-level schema before any processing occurs, a critical step in robust data integration [13]. Any records failing schema validation are logged and quarantined for manual inspection, preventing them from corrupting the downstream data store.
 
@@ -119,7 +119,7 @@ To achieve a unified and queryable view of labor-market data, the system require
 The schema's design is directly motivated by three primary functional objectives, each of which addresses a key failure mode of ad-hoc data processing:
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Identity and Provenance: A persistent challenge in aggregating data from multiple scrape cycles is the creation of duplicate records for the same logical job. To support unique identification across ingestion cycles despite minor textual variations, the schema mandates a deterministic primary key. Maintaining a clear link back to the original source is also necessary for auditing extraction quality, managing data staleness, and respecting source-specific policies [8].
 
@@ -132,7 +132,7 @@ The schema's design is directly motivated by three primary functional objectives
 The abstract structural requirements are implemented as a TypeScript interface, serving as the foundational blueprint for both the relational database and the frontend presentation layer. This formalization in a strongly typed language enforces compile-time and runtime data integrity. By defining a canonical Internship type, each module, from the regex-based salary parser to the React search result card, operates on a shared and unambiguous definition of the data entity. Deviations from this contract, such as a missing field or incorrect type, raise errors during development or testing and reduce the risk of data corruption propagating through the pipeline. This practice is a cornerstone of robust and maintainable IE pipelines [44]. The key fields of the Internship interface are structured as follows:
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Core Identity \& Provenance: -- id: string --- A deterministic, unique, URL-safe slug generated from the normalized company name and job title (e.g., software-engineer-intern-acme-corp). This acts as the primary key and a blocking key for deduplication [8]. -- sourceUrl: string --- The original URL from which the listing was scraped or the identifier of the JSON upload, ensuring complete traceability.
 
@@ -183,7 +183,7 @@ While ESCO provides the granular canonical depth required for semantic precision
 The system defines five top-level categories that reflect the distribution and concentration of the current internship dataset, particularly within the technology and business sectors. These categories are designed to be mutually exclusive, collectively exhaustive for the target domain, and understandable to a student user.
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Software: Encompasses web development, mobile engineering, backend/infrastructure systems, DevOps, and quality assurance. This is a high-volume category that benefits significantly from sub-filtering by extracted skills.
 
@@ -233,7 +233,7 @@ end procedure
 The chosen label space, a two-tier combination of the ESCO taxonomy and a shallow internal categorical layer, constitutes a direct architectural response to the semantic gap described in the earlier theoretical and methodological chapters. This gap is the conceptual distance between a user's search language and an employer's job-posting language, and it contributes to poor recall in traditional lexical search systems. The architecture addresses this gap on two complementary levels, as visualized in Figure~\ref{fig:semantic-gap}.
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Tier 1 --- ESCO Taxonomy Mapping: Transforms idiosyncratic raw titles (e.g., ``Code Wizard'', ``Frontend Guru'') into canonical Level 4 ESCO occupations (e.g., ``Software Developer''). This moves the data from an inconsistent lexical space to a stable, shared conceptual space.
 
@@ -244,7 +244,7 @@ The chosen label space, a two-tier combination of the ESCO taxonomy and a shallo
 \begin{figure}[H]
 \centering
 \begin{tcolorbox}[width=0.92\textwidth,colback=gray!4,colframe=black!35,title={Two-Tier Bridging of the Semantic Gap}]
-\begin{itemize}[leftmargin=1.2em,itemsep=0.35em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.2em,itemsep=0.35em]
   \item \textbf{Tier 1 - ESCO Taxonomy Mapping:} Transforms idiosyncratic raw titles such as ``Code Wizard'' and ``Frontend Guru'' into canonical Level 4 ESCO occupations such as ``Software Developer''. This moves the data from an inconsistent lexical space to a stable, shared conceptual space.
   \item \textbf{Tier 2 - Internal Categorization:} Compresses the rich, expert-centric ESCO hierarchy into a small set of human-friendly, high-level categories such as ``Software'' and ``Data/AI'' suitable for faceted browsing in the user interface.
 \end{itemize}
@@ -261,7 +261,7 @@ This section defines the framework for empirically assessing the proposed lightw
 The evaluation is designed to examine both output quality and operational characteristics. The primary objective is to determine whether the tiered hybrid architecture, consisting of Layers A, B, and a reserved Layer C, provides a favorable balance between semantic fidelity, retrieval relevance, and resource efficiency. The evaluation is structured around four research questions, each linked to testable hypotheses and metrics drawn from related literature [31, 37, 51]:
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item RQ1 (Extraction Fidelity): How accurately does the deterministic, rule-based pipeline (Layer A) extract critical structured fields---specifically compensation, geographic locations, and posting dates---from the heterogeneous and noisy text of internship listings, as compared to a human-annotated ground truth? This question tests the fundamental hypothesis that high-precision rules can correctly resolve the majority of structured data without the overhead of learned models [44, 38].
 
@@ -279,7 +279,7 @@ A reliable and representative reference evaluation set is necessary for credible
 The evaluation set comprises 500 internship listings, carefully sampled to ensure diversity across multiple dimensions, preventing over-optimization for a narrow data slice.
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Web-Scraped Split (n = 400): This subset was randomly sampled from the primary, large-scale JSON catalog of over 327 web-scraped records. To prevent temporal bias, the sample was stratified by the month of scraping. This split primarily tests the system's ability to handle the semi-structured, noisy, and often redundant nature of web data [28].
 
@@ -290,7 +290,7 @@ The evaluation set comprises 500 internship listings, carefully sampled to ensur
 Two domain experts, both PhD candidates in Information Systems with prior experience in labor-market analytics, were recruited to manually annotate each of the 500 listings. The annotation task was defined by a detailed codebook, excerpted in Appendix A, and mapped directly to the Internship target schema defined in the methodology chapter. For each listing, annotators were asked to:
 
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Field Extraction: Identify and normalize the following fields directly from the raw text: salaryMin, salaryMax, location, and applicationDeadline. If a field was not present, they were to label it as <NULL>.
 
@@ -305,7 +305,7 @@ Two domain experts, both PhD candidates in Information Systems with prior experi
 To ensure the reliability and reproducibility of the ground truth, inter-annotator agreement (IAA) was measured using both Cohen's Kappa for categorical tasks (title normalization) and Krippendorff's Alpha for the interval-scale relevance judgments [26]. A pilot annotation round was conducted on 50 items. Disagreements were analyzed, and the codebook was refined in an iterative process. In the final annotation phase, a dual-annotation pass was performed on the entire 500-item set. The resulting IAA scores were:
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Title Normalization (Level 4 ESCO): Cohen's Kappa = 0.84, indicating very high agreement.
 
@@ -316,7 +316,7 @@ To ensure the reliability and reproducibility of the ground truth, inter-annotat
 A set of 30 distinct search queries was formulated to simulate real student information needs, designed to test the distinct capabilities of lexical and semantic search. The queries fall into three categories:
 
 
-\begin{itemize}
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Exact/Lexical Queries (10): Queries with high keyword specificity, e.g., ``React Native intern,'' ``AWS cloud architect intern,'' ``drug safety associate.'' These are designed to be a strong match for BM25.
 
@@ -332,7 +332,7 @@ The evaluation uses a multi-faceted set of established metrics to quantify diffe
 For atomic field-level extraction (RQ1) and categorical mapping (RQ2), where the output is a predicted value or label, the study uses standard classification metrics under an exact-match criterion unless otherwise noted:
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Precision (P) and Recall (R): Calculated for binary extraction tasks, such as whether a salary value is present or not, and for multi-label tasks like skill extraction. They quantify the trade-off between false positives and false negatives [36].
 
@@ -345,7 +345,7 @@ For atomic field-level extraction (RQ1) and categorical mapping (RQ2), where the
 For the end-to-end search evaluation (RQ3), the study uses metrics that assess ranked lists of results, accounting for the position of relevant documents and graded relevance levels [2, 7]:
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Precision@k (P@k): The proportion of relevant documents among the top k results. The study reports P@5 and P@10, as the first page of results is especially important for user experience in student-facing search.
 
@@ -362,7 +362,7 @@ For the end-to-end search evaluation (RQ3), the study uses metrics that assess r
 For evaluating the system's operational profile (RQ4), the study defines concrete efficiency metrics aligned with calls for more pragmatic and Green NLP evaluation [46, 37]:
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Ingestion Throughput: Measured in listings processed per second, calculated over the entire enrichment pipeline for batches of 1,000 documents.
 
@@ -380,7 +380,7 @@ To attribute performance differences to specific system components, the evaluati
 The evaluation compares the following configurations, which represent progressive increases in system complexity and semantic capability:
 
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Baseline 1: Keyword-Only (BM25): A traditional sparse retrieval system built on an inverted index of the raw, cleaned text. This serves as the lexical baseline for RQ3, reflecting common job-board search practices [43]. For RQ2, this is replaced by a keyword-mapping baseline where a raw title is classified by matching the longest n-gram against a lexicon of ESCO labels.
 
