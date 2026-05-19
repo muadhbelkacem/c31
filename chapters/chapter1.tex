@@ -10,18 +10,18 @@ Over the last decade, internship discovery has been transformed by the digital s
 This thesis addresses two related problems in the ingestion and retrieval of internship data: the semantic gap and structural heterogeneity. Existing job-posting systems commonly follow one of two approaches, each of which creates limitations for the target use case:
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item Rigid Lexical Matching: Many platforms rely on exact keyword matching, such as BM25. This approach is limited in its ability to handle synonyms, technical jargon, and relationships between concepts. As a result, users may miss relevant listings because their search terms do not precisely match the employer's vocabulary [2].
 
 \item High-Cost LLM Dependency: The opposite extreme is to delegate the problem entirely to a Large Language Model (LLM). While LLMs are effective at interpreting meaning, relying on them to process thousands of scraped documents in real time is often financially expensive and can introduce substantial latency [37]. The ingestion process itself is similarly fragmented. Data from partner institutions often arrives in JSON formats that lack any fixed schema, forcing teams into a repetitive cycle of manual mapping. This creates the need for a unified system that can automatically clean, structure, and semantically enrich data from diverse sources while remaining efficient enough to run on ordinary commodity hardware [17].
 
-\end{enumerate}
+\end{itemize}
 \section{Research Questions}
 The study is guided by four research questions:
 
 
-\begin{enumerate}[leftmargin=1.7em,itemsep=0.25em,topsep=0.25em]
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
 \item RQ1: How can a tiered pipeline architecture balance extraction accuracy and computational cost for internship listings?
 
@@ -31,7 +31,7 @@ The study is guided by four research questions:
 
 \item RQ4: Which heuristic-based mapping strategies can automate the ingestion of inconsistently formatted JSON data into a unified schema?
 
-\end{enumerate}
+\end{itemize}
 \section{Contributions}
 This thesis makes four primary contributions:
 
