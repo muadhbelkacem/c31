@@ -347,15 +347,15 @@ For the end-to-end search evaluation (RQ3), the study uses metrics that assess r
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
-\item Precision@k (P@k): The proportion of relevant documents among the top k results. The study reports P@5 and P@10, as the first page of results is especially important for user experience in student-facing search.
+\item Precision at $k$ ($P_k$): The proportion of relevant documents among the top $k$ results. The study reports $P_5$ and $P_{10}$, as the first page of results is especially important for user experience in student-facing search.
 
-\item Hit Rate@k (HR@k): A query-level indicator of whether at least one relevant document appears within the top k results. The study should report HR@5 and HR@10 because these values show whether the system returns at least one useful internship early in the ranked list.
+\item Hit Rate at $k$ ($HR_k$): A query-level indicator of whether at least one relevant document appears within the top $k$ results. The study should report $HR_5$ and $HR_{10}$ because these values show whether the system returns at least one useful internship early in the ranked list.
 
 \item Mean Reciprocal Rank (MRR): The reciprocal rank of the first relevant document, averaged over all queries. MRR is useful when the main user need is to find at least one suitable internship quickly.
 
 \item Mean Average Precision (MAP): A single, global measure of ranking quality that averages precision across all recall levels for each query and then takes the mean over all queries. It provides a holistic view of system performance, heavily weighting precision at the top ranks.
 
-\item Normalized Discounted Cumulative Gain (NDCG@k): This metric accounts for multi-level graded relevance judgments. By discounting the gain of a document logarithmically by its rank, NDCG rewards systems that place highly relevant documents in the highest positions. The study reports NDCG@10.
+\item Normalized Discounted Cumulative Gain (NDCG at $k$): This metric accounts for multi-level graded relevance judgments. By discounting the gain of a document logarithmically by its rank, NDCG rewards systems that place highly relevant documents in the highest positions. The study reports NDCG at 10.
 
 \end{itemize}
 \subsubsection{System Efficiency and Cost}
@@ -397,7 +397,7 @@ The evaluation compares the following configurations, which represent progressiv
 To ensure reproducibility and a fair efficiency comparison (RQ4), all experiments are conducted on a single, controlled hardware environment: a workstation with an Intel Core i7-13700K CPU, 32GB of DDR5 RAM, and a 1TB NVMe SSD, with no dedicated GPU. This configuration embodies the ``commodity hardware'' constraint stated in the thesis objectives. The vector search component uses a high-performance vector indexing library with default parameters, providing a strong balance between index build time, search speed, and recall~\cite{johnson2019billion}. Static file services and the Next.js API are run in production mode, and process metrics are captured using the native Node.js process.memoryUsage() API and custom timing middleware for latency measurements.
 
 \subsubsection{Trade-off Analysis: The Accuracy-Cost Pareto Frontier}
-A central contribution of this thesis is the investigation of the accuracy-cost trade-off. To visualize this relationship, the evaluation plots Accuracy@1 for title normalization (RQ2) and MAP for retrieval (RQ3) for Baseline 2, Baseline 3, and the LLM-only Baseline 4 against their respective enrichment and query costs. A system in the upper-left quadrant of this Pareto plot, where accuracy is high and cost is low, represents a more favorable solution. This analysis is intended to determine whether a lightweight tiered pipeline can deliver usable semantic capability at lower cost, thereby motivating the architectural choices central to this thesis~\cite{hsieh2023distilling, menghani2023efficient}.
+A central contribution of this thesis is the investigation of the accuracy-cost trade-off. To visualize this relationship, the evaluation plots Top-1 accuracy for title normalization (RQ2) and MAP for retrieval (RQ3) for Baseline 2, Baseline 3, and the LLM-only Baseline 4 against their respective enrichment and query costs. A system in the upper-left quadrant of this Pareto plot, where accuracy is high and cost is low, represents a more favorable solution. This analysis is intended to determine whether a lightweight tiered pipeline can deliver usable semantic capability at lower cost, thereby motivating the architectural choices central to this thesis~\cite{hsieh2023distilling, menghani2023efficient}.
 
 
 \section{Chapter Conclusion}

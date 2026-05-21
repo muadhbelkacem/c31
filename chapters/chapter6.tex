@@ -57,11 +57,11 @@ The evaluation employs a multi-faceted metric suite aligned with the research qu
 
 \paragraph{Retrieval Quality Metrics (RQ3):}
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Precision@k (P@5, P@10):} Proportion of relevant documents in top-k results
-    \item \textbf{Hit Rate@k (HR@5, HR@10):} Query-level indicator of at least one relevant result in top-k
+    \item \textbf{Precision at $k$ ($P_5$, $P_{10}$):} Proportion of relevant documents in top-$k$ results
+    \item \textbf{Hit Rate at $k$ ($HR_5$, $HR_{10}$):} Query-level indicator of at least one relevant result in top-$k$
     \item \textbf{Mean Reciprocal Rank (MRR):} Average reciprocal rank of first relevant document
     \item \textbf{Mean Average Precision (MAP):} Average precision across recall levels
-    \item \textbf{Normalized Discounted Cumulative Gain (NDCG@10):} Graded relevance ranking quality
+    \item \textbf{Normalized Discounted Cumulative Gain (NDCG at 10):} Graded relevance ranking quality
 \end{itemize}
 
 \paragraph{Efficiency Metrics (RQ4):}
@@ -120,13 +120,13 @@ The heuristic keyword-anchoring approach achieved 86\% exact-match accuracy on t
 Retrieval ranking metrics comparing the proposed hybrid system against lexical-only and dense-only baselines across the 30-query test set are analyzed below.
 
 \paragraph{Improvement Over Baselines.}
-The proposed hybrid system achieved statistically significant improvements over the lexical baseline ($p < 0.01$, paired $t$-test) across all metrics. P@5 increased by 26\% (0.42 $\rightarrow$ 0.53), HR@5 by 19\% (0.67 $\rightarrow$ 0.80), and NDCG@10 by 29\% (0.52 $\rightarrow$ 0.67). This 29\% improvement in NDCG@10 is consistent with the latest BEIR 2025 benchmarks, which report that ensembling lexical search with fine-tuned neural retrievers can boost zero-shot retrieval effectiveness by approximately 20--25\%~\cite{beir2025}. Compared to dense-only retrieval, the hybrid system improved P@5 by 20\% (0.44 $\rightarrow$ 0.53) and HR@10 by 8\% (0.83 $\rightarrow$ 0.90), demonstrating that lexical and semantic signals are complementary rather than redundant.
+The proposed hybrid system achieved statistically significant improvements over the lexical baseline ($p < 0.01$, paired $t$-test) across all metrics. $P_5$ increased by 26\% (0.42 $\rightarrow$ 0.53), $HR_5$ by 19\% (0.67 $\rightarrow$ 0.80), and $NDCG_{10}$ by 29\% (0.52 $\rightarrow$ 0.67). This 29\% improvement in $NDCG_{10}$ is consistent with the latest BEIR 2025 benchmarks, which report that ensembling lexical search with fine-tuned neural retrievers can boost zero-shot retrieval effectiveness by approximately 20--25\%~\cite{beir2025}. Compared to dense-only retrieval, the hybrid system improved $P_5$ by 20\% (0.44 $\rightarrow$ 0.53) and $HR_{10}$ by 8\% (0.83 $\rightarrow$ 0.90), demonstrating that lexical and semantic signals are complementary rather than redundant.
 
 \paragraph{Query Category Analysis.}
-Performance by query type reveals the differential strengths of each retrieval modality. For exact/lexical queries, the lexical baseline alone performed strongly (NDCG@10=0.64), and the hybrid system preserved this capability (0.68). For conceptual queries requiring semantic understanding, dense-only retrieval substantially outperformed the lexical baseline (0.61 vs. 0.38). These findings align with the T2-RAGBench 2026 report, which confirms that hybrid RRF systems maintain high precision for technical queries while significantly improving recall for conceptual ones~\cite{t2ragbench2026}. The largest hybrid advantage emerged for mixed queries (0.68 vs. 0.56 for the better single modality), confirming the synergy between lexical precision and semantic recall.
+Performance by query type reveals the differential strengths of each retrieval modality. For exact/lexical queries, the lexical baseline alone performed strongly ($NDCG_{10}=0.64$), and the hybrid system preserved this capability (0.68). For conceptual queries requiring semantic understanding, dense-only retrieval substantially outperformed the lexical baseline (0.61 vs. 0.38). These findings align with the T2-RAGBench 2026 report, which confirms that hybrid RRF systems maintain high precision for technical queries while significantly improving recall for conceptual ones~\cite{t2ragbench2026}. The largest hybrid advantage emerged for mixed queries (0.68 vs. 0.56 for the better single modality), confirming the synergy between lexical precision and semantic recall.
 
 \paragraph{Failure Case Analysis.}
-The 10\% of queries where HR@10 $<$ 1.0 (no relevant result in top-10) shared common characteristics: highly niche technical requirements (e.g., ``RISC-V architecture internship''), geographic constraints not captured in location fields (e.g., ``remote but must be EST timezone''), or temporal mismatches (e.g., ``fall internship'' when the corpus contained only summer listings). These failures indicate limitations in the underlying corpus rather than retrieval architecture.
+The 10\% of queries where $HR_{10} < 1.0$ (no relevant result in top-10) shared common characteristics: highly niche technical requirements (e.g., ``RISC-V architecture internship''), geographic constraints not captured in location fields (e.g., ``remote but must be EST timezone''), or temporal mismatches (e.g., ``fall internship'' when the corpus contained only summer listings). These failures indicate limitations in the underlying corpus rather than retrieval architecture.
 
 \subsection{Efficiency and Cost Results (RQ4)}
 
@@ -148,11 +148,11 @@ Analysis of the tiered pipeline showed that Layer A (deterministic rules) handle
 
 \subsection{Comparison with Keyword-Only Search}
 
-The hybrid system's 29\% improvement in NDCG@10 over the lexical baseline (0.67 vs. 0.52) represents a substantial gain in ranking quality. To contextualize this improvement, consider two illustrative queries:
+The hybrid system's 29\% improvement in $NDCG_{10}$ over the lexical baseline (0.67 vs. 0.52) represents a substantial gain in ranking quality. To contextualize this improvement, consider two illustrative queries:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Query: ``machine learning intern with Python''} — The lexical baseline retrieved listings containing ``Python'' and ``intern'' but missed listings using ``deep learning'' or ``PyTorch'' without explicit ``Python''. The hybrid system correctly retrieved semantically similar listings, improving HR@5 from 0.60 to 0.90.
-    \item \textbf{Query: ``frontend web development''} — The lexical baseline favored listings containing ``frontend'' or ``web'' but ranked ``React Developer'' and ``UI Engineer'' lower due to lexical mismatch. The hybrid system's dense component correctly identified these as semantically relevant, improving P@5 from 0.40 to 0.70.
+    \item \textbf{Query: ``machine learning intern with Python''} — The lexical baseline retrieved listings containing ``Python'' and ``intern'' but missed listings using ``deep learning'' or ``PyTorch'' without explicit ``Python''. The hybrid system correctly retrieved semantically similar listings, improving $HR_5$ from 0.60 to 0.90.
+    \item \textbf{Query: ``frontend web development''} — The lexical baseline favored listings containing ``frontend'' or ``web'' but ranked ``React Developer'' and ``UI Engineer'' lower due to lexical mismatch. The hybrid system's dense component correctly identified these as semantically relevant, improving $P_5$ from 0.40 to 0.70.
 \end{itemize}
 
 The primary limitation of the hybrid system relative to keyword search occurred for highly specific technical queries (e.g., ``RTL design using Verilog''), where the dense component occasionally retrieved less precise matches. However, RRF fusion ensured that high lexical scores for exact matches still dominated the final ranking.
@@ -187,7 +187,7 @@ On the 10 shared queries, the proposed system achieved higher precision for conc
 
 \subsection{Statistical Testing}
 
-Paired $t$-tests were conducted on the per-query NDCG@10 scores to determine whether observed differences between systems were statistically significant:
+Paired $t$-tests were conducted on the per-query $NDCG_{10}$ scores to determine whether observed differences between systems were statistically significant:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item Hybrid vs. Lexical: $t(29) = 4.82$, $p < 0.001$ (95\% CI: [0.09, 0.21])
@@ -208,7 +208,7 @@ Analysis of the 500 annotated listings revealed three primary error categories:
 \end{itemize}
 
 \paragraph{Retrieval Errors.}
-For the 3 queries where HR@10 $<$ 1.0 (no relevant result), the failure was attributed to corpus coverage rather than retrieval quality. Manual inspection confirmed that the relevant listings simply did not exist in the 327-listing corpus. Expanding corpus size and source diversity would address this limitation.
+For the 3 queries where $HR_{10} < 1.0$ (no relevant result), the failure was attributed to corpus coverage rather than retrieval quality. Manual inspection confirmed that the relevant listings simply did not exist in the 327-listing corpus. Expanding corpus size and source diversity would address this limitation.
 
 \subsection{Ablation Study}
 
@@ -223,10 +223,10 @@ The experimental results provide empirical support for the four research questio
 \begin{description}
     \item[RQ1 (Extraction fidelity).] The rule-based Layer A achieved high precision for structured fields (salary: 98\%, date: 95\%, company: 97\%) but lower recall for implicit or ambiguous information (location: 76\%, salary: 81\%). Deterministic extraction is sufficient for high-precision tasks but requires semantic fallback for coverage.
     \item[RQ2 (Semantic alignment).] The Sentence-BERT mapping achieved 91\% Top-3 accuracy for ESCO title normalization, substantially outperforming keyword baselines (74\%). The improvement was most pronounced for compound and employer-specific titles.
-    \item[RQ3 (Retrieval quality).] The hybrid system combining lexical and dense retrieval with RRF achieved statistically significant improvements over both single-modality baselines: +29\% NDCG@10 vs. keyword baseline, +19\% vs. dense-only. The largest gains occurred for mixed queries combining lexical and conceptual elements (+12\% over best single modality).
+    \item[RQ3 (Retrieval quality).] The hybrid system combining lexical and dense retrieval with RRF achieved statistically significant improvements over both single-modality baselines: +29\% $NDCG_{10}$ vs. keyword baseline, +19\% vs. dense-only. The largest gains occurred for mixed queries combining lexical and conceptual elements (+12\% over best single modality).
     \item[RQ4 (System efficiency).] The tiered pipeline processed 47.3 listings per second with 47 ms median query latency on commodity hardware, achieving 22--26$\times$ speedups over LLM-only alternatives at 29--120$\times$ lower cost. Layer A handled 78\% of extraction tasks independently, validating the tiered design principle.
 \end{description}
 
 \section{Chapter Conclusion}
 
-This chapter has presented a comprehensive evaluation of the internship aggregation system. The reported evidence demonstrates that the tiered hybrid architecture achieves substantial improvements in retrieval quality over lexical-only baselines while maintaining efficiency suitable for production deployment on commodity hardware. The accuracy-cost Pareto frontier favors the proposed approach over LLM-dependent alternatives for the internship discovery use case, though a 2--3\% accuracy gap remains for edge cases. The chapter has also provided a complete template for reproducible retrieval evaluation, including the HR@k and NDCG@k analysis required for comparison with external platforms. Chapter~7 will discuss the limitations of this evaluation, ethical considerations, and directions for future work.
+This chapter has presented a comprehensive evaluation of the internship aggregation system. The reported evidence demonstrates that the tiered hybrid architecture achieves substantial improvements in retrieval quality over lexical-only baselines while maintaining efficiency suitable for production deployment on commodity hardware. The accuracy-cost Pareto frontier favors the proposed approach over LLM-dependent alternatives for the internship discovery use case, though a 2--3\% accuracy gap remains for edge cases. The chapter has also provided a complete template for reproducible retrieval evaluation, including the $HR_k$ and $NDCG_k$ analysis required for comparison with external platforms. Chapter~7 will discuss the limitations of this evaluation, ethical considerations, and directions for future work.

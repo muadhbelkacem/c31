@@ -273,7 +273,7 @@
 \item \textbf{Dataset:} 327 real internship listings (LinkedIn, Indeed, university portals, direct uploads).
 \item \textbf{Ground truth:} 500 manually annotated listings (ESCO Level 4, skills, salary, location), inter‑annotator agreement $\kappa = 0.84$.
 \item \textbf{Query set:} 30 queries – 10 lexical, 10 conceptual, 10 mixed.
-\item \textbf{Metrics:} Retrieval (P@5, HR@10, NDCG@10, MAP, MRR), Extraction (Precision, Recall, F1, Top‑k), Efficiency (throughput, latency, memory, cost)
+\item \textbf{Metrics:} Retrieval ($P_5$, $HR_{10}$, $NDCG_{10}$, MAP, MRR), Extraction (Precision, Recall, F1, Top‑k), Efficiency (throughput, latency, memory, cost)
 \item \textbf{Hardware:} Intel Core i7‑13700K, 32 GB DDR5, no GPU (commodity, ≈ \$1200).
 \end{itemize}
 \end{frame}
@@ -307,15 +307,15 @@ Domain categorisation & – & – & Exact match: 0.86 (heuristic), 0.89 (+embedd
 \toprule
 Metric & Lexical only & Dense only & \textbf{Hybrid (RRF)} \\
 \midrule
-P@5 & 0.42 & 0.44 & \textbf{0.53} \\
-HR@5 & 0.67 & 0.70 & \textbf{0.80} \\
-NDCG@10 & 0.52 & 0.56 & \textbf{0.67} \\
+$P_5$ & 0.42 & 0.44 & \textbf{0.53} \\
+$HR_5$ & 0.67 & 0.70 & \textbf{0.80} \\
+$NDCG_{10}$ & 0.52 & 0.56 & \textbf{0.67} \\
 MAP & 0.48 & 0.51 & \textbf{0.63} \\
 \bottomrule
 \end{tabular}
 \end{table}
 \begin{itemize}
-\item Hybrid improves NDCG@10 by \textbf{29\%} over lexical alone (p < 0.001).
+\item Hybrid improves $NDCG_{10}$ by \textbf{29\%} over lexical alone (p < 0.001).
 \item Largest gains on mixed queries: +12\% over best single modality.
 \item RRF contributes +0.035 over simple score summation (ablation).
 \end{itemize}
@@ -369,7 +369,7 @@ Cost per 1,000 queries & \textbf{\$0.01} & \$1.20 \\
 \item \textbf{Automated JSON ingestion heuristics} (fuzzy key matching, content‑based inference).
 \item \textbf{Empirical evaluation} on 327 real listings, showing:
 \begin{itemize}
-\item 29\% NDCG@10 improvement over lexical baseline.
+\item 29\% $NDCG_{10}$ improvement over lexical baseline.
 \item 47 ms median latency, 6.2 min full ingestion on commodity hardware.
 \item 78\% of extractions handled by deterministic rules alone.
 \end{itemize}
