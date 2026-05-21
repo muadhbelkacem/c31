@@ -197,7 +197,7 @@ The system defines five top-level categories that reflect the distribution and c
 \end{itemize}
 
 \subsection{Addressing the Semantic Gap}
-The chosen label space, a two-tier combination of the ESCO taxonomy and a shallow internal categorical layer, constitutes a direct architectural response to the semantic gap described in the earlier theoretical and methodological chapters. This gap is the conceptual distance between a user's search language and an employer's job-posting language, and it contributes to poor recall in traditional lexical search systems. The architecture addresses this gap on two complementary levels, as visualized in Figure~\ref{fig:semantic-gap}.
+The chosen label space, a two-tier combination of the ESCO taxonomy and a shallow internal categorical layer, constitutes a direct architectural response to the semantic gap described in the earlier theoretical and methodological chapters. This gap is the conceptual distance between a user's search language and an employer's job-posting language, and it contributes to poor recall in traditional lexical search systems. The architecture addresses this gap on two complementary levels.
 
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
@@ -208,17 +208,6 @@ The chosen label space, a two-tier combination of the ESCO taxonomy and a shallo
 
 \end{itemize}
 
-\begin{figure}[H]
-\centering
-\begin{tcolorbox}[width=0.92\textwidth,colback=gray!4,colframe=black!35,title={Two-Tier Bridging of the Semantic Gap}]
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em][leftmargin=1.2em,itemsep=0.35em]
-  \item \textbf{Tier 1 - ESCO Taxonomy Mapping:} Transforms idiosyncratic raw titles such as ``Code Wizard'' and ``Frontend Guru'' into canonical Level 4 ESCO occupations such as ``Software Developer''. This moves the data from an inconsistent lexical space to a stable, shared conceptual space.
-  \item \textbf{Tier 2 - Internal Categorization:} Compresses the rich, expert-centric ESCO hierarchy into a small set of human-friendly, high-level categories such as ``Software'' and ``Data/AI'' suitable for faceted browsing in the user interface.
-\end{itemize}
-\end{tcolorbox}
-\caption{Conceptual model of how the two-tier label space bridges the semantic gap between raw employer language and user search intent.}
-\label{fig:semantic-gap}
-\end{figure}
 
 
 \section{Evaluation Methodology}
