@@ -154,8 +154,8 @@
             \begin{column}{0.48\textwidth}
                 \textbf{\faRobot~ NLP \& Semantic Enrichment}
                 \begin{itemize}
-                    \item DistilBERT: Contextual disambiguation
-                    \item SBERT: \texttt{all‑MiniLM‑L6‑v2} (384‑dim)
+                    \item \texttt{all-MiniLM-L6-v2}: Contextual disambiguation
+                    \item \texttt{all-MiniLM-L6-v2}: 384‑dim embeddings
                 \end{itemize}
                 \vspace{0.3cm}
                 \textbf{\faSearch~ Retrieval Infrastructure}
@@ -200,8 +200,8 @@
                 \vspace{0.2cm}
 
                 \begin{itemize}
-                    \item DistilBERT for ambiguous title disambiguation
-                    \item SBERT maps titles to ESCO Level 4
+                    \item \texttt{all-MiniLM-L6-v2} for ambiguous title disambiguation
+                    \item \texttt{all-MiniLM-L6-v2} maps titles to ESCO Level 4
 \item Top‑3 accuracy: \textbf{91\%}
 \end{itemize}
 \end{column}
@@ -247,7 +247,7 @@
 \vspace{0.3cm}
 \textbf{\faBrain~ Semantic (Vector)}
 \begin{itemize}
-\item Pre‑computed 384‑dim SBERT embeddings
+\item Pre‑computed 384‑dim \texttt{all-MiniLM-L6-v2} embeddings
 \item Vector index: Optimized approximate nearest neighbor search
 \end{itemize}
 \end{column}
@@ -288,14 +288,14 @@ Task & Precision & Recall & F1 / Top‑k \\
 Salary extraction (regex) & 0.98 & 0.81 & – \\
 Location extraction & 0.89 & 0.76 & – \\
 Skill extraction (gazetteer) & 0.94 & 0.64 & F1=0.71 \\
-ESCO title norm. (SBERT) & – & – & Top‑1: 0.78, Top‑3: 0.91 \\
+ESCO title norm. (\texttt{all-MiniLM-L6-v2}) & – & – & Top‑1: 0.78, Top‑3: 0.91 \\
 Domain categorisation & – & – & Exact match: 0.86 (heuristic), 0.89 (+embedding) \\
 \bottomrule
 \end{tabular}
 \end{table}
 \begin{itemize}
 \item Layer A handles 78\% of extractions independently.
-\item SBERT improves Top‑1 accuracy by \textbf{24\%} over keyword baseline.
+\item \texttt{all-MiniLM-L6-v2} improves Top‑1 accuracy by \textbf{24\%} over keyword baseline.
 \item Main failure modes: implicit information, relative dates, monthly salary rates.
 \end{itemize}
 \end{frame}
@@ -354,7 +354,7 @@ Cost per 1,000 queries & \textbf{\$0.01} & \$1.20 \\
 \textbf{Accuracy–cost Pareto frontier:}
 \begin{itemize}
 \item Layer A: low cost, moderate recall.
-\item Layer B (SBERT) gives large accuracy gains for modest cost.
+\item Layer B (\texttt{all-MiniLM-L6-v2}) gives large accuracy gains for modest cost.
 \item LLM gives +2–3\% absolute improvement at 30–120× higher cost – not justified for bulk processing.
 \end{itemize}
 \end{frame}
@@ -380,7 +380,7 @@ Cost per 1,000 queries & \textbf{\$0.01} & \$1.20 \\
 \begin{itemize}
 \item \textbf{Multilingual support:} Cross‑lingual dense retrieval for ESCO.
 \item \textbf{Contextual skill weighting:} Section segmentation using BiLSTM‑CRF.
-\item \textbf{Self‑training / distillation:} Use LLM to generate rationales and distil into DistilBERT.
+\item \textbf{Self‑training / distillation:} Use LLM to generate rationales and distil into \texttt{all-MiniLM-L6-v2}.
 \item \textbf{Taxonomy drift monitoring:} Detect emerging skills via OOV n‑gram frequency.
 \item \textbf{User interaction integration:} A/B testing, click‑through models, collaborative filtering.
 \item \textbf{Comparative evaluation} against LinkedIn Jobs, Indeed, Handshake.

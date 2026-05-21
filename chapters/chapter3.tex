@@ -144,31 +144,31 @@ The semantic enrichment pipeline relies on lightweight transformer-based tools t
 
 \subsection{Transformer-Based Semantic Components}
 
-Transformer-based models are used as modular semantic components, not as black-box generators. The system employs two specific model types: DistilBERT for sequence classification and Sentence-BERT for embedding generation. Both models are loaded from the Hugging Face Hub and executed locally using an optimized runtime that ensures performance on commodity hardware without requiring dedicated GPU resources. This approach provides a pure JavaScript implementation that runs in Node.js without Python dependencies.
+Transformer-based models are used as modular semantic components, not as black-box generators. The system employs the \texttt{all-MiniLM-L6-v2} transformer as its compact semantic model for embedding generation and similarity-based classification. The model is loaded from the Hugging Face Hub and executed locally using an optimized runtime that ensures performance on commodity hardware without requiring dedicated GPU resources. This approach provides a pure JavaScript implementation that runs in Node.js without Python dependencies.
 
-\subsubsection{DistilBERT and Lightweight Transformer Models}
+\subsubsection{\texttt{all-MiniLM-L6-v2} and Lightweight Transformer Models}
 
-DistilBERT is a distilled version of BERT that retains approximately 95\% of BERT's performance while reducing parameters by 40\% and increasing inference speed by 60\%. In this system, DistilBERT serves as Layer B of the tiered extraction pipeline, handling cases that deterministic rules (Layer A) cannot resolve:
+\texttt{all-MiniLM-L6-v2} is a compact sentence-transformer model designed to produce efficient semantic representations while remaining practical on CPU-only hardware. In this system, \texttt{all-MiniLM-L6-v2} serves as Layer B of the tiered extraction pipeline, handling cases that deterministic rules (Layer A) cannot resolve:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Disambiguating ambiguous job titles}: Titles such as "Consultant" could refer to Business Consulting, Technology Consulting, or Healthcare Consulting. DistilBERT classifies the title in the context of the full job description.
+    \item \textbf{Disambiguating ambiguous job titles}: Titles such as "Consultant" could refer to Business Consulting, Technology Consulting, or Healthcare Consulting. \texttt{all-MiniLM-L6-v2} embeds the title and description context for similarity-based classification.
     \item \textbf{Classifying skills from context}: Determining whether a mention of "Java" refers to the programming language (skill) or the island (location) based on surrounding text.
     \item \textbf{Extracting implicit requirements}: Identifying that a job requiring "experience with modern frontend frameworks" implies skills such as React, Vue, or Angular, even if those names are not explicitly mentioned.
 \end{itemize}
 
 The model is loaded once at startup and kept in memory for the duration of the ingestion process. No external API calls are required, which eliminates network latency and recurring costs. This design embodies the "amortized cost" principle: the one-time cost of loading the model (approximately 250 MB of RAM) is spread over thousands of inference operations (approximately 10-20 ms per classification).
 
-\subsubsection{Sentence-BERT Embeddings}
+\subsubsection{\texttt{all-MiniLM-L6-v2} Embeddings}
 
-Sentence-BERT (SBERT) modifies the pre-trained BERT architecture to produce semantically meaningful sentence embeddings that can be compared using cosine similarity. The system uses the \texttt{all-MiniLM-L6-v2} model from the Sentence-Transformers library, which has the following characteristics:
+\texttt{all-MiniLM-L6-v2} produces semantically meaningful sentence embeddings that can be compared using cosine similarity. The model, distributed through the Sentence-Transformers library, has the following characteristics:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Dimensionality}: 384-dimensional embeddings, a deliberate trade-off between expressiveness (higher dimensions) and computational efficiency (lower dimensions). The original BERT-base produces 768-dimensional embeddings, but the 384-dimensional version retains sufficient semantic discriminative power for the internship domain while reducing storage and computation by 50\%.
+    \item \textbf{Dimensionality}: 384-dimensional embeddings, a deliberate trade-off between expressiveness (higher dimensions) and computational efficiency (lower dimensions). The compact 384-dimensional representation retains sufficient semantic discriminative power for the internship domain while reducing storage and computation.
     \item \textbf{Performance}: Approximately 30-60 sentences per second on the reference CPU (Intel Core i7-10750H). For the 327-listing corpus, generating embeddings for each listing (title and description concatenated) takes approximately 5-8 minutes, which is acceptable for batch ingestion.
     \item \textbf{Model size}: 80 MB on disk, loading into approximately 120 MB of RAM. This is small enough to fit comfortably within the 16 GB commodity hardware constraint.
 \end{itemize}
 
-These embeddings are pre-computed for each internship's concatenated title and description and stored in the catalog for later retrieval. For query-time embedding, the same model encodes the user's search query and compares it to pre-computed internship embeddings using cosine similarity. The bi-encoder architecture of SBERT makes this approach feasible for real-time search because the bulk of computation (embedding all internships) happens offline during ingestion, and query-time embedding is a single forward pass (approximately 10 ms per query). Without this pre-computation, each query would require embedding 327 listings, which would take approximately 3-5 minutes per query—clearly unacceptable for interactive use.
+These embeddings are pre-computed for each internship's concatenated title and description and stored in the catalog for later retrieval. For query-time embedding, the same model encodes the user's search query and compares it to pre-computed internship embeddings using cosine similarity. The bi-encoder architecture of \texttt{all-MiniLM-L6-v2} makes this approach feasible for real-time search because the bulk of computation (embedding all internships) happens offline during ingestion, and query-time embedding is a single forward pass (approximately 10 ms per query). Without this pre-computation, each query would require embedding 327 listings, which would take approximately 3-5 minutes per query—clearly unacceptable for interactive use.
 
 \section{Indexing and Retrieval Technologies}
 
@@ -242,7 +242,7 @@ This configuration embodies the "commodity hardware" constraint stated in the th
 To support quantitative evaluation, the system includes built-in measurement and logging utilities:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Ingestion logging}: Records processing time per listing, cache hit/miss rates, and errors. This helps identify bottlenecks in the pipeline (e.g., whether the DistilBERT model or the regex salary parser is the slowest stage). Logs are written in JSONL format (one JSON object per line) to facilitate subsequent analysis with \texttt{jq} or Python.
+    \item \textbf{Ingestion logging}: Records processing time per listing, cache hit/miss rates, and errors. This helps identify bottlenecks in the pipeline (e.g., whether the \texttt{all-MiniLM-L6-v2} transformer or the regex salary parser is the slowest stage). Logs are written in JSONL format (one JSON object per line) to facilitate subsequent analysis with \texttt{jq} or Python.
     \item \textbf{Query latency}: The API endpoint wraps each request with \texttt{performance.now()} timers, logging p50 and p99 latency to a rotating log file (rotated daily, retained for 30 days). These metrics are essential for evaluating whether the system meets interactive latency targets (typically <200 ms for p99). Latency is measured at three points:
     \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
         \item \textit{End-to-end}: From receipt of HTTP request to response transmission
@@ -260,7 +260,7 @@ These logs are aggregated into CSV files for analysis using Python (pandas for d
 To ensure that the experimental results reported in Chapter 6 can be reproduced by other researchers, the following measures are implemented:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Fixed random seeds}: All libraries with stochastic behavior (vector index construction, DistilBERT inference) use fixed random seeds (seed = 42) to ensure deterministic outputs across runs.
+    \item \textbf{Fixed random seeds}: All libraries with stochastic behavior (vector index construction and \texttt{all-MiniLM-L6-v2} inference) use fixed random seeds (seed = 42) to ensure deterministic outputs across runs.
     \item \textbf{Version pinning}: All dependencies are pinned to exact versions in \texttt{package-lock.json}, which is included in the thesis repository.
     \item \textbf{Environment specification}: A \texttt{Dockerfile} is provided that replicates the exact Ubuntu 22.04 environment, including system-level dependencies (e.g., Python for token counting, CUDA libraries—though GPU is not required).
     \item \textbf{Data anonymization}: The 327-listing corpus cannot be redistributed due to terms-of-service constraints, but a synthetic dataset with identical statistical properties (skill distribution, salary range distribution, title length distribution) is provided for testing. The synthetic dataset is generated by resampling from the original corpus with perturbation to avoid copyright concerns.
@@ -271,6 +271,6 @@ To ensure that the experimental results reported in Chapter 6 can be reproduced 
 
 This chapter has separated the technological environment from the theoretical foundations of Chapter 2. While Chapter 2 explains the concepts behind information extraction, taxonomies, and retrieval models, Chapter 3 documents the concrete tools, libraries, and infrastructure that realize those concepts in working software.
 
-The chapter has covered the Next.js application framework (presentation and API layers), the hybrid JSON/PostgreSQL persistence layer (static catalog plus dynamic user state), TypeScript for type-safe data representation (including the \texttt{Internship} interface and validation functions), lightweight transformer models (DistilBERT for classification, Sentence-BERT for embeddings) for semantic enrichment, lexical retrieval and vector indexing for dense retrieval with Reciprocal Rank Fusion for hybrid ranking, and the controlled evaluation environment (hardware specifications, measurement tools, and reproducibility measures).
+The chapter has covered the Next.js application framework (presentation and API layers), the hybrid JSON/PostgreSQL persistence layer (static catalog plus dynamic user state), TypeScript for type-safe data representation (including the \texttt{Internship} interface and validation functions), the \texttt{all-MiniLM-L6-v2} transformer for semantic enrichment, lexical retrieval and vector indexing for dense retrieval with Reciprocal Rank Fusion for hybrid ranking, and the controlled evaluation environment (hardware specifications, measurement tools, and reproducibility measures).
 
 This technological foundation supports the methodology described in Chapter 4 (which defines the functional requirements, system architecture, and evaluation protocol) and the system design detailed in Chapter 5 (which implements the ingestion, enrichment, storage, and retrieval components). It also enables the reproducible evaluation presented in Chapter 6, where the specific numbers reported (e.g., 47 ms median latency, 29\% $NDCG_{10}$ improvement) are grounded in the concrete tools and hardware described here.

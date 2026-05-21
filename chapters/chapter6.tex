@@ -39,7 +39,7 @@ To isolate the contribution of each system component, the evaluation compares fo
 \begin{description}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item[Baseline 1: Keyword-Only.] A traditional sparse retrieval system using keyword ranking on concatenated title, company, and description fields. No semantic enrichment or query expansion. This represents common job-board search practices.
     \item[Baseline 2: Rules-Only (Layer A).] Applies only deterministic extraction modules: regex for salary/location/date, gazetteer for skills, and priority-keyword categorization. No neural components. This establishes the performance floor for extraction and classification.
-    \item[Baseline 3: Dense-Only (Layer B w/o Hybrid).] Uses only vector-based retrieval with Sentence-BERT embeddings and high-performance vector indexing. No lexical component. This tests semantic retrieval in isolation.
+    \item[Baseline 3: Dense-Only (Layer B w/o Hybrid).] Uses only vector-based retrieval with \texttt{all-MiniLM-L6-v2} transformer embeddings and high-performance vector indexing. No lexical component. This tests semantic retrieval in isolation.
     \item[Baseline 4: LLM-Only (Layer C).] Simulates a pipeline where GPT-3.5-turbo replaces all enrichment components. One API call per listing with a zero-shot Chain-of-Thought prompt for extraction and classification. Used exclusively for cost-comparison analysis.
     \item[Proposed System: Hybrid (Layer A + B + RRF).] The complete system combining deterministic extraction (Layer A), lightweight neural mapping (Layer B), and hybrid retrieval with Reciprocal Rank Fusion (RRF).
 \end{description}
@@ -108,7 +108,7 @@ Posted dates and company names achieved high accuracy (F1 > 0.91), confirming th
 The accuracy of ESCO title normalization and domain categorization was evaluated.
 
 \paragraph{Title Normalization.}
-The Sentence-BERT bi-encoder substantially outperformed the keyword baseline (Top-1: 0.78 vs. 0.63; Top-3: 0.91 vs. 0.74). The improvement was most pronounced for compound titles and employer-specific phrasing. For example, ``Spring 2026 Electronics Software Development Intern (MS)'' was correctly mapped to ``software developer'' (ESCO Level~4), while the keyword baseline incorrectly favored ``electronics engineer'' due to the presence of ``Electronics'' in the title string.
+The \texttt{all-MiniLM-L6-v2} transformer bi-encoder substantially outperformed the keyword baseline (Top-1: 0.78 vs. 0.63; Top-3: 0.91 vs. 0.74). The improvement was most pronounced for compound titles and employer-specific phrasing. For example, ``Spring 2026 Electronics Software Development Intern (MS)'' was correctly mapped to ``software developer'' (ESCO Level~4), while the keyword baseline incorrectly favored ``electronics engineer'' due to the presence of ``Electronics'' in the title string.
 
 Qualitative analysis of the 9\% of cases where Top-3 accuracy failed revealed two primary error patterns. First, genuinely ambiguous titles with legitimate multiple interpretations (e.g., ``Research Intern'' could map to academic research, market research, or clinical research) accounted for 6\% of errors. Second, highly idiosyncratic or emerging role titles (e.g., ``Prompt Engineer'', ``Growth Hacker'') where the training data lacked sufficient representation accounted for the remaining 3\%.
 
@@ -222,7 +222,7 @@ The experimental results provide empirical support for the four research questio
 
 \begin{description}
     \item[RQ1 (Extraction fidelity).] The rule-based Layer A achieved high precision for structured fields (salary: 98\%, date: 95\%, company: 97\%) but lower recall for implicit or ambiguous information (location: 76\%, salary: 81\%). Deterministic extraction is sufficient for high-precision tasks but requires semantic fallback for coverage.
-    \item[RQ2 (Semantic alignment).] The Sentence-BERT mapping achieved 91\% Top-3 accuracy for ESCO title normalization, substantially outperforming keyword baselines (74\%). The improvement was most pronounced for compound and employer-specific titles.
+    \item[RQ2 (Semantic alignment).] The \texttt{all-MiniLM-L6-v2} transformer mapping achieved 91\% Top-3 accuracy for ESCO title normalization, substantially outperforming keyword baselines (74\%). The improvement was most pronounced for compound and employer-specific titles.
     \item[RQ3 (Retrieval quality).] The hybrid system combining lexical and dense retrieval with RRF achieved statistically significant improvements over both single-modality baselines: +29\% $NDCG_{10}$ vs. keyword baseline, +19\% vs. dense-only. The largest gains occurred for mixed queries combining lexical and conceptual elements (+12\% over best single modality).
     \item[RQ4 (System efficiency).] The tiered pipeline processed 47.3 listings per second with 47 ms median query latency on commodity hardware, achieving 22--26$\times$ speedups over LLM-only alternatives at 29--120$\times$ lower cost. Layer A handled 78\% of extraction tasks independently, validating the tiered design principle.
 \end{description}
