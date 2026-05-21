@@ -103,7 +103,6 @@ The data ingestion and enrichment process is the methodological core of the syst
 
 \item Lightweight Semantic Mapping (Layer B): This layer addresses the semantic gap that deterministic rules cannot bridge. It employs a small local transformer model, such as a fine-tuned DistilBERT or Sentence-BERT bi-encoder, for tasks requiring contextual understanding~\cite{reimers2019sentence, menghani2023efficient}. The system implements an ``Adaptive RAG''-inspired pattern, where the depth of semantic mapping is balanced against computational cost~\cite{muniyandi2025rag}. The primary task is to map non-standard job titles to a canonical ESCO occupation label. By pre-computing an embedding for each listing and comparing it with embeddings of canonical labels through cosine similarity, the system can identify the nearest semantic match. Classification is performed during ingestion, so this processing is not part of the real-time search path.
 
-\item Heuristic Role Categorization: As a final enrichment step, the categorizeJob function applies keyword-based heuristics to map the (now normalized) title to a high-level domain category such as ``Software,'' ``Data/AI'' or ``Design.'' This step provides immediate value for faceted filtering in the UI, as described in the relevant section, and serves as a fallback for cases where the embedding-based mapping has low confidence.
 
 \item Caching and State Management (Post-Processing): The final, fully enriched Internship object is placed into a server-side in-memory cache. This optimization amortizes the cost of the pipeline over many read requests. The cache invalidation strategy is tied to the data refresh cycle, supporting data freshness while reducing response time for the user-facing API~\cite{buttcher2016information}. This design choice is central to the system's lightweight operational profile because it avoids re-computation on every user query and contrasts with the per-query latency of LLM-dependent architectures.
 
@@ -196,38 +195,6 @@ The system defines five top-level categories that reflect the distribution and c
 \item Business: A broad category encompassing marketing, management, finance, human resources, consulting, and operations. This acts as a catch-all for the large volume of professional services internships that co-exist with technical roles on most job platforms. This restricted, curated set ensures that the top-level facet in the UI is clean, scannable, and presents a meaningful choice architecture to the end-user.
 
 \end{itemize}
-\subsubsection{Heuristic Mapping Logic}
-To bridge the gap between raw and subsequently ESCO-normalized titles and these high-level categories, the system uses a keyword-based anchor strategy. This serves as an efficient and explainable first layer of the semantic pipeline within the categorizeJob function. The rule-based engine evaluates the job title and, with lower priority, the skills list against a prioritized tree of professional anchors. The evaluation proceeds in a strict priority order, from the most specific and semantically dense signals to the most general, so that a title such as ``Machine Learning Engineer'' is classified as Data/AI rather than the more generic Software category. This heuristic approach is simple but effective for classification tasks in production environments where speed, transparency, and debuggability are important~\cite{boselli2018classifying}. It provides a stable taxonomy browser with consistent behavior and no model-inference latency. Its deterministic nature also allows the output to serve as a fallback mechanism for cases where the subsequent embedding-based semantic mapping may have low confidence, ensuring that each listing receives at least one high-level category for filtering and browsing.
-
-
-\begin{algorithmbox}[Heuristic Domain Categorization]
-\begin{verbatim}
-procedure CategorizeJob(title, skills)
-  titleLower  <- normalize(title)
-  skillsLower <- normalize(skills)
-  dataAnchors <- ["data sci", "machine learn", "deep learn", "ai eng"]
-  if containsAny(titleLower, dataAnchors) then
-      return "Data/AI"
-  softwareAnchors <- ["frontend", "backend", "full stack", "software",
-                      "devops", "mobile dev"]
-  if containsAny(titleLower, softwareAnchors) then
-      return "Software"
-  designAnchors <- ["ux", "ui", "designer",
-                    "graphic", "product design"]
-  if containsAny(titleLower, designAnchors) then
-      return "Design"
-  healthAnchors <- ["nurse", "pharma", "clinical",
-                    "medical", "healthcare"]
-  if containsAny(titleLower, healthAnchors) then
-      return "Healthcare"
-  businessAnchors <- ["market", "financ", "hr", "human res",
-                      "consult", "sales"]
-  if containsAny(titleLower, businessAnchors) then
-      return "Business"
-  return "Business"  // default fallback category
-end procedure
-\end{verbatim}
-\end{algorithmbox}
 
 \subsection{Addressing the Semantic Gap}
 The chosen label space, a two-tier combination of the ESCO taxonomy and a shallow internal categorical layer, constitutes a direct architectural response to the semantic gap described in the earlier theoretical and methodological chapters. This gap is the conceptual distance between a user's search language and an employer's job-posting language, and it contributes to poor recall in traditional lexical search systems. The architecture addresses this gap on two complementary levels, as visualized in Figure~\ref{fig:semantic-gap}.
