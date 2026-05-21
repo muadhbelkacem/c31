@@ -164,8 +164,8 @@ Sentence-BERT (SBERT) modifies the pre-trained BERT architecture to produce sema
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Dimensionality}: 384-dimensional embeddings, a deliberate trade-off between expressiveness (higher dimensions) and computational efficiency (lower dimensions). The original BERT-base produces 768-dimensional embeddings, but the 384-dimensional version retains sufficient semantic discriminative power for the internship domain while reducing storage and computation by 50\%.
-    \item \textbf{Performance}: Approximately 50-100 sentences per second on the reference CPU (Intel Core i7-13700K). For the 327-listing corpus, generating embeddings for each listing (title and description concatenated) takes approximately 3-5 minutes, which is acceptable for batch ingestion.
-    \item \textbf{Model size}: 80 MB on disk, loading into approximately 120 MB of RAM. This is small enough to fit comfortably within the 32 GB commodity hardware constraint.
+    \item \textbf{Performance}: Approximately 30-60 sentences per second on the reference CPU (Intel Core i7-10750H). For the 327-listing corpus, generating embeddings for each listing (title and description concatenated) takes approximately 5-8 minutes, which is acceptable for batch ingestion.
+    \item \textbf{Model size}: 80 MB on disk, loading into approximately 120 MB of RAM. This is small enough to fit comfortably within the 16 GB commodity hardware constraint.
 \end{itemize}
 
 These embeddings are pre-computed for each internship's concatenated title and description and stored in the catalog for later retrieval. For query-time embedding, the same model encodes the user's search query and compares it to pre-computed internship embeddings using cosine similarity. The bi-encoder architecture of SBERT makes this approach feasible for real-time search because the bulk of computation (embedding all internships) happens offline during ingestion, and query-time embedding is a single forward pass (approximately 10 ms per query). Without this pre-computation, each query would require embedding 327 listings, which would take approximately 3-5 minutes per query—clearly unacceptable for interactive use.
@@ -227,9 +227,9 @@ The development environment must support reproducible ingestion, retrieval bench
 All experiments are run on a single workstation with the following specifications:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{CPU}: Intel Core i7-13700K (16 cores, 24 threads, base clock 3.4 GHz, boost 5.4 GHz)
-    \item \textbf{RAM}: 32 GB DDR5-5600 (dual-channel)
-    \item \textbf{Storage}: 1 TB NVMe SSD (Samsung 980 Pro, read speed 7000 MB/s)
+    \item \textbf{CPU}: Intel Core i7-10750H (6 cores, 12 threads, 2.60 GHz)
+    \item \textbf{RAM}: 16 GB RAM
+    \item \textbf{Storage}: 715 GB total storage
     \item \textbf{GPU}: None (all processing runs on CPU)
     \item \textbf{Operating System}: Ubuntu 22.04 LTS
     \item \textbf{Node.js version}: 20.11.0 (LTS)
@@ -249,7 +249,7 @@ To support quantitative evaluation, the system includes built-in measurement and
         \item \textit{Retrieval}: Time spent in Lexical Search + Vector Search + RRF (excluding JSON serialization)
         \item \textit{Serialization}: Time spent converting results to JSON
     \end{itemize}
-    \item \textbf{Memory profiling}: The \texttt{process.memoryUsage()} API captures RSS (Resident Set Size) and heap usage after cache warm-up. This is used to verify that the system fits within 32 GB of RAM, a key constraint of the commodity hardware assumption. Memory snapshots are taken at pipeline start (after model loading), after cache warm-up, and during peak query load.
+    \item \textbf{Memory profiling}: The \texttt{process.memoryUsage()} API captures RSS (Resident Set Size) and heap usage after cache warm-up. This is used to verify that the system fits within 16 GB of RAM, a key constraint of the commodity hardware assumption. Memory snapshots are taken at pipeline start (after model loading), after cache warm-up, and during peak query load.
     \item \textbf{Cost tracking}: For the LLM baseline comparison, the system estimates API costs based on token counts and current pricing models (e.g., GPT-3.5-turbo at \$0.001 per 1,000 input tokens and \$0.002 per 1,000 output tokens). Token counts are approximated using the \texttt{tiktoken} library (the same tokenizer used by OpenAI) to ensure accurate cost estimates.
 \end{itemize}
 
