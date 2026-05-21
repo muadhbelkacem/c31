@@ -84,23 +84,14 @@
 
 \begin{document}
 
-% Title Page
+% Cover Page
 \begin{titlepage}
-  \centering
-  {\large \UniversityName \par}
-  \vspace{0.5cm}
-  {\normalsize \DepartmentName \par}
-  \vspace{2.0cm}
-  {\LARGE \bfseries \ThesisTitle \par}
-  \vspace{2.0cm}
-  {\large \AuthorName \par}
-  \vspace{0.5cm}
-  {\normalsize \DegreeName \par}
-  \vspace{1.5cm}
-  {\normalsize Supervisor: \SupervisorName \par}
-  \vfill
-  {\normalsize \SubmissionDate \par}
+    \begin{tikzpicture}[remember picture,overlay]
+        \node[inner sep=0pt] at (current page.center) {\includegraphics[width=\paperwidth,height=\paperheight]{thesis_cover_page}};
+    \end{tikzpicture}
 \end{titlepage}
+
+
 
 % Front Matter
 \input{chapters/front_matter}
