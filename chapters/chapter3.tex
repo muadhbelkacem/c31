@@ -179,11 +179,11 @@ The semantic enrichment pipeline relies on lightweight transformer-based tools t
 
 \subsection{Transformer-Based Semantic Components}
 
-Transformer-based models are used as modular semantic components, not as black-box generators. The system employs two specific model types: DistilBERT for sequence classification and Sentence-BERT for embedding generation. Both models are loaded from the Hugging Face Hub using the \texttt{transformers.js} library (version 2.14.0 or later), which relies on ONNX Runtime kernels optimized for CPU performance \cite{spuler2024generative}. This library provides a pure JavaScript implementation that runs in Node.js without Python dependencies.
+Transformer-based models are used as modular semantic components, not as black-box generators. The system employs two specific model types: DistilBERT for sequence classification and Sentence-BERT for embedding generation. Both models are loaded from the Hugging Face Hub and executed locally using an optimized runtime that ensures performance on commodity hardware without requiring dedicated GPU resources. This approach provides a pure JavaScript implementation that runs in Node.js without Python dependencies.
 
 \subsubsection{DistilBERT and Lightweight Transformer Models}
 
-DistilBERT is a distilled version of BERT that retains approximately 95\% of BERT's performance while reducing parameters by 40\% and increasing inference speed by 60\% \cite{huggingface2025inference}. In this system, DistilBERT serves as Layer B of the tiered extraction pipeline, handling cases that deterministic rules (Layer A) cannot resolve:
+DistilBERT is a distilled version of BERT that retains approximately 95\% of BERT's performance while reducing parameters by 40\% and increasing inference speed by 60\%. In this system, DistilBERT serves as Layer B of the tiered extraction pipeline, handling cases that deterministic rules (Layer A) cannot resolve:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Disambiguating ambiguous job titles}: Titles such as "Consultant" could refer to Business Consulting, Technology Consulting, or Healthcare Consulting. DistilBERT classifies the title in the context of the full job description.
@@ -191,7 +191,7 @@ DistilBERT is a distilled version of BERT that retains approximately 95\% of BER
     \item \textbf{Extracting implicit requirements}: Identifying that a job requiring "experience with modern frontend frameworks" implies skills such as React, Vue, or Angular, even if those names are not explicitly mentioned.
 \end{itemize}
 
-The model is loaded once at startup using the \texttt{pipeline} API from \texttt{transformers.js} and kept in memory for the duration of the ingestion process. No external API calls are required, which eliminates network latency and recurring costs. This design embodies the "amortized cost" principle: the one-time cost of loading the model (approximately 250 MB of RAM) is spread over thousands of inference operations (approximately 10-20 ms per classification).
+The model is loaded once at startup and kept in memory for the duration of the ingestion process. No external API calls are required, which eliminates network latency and recurring costs. This design embodies the "amortized cost" principle: the one-time cost of loading the model (approximately 250 MB of RAM) is spread over thousands of inference operations (approximately 10-20 ms per classification).
 
 \subsubsection{Sentence-BERT Embeddings}
 
