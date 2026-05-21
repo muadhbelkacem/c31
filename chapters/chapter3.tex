@@ -8,7 +8,7 @@ The chapter is organized into six main areas: (1) the application development en
 
 \section{Application Development Environment}
 
-The application environment provides the user interaction point for students searching internship listings and for administrators managing the data pipeline. Based on the implementation evidence, the system uses the Next.js framework (version 14.1.0) for both the presentation and API layers. This architecture reflects a shift toward hybrid, server-first designs that are optimized for streaming NLP outputs and reducing client-side overhead \cite{riva2025realworld}. Next.js was selected because it supports React Server Components (RSC) for performance, provides a unified TypeScript development experience, and enables rapid prototyping without sacrificing production-grade reliability.
+The application environment provides the user interaction point for students searching internship listings and for administrators managing the data pipeline. Based on the implementation evidence, the system uses the Next.js framework (version 14.1.0) for both the presentation and API layers. This architecture reflects a shift toward hybrid, server-first designs that are optimized for streaming semantic outputs and reducing client-side overhead \cite{riva2025realworld}. Next.js was selected because it supports React Server Components (RSC) for performance, provides a unified TypeScript development experience, and enables rapid prototyping without sacrificing production-grade reliability.
 
 \subsection{Presentation-Layer Technologies}
 
@@ -16,7 +16,7 @@ The presentation layer is responsible for displaying searchable internship recor
 
 \subsubsection{Next.js App Router and Server Components}
 
-The user interface is implemented using the Next.js App Router, which leverages React Server Components (RSC) to build a high-performance, server-first user experience. Next.js was chosen for three interconnected reasons. First, its file-based routing and layout system aligns well with the structured \texttt{Internship} data model, allowing the search interface to be decomposed into nested, cacheable layouts. Second, by defaulting to Server Components, the system minimizes the JavaScript bundle sent to the client, ensuring sub-second "time to interactive" even on low-powered devices. Third, the architectural trend for 2025–2026 emphasizes moving heavy NLP data fetching and ranking logic to the server, using streaming to deliver results as they are processed~\cite{csontos2026designing}.
+The user interface is implemented using the Next.js App Router, which leverages React Server Components (RSC) to build a high-performance, server-first user experience. Next.js was chosen for three interconnected reasons. First, its file-based routing and layout system aligns well with the structured \texttt{Internship} data model, allowing the search interface to be decomposed into nested, cacheable layouts. Second, by defaulting to Server Components, the system minimizes the JavaScript bundle sent to the client, ensuring sub-second "time to interactive" even on low-powered devices. Third, the architectural trend for 2025–2026 emphasizes moving heavy semantic data fetching and ranking logic to the server, using streaming to deliver results as they are processed~\cite{csontos2026designing}.
 
 The main UI components, organized according to the Next.js component model, include:
 
@@ -173,9 +173,9 @@ function validateInternship(obj: unknown): obj is Internship {
 }
 \end{verbatim}
 
-\section{Natural Language Processing and Semantic Tools}
+\section{Semantic Enrichment and Transformer-Based Tools}
 
-The semantic enrichment pipeline relies on lightweight NLP tools that balance expressiveness with computational efficiency. The system avoids large, general-purpose LLMs for routine extraction, instead using compact transformer models that can run on commodity hardware (CPU-only, no GPU required). This choice is central to the thesis's "lightweight" and "Green AI" claims, as it eliminates per-inference API costs and reduces energy consumption.
+The semantic enrichment pipeline relies on lightweight transformer-based tools that balance expressiveness with computational efficiency. The system avoids large, general-purpose LLMs for routine extraction, instead using compact transformer models that can run on commodity hardware (CPU-only, no GPU required). This choice is central to the thesis's "lightweight" and "Green AI" claims, as it eliminates per-inference API costs and reduces energy consumption.
 
 \subsection{Transformer-Based Semantic Components}
 
