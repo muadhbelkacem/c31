@@ -12,7 +12,7 @@ The ingestion pipeline is the system's entry point for all internship data, desi
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
-\item Source Acquisition: The primary static catalog is persisted in public/intern data.json. The getInternships() function uses the Node.js fs.promises API for asynchronous file reading. This non-blocking I/O model is necessary for a system that must serve user requests without stalling on file-system access, a fundamental principle in responsive server-side applications. This single-file approach for the core catalog supports simple version control and rapid deployment without the operational overhead of a database for static, read-heavy data.
+\item Source Acquisition: The primary static catalog is persisted in \texttt{public/intern\_data.json}. The \texttt{getInternships()} function uses the Node.js \texttt{fs.promises} API for asynchronous file reading. This non-blocking I/O model is necessary for a system that must serve user requests without stalling on file-system access, a fundamental principle in responsive server-side applications. This single-file approach for the core catalog supports simple version control and rapid deployment without the operational overhead of a database for static, read-heavy data.
 
 \item Initial Validation (Layer 0): Before any parsing logic is applied, the system performs structural checks on the raw file content. This pre-validation Layer 0 is a defensive programming strategy in automated data pipelines [9]. It verifies that the file is not empty, confirms that the top-level structure is a JSON array, and checks that essential keys exist in a representative sample of objects. By failing early at this stage, the system prevents corrupted data from propagating into downstream processes such as enrichment and indexing. Records that fail preliminary schema validation are logged with error context and quarantined in a separate log file for administrative review, creating a feedback loop for data-quality monitoring.
 
@@ -54,7 +54,7 @@ Raw data obtained from web scraping is inherently noisy and may contain inconsis
 
 \item Numeric Extraction: Once a pattern is detected, a second tier extracts the numeric entities, stripping non-numeric characters like \$ and k/K, and correctly interpreting the k suffix as a multiplication factor.
 
-\item Structuring and Validation: The extracted numbers are then mapped to the structured salaryMin and salaryMax fields in the Internship interface. A heuristic validation filter rejects results that fall outside a plausible range, such as a salary of \$0 or \$5,000,000 per year, thereby supporting a baseline of data integrity.
+\item Structuring and Validation: The cleaned string is then mapped to the \texttt{salary} field in the \texttt{Internship} interface. A heuristic validation filter ensures that entries with missing critical fields are excluded from the final dataset.
 
 \item Description Cleaning: The free-text job description often contains substantial noise as well as important semantic information. The cleanDescription function performs stronger sanitization than basic field normalization. It removes long sequences of newlines or tabs and common boilerplate sentences, such as equal-opportunity-employer statements. The goal is to improve the signal-to-noise ratio for downstream lexical and semantic analysis so that tokenization and vectorization operate on a cleaner representation of job requirements [9, 36].
 
@@ -125,11 +125,11 @@ The enrichment process is orchestrated by a central enrichInternship procedure, 
 procedure EnrichInternship(rawItem)
   title    <- cleanTitle(rawItem.title)
   company  <- cleanCompany(rawItem.company)
-  id       <- generateStableId(title, company)
+  id       <- generateId(title, company)
   desc     <- cleanDescription(rawItem.description)
-  salary   <- parseSalary(rawItem.salary)
+  salary   <- cleanSalary(rawItem.salary)
   skills   <- extractSkills(desc)
-  category <- categorizeRole(title)
+  category <- categorizeJob(title)
   return Internship(id, title, company, desc,
                     salary, skills, category)
 end procedure
@@ -165,22 +165,24 @@ To maintain referential integrity across ingestion cycles and enable efficient d
 
 \begin{lstlisting}[caption={Stable ID generation logic.},label={lst:stable-id}]
 function generateId(title: string, company: string): string {
-  const slugify = (str: string): string => str
-    .toLowerCase()
-    .trim()
+  const cleanTitle = title.toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/[\s-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-')
+    .replace(/^-|-$/g, '');
 
-  const titleSlug = slugify(title);
-  const companySlug = slugify(company);
+  const cleanCompany = company.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-')
+    .replace(/^-|-$/g, '');
 
-  return `${titleSlug}-at-${companySlug}`;
+  return `${cleanTitle}-${cleanCompany}`;
 }
 \end{lstlisting}
 
 \subsubsection{Regex-Based Salary Parsing}
-Financial compensation data in internship listings presents a particularly challenging extraction problem. Salary information is often buried within narrative text and expressed in highly variable formats: hourly rates (``\$15-20/hr''), annual salaries (``\$70k-\$90k''), single values (``Up to \$50/hr''), or narrative forms (``competitive salary''). The parseSalary module addresses this variability through a tiered regex strategy, employing a cascade of increasingly specific patterns that attempt to extract structured numeric ranges from free-text input [44]. Tier 1: Range Patterns. The first tier attempts to match the most information-rich format---explicit numeric ranges. Patterns are compiled for common currency prefixes (\$, USD, EUR), optional magnitude suffixes (k, K for thousands), and per-unit qualifiers (/hr, /hour, per hour, /yr, /year, per year, annually). The extraction logic handles both space-separated and hyphen-separated range delimiters, as well as the common ``k'' suffix convention where ``\$70k'' represents \$70,000. Tier 2: Single-Value Patterns. If no range is detected, the second tier matches single values, which may represent either a minimum (``From \$20/hr'') or a maximum (``Up to \$50/hr''). Contextual keywords (from, starting at, up to, maximum) are used to determine whether the extracted value should populate salaryMin, salaryMax, or both (in the case of an exact figure). Tier 3: Narrative Fallback. The final tier applies lightweight heuristics to detect nonnumeric salary indicators. Phrases like ``competitive,'' ``commensurate with experience,'' ``unpaid,'' and ``stipend provided'' are mapped to structured boolean flags (salaryCompetitive, salaryUnpaid) that enable faceted filtering even in the absence of precise figures. Validation and Normalization. All extracted numeric values pass through a validation filter that enforces domain-specific plausibility constraints. Hourly rates must fall within \$0- \$500, annual salaries within \$0-\$1,000,000. Values outside these bounds are discarded and logged for review. Extracted ranges are normalized to a common unit (annual salary equivalent) to enable cross-listing comparison, using a standard conversion factor of 2,080 working hours per year for full-time positions and a configurable factor for part-time roles. This tiered approach achieves high precision on structured salary expressions while gracefully degrading to partial or boolean information for narrative forms. The modular design also facilitates incremental improvement: new patterns can be added to any tier without modifying the overall extraction logic.
+Financial compensation data in internship listings presents a particularly challenging extraction problem. Salary information is often buried within narrative text and expressed in highly variable formats: hourly rates (``\$15-20/hr''), annual salaries (``\$70k-\$90k''), single values (``Up to \$50/hr''), or narrative forms (``competitive salary''). The parseSalary module addresses this variability through a tiered regex strategy, employing a cascade of increasingly specific patterns that attempt to extract structured numeric ranges from free-text input [44]. Tier 1: Range Patterns. The first tier attempts to match the most information-rich format---explicit numeric ranges. Patterns are compiled for common currency prefixes (\$, USD, EUR), optional magnitude suffixes (k, K for thousands), and per-unit qualifiers (/hr, /hour, per hour, /yr, /year, per year, annually). The extraction logic handles both space-separated and hyphen-separated range delimiters, as well as the common ``k'' suffix convention where ``\$70k'' represents \$70,000. Tier 2: Single-Value Patterns. If no range is detected, the second tier matches single values, which may represent either a minimum (``From \$20/hr'') or a maximum (``Up to \$50/hr''). Contextual keywords (from, starting at, up to, maximum) are used to determine the salary range to be extracted. Tier 3: Narrative Fallback. The final tier applies lightweight heuristics to detect nonnumeric salary indicators. Phrases like ``competitive,'' ``commensurate with experience,'' ``unpaid,'' and ``stipend provided'' are mapped to structured boolean flags (salaryCompetitive, salaryUnpaid) that enable faceted filtering even in the absence of precise figures. Validation and Normalization. All extracted numeric values pass through a validation filter that enforces domain-specific plausibility constraints. Hourly rates must fall within \$0- \$500, annual salaries within \$0-\$1,000,000. Values outside these bounds are discarded and logged for review. Extracted ranges are normalized to a common unit (annual salary equivalent) to enable cross-listing comparison, using a standard conversion factor of 2,080 working hours per year for full-time positions and a configurable factor for part-time roles. This tiered approach achieves high precision on structured salary expressions while gracefully degrading to partial or boolean information for narrative forms. The modular design also facilitates incremental improvement: new patterns can be added to any tier without modifying the overall extraction logic.
 
 \subsubsection{Location Normalization}
 Geographic location information exhibits substantial surface-form variance across sources. The cleanLocation function normalizes location strings through a sequence of transformations: abbreviation expansion (e.g., ``St.'' to ``Street'', ``NYC'' to ``New York''), removal of redundant qualifiers (e.g., ``Remote --'' prefix when a separate remote boolean field captures this information), and standardization of country names to ISO 3166-1 codes where possible. The normalized location is stored alongside the raw source string, preserving provenance while enabling reliable geographic filtering.
@@ -231,31 +233,19 @@ The classification algorithm includes several design features intended to enhanc
 
 \begin{algorithmbox}[Heuristic Role Categorization]
 \begin{verbatim}
-procedure CategorizeJob(title, skills)
-  titleLower  <- normalize(title)
-  skillsLower <- normalize(skills)
-  dataAnchors <- ["data sci", "machine learn", "deep learn",
-                  "ai eng", "data analy", "business intell"]
-  if containsAny(titleLower, dataAnchors) then
-      return "Data/AI"
-  softwareAnchors <- ["frontend", "backend", "full stack", "software",
-                      "devops", "mobile dev", "web dev", "qa",
-                      "cloud eng"]
-  if containsAny(titleLower, softwareAnchors) then
+procedure CategorizeJob(title)
+  titleLower <- normalize(title)
+  if contains(titleLower, "software", "developer", "engineer")
       return "Software"
-  designAnchors <- ["ux", "ui", "designer", "graphic",
-                    "product design", "visual", "interaction"]
-  if containsAny(titleLower, designAnchors) then
+  if contains(titleLower, "data", "analyst", "ai", "scientist")
+      return "Data/AI"
+  if contains(titleLower, "design", "ux", "ui")
       return "Design"
-  healthAnchors <- ["nurse", "pharma", "clinical", "medical",
-                    "healthcare", "biomed", "public health"]
-  if containsAny(titleLower, healthAnchors) then
+  if contains(titleLower, "marketing")
+      return "Marketing"
+  if contains(titleLower, "pharmacist", "health", "medical")
       return "Healthcare"
-  businessAnchors <- ["market", "finance", "hr", "human res",
-                      "consult", "sales", "account", "operat"]
-  if containsAny(titleLower, businessAnchors) then
-      return "Business"
-  return "Business"  // default fallback
+  return "Business"
 end procedure
 \end{verbatim}
 \end{algorithmbox}
@@ -286,7 +276,7 @@ This chapter describes the data persistence and retrieval mechanisms that suppor
 The system adopts a hybrid approach to data management, balancing the high-speed read requirements of a large catalog with the transactional persistence needed for user-specific features [13].
 
 \subsubsection{Static Catalog and Data Normalization}
-The primary repository for internship listings is a large-scale intern data.json file. To ensure data integrity, the system implements a robust ingestion pipeline:
+The primary repository for internship listings is a large-scale \texttt{intern\_data.json} file. To ensure data integrity, the system implements a robust ingestion pipeline:
 
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]

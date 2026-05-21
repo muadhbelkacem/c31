@@ -8,7 +8,7 @@ The chapter is organized into six main areas: (1) the application development en
 
 \section{Application Development Environment}
 
-The application environment provides the user interaction point for students searching internship listings and for administrators managing the data pipeline. Based on the implementation evidence, the system uses the Next.js framework (version 14.1.0) for both the presentation and API layers. This architecture reflects a shift toward hybrid, server-first designs that are optimized for streaming semantic outputs and reducing client-side overhead \cite{riva2025realworld}. Next.js was selected because it supports React Server Components (RSC) for performance, provides a unified TypeScript development experience, and enables rapid prototyping without sacrificing production-grade reliability.
+The application environment provides the user interaction point for students searching internship listings and for administrators managing the data pipeline. Based on the implementation evidence, the system uses the Next.js framework (version 16.0.7) and React (version 19.2.1) for both the presentation and API layers. This architecture reflects a shift toward hybrid, server-first designs that are optimized for streaming semantic outputs and reducing client-side overhead \cite{riva2025realworld}. Next.js was selected because it supports React Server Components (RSC) for performance, provides a unified TypeScript development experience, and enables rapid prototyping without sacrificing production-grade reliability.
 
 \subsection{Presentation-Layer Technologies}
 
@@ -24,7 +24,7 @@ The main UI components, organized according to the Next.js component model, incl
     \item \texttt{InternshipList.tsx} (Server Component): Displays a paginated grid of internship cards, each showing title, company, location, salary range, and extracted skills. Pagination is implemented using Next.js URL parameters, allowing for server-side state management and SEO-friendly navigation.
     \item \texttt{SearchBar.tsx} (Client Component): Accepts free-text queries and dispatches them to the API layer with debouncing (300 ms delay) to avoid excessive requests during rapid typing.
     \item \texttt{FilterPanel.tsx} (Client Component): Provides faceted filtering by category, skills, and location. Filters are synchronized with the URL search parameters to ensure that filter selections persist across page refreshes.
-    \item \texttt{InternshipDetail.tsx} (Server Component): Renders the full internship description, including parsed salary, canonical title, and extracted skills. This component fetches data directly on the server, eliminating an extra client-side round-trip.
+    \item \texttt{InternshipDetail.tsx} (Server Component): Renders the full internship description, including the cleaned salary, job title, and extracted skills. This component fetches data directly on the server, eliminating an extra client-side round-trip.
 \end{itemize}
 
 All UI components are organized according to the principle of "Server-First" development; they leverage Next.js's data fetching capabilities to ensure that the initial HTML contains the necessary internship data. This separation of concerns ensures that user-interface changes do not affect extraction or ranking logic—a principle of maintainable software architecture.
@@ -37,15 +37,15 @@ Upon receiving a structured JSON response containing an array of \texttt{Interns
 
 \subsection{API and Communication Layer}
 
-The communication layer provides a stable, versioned interface between the client application and the backend data processing pipeline. It is implemented using Next.js API routes, which run as serverless functions within the same Next.js project (version 14.1.0). Next.js was chosen over a separate backend framework (e.g., Express.js, Fastify) because it eliminates the need for a separate backend server, reduces deployment complexity, and provides a unified development environment where frontend and backend code share type definitions. This architectural decision directly supports the "lightweight" design goal by minimizing infrastructure moving parts.
+The communication layer provides a stable, versioned interface between the client application and the backend data processing pipeline. It is implemented using Next.js API routes, which run as serverless functions within the same Next.js project (version 16.0.7). Next.js was chosen over a separate backend framework (e.g., Express.js, Fastify) because it eliminates the need for a separate backend server, reduces deployment complexity, and provides a unified development environment where frontend and backend code share type definitions. This architectural decision directly supports the "lightweight" design goal by minimizing infrastructure moving parts.
 
 \subsubsection{Next.js API Routes}
 
 The primary endpoint, \texttt{/api/internship/route.ts}, acts as the sole access point for search and retrieval operations. It handles HTTP GET requests through the following pipeline:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Parameter validation}: Query parameters are validated using Zod, a TypeScript-first schema validation library. This ensures that \texttt{page} is a positive integer (default 1), \texttt{category} is one of the allowed enum values, \texttt{skills} is a valid comma-separated list, and \texttt{q} does not exceed 200 characters (to prevent excessively long queries from degrading performance).
-    \item \textbf{Cache header processing}: The endpoint reads the \texttt{If-None-Match} header to support conditional requests. If the client's ETag matches the current cache version (computed as a hash of the last modification time of the JSON catalog), the endpoint returns a 304 Not Modified response with an empty body, saving bandwidth and processing time.
+    \item \textbf{Data integrity}: Incoming data is validated to ensure that \texttt{title} and \texttt{company} are non-empty strings. This basic validation prevents malformed records from being processed and ensures that every internship displayed to the user has identifying information.
+    \item \textbf{Cache header processing}: The endpoint reads the \texttt{If-None-Match} header to support conditional requests. If the client's ETag matches the current cache version, the endpoint returns a 304 Not Modified response, saving bandwidth.
     \item \textbf{Data access delegation}: The validated parameters are passed to the \texttt{data.ts} module, which abstracts the underlying persistence strategy (in-memory cache, JSON file, or Supabase). This delegation layer allows the API route to remain agnostic about where or how the data is stored.
     \item \textbf{Response serialization}: The retrieved \texttt{Internship} objects are serialized to JSON with dates formatted as ISO 8601 strings and embeddings omitted from the response payload to reduce network transfer size (embeddings are 384 floats × 4 bytes ≈ 1.5 KB per listing, which would substantially increase response size). The full embedding is used only for server-side ranking, not transmitted to the client.
 \end{itemize}
@@ -54,7 +54,7 @@ Using Next.js API routes eliminates the need for a separate backend server, redu
 
 \subsubsection{JSON-Based Data Exchange}
 
-JSON is used as the exchange format between the API layer and the client application. This choice is consistent with the native format of the internship catalog (\texttt{internships.json}) and with the TypeScript \texttt{Internship} interface. Using a uniform serialization format across storage, processing, and presentation simplifies the pipeline and reduces the risk of schema drift. For example, the same \texttt{Internship} type definition used in the ingestion pipeline is also used to validate API responses at compile time. Any discrepancy between the stored data shape and the expected API response shape would be caught by the TypeScript compiler, preventing runtime errors that might otherwise propagate to the user interface.
+JSON is used as the exchange format between the API layer and the client application. This choice is consistent with the native format of the internship catalog (\texttt{intern\_data.json}) and with the TypeScript \texttt{Internship} interface. Using a uniform serialization format across storage, processing, and presentation simplifies the pipeline and reduces the risk of schema drift. For example, the same \texttt{Internship} type definition used in the ingestion pipeline is also used to validate API responses at compile time. Any discrepancy between the stored data shape and the expected API response shape would be caught by the TypeScript compiler, preventing runtime errors that might otherwise propagate to the user interface.
 
 \section{Database and Persistence Technologies}
 
@@ -66,7 +66,7 @@ The static internship catalog is stored as a local JSON file, while dynamic user
 
 \subsubsection{Static Catalog Storage}
 
-The primary internship catalog resides in \texttt{public/internships.json}. This file is generated by the ingestion pipeline (described in Chapter 5) and contains all cleaned, enriched, and structured internship records. Using a single JSON file for the read-heavy catalog offers several advantages:
+The primary internship catalog resides in \texttt{public/intern\_data.json}. This file is generated by the ingestion pipeline (described in Chapter 5) and contains all cleaned, enriched, and structured internship records. Using a single JSON file for the read-heavy catalog offers several advantages:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Version control}: The file can be tracked in Git, allowing complete rollback to any previous state and enabling reproducible experiments across thesis versions.
@@ -101,75 +101,40 @@ The \texttt{Internship} interface, defined in TypeScript, specifies the exact sh
 
 \begin{verbatim}
 interface Internship {
-  // Core Identity & Provenance
-  id: string;                    // deterministic slug: "software-engineer-intern-acme-corp"
-  sourceUrl: string;             // original URL or upload identifier
-
-  // Faceted Discovery Attributes
-  category: string;              // Software, Data/AI, Design, Healthcare, Business
-  skills: string[];              // extracted skill tags
-  location: string;              // normalized location string
-  salaryMin?: number;            // lower bound of salary range (annualized)
-  salaryMax?: number;            // upper bound of salary range (annualized)
-
-  // Semantic Enrichment Fields
-  canonicalTitle: string;        // ESCO-mapped occupation label
-  embedding: number[];           // 384-dim Sentence-BERT vector
-
-  // Original (Cleaned) Text
-  rawTitle: string;              // original title after sanitization
-  rawDescription: string;        // original description after sanitization
-  company: string;               // employer name
-  postedDate: Date;              // publication or scrape date
+  id: string;          // stable ID: "software-engineer-acme-corp"
+  title: string;       // job title
+  company: string;     // employer name
+  location: string;    // geographic location
+  link: string;        // original job posting URL
+  salary: string;      // cleaned salary string (e.g., "$100,000 - $120,000")
+  description: string; // full job description
+  rating: string;      // company rating if available
+  job_age: string;     // age of the job posting or date posted
+  platform: string;    // source platform (e.g., LinkedIn, Indeed)
+  skills: string[];    // array of extracted skill tags
+  category: string;    // broad domain (e.g., Software, Data/AI)
+  duration?: string;   // optional duration of the internship
 }
 \end{verbatim}
 
-This interface serves as a contract between the ingestion pipeline, the API layer, the database, and the frontend. TypeScript's static type checking ensures that any deviation from this contract (e.g., a missing \texttt{canonicalTitle} or a \texttt{salaryMin} of the wrong type) is caught at compile time rather than at runtime. This reduces debugging effort and increases confidence in the correctness of the data pipeline.
+This interface serves as a contract between the ingestion pipeline, the API layer, the database, and the frontend. TypeScript's static type checking ensures that any deviation from this contract is caught at compile time rather than at runtime. This reduces debugging effort and increases confidence in the correctness of the data pipeline.
 
 \subsection{Structured Internship Records}
 
-Beyond type safety, the system enforces structural consistency through validation functions. After parsing raw JSON, the \texttt{validateInternship()} function (Listing 3.2) performs the following checks:
+Beyond type safety, the system enforces structural consistency through validation functions. After parsing raw JSON, the \texttt{isValidInternship()} function (Listing 3.2) performs the following checks:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Required field presence}: Confirms that \texttt{id}, \texttt{rawTitle}, \texttt{company}, \texttt{rawDescription}, and \texttt{sourceUrl} are defined and non-empty strings.
-    \item \textbf{Type validation}: Verifies that \texttt{salaryMin} and \texttt{salaryMax} (if present) are numbers, that \texttt{skills} is an array of strings, and that \texttt{embedding} (if present) is an array of numbers.
-    \item \textbf{Range validation}: Ensures that \texttt{salaryMin} is between 0 and 1,000,000 (annualized USD), that \texttt{salaryMax} is greater than or equal to \texttt{salaryMin} (if both present), and that the \texttt{embedding} array has exactly 384 elements (the output dimensionality of the Sentence-BERT model).
-    \item \textbf{Date validation}: Checks that \texttt{postedDate} is a valid Date object and not a future date (by more than 7 days, allowing for timezone differences).
+    \item \textbf{Required field presence}: Confirms that both \texttt{title} and \texttt{company} are defined and contain non-empty strings.
+    \item \textbf{Filtering malformed records}: If either the title or the company is missing or empty, the record is considered invalid and is excluded from the processed dataset.
 \end{itemize}
 
-Records that fail validation are logged with error context (including the failing field and the reason) and quarantined in a separate log file, preventing corrupt data from entering the search index. This validation layer is an example of defensive programming in data integration pipelines: it is better to drop a small number of malformed records (typically <0.1\% of the corpus) than to allow them to degrade search quality for all users.
+Records that fail validation are skipped during the ingestion process, preventing corrupt or incomplete data from entering the search index. This validation layer is an example of defensive programming in data integration pipelines: it ensures that the UI always has the minimum required information to display a meaningful internship card to the user.
 
 \begin{verbatim}
-function validateInternship(obj: unknown): obj is Internship {
-  const candidate = obj as Partial<Internship>;
-
-  if (!candidate.id || typeof candidate.id !== 'string') return false;
-  if (!candidate.rawTitle || typeof candidate.rawTitle !== 'string') return false;
-  if (!candidate.company || typeof candidate.company !== 'string') return false;
-  if (!candidate.rawDescription || typeof candidate.rawDescription !== 'string') return false;
-  if (!candidate.sourceUrl || typeof candidate.sourceUrl !== 'string') return false;
-
-  if (candidate.salaryMin !== undefined) {
-    if (typeof candidate.salaryMin !== 'number') return false;
-    if (candidate.salaryMin < 0 || candidate.salaryMin > 1000000) return false;
-  }
-
-  if (candidate.salaryMax !== undefined) {
-    if (typeof candidate.salaryMax !== 'number') return false;
-    if (candidate.salaryMax < 0 || candidate.salaryMax > 1000000) return false;
-  }
-
-  if (candidate.salaryMin !== undefined && candidate.salaryMax !== undefined) {
-    if (candidate.salaryMin > candidate.salaryMax) return false;
-  }
-
-  if (candidate.embedding !== undefined) {
-    if (!Array.isArray(candidate.embedding)) return false;
-    if (candidate.embedding.length !== 384) return false;
-    if (!candidate.embedding.every(v => typeof v === 'number')) return false;
-  }
-
-  return true;
+function isValidInternship(item: any): boolean {
+  const hasTitle = item.title && item.title.trim() !== '';
+  const hasCompany = item.company && item.company.trim() !== '';
+  return hasTitle && hasCompany;
 }
 \end{verbatim}
 
@@ -214,8 +179,8 @@ The retrieval environment combines lexical and semantic access mechanisms to add
 Lexical search provides the retrieval baseline. The system builds an in-memory inverted index over the cleaned text of each internship. The indexed fields are:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \texttt{rawTitle} (weight: 3.0): Job titles are the most informative field for lexical matching.
-    \item \texttt{rawDescription} (weight: 1.0): Descriptions provide comprehensive but less focused evidence.
+    \item \texttt{title} (weight: 3.0): Job titles are the most informative field for lexical matching.
+    \item \texttt{description} (weight: 1.0): Descriptions provide comprehensive but less focused evidence.
     \item \texttt{company} (weight: 1.5): Company names are moderately important, especially for branded searches.
 \end{itemize}
 

@@ -228,8 +228,8 @@
 
 \begin{frame}{Data Ingestion and Schema Normalisation}
 \begin{itemize}
-\item \textbf{Schema‑on‑read:} fuzzy key matching for JSON uploads (“link”, “url”, “apply\_href” → unified \texttt{sourceUrl}).
-\item \textbf{Deterministic ID generation:} \texttt{slugify(title) + "-at-" + slugify(company)} → blocking key.
+\item \textbf{Schema‑on‑read:} fuzzy key matching for JSON uploads (“link”, “url”, “apply\_href” → unified \texttt{link}).
+\item \textbf{Deterministic ID generation:} \texttt{slugify(title) + "-" + slugify(company)} → blocking key.
 \item \textbf{Validation (Layer 0):} type guards, range checks, required fields; malformed records quarantined.
 \item \textbf{Sanitisation:} HTML entity resolution, whitespace collapsing, boilerplate removal.
 \item \textbf{Caching:} enriched objects stored in server‑side Map – enrichment done once per data refresh.
@@ -241,7 +241,7 @@
 \begin{column}{0.5\textwidth}
 \textbf{\faKeyboard~ Lexical Search}
 \begin{itemize}
-\item Inverted index over \texttt{rawTitle} (weight 3), \texttt{rawDescription} (1), \texttt{company} (1.5)
+\item Inverted index over \texttt{title} (weight 3), \texttt{description} (1), \texttt{company} (1.5)
 \item Exact matches for skills (“Kubernetes”), acronyms, company names
 \end{itemize}
 \vspace{0.3cm}
