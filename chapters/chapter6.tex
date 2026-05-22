@@ -39,7 +39,7 @@ To isolate the contribution of each system component, the evaluation compares fo
 \begin{description}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item[Baseline 1: Keyword-Only.] A traditional sparse retrieval system using keyword ranking on concatenated title, company, and description fields. No semantic enrichment or query expansion. This represents common job-board search practices.
     \item[Baseline 2: Rules-Only (Layer A).] Applies only deterministic extraction modules: regex for salary/location/date, gazetteer for skills, and priority-keyword categorization. No neural components. This establishes the performance floor for extraction and classification.
-    \item[Baseline 3: Dense-Only (Layer B w/o Hybrid).] A planned baseline using vector-based retrieval with \texttt{all-MiniLM-L6-v2} transformer embeddings. This will test semantic retrieval in isolation once Layer B is implemented.
+    \item[Baseline 3: Dense-Only (Layer B w/o Hybrid).] A planned baseline using vector-based retrieval with all-MiniLM-L6-v2 transformer embeddings. This will test semantic retrieval in isolation once Layer B is implemented.
     \item[Baseline 4: LLM-Only (Layer C).] A planned cost-comparison baseline where an LLM replaces all enrichment components. This should be used only for controlled efficiency and quality comparison.
     \item[Target System: Hybrid (Layer A + B + RRF).] The complete target architecture combining deterministic extraction, lightweight neural mapping, and hybrid retrieval with Reciprocal Rank Fusion (RRF).
 \end{description}
@@ -108,7 +108,7 @@ Company names and posting dates are handled primarily by field mapping. When sou
 The accuracy of ESCO title normalization and domain categorization was evaluated.
 
 \paragraph{Title Normalization.}
-The planned \texttt{all-MiniLM-L6-v2} transformer bi-encoder is expected to improve over keyword baselines for compound titles and employer-specific phrasing. For example, a title such as ``Spring 2026 Electronics Software Development Intern (MS)'' may require contextual evidence to decide whether the best canonical label is closer to ``software developer'' or ``electronics engineer.'' The current prototype does not yet compute this ESCO mapping, so these figures should be produced in the next evaluation phase rather than treated as final results.
+The planned all-MiniLM-L6-v2 transformer bi-encoder is expected to improve over keyword baselines for compound titles and employer-specific phrasing. For example, a title such as ``Spring 2026 Electronics Software Development Intern (MS)'' may require contextual evidence to decide whether the best canonical label is closer to ``software developer'' or ``electronics engineer.'' The current prototype does not yet compute this ESCO mapping, so these figures should be produced in the next evaluation phase rather than treated as final results.
 
 Qualitative analysis of the 9\% of cases where Top-3 accuracy failed revealed two primary error patterns. First, genuinely ambiguous titles with legitimate multiple interpretations (e.g., ``Research Intern'' could map to academic research, market research, or clinical research) accounted for 6\% of errors. Second, highly idiosyncratic or emerging role titles (e.g., ``Prompt Engineer'', ``Growth Hacker'') where the training data lacked sufficient representation accounted for the remaining 3\%.
 
@@ -222,7 +222,7 @@ The experimental results provide empirical support for the four research questio
 
 \begin{description}
     \item[RQ1 (Extraction fidelity).] The rule-based Layer A provides a practical first pass for structured fields such as title, company, location, salary, skills, and category, but it remains conservative and incomplete for implicit or ambiguous information. Deterministic extraction is sufficient for safe display, while semantic fallback is needed for stronger coverage.
-    \item[RQ2 (Semantic alignment).] The thesis defines the \texttt{all-MiniLM-L6-v2} transformer mapping experiment, but the current prototype still requires this Layer B implementation before ESCO Top-k accuracy can be reported.
+    \item[RQ2 (Semantic alignment).] The thesis defines the all-MiniLM-L6-v2 transformer mapping experiment, but the current prototype still requires this Layer B implementation before ESCO Top-k accuracy can be reported.
     \item[RQ3 (Retrieval quality).] The hybrid lexical-dense retrieval experiment is specified, including $HR_k$ and $NDCG_k$, but the implemented prototype currently provides the structured catalog foundation rather than a completed RRF retrieval benchmark.
     \item[RQ4 (System efficiency).] The deterministic Layer A pipeline is lightweight because it operates locally over the 327-listing catalog and avoids external model calls. Full speedup and cost ratios against LLM-only alternatives should be reported after a controlled baseline run.
 \end{description}
