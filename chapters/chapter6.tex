@@ -2,20 +2,20 @@
 
 \section{Chapter Introduction}
 
-This chapter presents a comprehensive evaluation of the internship aggregation system proposed in this thesis. The evaluation is designed to assess both the output quality and operational characteristics of the tiered pipeline architecture, addressing the four research questions defined in Chapter~1. The chapter reports measured results from systematic experiments conducted on a real-world dataset of 327 internship listings, compares the proposed hybrid approach against established baselines, and provides statistical analysis of the findings.
+This chapter presents a prototype evaluation of the internship aggregation system proposed in this thesis. The evaluation is designed to assess both the output quality and operational characteristics of the implemented Layer A pipeline and to define the comparative tests needed for the proposed semantic retrieval extension. The chapter uses a real-world dataset of 327 internship listings and distinguishes measured prototype behavior from planned baseline comparisons.
 
-The evaluation is organized into five main sections. Section~6.2 details the experimental setup, including dataset characteristics, baseline configurations, and evaluation metrics. Section~6.3 reports the results for extraction accuracy, classification performance, retrieval quality, and system efficiency. Section~6.4 presents a comparative analysis against keyword-only search, rule-only extraction, and LLM-dependent pipelines. Section~6.5 interprets the findings and discusses their implications. Section~6.6 concludes the chapter with a summary of the evidence supporting the thesis claims.
+The evaluation is organized into five main sections. Section~6.2 details the experimental setup, including dataset characteristics, baseline configurations, and evaluation metrics. Section~6.3 reports prototype results for extraction behavior, classification coverage, retrieval readiness, and system efficiency. Section~6.4 presents comparative analysis as an evaluation framework rather than a completed production benchmark. Section~6.5 interprets the findings and discusses their implications. Section~6.6 concludes the chapter with a summary of the evidence supporting the thesis claims.
 
 \section{Experimental Methodology}
 
 \subsection{Dataset Description}
 
-The primary dataset used for evaluation consists of 327 internship listings collected from multiple sources over a six-month period. The data was aggregated from:
+The primary dataset used for evaluation consists of 327 internship listings collected from multiple sources. The working catalog is stored in \texttt{public/intern\_data.json} and is supplemented by scraping-output files used to inspect schema variation. The data sources include:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item Public job boards (LinkedIn, Indeed, Glassdoor): 8,200 listings
-    \item University career portals (partner institutions): 5,300 listings
-    \item Direct employer postings and niche platforms: 4,000 listings
+    \item Public job boards and employer pages represented in the working catalog
+    \item Simulation outputs from multi-site scraping experiments
+    \item Manually inspected JSON outputs used to test heterogeneous field naming
 \end{itemize}
 
 The dataset spans five primary domains: Software Development (38\%), Data Science and AI (22\%), Design and UX (15\%), Healthcare (12\%), and Business/Finance (13\%). Listings originate primarily from North America (65\%) and Europe (28\%), with the remainder from other regions.
@@ -30,7 +30,7 @@ The raw listings exhibit significant heterogeneity in format, completeness, and 
     \item \textbf{Incomplete fields:} Salary information present in only 38\% of listings; location ambiguous in 22\%
 \end{itemize}
 
-A stratified random sample of 500 listings was extracted and independently annotated by two domain experts to establish ground truth for extraction and classification metrics. This annotation process followed the evaluation validity protocols established in recent IR research~\cite{thomas2026validity}. Inter-annotator agreement, measured by Cohen's Kappa, was 0.84 for title normalization and 0.78 for relevance judgments.
+Because the working catalog contains 327 records, the evaluation treats the full catalog as the prototype test set. A larger manually annotated benchmark remains future work; the annotation and inter-annotator agreement procedure described in Chapter~4 should be applied before making stronger claims about ESCO mapping accuracy or retrieval significance.
 
 \subsection{Baseline Configurations}
 
@@ -39,9 +39,9 @@ To isolate the contribution of each system component, the evaluation compares fo
 \begin{description}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item[Baseline 1: Keyword-Only.] A traditional sparse retrieval system using keyword ranking on concatenated title, company, and description fields. No semantic enrichment or query expansion. This represents common job-board search practices.
     \item[Baseline 2: Rules-Only (Layer A).] Applies only deterministic extraction modules: regex for salary/location/date, gazetteer for skills, and priority-keyword categorization. No neural components. This establishes the performance floor for extraction and classification.
-    \item[Baseline 3: Dense-Only (Layer B w/o Hybrid).] Uses only vector-based retrieval with \texttt{all-MiniLM-L6-v2} transformer embeddings and high-performance vector indexing. No lexical component. This tests semantic retrieval in isolation.
-    \item[Baseline 4: LLM-Only (Layer C).] Simulates a pipeline where GPT-3.5-turbo replaces all enrichment components. One API call per listing with a zero-shot Chain-of-Thought prompt for extraction and classification. Used exclusively for cost-comparison analysis.
-    \item[Proposed System: Hybrid (Layer A + B + RRF).] The complete system combining deterministic extraction (Layer A), lightweight neural mapping (Layer B), and hybrid retrieval with Reciprocal Rank Fusion (RRF).
+    \item[Baseline 3: Dense-Only (Layer B w/o Hybrid).] A planned baseline using vector-based retrieval with \texttt{all-MiniLM-L6-v2} transformer embeddings. This will test semantic retrieval in isolation once Layer B is implemented.
+    \item[Baseline 4: LLM-Only (Layer C).] A planned cost-comparison baseline where an LLM replaces all enrichment components. This should be used only for controlled efficiency and quality comparison.
+    \item[Target System: Hybrid (Layer A + B + RRF).] The complete target architecture combining deterministic extraction, lightweight neural mapping, and hybrid retrieval with Reciprocal Rank Fusion (RRF).
 \end{description}
 
 \subsection{Evaluation Metrics}
@@ -95,35 +95,35 @@ All experiments were conducted on commodity hardware matching the ``lightweight'
 The extraction accuracy for structured fields comparing Layer~A (rules-only) against the ground truth annotations is discussed below.
 
 \paragraph{Salary Extraction.}
-The rule-based parser achieved 98\% precision for numeric salary extraction, successfully identifying patterns such as ``\$95K -- \$124K'', ``\$23.00/hour'', and ``€45,000--€55,000 per year''. The primary failure mode (19\% of salary-present cases) involved non-standard formats like ``competitive salary plus bonus'' or ``DOE'' (depends on experience), where no numeric pattern matched. Recall of 81\% reflects that salary information was present but in forms requiring semantic interpretation beyond regex capabilities.
+The rule-based parser reliably identifies common dollar-prefixed salary ranges and single salary values, such as ``\$95K -- \$124K'' or ``\$23.00/hour''. Its conservative behavior is also a limitation: non-dollar currencies, monthly compensation, pro-rated salaries, and narrative formats such as ``competitive salary plus bonus'' or ``DOE'' are returned as unspecified rather than inferred. This makes the field safe for display but incomplete for salary analytics.
 
 \paragraph{Location Extraction.}
-Explicit location fields (e.g., ``New York, NY'', ``London, UK'') achieved 89\% precision and 76\% recall. Lower recall stemmed from locations embedded in ambiguous contexts (e.g., ``based in our San Francisco office'' vs. ``San Francisco'' as a standalone field). For 22\% of listings where location was implied rather than explicit (e.g., ``must be local to Boston area''), the system's recall dropped to 58\%, indicating a clear need for the semantic fallback layer.
+The current implementation preserves explicit location fields and substitutes \texttt{Location Not Specified} when the source value is empty. It does not yet infer locations embedded in narrative text, expand city names to countries, or normalize remote-work constraints. These limitations indicate a clear need for a future geographic normalization layer.
 
 \paragraph{Date and Company Extraction.}
-Posted dates and company names achieved high accuracy (F1 > 0.91), confirming that deterministic patterns are sufficient for these fields when sources provide them in structured or semi-structured form. The primary errors (5--6\%) occurred when date strings used non-standard formats (e.g., ``posted 2w ago'' requiring relative-to-absolute conversion).
+Company names and posting dates are handled primarily by field mapping. When sources provide \texttt{company}, \texttt{date\_posted}, or \texttt{job\_age}, the system carries those values into the normalized record. Relative dates such as ``posted 2w ago'' are not converted to absolute dates in the current prototype.
 
 \subsection{Classification Results (RQ2)}
 
 The accuracy of ESCO title normalization and domain categorization was evaluated.
 
 \paragraph{Title Normalization.}
-The \texttt{all-MiniLM-L6-v2} transformer bi-encoder substantially outperformed the keyword baseline (Top-1: 0.78 vs. 0.63; Top-3: 0.91 vs. 0.74). The improvement was most pronounced for compound titles and employer-specific phrasing. For example, ``Spring 2026 Electronics Software Development Intern (MS)'' was correctly mapped to ``software developer'' (ESCO Level~4), while the keyword baseline incorrectly favored ``electronics engineer'' due to the presence of ``Electronics'' in the title string.
+The planned \texttt{all-MiniLM-L6-v2} transformer bi-encoder is expected to improve over keyword baselines for compound titles and employer-specific phrasing. For example, a title such as ``Spring 2026 Electronics Software Development Intern (MS)'' may require contextual evidence to decide whether the best canonical label is closer to ``software developer'' or ``electronics engineer.'' The current prototype does not yet compute this ESCO mapping, so these figures should be produced in the next evaluation phase rather than treated as final results.
 
 Qualitative analysis of the 9\% of cases where Top-3 accuracy failed revealed two primary error patterns. First, genuinely ambiguous titles with legitimate multiple interpretations (e.g., ``Research Intern'' could map to academic research, market research, or clinical research) accounted for 6\% of errors. Second, highly idiosyncratic or emerging role titles (e.g., ``Prompt Engineer'', ``Growth Hacker'') where the training data lacked sufficient representation accounted for the remaining 3\%.
 
 \paragraph{Domain Categorization.}
-The heuristic keyword-anchoring approach achieved 86\% exact-match accuracy on the five high-level categories (Software, Data/AI, Design, Healthcare, Business). Adding embedding-based similarity as a fallback for low-confidence cases improved accuracy to 89\%. The primary confusion boundaries were between Software and Data/AI (7\% of errors) and between Design and Business for roles like ``Product Designer'' that span categories.
+The heuristic keyword-anchoring approach assigns every listing to a high-level category such as Software, Data/AI, Design, Marketing, Healthcare, or Business. Manual inspection shows that the rules are most reliable for explicit technical titles and weaker for boundary roles such as ``Product Designer,'' ``Business Analyst,'' or ``Research Intern.'' Embedding-based similarity remains a future fallback for low-confidence cases.
 
 \subsection{Retrieval Quality Results (RQ3)}
 
 Retrieval ranking metrics comparing the proposed hybrid system against lexical-only and dense-only baselines across the 30-query test set are analyzed below.
 
 \paragraph{Improvement Over Baselines.}
-The proposed hybrid system achieved statistically significant improvements over the lexical baseline ($p < 0.01$, paired $t$-test) across all metrics. $P_5$ increased by 26\% (0.42 $\rightarrow$ 0.53), $HR_5$ by 19\% (0.67 $\rightarrow$ 0.80), and $NDCG_{10}$ by 29\% (0.52 $\rightarrow$ 0.67). This 29\% improvement in $NDCG_{10}$ is consistent with the latest BEIR 2025 benchmarks, which report that ensembling lexical search with fine-tuned neural retrievers can boost zero-shot retrieval effectiveness by approximately 20--25\%~\cite{beir2025}. Compared to dense-only retrieval, the hybrid system improved $P_5$ by 20\% (0.44 $\rightarrow$ 0.53) and $HR_{10}$ by 8\% (0.83 $\rightarrow$ 0.90), demonstrating that lexical and semantic signals are complementary rather than redundant.
+The target hybrid system should be evaluated against lexical and dense-only baselines using $P_5$, $HR_5$, $HR_{10}$, MAP, MRR, and $NDCG_{10}$. The expected hypothesis is that lexical and semantic signals will be complementary: lexical search should remain strong for exact technical terms, while dense retrieval should improve conceptual queries. The current prototype provides the structured catalog needed for that experiment, but it does not yet justify a claim of statistical significance for hybrid retrieval.
 
 \paragraph{Query Category Analysis.}
-Performance by query type reveals the differential strengths of each retrieval modality. For exact/lexical queries, the lexical baseline alone performed strongly ($NDCG_{10}=0.64$), and the hybrid system preserved this capability (0.68). For conceptual queries requiring semantic understanding, dense-only retrieval substantially outperformed the lexical baseline (0.61 vs. 0.38). These findings align with the T2-RAGBench 2026 report, which confirms that hybrid RRF systems maintain high precision for technical queries while significantly improving recall for conceptual ones~\cite{t2ragbench2026}. The largest hybrid advantage emerged for mixed queries (0.68 vs. 0.56 for the better single modality), confirming the synergy between lexical precision and semantic recall.
+Performance should be reported separately by query type because exact, conceptual, and mixed queries stress different parts of the retrieval system. Exact queries test keyword preservation, conceptual queries test semantic generalization, and mixed queries test whether the fusion layer can preserve precise terms while broadening recall.
 
 \paragraph{Failure Case Analysis.}
 The 10\% of queries where $HR_{10} < 1.0$ (no relevant result in top-10) shared common characteristics: highly niche technical requirements (e.g., ``RISC-V architecture internship''), geographic constraints not captured in location fields (e.g., ``remote but must be EST timezone''), or temporal mismatches (e.g., ``fall internship'' when the corpus contained only summer listings). These failures indicate limitations in the underlying corpus rather than retrieval architecture.
@@ -133,16 +133,16 @@ The 10\% of queries where $HR_{10} < 1.0$ (no relevant result in top-10) shared 
 The operational characteristics of the proposed system compared to an LLM-only alternative are analyzed below.
 
 \paragraph{Ingestion Throughput.}
-The proposed system processed 47.3 listings per second on commodity hardware, completing the full 327-listing ingestion in approximately 6.2 minutes. The LLM-only pipeline, constrained by API rate limits and per-request latency, processed only 2.1 listings per second, requiring nearly 2.5 hours for the same corpus. The 22.5$\times$ throughput advantage reflects both the overhead of external API calls and the efficiency of local processing.
+The proposed system processed the 327-listing catalog locally without external model calls. If throughput is measured at 47.3 listings per second, a full catalog refresh completes in approximately 6.9 seconds. An LLM-only pipeline processing 2.1 listings per second would require approximately 2.6 minutes for the same corpus, before accounting for rate limits and network variability. The advantage reflects both the overhead of external API calls and the efficiency of local processing.
 
 \paragraph{Query Latency.}
-The hybrid system achieved median query latency of 47 ms and 99th percentile latency of 128 ms, well within the 200 ms threshold considered acceptable for interactive search systems. The LLM-only baseline required a real-time API call for each query (no pre-computed embeddings possible), resulting in 1.2--2.9 second latencies—unacceptable for production use. The 26$\times$ latency advantage stems from pre-computed embeddings and efficient vector-based search versus synchronous API calls.
+The implemented API is designed for low-latency catalog access because processed data is cached in memory. A full hybrid-search latency result should be measured after Layer B embeddings and RRF fusion are implemented. The expected comparison remains clear: pre-computed local representations should avoid the synchronous external API latency of an LLM-only query path.
 
 \paragraph{Cost Analysis.}
 Direct financial comparison reveals substantial differences. The proposed system incurred only electricity costs estimated at \$0.12 per 1,000 listings (based on 150W power draw at \$0.15/kWh) and \$0.01 per 1,000 queries. The LLM-only pipeline, using GPT-3.5-turbo at \$0.001 per 1K tokens (approximately 1,500 tokens per listing, 500 tokens per query), cost \$3.50 per 1,000 listings and \$1.20 per 1,000 queries. The proposed system is 29--120$\times$ cheaper depending on the operational mode.
 
 \paragraph{Layer Utilization.}
-Analysis of the tiered pipeline showed that Layer A (deterministic rules) handled 78\% of extraction tasks independently. Layer B (lightweight transformers) processed an additional 19\% of cases where rules were insufficient. Layer C (LLM fallback) was invoked for only 3\% of the most ambiguous cases, primarily involving highly idiosyncratic job titles or novel skill mentions. This distribution validates the tiered design principle and reflects an adaptive reasoning strategy similar to the AdaptThink framework, which dynamically chooses between low-cost direct output and high-cost reasoning based on query complexity~\cite{adaptthink2025}.
+The tiered design principle remains that Layer A should handle the majority of routine extraction tasks, while Layer B and Layer C should be invoked only for ambiguous cases. The current prototype implements Layer A; therefore, future evaluation should report the actual share of records escalated to Layer B or Layer C once those layers are integrated.
 
 \section{Comparative Analysis}
 
@@ -173,33 +173,33 @@ The rule-only system's categorization accuracy of 0.86 proved sufficient for bas
 
 Extraction and classification accuracy between the proposed system and the LLM-only baseline were compared.
 
-The LLM-only pipeline achieved marginally higher accuracy across all tasks (2--3\% absolute improvement). However, this small accuracy gain came at substantial cost: 29$\times$ higher financial cost per listing, 22$\times$ higher query latency, and inability to run without external API dependencies. This distribution of accuracy and cost confirms that the proposed hybrid system sits on the accuracy-cost Pareto frontier for real-time recruitment applications~\cite{artificialanalysis2026}. The small accuracy gap (the ``Reasoning Efficiency Gap'') indicates that while LLMs possess superior world knowledge, the marginal utility of that knowledge for 97\% of internship listings does not justify the 100$\times$ increase in operational cost.
+The LLM-only pipeline is best treated as a comparison target rather than an established result in the current prototype. The expected trade-off is that LLMs may improve difficult edge cases but introduce external dependency, higher latency, and recurring financial cost. A controlled comparison should therefore report both quality and cost before claiming that the hybrid system sits on the accuracy-cost Pareto frontier.
 
 Qualitative analysis of the LLM's advantage cases revealed they were primarily edge cases requiring world knowledge beyond the training data of local models, such as resolving ``DoD clearance required'' to appropriate security clearance levels or interpreting ``CET timezone'' without explicit mention of ``Central European Time''. These cases represent less than 5\% of the corpus, suggesting that a selective fallback to LLMs only for low-confidence predictions would achieve near-LLM accuracy at hybrid cost.
 
 \subsection{Comparison with Existing Platforms}
 
-A qualitative comparison with existing internship platforms was conducted based on feature analysis and limited side-by-side testing on 10 shared queries.
+A qualitative comparison with existing internship platforms is identified as future work.
 
-On the 10 shared queries, the proposed system achieved higher precision for conceptual searches (e.g., ``design thinking internship'' retrieved relevant UX/UI roles that LinkedIn's keyword search missed) but slightly lower recall for highly localized queries (e.g., ``internship in Austin, TX'') due to smaller corpus size. The university portal comparison showed that the proposed system's JSON normalization significantly reduced manual curation effort: a 500-listing upload that typically required 4 hours of manual field mapping was processed automatically in 12 seconds.
+Such a comparison should use a shared query set, blind relevance judgments, and the same metrics used in the internal evaluation. This would make it possible to situate the prototype against platforms such as LinkedIn Jobs, Indeed, or Handshake without relying on anecdotal feature comparison.
 
 \section{Statistical Significance and Reliability}
 
 \subsection{Statistical Testing}
 
-Paired $t$-tests were conducted on the per-query $NDCG_{10}$ scores to determine whether observed differences between systems were statistically significant:
+Paired $t$-tests should be conducted on the per-query $NDCG_{10}$ scores once the lexical, dense, and hybrid systems are all implemented:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item Hybrid vs. Lexical: $t(29) = 4.82$, $p < 0.001$ (95\% CI: [0.09, 0.21])
     \item Hybrid vs. dense-only: $t(29) = 3.94$, $p < 0.001$ (95\% CI: [0.05, 0.16])
 \end{itemize}
 
-The differences are statistically significant at conventional thresholds, supporting rejection of the null hypothesis that the hybrid system performs equivalently to single-modality retrieval.
+Until those runs are completed, statistical significance should be treated as part of the evaluation protocol rather than as a reported finding.
 
 \subsection{Error Analysis}
 
 \paragraph{Extraction Errors.}
-Analysis of the 500 annotated listings revealed three primary error categories:
+Analysis of the prototype and the proposed annotation framework suggests three primary error categories to track:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Implicit or latent information (48\% of extraction errors):} Required skills or qualifications mentioned indirectly (e.g., ``familiar with modern frontend frameworks'' without naming React or Vue). Rule-based and embedding methods both struggled with implicit signals.
@@ -221,12 +221,12 @@ Hybrid fusion contributed a 0.035 gain over simple score summation, confirming t
 The experimental results provide empirical support for the four research questions:
 
 \begin{description}
-    \item[RQ1 (Extraction fidelity).] The rule-based Layer A achieved high precision for structured fields (salary: 98\%, date: 95\%, company: 97\%) but lower recall for implicit or ambiguous information (location: 76\%, salary: 81\%). Deterministic extraction is sufficient for high-precision tasks but requires semantic fallback for coverage.
-    \item[RQ2 (Semantic alignment).] The \texttt{all-MiniLM-L6-v2} transformer mapping achieved 91\% Top-3 accuracy for ESCO title normalization, substantially outperforming keyword baselines (74\%). The improvement was most pronounced for compound and employer-specific titles.
-    \item[RQ3 (Retrieval quality).] The hybrid system combining lexical and dense retrieval with RRF achieved statistically significant improvements over both single-modality baselines: +29\% $NDCG_{10}$ vs. keyword baseline, +19\% vs. dense-only. The largest gains occurred for mixed queries combining lexical and conceptual elements (+12\% over best single modality).
-    \item[RQ4 (System efficiency).] The tiered pipeline processed 47.3 listings per second with 47 ms median query latency on commodity hardware, achieving 22--26$\times$ speedups over LLM-only alternatives at 29--120$\times$ lower cost. Layer A handled 78\% of extraction tasks independently, validating the tiered design principle.
+    \item[RQ1 (Extraction fidelity).] The rule-based Layer A provides a practical first pass for structured fields such as title, company, location, salary, skills, and category, but it remains conservative and incomplete for implicit or ambiguous information. Deterministic extraction is sufficient for safe display, while semantic fallback is needed for stronger coverage.
+    \item[RQ2 (Semantic alignment).] The thesis defines the \texttt{all-MiniLM-L6-v2} transformer mapping experiment, but the current prototype still requires this Layer B implementation before ESCO Top-k accuracy can be reported.
+    \item[RQ3 (Retrieval quality).] The hybrid lexical-dense retrieval experiment is specified, including $HR_k$ and $NDCG_k$, but the implemented prototype currently provides the structured catalog foundation rather than a completed RRF retrieval benchmark.
+    \item[RQ4 (System efficiency).] The deterministic Layer A pipeline is lightweight because it operates locally over the 327-listing catalog and avoids external model calls. Full speedup and cost ratios against LLM-only alternatives should be reported after a controlled baseline run.
 \end{description}
 
 \section{Chapter Conclusion}
 
-This chapter has presented a comprehensive evaluation of the internship aggregation system. The reported evidence demonstrates that the tiered hybrid architecture achieves substantial improvements in retrieval quality over lexical-only baselines while maintaining efficiency suitable for production deployment on commodity hardware. The accuracy-cost Pareto frontier favors the proposed approach over LLM-dependent alternatives for the internship discovery use case, though a 2--3\% accuracy gap remains for edge cases. The chapter has also provided a complete template for reproducible retrieval evaluation, including the $HR_k$ and $NDCG_k$ analysis required for comparison with external platforms. Chapter~7 will discuss the limitations of this evaluation, ethical considerations, and directions for future work.
+This chapter has presented a prototype evaluation and a reproducible plan for completing the retrieval benchmark. The current evidence supports the feasibility of a lightweight structured internship catalog on commodity hardware. Stronger claims about hybrid retrieval quality, ESCO mapping accuracy, and LLM cost trade-offs require the completion of Layer B, RRF fusion, and controlled baseline experiments. Chapter~7 discusses these limitations, ethical considerations, and directions for future work.

@@ -2,9 +2,9 @@
 
 \section{Chapter Introduction}
 
-This chapter documents the concrete technological environment and development tools employed to implement the internship aggregation system for internship listings. Its purpose is twofold. First, it provides a reproducible account of the software stack, libraries, infrastructure components, and development practices that support the system. Second, it establishes a clear separation of concerns from the theoretical foundations presented in Chapter 2: whereas Chapter 2 explains the \textit{concepts} behind information extraction, taxonomies, and retrieval models, this chapter identifies the \textit{specific tools} that realize those concepts in working software.
+This chapter documents the concrete technological environment and development tools employed to implement the internship aggregation prototype. Its purpose is twofold. First, it provides a reproducible account of the software stack, libraries, infrastructure components, and development practices that support the system. Second, it establishes a clear separation of concerns from the theoretical foundations presented in Chapter 2: whereas Chapter 2 explains the \textit{concepts} behind information extraction, taxonomies, and retrieval models, this chapter identifies the \textit{specific tools} used in the current implementation and the extension points reserved for later semantic retrieval work.
 
-The chapter is organized into six main areas: (1) the application development environment (presentation and API layers), (2) database and persistence technologies, (3) data representation and type-safety tools, (4) natural language processing and semantic components, (5) indexing and retrieval technologies, and (6) the development, testing, and evaluation environment. Each section describes a specific layer of the technology stack, justifies the choice of tools relative to the system's lightweight and cost-aware design goals, and explains how the components interact. Where alternative tools were considered, the rationale for the final selection is explicitly stated.
+The chapter is organized into six main areas: (1) the application development environment (presentation and API layers), (2) database and persistence technologies, (3) data representation and type-safety tools, (4) rule-based natural language processing components, (5) indexing and retrieval design, and (6) the development, testing, and evaluation environment. Each section describes a specific layer of the technology stack, justifies the choice of tools relative to the system's lightweight and cost-aware design goals, and explains how the components interact.
 
 \section{Application Development Environment}
 
@@ -16,15 +16,15 @@ The presentation layer is responsible for displaying searchable internship recor
 
 \subsubsection{Next.js App Router and Server Components}
 
-The user interface is implemented using the Next.js App Router, which leverages React Server Components (RSC) to build a high-performance, server-first user experience. Next.js was chosen for three interconnected reasons. First, its file-based routing and layout system aligns well with the structured \texttt{Internship} data model, allowing the search interface to be decomposed into nested, cacheable layouts. Second, by defaulting to Server Components, the system minimizes the JavaScript bundle sent to the client, ensuring sub-second "time to interactive" even on low-powered devices. Third, the architectural trend for 2025–2026 emphasizes moving heavy semantic data fetching and ranking logic to the server, using streaming to deliver results as they are processed~\cite{csontos2026designing}.
+The user interface is implemented using the Next.js App Router, which supports React Server Components (RSC) and server-side data fetching. Next.js was chosen for three interconnected reasons. First, its file-based routing and layout system aligns well with the structured \texttt{Internship} data model, allowing the search interface, role detail pages, and account pages to be decomposed into clear routes. Second, it provides a unified TypeScript environment for frontend components and API routes. Third, the server-first model allows catalog loading and normalization to remain close to the API layer, reducing avoidable client-side data processing.
 
 The main UI components, organized according to the Next.js component model, include:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \texttt{InternshipList.tsx} (Server Component): Displays a paginated grid of internship cards, each showing title, company, location, salary range, and extracted skills. Pagination is implemented using Next.js URL parameters, allowing for server-side state management and SEO-friendly navigation.
-    \item \texttt{SearchBar.tsx} (Client Component): Accepts free-text queries and dispatches them to the API layer with debouncing (300 ms delay) to avoid excessive requests during rapid typing.
-    \item \texttt{FilterPanel.tsx} (Client Component): Provides faceted filtering by category, skills, and location. Filters are synchronized with the URL search parameters to ensure that filter selections persist across page refreshes.
-    \item \texttt{InternshipDetail.tsx} (Server Component): Renders the full internship description, including the cleaned salary, job title, and extracted skills. This component fetches data directly on the server, eliminating an extra client-side round-trip.
+    \item \texttt{InternshipPage.tsx} and \texttt{InternshipList.tsx}: Display internship cards containing title, company, location, salary, platform information, category, and extracted skills.
+    \item \texttt{InternshipPageWithSearchParams.tsx}: Bridges route search parameters and the internship listing page, allowing the UI to react to user navigation state.
+    \item \texttt{RoleDetails.tsx} and the \texttt{role/[id]} route: Render the detail view for a selected internship, including the cleaned description and related role recommendations.
+    \item \texttt{AuthModal.tsx}, \texttt{Account} pages, and \texttt{SupabaseProvider.tsx}: Provide the authentication and saved-role scaffolding around the catalog experience.
 \end{itemize}
 
 All UI components are organized according to the principle of "Server-First" development; they leverage Next.js's data fetching capabilities to ensure that the initial HTML contains the necessary internship data. This separation of concerns ensures that user-interface changes do not affect extraction or ranking logic—a principle of maintainable software architecture.
@@ -47,7 +47,7 @@ The primary endpoint, \texttt{/api/internship/route.ts}, acts as the sole access
     \item \textbf{Data integrity}: Incoming data is validated to ensure that \texttt{title} and \texttt{company} are non-empty strings. This basic validation prevents malformed records from being processed and ensures that every internship displayed to the user has identifying information.
     \item \textbf{Cache header processing}: The endpoint reads the \texttt{If-None-Match} header to support conditional requests. If the client's ETag matches the current cache version, the endpoint returns a 304 Not Modified response, saving bandwidth.
     \item \textbf{Data access delegation}: The validated parameters are passed to the \texttt{data.ts} module, which abstracts the underlying persistence strategy (in-memory cache, JSON file, or Supabase). This delegation layer allows the API route to remain agnostic about where or how the data is stored.
-    \item \textbf{Response serialization}: The retrieved \texttt{Internship} objects are serialized to JSON with dates formatted as ISO 8601 strings and embeddings omitted from the response payload to reduce network transfer size (embeddings are 384 floats × 4 bytes ≈ 1.5 KB per listing, which would substantially increase response size). The full embedding is used only for server-side ranking, not transmitted to the client.
+    \item \textbf{Response serialization}: The retrieved \texttt{Internship} objects are serialized to JSON with dates formatted as ISO 8601 strings and embeddings omitted from the response payload to reduce network transfer size (embeddings are 384 floats $\times$ 4 bytes, approximately 1.5 KB per listing, which would substantially increase response size). The full embedding is used only for server-side ranking, not transmitted to the client.
 \end{itemize}
 
 Using Next.js API routes eliminates the need for a separate backend server, reducing deployment complexity and operational overhead. The endpoint also implements standard HTTP caching directives (\texttt{Cache-Control: public, max-age=300, stale-while-revalidate=60}) to enable client-side and CDN caching where appropriate, reducing server load for repeated queries.
@@ -138,17 +138,17 @@ function isValidInternship(item: any): boolean {
 }
 \end{verbatim}
 
-\section{Semantic Enrichment and Transformer-Based Tools}
+\section{Semantic Enrichment and NLP Tools}
 
-The semantic enrichment pipeline relies on lightweight transformer-based tools that balance expressiveness with computational efficiency. The system avoids large, general-purpose LLMs for routine extraction, instead using compact transformer models that can run on commodity hardware (CPU-only, no GPU required). This choice is central to the thesis's "lightweight" and "Green AI" claims, as it eliminates per-inference API costs and reduces energy consumption.
+The implemented enrichment layer is intentionally lightweight. It uses deterministic TypeScript helper functions for title cleaning, company and location normalization, salary extraction, category assignment, and dictionary-based skill extraction. This choice supports the thesis's cost-aware design goal because the routine processing path does not require external LLM calls, GPU inference, or a separate Python service.
 
-\subsection{Transformer-Based Semantic Components}
+\subsection{Rule-Based Semantic Components}
 
-Transformer-based models are used as modular semantic components, not as black-box generators. The system employs the \texttt{all-MiniLM-L6-v2} transformer as its compact semantic model for embedding generation and similarity-based classification. The model is loaded from the Hugging Face Hub and executed locally using an optimized runtime that ensures performance on commodity hardware without requiring dedicated GPU resources. This approach provides a pure JavaScript implementation that runs in Node.js without Python dependencies.
+The current implementation uses rule-based components as the first semantic layer. These include a stable identifier generator, a salary parser based on regular expressions, a category classifier using title anchors, and a skill extractor using a curated list of common technical and professional keywords. Although this layer is less expressive than a learned model, it is deterministic, cheap to run, and easy to inspect.
 
-\subsubsection{\texttt{all-MiniLM-L6-v2} and Lightweight Transformer Models}
+\subsubsection{Planned Transformer Extension}
 
-\texttt{all-MiniLM-L6-v2} is a compact sentence-transformer model designed to produce efficient semantic representations while remaining practical on CPU-only hardware. In this system, \texttt{all-MiniLM-L6-v2} serves as Layer B of the tiered extraction pipeline, handling cases that deterministic rules (Layer A) cannot resolve:
+\texttt{all-MiniLM-L6-v2} remains the proposed Layer B extension for cases that deterministic rules cannot resolve. In the intended architecture, the compact transformer would be used for:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Disambiguating ambiguous job titles}: Titles such as "Consultant" could refer to Business Consulting, Technology Consulting, or Healthcare Consulting. \texttt{all-MiniLM-L6-v2} embeds the title and description context for similarity-based classification.
@@ -156,7 +156,7 @@ Transformer-based models are used as modular semantic components, not as black-b
     \item \textbf{Extracting implicit requirements}: Identifying that a job requiring "experience with modern frontend frameworks" implies skills such as React, Vue, or Angular, even if those names are not explicitly mentioned.
 \end{itemize}
 
-The model is loaded once at startup and kept in memory for the duration of the ingestion process. No external API calls are required, which eliminates network latency and recurring costs. This design embodies the "amortized cost" principle: the one-time cost of loading the model (approximately 250 MB of RAM) is spread over thousands of inference operations (approximately 10-20 ms per classification).
+In the current prototype, this model is not part of the production request path. It is therefore treated as an architectural extension and evaluation target rather than as an already deployed component.
 
 \subsubsection{\texttt{all-MiniLM-L6-v2} Embeddings}
 
@@ -168,11 +168,11 @@ The model is loaded once at startup and kept in memory for the duration of the i
     \item \textbf{Model size}: 80 MB on disk, loading into approximately 120 MB of RAM. This is small enough to fit comfortably within the 16 GB commodity hardware constraint.
 \end{itemize}
 
-These embeddings are pre-computed for each internship's concatenated title and description and stored in the catalog for later retrieval. For query-time embedding, the same model encodes the user's search query and compares it to pre-computed internship embeddings using cosine similarity. The bi-encoder architecture of \texttt{all-MiniLM-L6-v2} makes this approach feasible for real-time search because the bulk of computation (embedding all internships) happens offline during ingestion, and query-time embedding is a single forward pass (approximately 10 ms per query). Without this pre-computation, each query would require embedding 327 listings, which would take approximately 3-5 minutes per query—clearly unacceptable for interactive use.
+These characteristics make \texttt{all-MiniLM-L6-v2} appropriate for future offline enrichment: embeddings could be pre-computed for each internship's concatenated title and description, stored with the catalog, and then compared with query embeddings at search time. This would extend the implemented keyword and category filtering without replacing the deterministic preprocessing layer.
 
 \section{Indexing and Retrieval Technologies}
 
-The retrieval environment combines lexical and semantic access mechanisms to address the complementary strengths and weaknesses of each approach. This hybrid strategy is motivated by the information retrieval literature showing that lexical and dense retrieval have different failure modes and that their combination often outperforms either alone.
+The implemented retrieval environment exposes the normalized catalog through API routes and supports client-side browsing, category display, skill tags, and role-detail lookup. The broader methodology also defines a hybrid lexical and dense retrieval strategy as the next extension of the system. This distinction matters: the current repository demonstrates the ingestion and structured catalog foundation, while dense retrieval and rank fusion remain proposed enhancements.
 
 \subsection{Lexical Retrieval Tools}
 
@@ -198,7 +198,7 @@ The system employs Approximate Nearest-Neighbor (ANN) indexing to enable fast re
 
 For a catalog of 327 embeddings, vector-based indexing reduces query latency to approximately 5-10 ms while maintaining high recall (greater than 0.95 relative to exact search). The index is configured to balance build time, memory usage, and retrieval accuracy, ensuring that the system remains responsive on commodity hardware.
 
-The vector index is stored in memory and updated only when the catalog changes, consistent with the amortized cost model. Index build time for the current dataset is approximately 10-15 seconds, which is acceptable for daily batch updates.
+In the proposed extension, the vector index would be stored in memory and updated only when the catalog changes, consistent with the amortized cost model.
 
 \subsubsection{Hybrid Fusion with Reciprocal Rank Fusion (RRF)}
 
@@ -216,7 +216,7 @@ where \(k\) is a constant (typically 60). This formula has three important prope
     \item \textbf{Robustness}: The constant \(k\) smooths the contribution of low-ranked documents. Even a document that ranks 1000th in one system still contributes a small positive score \(1/(60+1000) \approx 0.00094\), ensuring that a document that is extremely relevant in one modality but missing from the other is not completely excluded.
 \end{itemize}
 
-The final ranked list is sorted by RRF score and returned to the client. RRF is parameter-free aside from the constant \(k\), which has been shown to be robust across a wide range of values (typically 50-100) in the original RRF paper and subsequent studies. This makes it ideal for a system that cannot be extensively tuned per deployment.
+In the complete architecture, the final ranked list would be sorted by RRF score and returned to the client. RRF is parameter-free aside from the constant \(k\), which has been shown to be robust across a wide range of values (typically 50-100) in the original RRF paper and subsequent studies. This makes it suitable for a system that cannot be extensively tuned per deployment.
 
 \section{Development, Testing, and Evaluation Environment}
 
@@ -235,11 +235,11 @@ All experiments are run on a single workstation with the following specification
     \item \textbf{Node.js version}: 20.11.0 (LTS)
 \end{itemize}
 
-This configuration embodies the "commodity hardware" constraint stated in the thesis objectives. The total cost of this hardware at the time of writing is approximately \$1,200, which is within the budget of a typical university research lab or small startup. No GPU is required, which is a deliberate choice: GPU instances are substantially more expensive to rent (approximately 3-5× higher hourly cost on cloud providers) and are not universally available in commodity hosting environments.
+This configuration embodies the "commodity hardware" constraint stated in the thesis objectives. The total cost of this hardware at the time of writing is approximately \$1,200, which is within the budget of a typical university research lab or small startup. No GPU is required, which is a deliberate choice: GPU instances are substantially more expensive to rent (approximately 3--5 times higher hourly cost on cloud providers) and are not universally available in commodity hosting environments.
 
 \subsection{Measurement and Logging Tools}
 
-To support quantitative evaluation, the system includes built-in measurement and logging utilities:
+To support quantitative evaluation, the prototype exposes simple inspection points and can be extended with measurement and logging utilities:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Ingestion logging}: Records processing time per listing, cache hit/miss rates, and errors. This helps identify bottlenecks in the pipeline (e.g., whether the \texttt{all-MiniLM-L6-v2} transformer or the regex salary parser is the slowest stage). Logs are written in JSONL format (one JSON object per line) to facilitate subsequent analysis with \texttt{jq} or Python.
@@ -253,7 +253,7 @@ To support quantitative evaluation, the system includes built-in measurement and
     \item \textbf{Cost tracking}: For the LLM baseline comparison, the system estimates API costs based on token counts and current pricing models (e.g., GPT-3.5-turbo at \$0.001 per 1,000 input tokens and \$0.002 per 1,000 output tokens). Token counts are approximated using the \texttt{tiktoken} library (the same tokenizer used by OpenAI) to ensure accurate cost estimates.
 \end{itemize}
 
-These logs are aggregated into CSV files for analysis using Python (pandas for data manipulation, matplotlib for visualization) or standard command-line tools (\texttt{awk}, \texttt{sort}, \texttt{uniq}). The evaluation environment is designed to be self-contained: all measurements can be reproduced on the same hardware using the provided scripts in the \texttt{evaluation/} directory.
+When enabled, these logs can be aggregated into CSV files for analysis using Python or standard command-line tools. The present repository pins dependencies through \texttt{package-lock.json}; additional benchmark scripts would be required for a fully automated reproduction package.
 
 \subsection{Reproducibility Measures}
 
@@ -262,15 +262,15 @@ To ensure that the experimental results reported in Chapter 6 can be reproduced 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Fixed random seeds}: All libraries with stochastic behavior (vector index construction and \texttt{all-MiniLM-L6-v2} inference) use fixed random seeds (seed = 42) to ensure deterministic outputs across runs.
     \item \textbf{Version pinning}: All dependencies are pinned to exact versions in \texttt{package-lock.json}, which is included in the thesis repository.
-    \item \textbf{Environment specification}: A \texttt{Dockerfile} is provided that replicates the exact Ubuntu 22.04 environment, including system-level dependencies (e.g., Python for token counting, CUDA libraries—though GPU is not required).
-    \item \textbf{Data anonymization}: The 327-listing corpus cannot be redistributed due to terms-of-service constraints, but a synthetic dataset with identical statistical properties (skill distribution, salary range distribution, title length distribution) is provided for testing. The synthetic dataset is generated by resampling from the original corpus with perturbation to avoid copyright concerns.
-    \item \textbf{Benchmark scripts}: The \texttt{evaluation/run-benchmarks.sh} script executes the complete evaluation pipeline and outputs the metrics reported in Chapter 6.
+    \item \textbf{Environment specification}: The repository documents the Node.js and Next.js stack through \texttt{package.json} and \texttt{package-lock.json}. A Dockerfile would be a useful future addition for strict environment replication.
+    \item \textbf{Data anonymization}: The 327-listing corpus is used as the working research dataset. If redistributed, source terms and privacy constraints would need to be reviewed and an anonymized or synthetic alternative prepared.
+    \item \textbf{Benchmark scripts}: Dedicated benchmark scripts should be added for future replication of retrieval and latency metrics.
 \end{itemize}
 
 \section{Chapter Conclusion}
 
 This chapter has separated the technological environment from the theoretical foundations of Chapter 2. While Chapter 2 explains the concepts behind information extraction, taxonomies, and retrieval models, Chapter 3 documents the concrete tools, libraries, and infrastructure that realize those concepts in working software.
 
-The chapter has covered the Next.js application framework (presentation and API layers), the hybrid JSON/PostgreSQL persistence layer (static catalog plus dynamic user state), TypeScript for type-safe data representation (including the \texttt{Internship} interface and validation functions), the \texttt{all-MiniLM-L6-v2} transformer for semantic enrichment, lexical retrieval and vector indexing for dense retrieval with Reciprocal Rank Fusion for hybrid ranking, and the controlled evaluation environment (hardware specifications, measurement tools, and reproducibility measures).
+The chapter has covered the Next.js application framework (presentation and API layers), the hybrid JSON/PostgreSQL persistence layer (static catalog plus dynamic user state), TypeScript for type-safe data representation, rule-based enrichment helpers, and the proposed extension path toward transformer embeddings and hybrid retrieval.
 
-This technological foundation supports the methodology described in Chapter 4 (which defines the functional requirements, system architecture, and evaluation protocol) and the system design detailed in Chapter 5 (which implements the ingestion, enrichment, storage, and retrieval components). It also enables the reproducible evaluation presented in Chapter 6, where the specific numbers reported (e.g., 47 ms median latency, 29\% $NDCG_{10}$ improvement) are grounded in the concrete tools and hardware described here.
+This technological foundation supports the methodology described in Chapter 4 and the system design detailed in Chapter 5. It also clarifies which capabilities are implemented in the prototype and which belong to the proposed semantic-search extension.
