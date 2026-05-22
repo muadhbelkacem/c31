@@ -256,19 +256,26 @@ The categorization framework is implemented through curated semantic reference r
 
 The internal domain space includes categories spanning multiple professional areas, including software engineering, data science, cybersecurity, cloud and DevOps, engineering, healthcare, finance, marketing, operations, sales, human resources, research, education, legal, manufacturing, and related professional domains.
 
+This broader categorization approach provides several methodological advantages:
+
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
-\item Software: Encompasses web development, mobile engineering, backend/infrastructure systems, DevOps, and quality assurance. This is a high-volume category that benefits significantly from sub-filtering by extracted skills.
+\item Practical semantic normalization:
+Equivalent or closely related employer terminology can be mapped into consistent internal categories despite vocabulary inconsistency.
 
-\item Data/AI: Includes data science, machine learning, big data analytics, artificial intelligence research, and business intelligence. This category differentiates itself from general ``Software'' by its primary focus on statistical modeling, data pipelines, and algorithmic development rather than application engineering.
+\item Frontend filtering compatibility:
+Structured categories support user-facing filtering and browsing functionality without exposing complex external taxonomy structures.
 
-\item Design: Covers UI/UX design, graphic design, product design, human-computer interaction, and visual communication. This captures roles where the primary competency is not code but visual, interaction, and user-research skills.
+\item Lightweight maintainability:
+JSON-based semantic reference libraries can be updated incrementally as terminology evolves without requiring heavyweight ontology maintenance.
 
-\item Healthcare: Specialized roles in pharmacy, medicine, medical research, public health, and health technology. This category supports inclusion of students from non-engineering disciplines and illustrates the system's extensibility beyond technical domains.
-
-\item Business: A broad category encompassing marketing, management, finance, human resources, consulting, and operations. This acts as a catch-all for the large volume of professional services internships that co-exist with technical roles on most job platforms. This restricted, curated set ensures that the top-level facet in the UI is clean, scannable, and presents a meaningful choice architecture to the end-user.
+\item Flexible domain extensibility:
+New industries, skill clusters, and internship categories can be introduced through controlled vocabulary updates rather than architectural redesign.
 
 \end{itemize}
+
+This internal semantic mapping strategy therefore balances conceptual standardization with implementation practicality, directly supporting the lightweight design objectives of the proposed system.
+
 
 \subsection{Addressing the Semantic Gap}
 The chosen label space, a two-tier combination of the ESCO taxonomy and a shallow internal categorical layer, constitutes a direct architectural response to the semantic gap described in the earlier theoretical and methodological chapters. This gap is the conceptual distance between a user's search language and an employer's job-posting language, and it contributes to poor recall in traditional lexical search systems. The architecture addresses this gap on two complementary levels.
