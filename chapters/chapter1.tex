@@ -32,10 +32,10 @@ This study is guided by the following four research questions:
 The primary contributions of this thesis are as follows:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-\item \textbf{A Tiered Enrichment Architecture:} Introduction of a modular architecture that begins with deterministic rule-based extraction and defines extension points for lightweight neural mapping and resource-budgeted LLM fallback in complex cases.
-\item \textbf{A Structured Internship Catalog Prototype:} Implementation of a Next.js and TypeScript system that loads a JSON internship catalog, normalizes key fields, extracts skill and category metadata, exposes API routes, and presents records through searchable role pages.
-\item \textbf{Automated Ingestion Heuristics:} Development of lightweight JSON processing and validation heuristics that reduce manual cleanup for heterogeneous internship records.
-\item \textbf{Evaluation Framework:} An evaluation design using a real-world dataset of 327 listings, documenting how extraction quality, retrieval behavior, and computational performance should be measured as the semantic layers mature.
+\item \textbf{A Lightweight Local Semantic Processing Pipeline (RQ1):} Design and implementation of a modular internship processing architecture that balances semantic classification quality with computational efficiency using lightweight local models and deterministic heuristics, enabling operation on standard commodity hardware without reliance on cloud-hosted inference services.
+\item \textbf{Transformer-Based Internship Relevance Classification (RQ2):} Implementation of an internship classification component using lightweight sentence-transformer embeddings to semantically distinguish real internship opportunities from unrelated or full-time professional job postings within noisy, heterogeneous recruitment datasets.
+\item \textbf{Semantic Enrichment for Internship Usability (RQ3):} Development of a semantic enrichment framework that improves the usability of raw internship records through automated skill extraction, occupational domain categorization, multilingual normalization, and structured metadata generation for frontend consumption.
+\item \textbf{Automated Heterogeneous Data Normalization (RQ4):} Development of heuristic-based ingestion and normalization strategies capable of transforming inconsistently structured internship and job data from heterogeneous online sources into a unified schema suitable for downstream semantic processing.
 \end{itemize}
 
 \section{Thesis Structure}
