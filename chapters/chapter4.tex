@@ -55,26 +55,59 @@ The proposed system is designed around the functional requirements of its intend
 \end{itemize}
 
 \subsection{System Architecture and Component Mapping}
-The system's architecture is organized into four logical tiers, a design pattern that enforces a clean separation of concerns, enhances scalability, and facilitates independent development and testing of each layer~\cite{doan2012principles}.
-
+The proposed system is organized into four logical architectural tiers to separate presentation concerns, application communication, semantic processing responsibilities, and persistence mechanisms. This decomposition improves maintainability, modularity, and implementation clarity by reducing coupling between independently evolving system components [15, 60].
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Presentation Layer (Frontend Application)}: The presentation layer provides the user-facing internship discovery platform implemented using Next.js and React. This layer is responsible for rendering internship data, supporting interactive user functionality, and exposing authenticated application features.
+    Core functional requirements include:
+    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+        \item internship browsing and pagination.
+        \item keyword-based search and structured filtering.
+        \item detailed internship viewing.
+        \item saved internship management for authenticated users.
+        \item account preference interaction.
+        \item UI personalization features.
+    \end{itemize}
+    The presentation layer remains isolated from backend processing logic and consumes structured internship data exclusively through the application communication layer.
 
-\item Presentation Layer (app/components/): This tier contains the React-based user interface. The InternshipList.tsx component is responsible for rendering search results, interactive filters, and detail views. It maintains its own UI state while consuming data exclusively through the API layer, preserving a clean separation from backend logic.
+    \item \textbf{Application Communication Layer (Next.js Route Handlers)}: The communication layer acts as the controlled interface between the frontend application and backend data services. Implemented using Next.js server-side route handlers, this layer manages request handling, internship data access coordination, response serialization, and caching behavior.
 
-\item API and Communication Layer (app/api/internship/): This tier exposes a RESTful API built with Next.js API routes. The route.ts endpoint acts as the single, stable interface for the frontend. It handles HTTP requests, orchestrates calls to the data processing layer, manages cache policy through HTTP headers, and returns structured JSON responses, thereby decoupling the client from the underlying data implementation.
+    Its responsibilities include:
 
-\item Data Processing Layer (app/lib/): This is the computational core of the system, responsible for the entire ``clean-enrich-structure'' pipeline. It is divided into distinct modules to maximize cohesion:
+    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+        \item handling frontend internship data requests.
+        \item delegating access to processed internship records.
+        \item serving structured JSON responses.
+        \item managing response caching behavior.
+        \item isolating frontend components from storage implementation details.
+    \end{itemize}
+    This architectural separation improves maintainability by preventing frontend logic from depending directly on persistence or enrichment implementation details.
 
-\item data.ts: The primary data access interface. It reads from the file system, manages the in-memory cache, and exposes functions like getProcessedData() and getInternshipById(). It abstracts the persistence strategy from the API layer.
+    \item \textbf{Semantic Processing Layer (Python Enrichment Pipeline)}:The semantic processing layer constitutes the computational core of the proposed system and implements the three-layer methodology defined in Section 4.2.1. This layer transforms heterogeneous raw internship and job listing data into structured records suitable for deployment.
+    Its responsibilities include:
+    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+        \item \textbf{Layer A (Deterministic Heuristic Processing)}:
+        structural validation, malformed record filtering, normalization, duplicate handling support, internship-specific rule matching, and explicit rejection of clearly irrelevant non-internship postings.
+        \item \textbf{Layer B (Lightweight Semantic Classification)}:
+        context-sensitive internship relevance assessment and semantic enrichment using the lightweight sentence-transformer model (all-MiniLM-L6-v2) for ambiguous records requiring semantic interpretation.
+        \item \textbf{Layer C (Manual Review Flagging and Exception Handling)}:
+        identification and structured flagging of uncertain records requiring later inspection through manual review indicators such as needs_manual_review.
+    \end{itemize}
+    This layer executes independently from the frontend application runtime and supports automated recurring enrichment workflows.
 
-\item supabase-client.ts: A dedicated utility for interacting with the relational database (Supabase/PostgreSQL) for user authentication and dynamic user data such as bookmarks and profiles.
+    \item \textbf{Data Persistence Layer}: The persistence layer manages both public internship catalog delivery and authenticated user application state.
 
-\item This layer also contains the core enrichment logic (detailed in the relevant section), including modules for cleaning, category assignment, salary parsing, and skill extraction. This is where Layer A of the tiered enrichment strategy is implemented, with Layers B and C defined as extension points.
+    The architecture uses a hybrid persistence strategy:
 
-\item Data Persistence Layer (public/ \& Database): This tier represents the physical data stores. The static, pre-scraped internship catalog resides as a JSON file in the public/ directory. Dynamic user data is stored through the Supabase/PostgreSQL integration for authentication and saved-role persistence. The architecture is prepared for a future in-memory vector index, but the implemented prototype currently relies on the normalized JSON catalog and API-level caching. This structured decomposition ensures that a change to the skill extraction algorithm in the data processing layer does not require a corresponding change to a UI component, and vice versa.
-
+    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+        \item \textbf{Static internship catalog}: processed internship records exported as structured JSON for efficient frontend consumption.
+        \item \textbf{Dynamic application persistence}: Supabase-managed PostgreSQL storage for authentication, saved internships, preferences, and account-linked user functionality.
+    \end{itemize}
+    This separation balances efficient public internship delivery with transactional support for authenticated user interactions.
 \end{itemize}
+
+This architectural decomposition ensures that changes to frontend behavior, enrichment methodology, persistence mechanisms, or user-facing functionality can be introduced with minimal disruption to unrelated system components.
+
 \subsection{Core Data Model}
 The semantic integrity of the entire pipeline is maintained by a formal, strongly typed data model. This model acts as a ``semantic contract'' between the ingestion logic and the presentation layer, ensuring that data output by the pipeline conforms to the expectations of the frontend. This approach to structured information management is consistent with information extraction practice, where schemas act as enforceable specifications for system artifacts~\cite{sarawagi2008information}. The Internship interface, implemented in TypeScript and visualized in Figure~\ref{fig:class}, is the central entity of this model. The design of this schema is motivated by three objectives:
 
