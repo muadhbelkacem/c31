@@ -109,24 +109,25 @@ The proposed system is organized into four logical architectural tiers to separa
 This architectural decomposition ensures that changes to frontend behavior, enrichment methodology, persistence mechanisms, or user-facing functionality can be introduced with minimal disruption to unrelated system components.
 
 \subsection{Core Data Model}
-The semantic integrity of the entire pipeline is maintained by a formal, strongly typed data model. This model acts as a ``semantic contract'' between the ingestion logic and the presentation layer, ensuring that data output by the pipeline conforms to the expectations of the frontend. This approach to structured information management is consistent with information extraction practice, where schemas act as enforceable specifications for system artifacts~\cite{sarawagi2008information}. The Internship interface, implemented in TypeScript and visualized in Figure~\ref{fig:class}, is the central entity of this model. The design of this schema is motivated by three objectives:
+The proposed system relies on a structured core data model that defines how internship information moves through acquisition, transformation, storage, and user interaction workflows. This model acts as a formal semantic contract between the ingestion pipeline, persistence layer, and frontend application, ensuring that structured data remains consistent throughout the system lifecycle.
 
+The architecture distinguishes between raw acquisition entities and normalized operational entities to reflect the staged transformation of heterogeneous recruitment data.
+
+The RawInternship entity represents unprocessed records obtained from scraping sources. These records preserve original source fields such as raw title, company name, location, description, source URL, and scraping metadata prior to transformation.
+
+The DataCleaningService represents the transformation component responsible for converting raw recruitment records into structured internship entities. This stage performs validation, normalization, heuristic filtering, semantic classification, skill extraction, and manual-review exception handling consistent with the three-layer methodology described previously.
+
+The normalized Internship entity serves as the central operational data structure used throughout the application. It contains structured attributes including stable identifiers, normalized titles, company metadata, salary information, descriptions, extracted skills, categorical labels, duration metadata, platform provenance, and application links.
+
+The design of this schema is motivated by three methodological objectives:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Identity and Provenance: Achieved through a stable, deterministic id field based on a normalized combination of the company name and job title. This ensures unique identification across ingestion cycles and maintains links to original sources~\cite{christen2012data}.
-
-\item Faceted Discovery: Enabled by a controlled vocabulary of category labels (e.g., ``Software'', ``Data/AI''), a list of extracted skills, and a cleaned salary string. These structured fields provide the necessary metadata for efficient filtering and sorting~\cite{baeza2011modern}.
-
-\item Semantic Enrichment: The model contains fields for domain categorization and skill extraction, facilitating the discovery of relevant internships as described in the theoretical foundation chapter~\cite{reimers2019sentence, lin2021pretrained}. This formalization, inspired by foundational work in Information Extraction~\cite{sarawagi2008information}, ensures that every component, from the regex-based salary parser to the React search card, operates on a shared, unambiguous definition of an ``Internship.'' This approach to structured information management is critical for maintaining consistency across a complex, multi-stage data pipeline.
-
+    \item \textbf{Identity and provenance:} Stable identifiers support consistent referencing across ingestion cycles while preserving traceability to original recruitment sources [10].
+    \item \textbf{Structured discovery support:} Explicit metadata such as category labels, extracted skills, salary normalization, and location fields support efficient filtering, browsing, and frontend presentation [3].
+    \item \textbf{Cross-layer consistency:} Shared structured entities ensure compatibility between ingestion logic, semantic enrichment, API delivery, and frontend rendering components [15].
 \end{itemize}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.88\textwidth]{uml/classdiagram.png}
-\caption{UML class representation of the Internship semantic schema.}\label{fig:class}
-\end{figure}
+The conceptual model additionally includes user-oriented entities such as User and SavedInternship, representing authenticated platform functionality including saved internship persistence and account-linked interaction behavior.
 
 \subsection{The Retrieval Flow}
 The interaction between the client-side UI and the server-side data processing layer is managed through asynchronous, cache-optimized requests. This sequence, visualized in Figure~\ref{fig:retrieval-seq}, is designed for low-latency retrieval as discussed in modern search-engine design~\cite{buttcher2016information}. The flow is initiated by a user action in the InternshipList.tsx component, which makes a GET request to the /api/internship endpoint. The API route then checks the server-side cache via the data processing layer (data.ts). On a cache miss, the layer reads the raw data from the static JSON catalog, executes the enrichment and semantic mapping pipeline, and caches the result. The processed, structured Internship objects are then returned to the API layer and sent as a JSON response. The UI component receives the data and re-renders, completing the cycle. This architecture allows computationally expensive enrichment to run after a data refresh, while subsequent user requests are served from the in-memory cache.
