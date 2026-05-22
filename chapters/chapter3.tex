@@ -204,107 +204,85 @@ all-MiniLM-L6-v2 produces semantically meaningful sentence embeddings that can b
 
 These characteristics make all-MiniLM-L6-v2 appropriate for future offline enrichment: embeddings could be pre-computed for each internship's concatenated title and description, stored with the catalog, and then compared with query embeddings at search time. This would extend the implemented keyword and category filtering without replacing the deterministic preprocessing layer.
 
-\section{Indexing and Retrieval Technologies}
+\section{Text Processing and Heuristic Normalization Tools}
 
-The implemented retrieval environment exposes the normalized catalog through API routes and supports client-side browsing, category display, skill tags, and role-detail lookup. The broader methodology also defines a hybrid lexical and dense retrieval strategy as the next extension of the system. This distinction matters: the current repository demonstrates the ingestion and structured catalog foundation, while dense retrieval and rank fusion remain proposed enhancements.
+Beyond transformer-based semantic processing, the system relies extensively on deterministic text-processing and heuristic normalization mechanisms to improve the consistency and usability of heterogeneous internship data. Because recruitment listings frequently contain noisy formatting, inconsistent field naming, multilingual terminology, and platform-specific irregularities, purely semantic approaches alone are insufficient for robust preprocessing.
 
-\subsection{Lexical Retrieval Tools}
+The proposed architecture therefore combines lightweight semantic enrichment with rule-based normalization techniques that perform structural cleaning, field harmonization, internship-specific filtering, and metadata standardization prior to frontend deployment. This hybrid processing strategy improves robustness while preserving the computational efficiency objectives of the overall lightweight system architecture.
 
-Lexical search provides the retrieval baseline. The system builds an in-memory inverted index over the cleaned text of each internship. The indexed fields are:
+\subsection{Rule-Based Text Normalization}
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \texttt{title} (weight: 3.0): Job titles are the most informative field for lexical matching.
-    \item \texttt{description} (weight: 1.0): Descriptions provide comprehensive but less focused evidence.
-    \item \texttt{company} (weight: 1.5): Company names are moderately important, especially for branded searches.
-\end{itemize}
+The semantic enrichment pipeline complements transformer-based processing with deterministic rule-based text normalization mechanisms designed to improve consistency across heterogeneous internship data sources. Recruitment records collected from different platforms frequently contain inconsistent formatting, non-standard field naming, multilingual terminology, and noisy textual artifacts that reduce downstream classification quality.
 
-Keyword matching remains important for exact matches on skill names (e.g., "Kubernetes"), company names (e.g., "Acme Corp"), and technical acronyms (e.g., "RTL") where semantic similarity alone may be too diffuse. The lexical index is rebuilt periodically when the catalog is updated, which is acceptable because updates are assumed to occur on a daily or weekly basis rather than continuously. The index build time for 327 listings is approximately 2-3 seconds.
+To address these issues, the system applies heuristic normalization procedures that standardize textual fields prior to semantic enrichment. These operations include whitespace normalization, field harmonization, malformed record filtering, internship-specific keyword normalization, and removal of structurally invalid or incomplete entries.
 
-The implementation follows standard information retrieval practices for term frequency and document length normalization, ensuring reliable performance across a wide range of corpora.
+Rule-based normalization was deliberately selected as a lightweight preprocessing layer because deterministic transformations are computationally inexpensive, transparent, and highly effective for repetitive structural cleaning tasks that do not require semantic inference.
 
-\subsection{Vector-Based Search Tools}
+\subsection{JSON-Based Rule Configuration}
 
-Vector search supports semantic matching by comparing dense embeddings. The system relies on a vector indexing library to perform efficient similarity search across the high-dimensional embedding space.
+To preserve maintainability and reduce hardcoded logic, the system externalizes domain-specific processing rules into structured JSON configuration resources. These configuration files support deterministic internship filtering, semantic enrichment assistance, and domain normalization without requiring direct modification of the application logic.
 
-\subsubsection{Approximate Nearest-Neighbor Search}
-
-The system employs Approximate Nearest-Neighbor (ANN) indexing to enable fast retrieval even as the dataset grows. ANN algorithms trade a small amount of retrieval precision for substantial gains in search speed.
-
-For a catalog of 327 embeddings, vector-based indexing reduces query latency to approximately 5-10 ms while maintaining high recall (greater than 0.95 relative to exact search). The index is configured to balance build time, memory usage, and retrieval accuracy, ensuring that the system remains responsive on commodity hardware.
-
-In the proposed extension, the vector index would be stored in memory and updated only when the catalog changes, consistent with the amortized cost model.
-
-\subsubsection{Hybrid Fusion with Reciprocal Rank Fusion (RRF)}
-
-Reciprocal Rank Fusion combines lexical and dense retrieval outputs using rank positions rather than raw scores. Given a lexical ranked list and a vector-based ranked list, RRF computes a fused score for each document as:
-
-\[
-    \mathrm{RRF\_score}(d) = \sum_{r \in \{\mathrm{lexical},\mathrm{vector}\}} \frac{1}{k + \mathrm{rank}_r(d)}
-\]
-
-where \(k\) is a constant (typically 60). This formula has three important properties:
+Key configuration resources include:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Scale invariance}: Because it operates on ranks rather than raw scores, RRF does not require normalization of lexical scores (which are theoretically unbounded) or cosine similarity (bounded between -1 and 1). This eliminates a common source of fragility in hybrid retrieval systems.
-    \item \textbf{Diminishing returns}: The \(1/(k + \text{rank})\) function gives high weight to top-ranked documents but quickly diminishes as rank increases. A document that ranks 1st in one system receives score \(1/(60+1) \approx 0.0164\), while a document that ranks 100th receives \(1/(60+100) \approx 0.0063\). This reflects the practical observation that users rarely look beyond the first page of results.
-    \item \textbf{Robustness}: The constant \(k\) smooths the contribution of low-ranked documents. Even a document that ranks 1000th in one system still contributes a small positive score \(1/(60+1000) \approx 0.00094\), ensuring that a document that is extremely relevant in one modality but missing from the other is not completely excluded.
+    \item \textbf{skills_library.json}: Structured internship skill definitions and synonym mappings used to support skill extraction and normalization.
+    \item \textbf{domain_keywords.json}: Domain classification reference keywords used to assist internship categorization and semantic enrichment.
+    \item \textbf{internship_rules.json}: Positive internship indicators, multilingual internship terminology, exclusion phrases, and heuristic internship detection rules.
+    \item \textbf{negative_role_patterns.json}: Structured rejection patterns used to identify senior professional roles, licensed occupations, permanent employment, and non-internship job postings.
 \end{itemize}
 
-In the complete architecture, the final ranked list would be sorted by RRF score and returned to the client. RRF is parameter-free aside from the constant \(k\), which has been shown to be robust across a wide range of values (typically 50-100) in the original RRF paper and subsequent studies. This makes it suitable for a system that cannot be extensively tuned per deployment.
+This configuration-driven architecture improves flexibility, maintainability, and reproducibility while keeping the semantic enrichment pipeline computationally lightweight.
+
+\subsection{Heuristic Filtering and Classification Support}
+
+Deterministic heuristic filtering operates alongside transformer-based semantic classification to improve robustness when processing noisy recruitment data. Explicit rule patterns are used to identify structurally invalid postings, obvious non-internship professional roles, and domain-specific exclusion cases that do not require transformer inference.
+
+This hybrid design reduces unnecessary semantic processing while improving classification consistency. Clear deterministic cases can be handled through inexpensive rule evaluation, allowing transformer-based semantic similarity analysis to focus on ambiguous internship records where contextual interpretation provides greater value.
+
+The combination of deterministic filtering and lightweight semantic enrichment supports the thesis objective of balancing classification quality with computational efficiency on commodity hardware.
 
 \section{Development, Testing, and Evaluation Environment}
 
-The development environment must support reproducible ingestion, retrieval benchmarking, and performance measurement. All experiments described in Chapter 6 are conducted on a controlled hardware configuration to ensure that performance comparisons are fair and reproducible.
+The development and evaluation environment supports reproducible implementation, semantic pipeline execution, and performance observation under controlled hardware conditions. All experimental observations discussed in Chapter 6 are conducted on a consistent local hardware configuration to support reproducibility and fair evaluation of the proposed lightweight architecture.
 
 \subsection{Hardware Configuration}
 
-All experiments are run on a single workstation with the following specifications:
+All development and experimental evaluation were conducted on a single workstation with the following specifications:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{CPU}: Intel Core i7-10750H (6 cores, 12 threads, 2.60 GHz)
     \item \textbf{RAM}: 16 GB RAM
     \item \textbf{Storage}: 715 GB total storage
     \item \textbf{GPU}: None (all processing runs on CPU)
-    \item \textbf{Operating System}: Ubuntu 22.04 LTS
+    \item \textbf{Operating System}: windows 11
     \item \textbf{Node.js version}: 20.11.0 (LTS)
 \end{itemize}
 
-This configuration embodies the "commodity hardware" constraint stated in the thesis objectives. The total cost of this hardware at the time of writing is approximately \$1,200, which is within the budget of a typical university research lab or small startup. No GPU is required, which is a deliberate choice: GPU instances are substantially more expensive to rent (approximately 3--5 times higher hourly cost on cloud providers) and are not universally available in commodity hosting environments.
+This configuration reflects the commodity hardware constraint central to the thesis objectives. The proposed system is specifically designed to operate without GPU acceleration, demonstrating that practical internship semantic enrichment and classification can be achieved using widely accessible general-purpose computing hardware.
 
-\subsection{Measurement and Logging Tools}
+\subsection{Development Instrumentation and Evaluation Support}
 
-To support quantitative evaluation, the prototype exposes simple inspection points and can be extended with measurement and logging utilities:
+To support reproducible evaluation, the implementation includes lightweight logging and measurement mechanisms that monitor semantic pipeline execution, dataset transformation behavior, and frontend responsiveness.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Ingestion logging}: Records processing time per listing, cache hit/miss rates, and errors. This helps identify bottlenecks in the pipeline (e.g., whether the all-MiniLM-L6-v2 transformer or the regex salary parser is the slowest stage). Logs are written in JSONL format (one JSON object per line) to facilitate subsequent analysis with \texttt{jq} or Python.
-    \item \textbf{Query latency}: The API endpoint wraps each request with \texttt{performance.now()} timers, logging p50 and p99 latency to a rotating log file (rotated daily, retained for 30 days). These metrics are essential for evaluating whether the system meets interactive latency targets (typically <200 ms for p99). Latency is measured at three points:
-    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-        \item \textit{End-to-end}: From receipt of HTTP request to response transmission
-        \item \textit{Retrieval}: Time spent in Lexical Search + Vector Search + RRF (excluding JSON serialization)
-        \item \textit{Serialization}: Time spent converting results to JSON
-    \end{itemize}
-    \item \textbf{Memory profiling}: The \texttt{process.memoryUsage()} API captures RSS (Resident Set Size) and heap usage after cache warm-up. This is used to verify that the system fits within 16 GB of RAM, a key constraint of the commodity hardware assumption. Memory snapshots are taken at pipeline start (after model loading), after cache warm-up, and during peak query load.
-    \item \textbf{Cost tracking}: For the LLM baseline comparison, the system estimates API costs based on token counts and current pricing models (e.g., GPT-3.5-turbo at \$0.001 per 1,000 input tokens and \$0.002 per 1,000 output tokens). Token counts are approximated using the \texttt{tiktoken} library (the same tokenizer used by OpenAI) to ensure accurate cost estimates.
-\end{itemize}
+The evaluation environment focuses on practical performance observation rather than production-scale distributed monitoring, consistent with the lightweight architecture objectives of the thesis.
 
-When enabled, these logs can be aggregated into CSV files for analysis using Python or standard command-line tools. The present repository pins dependencies through \texttt{package-lock.json}; additional benchmark scripts would be required for a fully automated reproduction package.
-
-\subsection{Reproducibility Measures}
-
-To ensure that the experimental results reported in Chapter 6 can be reproduced by other researchers, the following measures are implemented:
+Key measurements include:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Fixed random seeds}: All libraries with stochastic behavior (vector index construction and all-MiniLM-L6-v2 inference) use fixed random seeds (seed = 42) to ensure deterministic outputs across runs.
-    \item \textbf{Version pinning}: All dependencies are pinned to exact versions in \texttt{package-lock.json}, which is included in the thesis repository.
-    \item \textbf{Environment specification}: The repository documents the Node.js and Next.js stack through \texttt{package.json} and \texttt{package-lock.json}. A Dockerfile would be a useful future addition for strict environment replication.
-    \item \textbf{Data anonymization}: The 327-listing corpus is used as the working research dataset. If redistributed, source terms and privacy constraints would need to be reviewed and an anonymized or synthetic alternative prepared.
-    \item \textbf{Benchmark scripts}: Dedicated benchmark scripts should be added for future replication of retrieval and latency metrics.
+    \item \textbf{Pipeline execution monitoring}: The semantic enrichment pipeline records dataset processing behavior, including total processed records, accepted internship classifications, rejected non-internship records, manual review candidates, and enrichment completeness indicators such as missing skill extraction outcomes.
+    \item \textbf{Classification behavior analysis}: Internship relevance classification outputs are logged to support later quantitative evaluation of semantic filtering effectiveness and heuristic classification consistency.
+    \item \textbf{Runtime observation}: End-to-end processing duration is observed during local execution to assess the practical computational cost of semantic enrichment on commodity hardware.
+    \item \textbf{Frontend responsiveness observation}: Local Chromium DevTools measurements are used to assess practical frontend responsiveness during internship browsing, filtering, and cached interaction scenarios.
 \end{itemize}
+
+This instrumentation provides sufficient evaluation support for analyzing classification quality, enrichment consistency, filtering effectiveness, and computational practicality within the scope of the proposed lightweight internship enrichment system.
 
 \section{Chapter Conclusion}
 
-This chapter has separated the technological environment from the theoretical foundations of Chapter 2. While Chapter 2 explains the concepts behind information extraction, taxonomies, and retrieval models, Chapter 3 documents the concrete tools, libraries, and infrastructure that realize those concepts in working software.
+This chapter has established the technological environment supporting the implementation of the proposed internship aggregation and semantic enrichment system. While Chapter 2 presented the theoretical foundations underlying information extraction, semantic classification, and data normalization, this chapter documented the concrete tools, frameworks, libraries, and infrastructure used to realize those concepts in working software.
 
-The chapter has covered the Next.js application framework (presentation and API layers), the hybrid JSON/PostgreSQL persistence layer (static catalog plus dynamic user state), TypeScript for type-safe data representation, rule-based enrichment helpers, and the proposed extension path toward transformer embeddings and hybrid retrieval.
+The chapter covered the Next.js application environment for frontend interaction and API integration, the hybrid JSON/PostgreSQL persistence architecture for separating public internship catalog data from authenticated user application state, TypeScript-based structured data representation and validation mechanisms, and the lightweight transformer-based semantic enrichment environment centered on local sentence-transformer inference.
 
-This technological foundation supports the methodology described in Chapter 4 and the system design detailed in Chapter 5. It also clarifies which capabilities are implemented in the prototype and which belong to the proposed semantic-search extension.
+It also described the rule-based normalization infrastructure, configuration-driven heuristic processing mechanisms, and the development and evaluation environment used to support reproducible implementation and performance observation on commodity hardware.
+
+Together, these technological foundations support the methodology described in Chapter 4 and the implementation details presented in Chapter 5, while providing the practical basis for the empirical evaluation discussed in Chapter 6.
