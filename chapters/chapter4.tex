@@ -244,9 +244,17 @@ The skill lexicon used in the extraction phase (detailed in the corresponding ch
 \subsection{Internal Categorization and Mapping}
 While ESCO provides the granular canonical depth required for semantic precision, it is not directly suitable for the top-level user interface. A student browsing for an internship is unlikely to search for ``ESCO Occupation 2512,'' and a hierarchical tree of hundreds of four-level occupations is unsuitable for exploratory browsing. Therefore, the system introduces a supplementary internal categorization layer: a flatter set of high-level categories designed to facilitate initial browsing and provide a stable foundation for faceted filtering~\cite{faliagka2012online}.
 
-\subsection{Domain-Specific Categories}
-The system defines five top-level categories that reflect the distribution and concentration of the current internship dataset, particularly within the technology and business sectors. These categories are designed to be mutually exclusive, collectively exhaustive for the target domain, and understandable to a student user.
+\subsection{Internal Categorization and Mapping}
 
+While ESCO provides a useful conceptual reference for standardized occupational terminology, the proposed system relies on an internally defined categorization framework better aligned with the practical requirements of lightweight semantic enrichment and frontend usability.
+
+A full ontology-driven occupation hierarchy would introduce unnecessary implementation complexity for the scope of this system, particularly given the variability and ambiguity of internship data originating from heterogeneous external sources. Instead, the enrichment pipeline uses curated internal JSON-based semantic reference libraries that support practical classification, skill normalization, and structured filtering.
+
+This internal categorization strategy is informed by ESCO’s principle of controlled vocabulary normalization but is intentionally simplified to support lightweight deployment and maintainable domain adaptation.
+
+The categorization framework is implemented through curated semantic reference resources including domain keyword mappings, internship classification rules, negative role exclusion patterns, and structured skill libraries.
+
+The internal domain space includes categories spanning multiple professional areas, including software engineering, data science, cybersecurity, cloud and DevOps, engineering, healthcare, finance, marketing, operations, sales, human resources, research, education, legal, manufacturing, and related professional domains.
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 
