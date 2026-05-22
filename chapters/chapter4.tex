@@ -129,17 +129,23 @@ The design of this schema is motivated by three methodological objectives:
 
 The conceptual model additionally includes user-oriented entities such as User and SavedInternship, representing authenticated platform functionality including saved internship persistence and account-linked interaction behavior.
 
-\subsection{The Retrieval Flow}
-The interaction between the client-side UI and the server-side data processing layer is managed through asynchronous, cache-optimized requests. This sequence, visualized in Figure~\ref{fig:retrieval-seq}, is designed for low-latency retrieval as discussed in modern search-engine design~\cite{buttcher2016information}. The flow is initiated by a user action in the InternshipList.tsx component, which makes a GET request to the /api/internship endpoint. The API route then checks the server-side cache via the data processing layer (data.ts). On a cache miss, the layer reads the raw data from the static JSON catalog, executes the enrichment and semantic mapping pipeline, and caches the result. The processed, structured Internship objects are then returned to the API layer and sent as a JSON response. The UI component receives the data and re-renders, completing the cycle. This architecture allows computationally expensive enrichment to run after a data refresh, while subsequent user requests are served from the in-memory cache.
+Although Figure 4.2 presents a conceptual UML abstraction rather than a strict implementation class hierarchy, it provides a useful representation of the principal data entities and their interactions within the proposed system.
+
+\subsection{Application Interaction Flow}
+Figure 4.3 illustrates the high-level interaction sequence between the user, frontend application, and backend persistence services during normal platform operation. The interaction model follows an asynchronous request-response architecture typical of modern web applications.
+
+The sequence begins when a user visits the internship platform, triggering the frontend application to load the available internship catalog for browsing. Structured internship data is retrieved through backend application services and rendered to the user interface.
+
+When a user selects a specific internship, the frontend requests the corresponding structured internship record and presents the normalized internship details, including metadata such as title, company, description, skills, salary information, and application links.
+
+Authenticated interaction is additionally supported through the user account workflow. During login, authentication credentials are submitted through the frontend and validated through the Supabase authentication infrastructure, which returns a session token upon successful verification.
+
+Registered users may also persist saved internship interactions. When a user bookmarks an internship, the frontend communicates with the persistence layer to store the user–internship association, after which confirmation is returned to the interface.
+
+This interaction architecture separates frontend presentation behavior from backend persistence responsibilities while supporting responsive user interaction and authenticated account-linked functionality.
 
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.82\textwidth]{uml/sequenceDiagramFrontend.png}
-\caption{UML sequence diagram: data retrieval and API interaction.}\label{fig:retrieval-seq}
-\end{figure}
-
-\subsection{The Tiered Ingestion and Enrichment Pipeline}
+\subsection{Ingestion and Semantic Enrichment Workflow}
 The data ingestion and enrichment process is the methodological core of the system, implementing a tiered strategy that directly addresses Research Question 1. It follows a strict sequence of operations designed to progressively refine raw, noisy data into structured, semantically enriched entities using the most efficient tool for each task~\cite{chu2016data, nadeau2007survey}. This pipeline is orchestrated by a core function, enrichInternship(rawItem), as described in the implementation chapter.
 
 
