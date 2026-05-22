@@ -200,20 +200,13 @@ The schema's design is directly motivated by three primary functional objectives
 \end{itemize}
 
 \subsection{The Internship Interface: A Formal Semantic Contract}
-The abstract structural requirements are implemented as a TypeScript interface, serving as the foundational blueprint for both the relational database and the frontend presentation layer. This formalization in a strongly typed language enforces compile-time and runtime data integrity. By defining a canonical Internship type, each module, from the regex-based salary parser to the React search result card, operates on a shared and unambiguous definition of the data entity. Deviations from this contract, such as a missing field or incorrect type, raise errors during development or testing and reduce the risk of data corruption propagating through the pipeline. This practice is a cornerstone of robust and maintainable IE pipelines~\cite{sarawagi2008information}. The key fields of the Internship interface are structured as follows:
+These structural requirements are implemented through the TypeScript Internship interface, which serves as the canonical representation of processed internship records throughout the application.
 
+By defining a shared strongly typed structure, the system ensures that all processing stages—from normalization logic and semantic enrichment through API serialization and frontend rendering—operate on a consistent data entity definition. This improves implementation reliability and reduces the risk of malformed data propagation [49].
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+The principal fields include:
 
-\item Core Identity \& Provenance: -- id: string --- A deterministic, unique, URL-safe slug generated from the normalized company name and job title. -- link: string --- The original URL or platform link for the listing.
-
-\item Faceted Discovery Attributes: -- \texttt{category}: \texttt{string} --- A single, high-level domain category from a controlled vocabulary (e.g., ``Data/AI''), enabling top-level filtering. -- \texttt{skills}: \texttt{string[]} --- A list of extracted, distinct skill tags (e.g., [``Python'', ``Machine Learning'']) used for filtering by competency. -- \texttt{location}: \texttt{string} --- A normalized and cleaned location string. -- \texttt{salary}: \texttt{string} --- The cleaned salary information (e.g., ``\$100k - \$120k''), providing financial context to job seekers.
-
-\item Other Metadata: -- title: string and description: string --- The cleaned job title and full description. -- company: string --- The employer name. -- job\_age: string --- The age of the posting or date posted. -- platform: string --- The source platform of the listing. -- rating: string --- The company rating. -- duration: string --- Optional duration of the role. The formal TypeScript interface is shown in Listing~\ref{lst:internship-interface}.
-
-\end{itemize}
-
-\begin{lstlisting}[caption={The formal Internship interface in TypeScript, serving as the semantic contract for the entire data pipeline.},label={lst:internship-interface}]
+\begin{lstlisting}[caption={The formal TypeScript Internship interface serving as the canonical schema for processed internship records.},label={lst:internship-interface}]
 interface Internship {
   id: string;
   title: string;
