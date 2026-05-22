@@ -146,27 +146,30 @@ This interaction architecture separates frontend presentation behavior from back
 
 
 \subsection{Ingestion and Semantic Enrichment Workflow}
-The data ingestion and enrichment process is the methodological core of the system, implementing a tiered strategy that directly addresses Research Question 1. It follows a strict sequence of operations designed to progressively refine raw, noisy data into structured, semantically enriched entities using the most efficient tool for each task~\cite{chu2016data, nadeau2007survey}. This pipeline is orchestrated by a core function, enrichInternship(rawItem), as described in the implementation chapter.
+The data ingestion and enrichment pipeline constitutes the methodological core of the proposed system and directly supports the research objective of balancing semantic processing effectiveness with computational efficiency. The pipeline follows a staged transformation methodology in which raw heterogeneous recruitment data is progressively refined into structured internship records using the most appropriate processing mechanism for each task [11, 15].
 
+The workflow is implemented through the previously defined three-layer processing architecture.
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item I/O and Schema Validation (Layer 0): The pipeline begins with a safety-first approach. The system reads source data from the file system or a parsed upload and immediately validates the structural integrity of the JSON. This ensures the data conforms to the expected top-level schema before any processing occurs, a critical step in robust data integration~\cite{doan2012principles}. Any records failing schema validation are logged and quarantined for manual inspection, preventing them from corrupting the downstream data store.
-
-\item Deterministic Preprocessing (Layer A): This layer handles high-confidence, high-volume tasks using rule-based systems with no model-inference cost. It functions as a fast, precise, and explainable foundation.
-\begin{enumerate}[label=(\alph*), leftmargin=1.5em, itemsep=0.25em, topsep=0.25em]
-    \item Text Cleaning and Normalization: Functions such as cleanDescription and cleanTitle perform foundational normalization, including lowercasing, collapsing whitespace, and stripping residual HTML to reduce surface-form variance~\cite{chu2016data}. This is a prerequisite for downstream tasks, as extraction quality is bounded by input quality.
-    \item Regex-Based Attribute Extraction: For highly structured patterns, regular expressions provide a precise and efficient mechanism. The \texttt{cleanSalary} function uses regular expressions to extract and format salary strings from free-text descriptions.
-    \item Stable ID Generation: A deterministic \texttt{generateId} function creates a canonical, URL-friendly slug by concatenating a normalized company name and job title. This identifier serves as a blocking key for deduplication, a key technique for efficient record linkage as described in the theoretical foundation~\cite{christen2012data, elmagarmid2007duplicate}.
-    \item Lexicon-Based Skill Extraction: The first pass of skill extraction uses a case-insensitive, dictionary-based matcher against a curated lexicon of technical skills grounded in the ESCO framework. This provides a high-precision baseline for Named Entity Recognition~\cite{nadeau2007survey}.
-\end{enumerate}
-
-\item Lightweight Semantic Mapping (Layer B): This layer is specified as an extension for semantic cases that deterministic rules cannot bridge. The proposed implementation would use a compact all-MiniLM-L6-v2 transformer bi-encoder for contextual title mapping and ESCO alignment~\cite{reimers2019sentence, menghani2023efficient}. By pre-computing embeddings during ingestion, this layer could improve non-lexical matching without adding heavy processing to the real-time search path.
-
-
-\item Caching and State Management (Post-Processing): The final, fully enriched Internship object is placed into a server-side in-memory cache. This optimization amortizes the cost of the pipeline over many read requests. The cache invalidation strategy is tied to the data refresh cycle, supporting data freshness while reducing response time for the user-facing API~\cite{buttcher2016information}. This design choice is central to the system's lightweight operational profile because it avoids re-computation on every user query and contrasts with the per-query latency of LLM-dependent architectures.
-
+    \item \textbf{Layer A: Deterministic Heuristic Processing} -- The first stage performs high-confidence preprocessing using explicit rule-based operations that incur negligible inference cost. This layer prioritizes speed, transparency, and reproducibility. Primary operations include:
+    \begin{itemize}
+        \item \textbf{Structural validation:} Raw records are checked for required field integrity before transformation begins. Malformed or incomplete records are excluded from further processing to preserve downstream consistency.
+        \item \textbf{Text cleaning and normalization:} Raw recruitment text is normalized through whitespace cleanup, formatting correction, and removal of residual markup artifacts to reduce surface-level variability [11].
+        \item \textbf{Deterministic attribute extraction:} Structured attributes such as salary information and normalized metadata are extracted using explicit parsing logic where pattern-based extraction is reliable.
+        \item \textbf{Stable identifier generation:} A deterministic identifier is generated from normalized record metadata to support consistent record referencing and duplicate management across ingestion cycles [10, 16].
+        \item \textbf{Initial heuristic filtering:} Clearly irrelevant non-internship postings are excluded through explicit internship-oriented keyword and structural heuristics.
+    \end{itemize}
+    \item \textbf{Layer B: Lightweight Semantic Classification} -- The second stage handles semantically ambiguous records that cannot be reliably resolved through deterministic heuristics alone. This layer applies lightweight sentence-transformer semantic inference using the all-MiniLM-L6-v2 model [45]. The model supports contextual internship relevance assessment and semantic enrichment tasks where explicit rule matching is insufficient. Unlike heavyweight cloud-hosted language model pipelines, this approach executes locally and avoids per-request inference cost, preserving the lightweight design objectives of the system [38, 53].
+    \item \textbf{Layer C: Manual Review Flagging and Exception Handling} -- The final stage handles records whose classification confidence remains uncertain after automated processing. Rather than forcing unreliable automated categorization, ambiguous records are flagged for later human inspection using structured review indicators (e.g., needs\_manual\_review). This provides a controlled exception mechanism that improves dataset reliability while preserving automated pipeline throughput.
 \end{itemize}
+
+\subsection{Export and Deployment Preparation}
+
+After processing, accepted internship records are serialized into the structured JSON catalog consumed by the frontend application.
+
+This deployment-oriented export model separates computational enrichment from user-facing application delivery, ensuring that expensive semantic processing occurs during scheduled ingestion rather than during live user interaction.
+
+This staged methodology preserves interpretability, computational practicality, and semantic robustness while maintaining compatibility with recurring automated data refresh workflows.
 
 \section{Semantic Schema and Label Space}
 This chapter defines the internal data model and controlled vocabularies used to transform raw, heterogeneous internship listings into a structured, interoperable semantic knowledge base. As outlined in the system architecture, the core challenge is to unify the disparate language of source platforms into a single, consistent representation. The chapter first details the formal target schema, the Internship interface, which serves as an enforceable contract for the data pipeline. It then justifies the selection of the ESCO (European Skills, Competences, Qualifications and Occupations) taxonomy as the primary reference for mapping job titles and skills to canonical concepts. Finally, it explains the design of a supplementary internal categorization layer that bridges the gap between ESCO's deep hierarchy and the flatter categories required by an end-user interface. The design choices follow established principles of data integration, semantic modeling, and information extraction, directly addressing the semantic gap identified in the problem statement~\cite{doan2012principles, shvaiko2013ontology, sarawagi2008information}.
