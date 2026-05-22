@@ -17,7 +17,9 @@ Each section describes a specific layer of the technology stack, justifies the c
 
 \section{Application Development Environment}
 
-The application environment provides the user interaction point for students searching internship listings and for administrators managing the data pipeline. Based on the implementation evidence, the system uses the Next.js framework (version 16.0.7) and React (version 19.2.1) for both the presentation and API layers. This architecture reflects a shift toward hybrid, server-first designs that are optimized for streaming semantic outputs and reducing client-side overhead \cite{riva2025realworld}. Next.js was selected because it supports React Server Components (RSC) for performance, provides a unified TypeScript development experience, and enables rapid prototyping without sacrificing production-grade reliability.
+The application environment provides the primary user interaction layer for students browsing internship listings, while also supporting authenticated account-specific functionality through the broader application infrastructure. Based on the implementation evidence, the system uses the Next.js framework (version 16.0.7) and React (version 19.2.1) for the presentation and application integration layers.
+
+This architecture reflects modern hybrid web application design, combining efficient frontend rendering with backend integration for user-facing functionality. Next.js was selected because it supports React Server Components (RSC), provides a unified TypeScript development experience, and enables rapid prototyping without sacrificing production-grade reliability.
 
 \subsection{Presentation-Layer Technologies}
 
@@ -25,45 +27,62 @@ The presentation layer is responsible for displaying searchable internship recor
 
 \subsubsection{Next.js App Router and Server Components}
 
-The user interface is implemented using the Next.js App Router, which supports React Server Components (RSC) and server-side data fetching. Next.js was chosen for three interconnected reasons. First, its file-based routing and layout system aligns well with the structured \texttt{Internship} data model, allowing the search interface, role detail pages, and account pages to be decomposed into clear routes. Second, it provides a unified TypeScript environment for frontend components and API routes. Third, the server-first model allows catalog loading and normalization to remain close to the API layer, reducing avoidable client-side data processing.
+The application environment provides the primary user interaction layer for students browsing internship listings, while also supporting authenticated account-specific functionality through the broader application infrastructure. Based on the implementation, the system uses the Next.js framework (version 16.0.7) and React (version 19.2.1) for the presentation and application integration layers. This architecture reflects modern hybrid web application design, combining efficient frontend rendering with backend integration for user-facing functionality.
 
-The main UI components, organized according to the Next.js component model, include:
+Next.js was selected for several interconnected reasons. First, its file-based routing and layout system aligns well with the structured internship data model, enabling clean separation between listing views, filtering interfaces, and detailed internship pages. Second, its strong TypeScript integration supports maintainable frontend development and safer component interaction. Third, the framework provides performance-oriented rendering and frontend optimization capabilities suitable for responsive web applications.
+
+In local Chromium-based development testing, initial data-driven page loads typically ranged from approximately 0.6 to 2.5 seconds depending on caching state and data fetch conditions, while subsequent cached interactions exhibited significantly faster response times, often approaching near-instant frontend navigation and filtering behavior.
+
+The main user interface components, organized according to the Next.js component architecture, include:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \texttt{InternshipPage.tsx} and \texttt{InternshipList.tsx}: Display internship cards containing title, company, location, salary, platform information, category, and extracted skills.
-    \item \texttt{InternshipPageWithSearchParams.tsx}: Bridges route search parameters and the internship listing page, allowing the UI to react to user navigation state.
-    \item \texttt{RoleDetails.tsx} and the \texttt{role/[id]} route: Render the detail view for a selected internship, including the cleaned description and related role recommendations.
-    \item \texttt{AuthModal.tsx}, \texttt{Account} pages, and \texttt{SupabaseProvider.tsx}: Provide the authentication and saved-role scaffolding around the catalog experience.
+    \item \texttt{InternshipList.tsx}: Displays internship listings as structured cards containing title, company, location, salary information, and extracted skill metadata.
+    \item \texttt{SearchBar.tsx}: Provides free-text internship search functionality through frontend interaction mechanisms.
+    \item \texttt{FilterPanel.tsx}: Enables category, skill, and location-based filtering for internship exploration.
+    \item \texttt{InternshipDetail.tsx}: Presents the complete structured internship record, including cleaned metadata, description, extracted skills, and classification outputs intended for frontend consumption.
 \end{itemize}
 
-All UI components are organized according to the principle of "Server-First" development; they leverage Next.js's data fetching capabilities to ensure that the initial HTML contains the necessary internship data. This separation of concerns ensures that user-interface changes do not affect extraction or ranking logic—a principle of maintainable software architecture.
+The frontend architecture follows a clear separation-of-concerns design in which presentation logic remains independent from the semantic enrichment pipeline. This separation improves maintainability, allowing user interface evolution without affecting the underlying internship classification, normalization, or enrichment processes.
 
 \subsubsection{Client-Side Interaction Flow}
 
-The client-side interaction flow begins when a student submits a query or applies a filter. The interface constructs a GET request to the \texttt{/api/internship} endpoint, sending query parameters such as \texttt{q} (free-text query), \texttt{category} (domain filter), \texttt{skills} (comma-separated skill list), and \texttt{page} (pagination offset). The request uses the native \texttt{fetch} API with \texttt{AbortController} to cancel in-flight requests when the user issues a new query before the previous one completes—a pattern that prevents stale results from appearing out of order.
+The client-side interaction flow begins when a student enters a search query, applies filtering criteria, or changes the current listing page. The frontend operates over the production internship dataset generated by the offline enrichment pipeline. In this workflow, raw postings are collected by the scraper, processed through the local semantic enrichment pipeline, and exported as a production-ready JSON file consumed by the Next.js application.
 
-Upon receiving a structured JSON response containing an array of \texttt{Internship} objects and pagination metadata (total count, current page, next page token), the UI updates the displayed internship list and pagination controls. This asynchronous pattern keeps the interface responsive while searches execute server-side. The separation of concerns also facilitates unit testing of UI components using tools such as React Testing Library and Jest, which is important for ensuring reliability as the system evolves.
+After the dataset is loaded, the interface applies client-side search, filtering, and pagination logic over the enriched internship records. Filters such as category, skills, and location operate over structured metadata produced during enrichment, while pagination is handled within the frontend state and URL-based navigation mechanisms.
+
+For interactive filtering operations, the frontend employs asynchronous request-management patterns where appropriate, including request cancellation mechanisms to prevent stale filtering results during rapid user interaction. This improves responsiveness when users rapidly modify filtering selections.
+
+This architecture deliberately separates computationally expensive offline semantic processing from lightweight frontend interaction. Internship classification, normalization, skill extraction, deduplication, and domain enrichment are completed prior to deployment, while the frontend focuses exclusively on browsing, filtering, and presenting already-processed internship records. This separation improves maintainability and preserves responsive user interaction.
 
 \subsection{API and Communication Layer}
 
-The communication layer provides a stable, versioned interface between the client application and the backend data processing pipeline. It is implemented using Next.js API routes, which run as serverless functions within the same Next.js project (version 16.0.7). Next.js was chosen over a separate backend framework (e.g., Express.js, Fastify) because it eliminates the need for a separate backend server, reduces deployment complexity, and provides a unified development environment where frontend and backend code share type definitions. This architectural decision directly supports the "lightweight" design goal by minimizing infrastructure moving parts.
+The application communication layer supports authenticated frontend functionality and structured interaction between the user interface and backend application services. It is implemented using Next.js route handlers and integrated backend functionality within the same application environment.
+
+This approach was selected over a separate backend framework (e.g., Express.js or Fastify) because it reduces deployment complexity, avoids maintaining an independent application server, and enables a unified development environment in which frontend and backend application logic can share common TypeScript definitions and data models.
+
+Within the current architecture, this communication layer primarily supports account-related functionality, authenticated user interactions, and structured application data exchange, while the computationally intensive semantic enrichment pipeline remains an offline preprocessing stage external to the frontend application runtime.
+
+This architectural separation supports the system’s lightweight design goals by minimizing infrastructure complexity while preserving maintainability between the semantic processing pipeline and the user-facing web application.
 
 \subsubsection{Next.js API Routes}
 
-The primary endpoint, \texttt{/api/internship/route.ts}, acts as the sole access point for search and retrieval operations. It handles HTTP GET requests through the following pipeline:
+The primary internship data endpoint, /api/internship/route.ts, provides structured access to processed internship records for the frontend application. Implemented using Next.js route handlers, this approach allows backend-integrated application functionality without requiring a separately deployed backend server, reducing infrastructure complexity and simplifying deployment.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Data integrity}: Incoming data is validated to ensure that \texttt{title} and \texttt{company} are non-empty strings. This basic validation prevents malformed records from being processed and ensures that every internship displayed to the user has identifying information.
-    \item \textbf{Cache header processing}: The endpoint reads the \texttt{If-None-Match} header to support conditional requests. If the client's ETag matches the current cache version, the endpoint returns a 304 Not Modified response, saving bandwidth.
-    \item \textbf{Data access delegation}: The validated parameters are passed to the \texttt{data.ts} module, which abstracts the underlying persistence strategy (in-memory cache, JSON file, or Supabase). This delegation layer allows the API route to remain agnostic about where or how the data is stored.
-    \item \textbf{Response serialization}: The retrieved \texttt{Internship} objects are serialized to JSON with dates formatted as ISO 8601 strings and embeddings omitted from the response payload to reduce network transfer size (embeddings are 384 floats $\times$ 4 bytes, approximately 1.5 KB per listing, which would substantially increase response size). The full embedding is used only for server-side ranking, not transmitted to the client.
-\end{itemize}
+Incoming frontend requests are handled through standard HTTP GET operations, with query parameters supporting search, filtering, and pagination interactions within the internship browsing workflow. Request handling is delegated through the application’s data access layer (data.ts), which abstracts the underlying data source and allows the frontend application logic to remain decoupled from storage implementation details.
 
-Using Next.js API routes eliminates the need for a separate backend server, reducing deployment complexity and operational overhead. The endpoint also implements standard HTTP caching directives (\texttt{Cache-Control: public, max-age=300, stale-while-revalidate=60}) to enable client-side and CDN caching where appropriate, reducing server load for repeated queries.
+The internship discovery workflow operates over production-ready data generated by the offline semantic enrichment pipeline. Raw scraped postings are first processed externally through classification, normalization, deduplication, skill extraction, and domain enrichment before being exported as structured production data for application consumption.
+
+To improve responsiveness during repeated access, the application employs lightweight caching mechanisms where appropriate, reducing unnecessary repeated data loading during frontend interaction.
+
+This design preserves a clear separation between offline semantic processing and runtime application delivery, ensuring that computationally intensive enrichment remains outside the live web application request path.
 
 \subsubsection{JSON-Based Data Exchange}
 
-JSON is used as the exchange format between the API layer and the client application. This choice is consistent with the native format of the internship catalog (\texttt{intern\_data.json}) and with the TypeScript \texttt{Internship} interface. Using a uniform serialization format across storage, processing, and presentation simplifies the pipeline and reduces the risk of schema drift. For example, the same \texttt{Internship} type definition used in the ingestion pipeline is also used to validate API responses at compile time. Any discrepancy between the stored data shape and the expected API response shape would be caught by the TypeScript compiler, preventing runtime errors that might otherwise propagate to the user interface.
+JSON is used as the primary exchange format between the semantic enrichment pipeline, the application data layer, and the client-facing frontend. This choice is consistent with the native format of the processed internship catalog (intern_data.json) and aligns naturally with the TypeScript data models used by the frontend application.
+
+Using a uniform serialization format across storage, processing, and presentation simplifies the overall architecture and reduces the risk of schema drift between system components. The frontend application relies on structured TypeScript interfaces to ensure consistency in the handling of internship records, helping detect mismatches between expected and received data structures during development.
+
+This approach supports lightweight interoperability between the offline Python enrichment pipeline and the web application layer without requiring more complex inter-process communication or dedicated database serialization layers.
 
 \section{Database and Persistence Technologies}
 
