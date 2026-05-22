@@ -62,7 +62,7 @@ Raw data obtained from web scraping is inherently noisy and may contain inconsis
 \subsection{Data Enrichment and Categorization}
 Following sanitization, the system enriches the listing with derived metadata. These enrichment steps create the structured fields that power the faceted filtering and deduplication described in the system's functional requirements. While simple, these heuristic methods provide a high-utility baseline that eliminates the need for more complex processing in the majority of cases.
 
-\subsubsection{Stable Identifier Generation and Collision Handling}
+\subsection{Stable Identifier Generation and Collision Handling}
 To ensure persistent, unique referencing across multiple ingestion cycles and to enable effective duplicate detection, the generateId function creates a deterministic, URL-friendly slug. This process is foundational for the data curation strategy and works as follows:
 
 
@@ -75,10 +75,10 @@ To ensure persistent, unique referencing across multiple ingestion cycles and to
 \item Deterministic Blocking: This generated ID serves as a blocking key for record linkage~\cite{christen2012data}. In deduplication, if a newly ingested listing generates an ID that already exists in the catalog, it is a strong signal of duplication. Recent surveys of record linkage in medical and professional informatics confirm that deterministic rules remain a robust foundation for identifying matches in large-scale datasets where persistent identifiers are required~\cite{sariyar2026record}. The system can then append a suffix or apply a heuristic to select the canonical record based on completeness or source authority. Deterministic blocking is efficient because it limits pairwise comparisons to the small blocks where a collision occurs. This approach directly addresses the deduplication and canonicalization challenges described earlier and provides an explainable, low-cost strategy for maintaining a clean search index for the end user.
 
 \end{itemize}
-\subsubsection{Keyword-Based Categorization}
+\subsection{Keyword-Based Categorization}
 The \texttt{categorizeJob} function provides an immediate, high-level domain classification by applying keyword-anchored heuristics. This maps the normalized job title to categories such as Software, Data/AI, Design, Marketing, Healthcare, and Business. For instance, titles containing ``software,'' ``developer,'' or ``engineer'' are classified as Software, while titles containing ``data,'' ``analyst,'' ``ai,'' or ``scientist'' are classified as Data/AI. The evaluation proceeds in priority order from more specific technical anchors to the default Business category.
 
-\subsubsection{Skill Extraction}
+\subsection{Skill Extraction}
 The system's initial layer of skill extraction, implemented in the \texttt{extractSkills} function, uses a dictionary-based approach, also known as gazetteer matching. It matches descriptions against a case-insensitive list of common technical and professional skills, including \texttt{python}, \texttt{react}, \texttt{sql}, \texttt{aws}, \texttt{machine learning}, \texttt{figma}, and \texttt{communication}.
 
 
@@ -111,7 +111,7 @@ The semantic enrichment pipeline is the computational core of the system. It tra
 \subsection{Pipeline Architecture and Data Flow}
 The enrichment pipeline operates on a defined ``clean-enrich-structure'' sequence, a design pattern that ensures each processing stage receives data of progressively higher quality and semantic density. Data arriving from web scrapers or manual JSON uploads first undergoes sanitization to remove noise and normalize surface forms~\cite{chu2016data}. The cleaned text is then enriched with semantic tags, including normalized job titles, extracted skills, parsed salary ranges, and domain categories, using a cascade of deterministic heuristics ordered by computational cost and precision. Finally, the fully structured Internship object is stored in a server-side cache for rapid retrieval. This layered approach is consistent with production-grade IE systems that prioritize efficiency, maintainability, and predictable performance over the resource-intensive characteristics of end-to-end neural architectures~\cite{sarawagi2008information, schwartz2020green}.
 
-\subsubsection{Pipeline Orchestration}
+\subsection{Pipeline Orchestration}
 The enrichment process is orchestrated by a central enrichInternship procedure, which accepts a raw data object and returns a fully structured Internship entity. The orchestration follows a strict topological order, where each function's output serves as the input to subsequent stages. This linear, dependency-managed design simplifies debugging, facilitates unit testing of individual enrichment modules, and reduces the risk that errors in one stage will propagate unpredictably into downstream processes. Figure~\ref{fig:enrichment-lifecycle} illustrates the lifecycle of an individual item as it traverses the enrichment pipeline, from initial ingestion through each processing module to final storage in the structured cache. The diagram highlights the interaction between the main data loop and the specialized enrichment components, emphasizing the sequential dependency chain and the collision-checking mechanism in the identifier generation stage. The top-level enrichment algorithm is presented below.
 
 
@@ -138,13 +138,13 @@ end procedure
 \end{verbatim}
 \end{algorithmbox}
 
-\subsubsection{Design Principles and Trade-offs}
+\subsection{Design Principles and Trade-offs}
 The architecture embodies several key design principles that collectively define the system's operational characteristics. First, determinism over probabilism ensures that identical inputs always produce identical outputs, a property essential for debugging, auditing, and maintaining user trust. Second, locality of computation keeps all processing within the application's memory space, eliminating network latency and external service dependencies. Third, progressive refinement applies the cheapest, highest-precision methods first, reserving more expensive techniques for cases where simpler methods prove insufficient. These principles directly address the core tension identified in the problem statement: achieving semantic richness without the costs and latencies of LLM-dependent architectures.
 
 \subsection{Deterministic Attribute Normalization}
 Normalization ensures that data is consistent, comparable, and queryable regardless of the source platform's original formatting conventions~\cite{jurafsky2023speech}. The normalization layer addresses three distinct challenges: surface-form variance (e.g., inconsistent capitalization, punctuation, and whitespace), structural heterogeneity (e.g., different key names for the same concept across sources), and semantic equivalence (e.g., abbreviations and synonyms). Each normalization module is implemented as a pure function, accepting a potentially malformed string and returning a canonical representation.
 
-\subsubsection{Text Sanitization Primitives}
+\subsection{Text Sanitization Primitives}
 Before specialized normalization can occur, all text fields pass through a common sanitization pipeline. The sanitizeText function applies a sequence of transformations designed to eliminate noise while preserving semantic content:
 
 
@@ -161,7 +161,7 @@ Before specialized normalization can occur, all text fields pass through a commo
 \item Case Folding: Text is converted to lowercase, a standard IR preprocessing step that collapses case-based surface-form variance~\cite{jurafsky2023speech}. This common foundation ensures that all subsequent normalization modules operate on consistently preprocessed input, reducing the complexity of individual specialized functions.
 
 \end{itemize}
-\subsubsection{Stable Identifier Generation}
+\subsection{Stable Identifier Generation}
 To maintain referential integrity across ingestion cycles and enable efficient duplicate detection, the system implements a deterministic \texttt{generateId} function. Creating unique, persistent keys for record linkage is important for data quality in large-scale aggregators, where the same logical internship may appear across multiple sources or scrape cycles with minor textual variations. The identifier generation algorithm, shown in Listing~\ref{lst:stable-id}, operates in two phases. First, each string is transformed into a URL-safe form by lowercasing, stripping non-alphanumeric characters while preserving intra-word hyphens, replacing whitespace sequences with single hyphens, collapsing consecutive hyphens, and removing leading or trailing hyphens. Second, the normalized title and company strings are concatenated with a hyphen separator. When a collision is detected during processing, the pipeline appends a numeric suffix, such as \texttt{software-engineer-intern-acme-corp-1}. This strategy prevents distinct listings from being overwritten while maintaining the efficiency of deterministic blocking for common cases.
 
 
@@ -183,19 +183,19 @@ function generateId(title: string, company: string): string {
 }
 \end{lstlisting}
 
-\subsubsection{Regex-Based Salary Parsing}
+\subsection{Regex-Based Salary Parsing}
 Financial compensation data in internship listings presents a particularly challenging extraction problem. Salary information is often buried within narrative text and expressed in highly variable formats: hourly rates (``\$15-20/hr''), annual salaries (``\$70k-\$90k''), single values (``Up to \$50/hr''), or narrative forms (``competitive salary''). The current \texttt{cleanSalary} module addresses the most common numeric cases through regular expressions that detect dollar-prefixed ranges and single values. If no matching numeric pattern is found, the system returns \texttt{Salary not specified}. This conservative behavior avoids inventing compensation data, but it also means that narrative compensation statements, non-dollar currencies, and monthly or pro-rated amounts remain future extraction work.
 
-\subsubsection{Location Normalization}
+\subsection{Location Normalization}
 Geographic location information exhibits substantial surface-form variance across sources. The current \texttt{cleanLocation} function applies conservative normalization: it preserves the provided location when present and substitutes a clear placeholder when missing. More advanced abbreviation expansion, remote-work detection, and ISO country normalization are identified as future improvements.
 
 \subsection{Skill Extraction and Semantic Alignment}
 As established in the research objectives, the system must identify professional competencies from unstructured job descriptions without the overhead of heavy NLP models. The implemented skill extraction module uses lexicon-based matching as a practical first layer.
 
-\subsubsection{Lexicon Construction and Maintenance}
+\subsection{Lexicon Construction and Maintenance}
 The skill lexicon serves as the knowledge base for the extraction module. In the current prototype it is a compact, manually defined list of common skills and tools observed in internship descriptions. This keeps the implementation simple and inspectable. A future ESCO-aligned lexicon could expand this list with canonical labels, aliases, and maintenance rules based on unextracted n-grams in recent listings.
 
-\subsubsection{Matching Algorithm}
+\subsection{Matching Algorithm}
 The extractSkills function implements a case-insensitive, whole-word matching algorithm against the curated lexicon. The algorithm processes the job description text through the following stages:
 
 
@@ -210,7 +210,7 @@ The extractSkills function implements a case-insensitive, whole-word matching al
 \item Canonical Mapping: In the current implementation, each matched keyword is converted to a display label by capitalizing the first character. A future ESCO-aligned version should map each synonym to a canonical skill identifier so that filtering, search, and analytics operate on a consistent vocabulary.
 
 \end{itemize}
-\subsubsection{Ranking and Density Control}
+\subsection{Ranking and Density Control}
 A raw list of matched skills, while informative, does not distinguish between a job's core requirements and incidental mentions. A listing that mentions ``Python'' once in a list of 20 other technologies has a different skill profile than one that mentions ``Python'' extensively. To surface the most salient skills while avoiding ``keyword stuffing'' amplification, the system employs a density control mechanism inspired by TF-IDF principles but adapted for the skill extraction domain [17, 4]. The ranking algorithm assigns each extracted skill a composite score based on three factors:
 
 
@@ -226,10 +226,10 @@ A raw list of matched skills, while informative, does not distinguish between a 
 \subsection{Heuristic Role Categorization}
 The final enrichment step maps each internship to a high-level domain category, enabling the faceted filtering that is a core functional requirement of the system. The \texttt{categorizeJob} function evaluates the normalized job title against a hierarchy of professional anchors. This categorization provides immediate value for UI navigation even before more sophisticated semantic mapping is applied.
 
-\subsubsection{Category Taxonomy Design}
+\subsection{Category Taxonomy Design}
 The category taxonomy defines five mutually exclusive, collectively exhaustive top-level domains: Software, Data/AI, Design, Healthcare, and Business. This design reflects the empirical distribution of internships in the corpus and is intentionally flat, using a shallow taxonomy optimized for user navigation rather than an exhaustive ontological hierarchy. Each category is associated with a set of anchor terms that serve as high-precision signals for membership.
 
-\subsubsection{Priority-Ordered Classification}
+\subsection{Priority-Ordered Classification}
 The classification algorithm includes several design features intended to enhance robustness. Anchor terms are defined as substrings rather than requiring exact token matches, capturing morphological variations; for example, ``designer'' matches both ``Designer'' and ``Designing.'' The normalization step applies the same sanitization pipeline described earlier, ensuring consistent matching regardless of source formatting. The default fallback to ``Business'' reflects the empirical observation that many unclassifiable listings in the corpus fall within professional-services domains. This categorization supports the discovery mechanisms discussed in retrieval theory by providing a stable and predictable taxonomy browser [2, 11].
 
 
@@ -255,16 +255,16 @@ end procedure
 \subsection{Caching and Performance Considerations}
 To translate the theoretical efficiency of individual enrichment modules into practical, low-latency system performance, the results of the enrichment pipeline are stored in a server-side in-memory cache. This caching strategy is the single most impactful performance optimization in the system, fundamentally shaping its operational profile and cost characteristics.
 
-\subsubsection{Cache Architecture}
+\subsection{Cache Architecture}
 The cache is implemented as a server-side Map<string, Internship> structure, keyed by the stable identifier generated in the relevant section. The data.ts module serves as the sole access interface, implementing a read-through caching pattern: on a cache miss, the module reads the raw data from the static JSON catalog, executes the full enrichment pipeline, stores the result in the cache, and returns the enriched object. Subsequent requests for the same identifier are served directly from memory.
 
-\subsubsection{Amortized Cost Model}
+\subsection{Amortized Cost Model}
 This architecture embodies an amortized cost model that is central to the system's lightweight operational philosophy. The computational cost of the enrichment pipeline, including file I/O, text sanitization, regex processing, skill extraction, and categorization, is paid once per data refresh cycle. This one-time cost is then amortized over read requests from the API layer. The cost model contrasts with architectures that perform semantic analysis at query time, where each user request incurs the full computational burden [7, 37].
 
-\subsubsection{Cache Invalidation Strategy}
+\subsection{Cache Invalidation Strategy}
 Cache invalidation is tied directly to the data refresh cycle. When new scrape data is ingested or the enrichment logic is updated, the cache is cleared and repopulated lazily on subsequent requests. This strategy eliminates the complexity of partial invalidation while ensuring that users always receive data processed by the most recent pipeline version. For production deployments with continuous ingestion, a time-to-live (TTL) mechanism can be layered on top, automatically refreshing cached entries after a configurable interval to accommodate incremental data updates.
 
-\subsubsection{Performance Targets}
+\subsection{Performance Targets}
 With the caching layer in place, the system is designed to support low-latency read requests, a requirement for modern interactive search systems. This implementation aligns with the server-first patterns of Next.js, where server-side caching reduces client-side overhead and improves perceived performance~\cite{riva2025realworld}. This performance profile is intended to run on commodity hardware without specialized infrastructure, directly addressing the lightweight design goal articulated in the problem statement. The contrast with LLM-dependent architectures is instructive: a single LLM API call for semantic enrichment can introduce substantial latency and per-request financial cost, making caching-amortized local processing an important architectural mechanism for sustainable operation at scale.
 
 \subsection{Summary}
@@ -277,7 +277,7 @@ This chapter describes the data persistence and retrieval mechanisms that suppor
 \subsection{Hybrid Data Storage Architecture}
 The system adopts a hybrid approach to data management, balancing the high-speed read requirements of a static catalog with the transactional persistence needed for user-specific features.
 
-\subsubsection{Static Catalog and Data Normalization}
+\subsection{Static Catalog and Data Normalization}
 The primary repository for internship listings is a large-scale \texttt{intern\_data.json} file. To ensure data integrity, the system implements a robust ingestion pipeline:
 
 
@@ -290,13 +290,13 @@ The primary repository for internship listings is a large-scale \texttt{intern\_
 \item Type Safety: Ingested objects are transformed into a formal semantic schema~\cite{sarawagi2008information}.
 
 \end{itemize}
-\subsubsection{Relational Persistence (Supabase)}
+\subsection{Relational Persistence (Supabase)}
 For authentication and dynamic user state, the system utilizes Supabase, a backend leveraging PostgreSQL. This relational foundation provides the necessary transactional support for features like user authentication, bookmarks, and saved roles, adhering to the principles of reliable data systems.
 
 \subsection{Indexing and Metadata Enrichment}
 Beyond simple storage, the system enriches the data to facilitate efficient discovery through category labels, skill tags, and stable identifiers. High-dimensional semantic search remains an extension of this foundation.
 
-\subsubsection{Heuristic Categorization}
+\subsection{Heuristic Categorization}
 As the source data is often unstructured, the system performs real-time metadata enrichment:
 
 
@@ -307,16 +307,16 @@ As the source data is often unstructured, the system performs real-time metadata
 \item Skill Extraction: Descriptions are parsed against a predefined taxonomy to create a tag-based index [17, 4].
 
 \end{itemize}
-\subsubsection{Performance Optimization}
+\subsection{Performance Optimization}
 To handle the overhead of repeated catalog access, the implementation uses in-memory caching for processed records. This avoids re-reading and re-processing the JSON catalog for every request.
 
 \subsection{Retrieval and API Design}
 The system's data access layer is exposed via REST endpoints, designed for resilience and scalability.
 
-\subsubsection{The Internship API}
+\subsection{The Internship API}
 The API serves as the unified data source, incorporating fail-safe logic to handle malformed input or missing catalog files.
 
-\subsubsection{Search and Similarity Foundations}
+\subsection{Search and Similarity Foundations}
 The architecture includes utilities for similarity search. While current filtering relies on category matches, the system is structured to support future vector-based recommendation engines by leveraging Approximate Nearest Neighbor (ANN) indexing techniques~\cite{johnson2019billion}.
 
 

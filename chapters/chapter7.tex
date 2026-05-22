@@ -9,37 +9,37 @@ This section interprets the prototype results presented in Chapter 6, examining 
 \subsection{Error Analysis}
 Although the prototype demonstrates the feasibility of lightweight ingestion and structuring, qualitative error analysis remains essential for understanding the fundamental challenges of processing semi-structured job advertisement data \cite{sarawagi2008information, tamburri2020data}. This subsection examines the principal failure modes observed in the prototype and the failure modes expected in the planned semantic retrieval extension.
 
-\subsubsection{Extraction Failures and Implicit Information}
+\subsection{Extraction Failures and Implicit Information}
 The lower recall observed for lexical skill extraction (F1 = 0.71) highlights a persistent challenge: many job postings omit foundational skills that are implicitly assumed for a role. For example, a posting for a ``Senior Data Scientist'' may list ``model deployment experience'' without explicitly mentioning ``AWS,'' ``Docker,'' or ``CI/CD pipelines,'' even though these competencies are practically required. This phenomenon—where requirements are latent rather than explicitly enumerated—represents a known limitation in recruitment informatics \cite{giabelli2021skills, qin2018enhancing}. Recent research on implicit skill inference suggests that bridging this gap requires moving beyond surface-form matching toward Knowledge Graph (KG) based reasoning, where skills are predicted based on their proximity to occupational trajectories \cite{jobedkg2024}. Newer LLM-driven mechanisms, such as ESCOX, demonstrate the potential for extracting deeply embedded taxonomic concepts from unstructured text, though they incur the computational overhead discussed later \cite{escox2025}.
 
 The salary extraction results reveal a related limitation. The rule-based parser handles common dollar-prefixed numeric patterns but leaves other compensation formats unresolved. Manual inspection suggests three recurrent failure cases. First, some postings express compensation as monthly rates or pro-rated annual figures, which require conversion logic not implemented in the current regex system. Second, narrative forms such as ``competitive salary plus performance bonus'' or ``compensation commensurate with experience'' contain no numeric signal for extraction. Third, some postings place salary information in structured metadata fields that may not be preserved during scraping.
 
 In date extraction, errors primarily occurred in postings using relative temporal expressions such as “posted 2 weeks ago” or “apply by next quarter.” The regex-based Layer A successfully handled absolute dates (e.g., “2025-06-01”) and common formats (“June 1, 2025”), but failed to normalize relative expressions into precise temporal ranges. This is a well-documented limitation of rule-based extraction systems when faced with high linguistic variability \cite{grishman2015information}, and it suggests that semantic parsing or temporal reasoning components would be necessary for full coverage.
 
-\subsubsection{Ambiguity in Semantic Mapping}
+\subsection{Ambiguity in Semantic Mapping}
 The planned ESCO title-normalization task reveals the impact of professional ambiguity in job labeling. Generic titles such as ``Consultant,'' ``Analyst,'' or ``Specialist'' lack sufficient semantic density for a transformer bi-encoder to disambiguate without analyzing the full description context. For example, ``Research Intern'' could legitimately map to academic research, market research, or clinical research depending on the employer and industry sector. The current prototype does not yet compute ESCO Top-k predictions, so this ambiguity should be treated as a design concern and future evaluation target.
 
 This challenge---entity resolution in the presence of semantic ambiguity---is central to modern taxonomy alignment research \cite{zhang2022survey, sayfullina2018learning}. The implication for the proposed system is that downstream applications should consider using multiple candidate labels rather than relying exclusively on the highest-confidence prediction. Alternatively, integrating contextual signals from the full job description could improve Top-1 accuracy, though this would increase computational cost.
 
 Potential ESCO mapping failures warrant particular attention. Some would involve genuinely ambiguous titles with legitimate multiple interpretations, where even human annotators may disagree on the appropriate mapping. Others would involve highly idiosyncratic or emerging role titles, such as ``Prompt Engineer,'' ``Growth Hacker,'' or ``DevOps Evangelist,'' for which the local taxonomy may lack sufficient representation. These cases highlight an important limitation of embedding-based mapping: models cannot reliably generalize to novel concepts that are semantically distant from the labeled reference set. For such cases, the reserved LLM fallback or periodic lexicon updates are necessary.
 
-\subsubsection{Retrieval Failures and Query-Level Analysis}
+\subsection{Retrieval Failures and Query-Level Analysis}
 The retrieval evaluation framework suggests several likely failure cases for the future hybrid system. Queries with highly niche technical requirements, such as ``RISC-V architecture internship'' or ``quantum computing research intern,'' may fail when the corpus contains only adjacent terminology. Geographic constraints such as ``remote internship based in Germany'' may also fail if location normalization preserves city names but does not infer country-level labels. These cases suggest that improving geographic entity resolution and expanding coverage for niche technical domains would be valuable directions for future work.
 
 \subsection{Trade-offs: Accuracy versus Computational Cost}
 The design of the tiered architecture was explicitly motivated by the need to balance semantic performance with operational feasibility, aligning with broader principles of Green AI and efficient deep learning \cite{schwartz2020green, menghani2023efficient}. The prototype results and planned comparisons clarify the specific trade-offs involved.
 
-\subsubsection{Marginal Accuracy Gains at Substantial Cost}
+\subsection{Marginal Accuracy Gains at Substantial Cost}
 The comparison between the proposed hybrid system and an LLM-only baseline remains a necessary future experiment. The expected pattern is clear: an LLM may improve difficult edge cases, but it will introduce external dependency, network latency, and recurring cost. The proposed system is designed to amortize enrichment cost over many queries through local processing, cached records, and eventually pre-computed embeddings, whereas an LLM-only approach risks requiring synchronous API calls for listings or queries.
 
 This expectation is consistent with recent research on the diminishing returns of very large language models for structured extraction tasks \cite{hsieh2023distilling, menghani2023efficient}. For many production applications, the marginal accuracy gain from upgrading from a lightweight local model to a state-of-the-art LLM may not justify the increase in latency, cost, and operational complexity. At the same time, a pure rule-based system leaves recall gaps for implicit skills, ambiguous titles, and non-standard wording. Thus, the expected optimal point lies in the middle: deterministic processing for common cases, lightweight transformer models for semantic ambiguity, and LLM fallback only where it is justified.
 
-\subsubsection{Latency as a User Experience Constraint}
+\subsection{Latency as a User Experience Constraint}
 The implemented system is designed to support a responsive user interface by caching processed records and avoiding external model calls in the request path. Research on interactive information retrieval suggests that users perceive latency below 100 ms as instantaneous and that delays exceeding 1 second significantly degrade user experience and engagement \cite{buttcher2016information}. Precise p50 and p99 latency figures should be reported from production-mode benchmark runs.
 
 An LLM-only baseline with latencies exceeding 1 second for simple queries would likely be unacceptable for a consumer-facing internship search application. This constraint is not merely a matter of engineering optimization but reflects fundamental architectural differences. The proposed system's target query-time operations are local: lexical lookup, optional vector comparison over pre-computed embeddings, RRF fusion, and JSON serialization. In contrast, an LLM-based system risks adding a remote inference call to every user interaction.
 
-\subsubsection{The Role of Tiered Processing in Cost Control}
+\subsection{The Role of Tiered Processing in Cost Control}
 The current prototype implements Layer A, and the design goal is for this deterministic layer to handle the majority of routine extraction tasks. Once Layers B and C are implemented, utilization analysis should report how often records are escalated beyond rules. This distribution will be important evidence for the tiered design principle: cheap, fast methods should address ordinary cases, reserving expensive computation for where it provides marginal benefit.
 
 This ``adaptive inference'' strategy is increasingly recognized as a pillar of Green AI, as it prevents expensive processing on straightforward tasks. By using local processing for the vast majority of listings and selectively triggering an LLM for high-complexity cases, the system is designed to approach a favorable point on the accuracy-cost Pareto frontier.
@@ -47,26 +47,26 @@ This ``adaptive inference'' strategy is increasingly recognized as a pillar of G
 \subsection{Threats to Validity}
 Several factors may affect the generalizability, robustness, and interpretation of the reported findings. Following standard methodology for empirical IR and NLP research \cite{manning2008introduction, thakur2021beir}, these threats are categorized into internal, external, and construct validity.
 
-\subsubsection{Internal Validity: Annotation Bias and Ground Truth Reliability}
+\subsection{Internal Validity: Annotation Bias and Ground Truth Reliability}
 The planned evaluation relies on expert annotations and 30 queries with graded relevance judgments. Until the full annotation pass is completed, subjectivity in labeling remains a potential threat. For ambiguous job titles such as ``Data Analyst,'' the appropriate ESCO occupation may differ depending on whether the analyst works in marketing, finance, or product analytics. The annotation guidelines should resolve such ambiguity by requiring annotators to read the full job description, but some residual subjectivity is unavoidable.
 
 Furthermore, the ground truth was constructed by domain experts (the author and thesis supervisor) rather than by end-users (students seeking internships). Relevance judgments derived from expert assessors may not perfectly align with the preferences of actual job seekers. For instance, experts may weight skill match more heavily than company reputation or geographic convenience, whereas real users might exhibit different preferences. This limitation is common in IR evaluation, and the use of standardized metrics (NDCG, MAP) and explicit annotation protocols mitigates but does not eliminate the threat.
 
-\subsubsection{External Validity: Dataset and Domain Generalizability}
+\subsection{External Validity: Dataset and Domain Generalizability}
 The primary dataset used for evaluation comprises 327 internship listings collected primarily from North American and European sources, with a focus on technology, business, and healthcare sectors. The extent to which the reported results generalize to other domains, geographic regions, or linguistic contexts remains an open question.
 
 Several factors may limit generalizability. First, the lexical and semantic characteristics of job postings vary across industries. Creative roles (e.g., “multimedia designer”) may use more idiosyncratic terminology than technical roles, potentially reducing the effectiveness of the skill lexicon. Second, the ESCO taxonomy, while comprehensive for European labor markets, may not align perfectly with occupational structures in other regions. Third, the system's current English-only focus means that its performance on non-English listings is untested. Expanding to multilingual extraction would require significant modifications, including cross-lingual embeddings or translation pipelines.
 
 Additionally, the dataset was collected during a specific six-month window. Labor market dynamics, including the emergence of new job roles (e.g., “AI prompt engineer”) and the obsolescence of others, mean that the system's performance may degrade over time without periodic lexicon and model updates. The proposed periodic maintenance process (discussed in Section 5.3.3) is designed to address this threat, but its effectiveness has not been empirically evaluated.
 
-\subsubsection{Construct Validity: Metric Appropriateness}
+\subsection{Construct Validity: Metric Appropriateness}
 The study uses standard IR metrics including Precision at $k$, Recall at $k$, MAP, MRR, and NDCG. These metrics are widely accepted in the research community and enable comparison with prior work. However, they may not fully capture the aspects of retrieval quality that matter most to end-users in a job search context.
 
 For example, NDCG assumes that users derive utility from each relevant document in proportion to its relevance grade, and that utility is logarithmically discounted by rank. While this model approximates user behavior in many settings, job search may have distinctive characteristics. A student who finds one highly relevant internship may stop searching entirely, making recall beyond the first relevant document unimportant. Alternatively, a student may need to compare multiple options, making diversity of results (not captured by NDCG) critical. Furthermore, factors such as posting freshness (a stale listing may no longer accept applications), company reputation, and geographic proximity are not represented in the current relevance model.
 
 These limitations do not invalidate the reported results, but they suggest that future work should complement offline metric-based evaluation with user studies or A/B testing in a production environment.
 
-\subsubsection{Reliability: Experimental Reproducibility}
+\subsection{Reliability: Experimental Reproducibility}
 To support reproducibility, Chapter 6 documents the hardware configuration, software stack, and working dataset. However, certain factors may affect replication. The specific composition of the 327-listing dataset, including exact source distributions and collection dates, may be constrained by source-platform terms. Alternative researchers would need to collect their own data, which may differ in distributional characteristics. Once Layer B and the LLM-only baseline are implemented, model versions, prompts, and embedding settings should be recorded precisely.
 
 \section{Ethical, Legal, and Privacy Considerations}
@@ -109,28 +109,28 @@ The empirical results reported in Chapter 6 provide support for the four researc
 \subsection{Future Directions}
 While the current system provides a solid foundation for internship analytics and semantic search, several limitations identified in the evaluation point toward concrete directions for future research and development.
 
-\subsubsection{Multilingual and Cross-lingual Extraction}
+\subsection{Multilingual and Cross-lingual Extraction}
 A primary limitation of the current implementation is its exclusive focus on English-language listings. Expanding the pipeline to support multilingual extraction would be essential for a truly global internship platform. Recent advances in cross-lingual dense retrieval, such as the Translate-Distill framework (2024), suggest that monolingual teachers can guide cross-lingual dual-encoder students to achieve high semantic relevance in low-resource target languages without requiring large parallel corpora \cite{translatedistill2024}. Applying such techniques to the ESCO taxonomy would enable zero-shot transfer of skill extraction capabilities across European languages.
 
-\subsubsection{Contextual Skill Weighting and Section Segmentation}
+\subsection{Contextual Skill Weighting and Section Segmentation}
 The current skill extraction module treats all mentions of a skill equally, regardless of where they appear in the job description. However, skills listed in a “Required Qualifications” section are substantially more important than skills mentioned only in “Nice to Have” or “About the Company” boilerplate. Similarly, skills mentioned multiple times or in proximity to other strong signals may indicate higher importance.
 
 Future work could employ specialized sequence labeling models or compact transformer variants to segment job postings into functional sections: “Responsibilities,” “Requirements,” “Preferred Qualifications,” “Benefits,” and “Company Description” \cite{qin2018enhancing, bhola2020retrieving}. Section labels would then inform skill weighting (e.g., skills in “Requirements” count more than those in “Company Description”). More sophisticated approaches could use attention mechanisms to learn section importance from user interaction data.
 
-\subsubsection{Self-training and Knowledge Distillation}
+\subsection{Self-training and Knowledge Distillation}
 A future LLM-only comparison may show higher accuracy on difficult edge cases, but likely at higher cost. This suggests an opportunity for self-training or knowledge distillation: using the LLM to generate high-confidence labels and rationales for a larger unlabeled corpus. Recent work at NeurIPS (2024) demonstrates that incorporating these rationales into the distillation process allows small student models to achieve near-LLM performance with significantly less synthetic data \cite{rationale2024}. Distilling the extraction logic of a teacher LLM into the lightweight all-MiniLM-L6-v2 transformer layer could close part of the remaining accuracy gap while preserving the efficiency advantages of local inference.
 
-\subsubsection{Continuous Monitoring for Taxonomy Drift}
+\subsection{Continuous Monitoring for Taxonomy Drift}
 The technical and professional landscape is in constant flux. New programming frameworks, cloud platforms, and job roles emerge regularly, while others become obsolete. The ESCO taxonomy itself is updated only periodically (approximately every 2–3 years), creating a risk of mismatch between the system's semantic schema and the actual language used in current job postings.
 
 To address this challenge, future work should implement automated drift detection that monitors the frequency of unextracted or out-of-vocabulary n-grams in recent listings \cite{shvaiko2013ontology, staab2009handbook}. When a new term (e.g., “LangChain” or “RAG”) appears with increasing frequency, the system could flag it for human review and potential addition to the skill lexicon. More ambitiously, unsupervised or semi-supervised methods could learn new skill embeddings from corpus statistics and propose additions to the taxonomy.
 
-\subsubsection{User Interaction and Feedback Integration}
+\subsection{User Interaction and Feedback Integration}
 The current evaluation relies on offline metrics and expert-annotated relevance judgments. While this approach provides controlled, reproducible measurements, it cannot fully capture how real users would interact with the system or whether the structured outputs improve actual internship discovery outcomes.
 
 Future work should deploy the system as a working prototype with real student users and collect interaction data: search queries, clicks, bookmarking behavior, and explicit relevance feedback. This data would enable several improvements. First, click models could be used to infer relevance judgments implicitly, creating a large-scale training signal for re-ranking models. Second, A/B testing could compare the hybrid retrieval strategy against baselines in terms of user engagement metrics (click-through rate, session length, successful applications). Third, collaborative filtering could supplement content-based retrieval by recommending internships that similar users have found valuable.
 
-\subsubsection{Completion of Comparative Evaluation}
+\subsection{Completion of Comparative Evaluation}
 As noted in the thesis structure, a complete comparative evaluation against external internship platforms (e.g., LinkedIn Jobs, Indeed, Handshake) remains as future work. Such a comparison would require:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]

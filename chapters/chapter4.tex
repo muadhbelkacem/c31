@@ -120,7 +120,7 @@ This chapter defines the internal data model and controlled vocabularies used to
 \subsection{Target Schema Definition}
 To achieve a unified and queryable view of labor-market data, the system requires a defined target schema. This schema must be expressive enough to accommodate the variability of raw source data, from semi-structured HTML to arbitrary keys in partner-provided JSON, while also providing the structured metadata required for hybrid retrieval. The schema is not only a passive data container; it is a formal contract that supports data consistency from ingestion to presentation, which is necessary in complex Information Extraction (IE) systems~\cite{sarawagi2008information}.
 
-\subsubsection{Structural Requirements}
+\subsection{Structural Requirements}
 The schema's design is directly motivated by three primary functional objectives, each of which addresses a key failure mode of ad-hoc data processing:
 
 
@@ -133,7 +133,7 @@ The schema's design is directly motivated by three primary functional objectives
 \item Semantic Enrichment for Non-Lexical Search: To bridge the vocabulary gap between user queries and employer terminology, the schema is designed so that it can later store outputs of a semantic pipeline, including dense vector embeddings and canonical job-title mappings. These fields would provide the basis for semantic vector-based search, enabling the system to match a query such as ``C++ Intern'' with a listing titled ``Systems Software Trainee''~\cite{reimers2019sentence, lin2021pretrained}.
 
 \end{itemize}
-\subsubsection{The Internship Interface: A Formal Semantic Contract}
+\subsection{The Internship Interface: A Formal Semantic Contract}
 The abstract structural requirements are implemented as a TypeScript interface, serving as the foundational blueprint for both the relational database and the frontend presentation layer. This formalization in a strongly typed language enforces compile-time and runtime data integrity. By defining a canonical Internship type, each module, from the regex-based salary parser to the React search result card, operates on a shared and unambiguous definition of the data entity. Deviations from this contract, such as a missing field or incorrect type, raise errors during development or testing and reduce the risk of data corruption propagating through the pipeline. This practice is a cornerstone of robust and maintainable IE pipelines~\cite{sarawagi2008information}. The key fields of the Internship interface are structured as follows:
 
 
@@ -168,16 +168,16 @@ interface Internship {
 \subsection{Taxonomy Selection: The ESCO Framework}
 A central goal of this research is to map idiosyncratic and non-standard job titles from many employers to a standardized professional taxonomy. This mapping is the primary mechanism for resolving the semantic gap. After reviewing available frameworks, including O*NET~\cite{peterson2001occupational}, the thesis selects the ESCO (European Skills, Competences, Qualifications and Occupations) framework as the primary label space for this system. This decision is based on three factors: its alignment with the European labor-market context, its multilingual coverage, and its formal separation of occupations and skills into distinct, interlinked pillars.
 
-\subsubsection{Occupations Pillar}
+\subsection{Occupations Pillar}
 ESCO organizes occupations into a four-level hierarchical structure. For this system, the Level 4 unit groups are the main focus. Level 3 groups, such as ``Software and Applications Developers and Analysts,'' are too broad for differentiating a front-end intern from a data engineering intern. Level 4 provides greater granularity, with distinct concepts such as ``Web Developer,'' ``Software Developer,'' and ``Systems Analyst.'' This level balances the specificity needed for retrieval with the generalizability required to map many raw titles into a manageable target space. This granularity allows the system to disambiguate roles that a coarser taxonomy would conflate. For instance, a ``Python Developer'' working on web applications, a ``Machine Learning Engineer'' building models, and a ``DevOps Engineer'' managing infrastructure might all be tagged as ``Software Developer'' at Level 2 or 3. At Level 4, however, they can be mapped to distinct unit groups, enabling more precise faceted filtering and improving retrieval precision. This approach is consistent with labor-market analysis frameworks such as O*NET's Standard Occupational Classification (SOC) coding, making the research comparable and interoperable with a wider body of work~\cite{peterson2001occupational}. The \texttt{category} field in the schema is designed to hold a broad professional label.
 
-\subsubsection{Skills and Competences Pillar}
+\subsection{Skills and Competences Pillar}
 The skill lexicon used in the extraction phase (detailed in the corresponding chapter) is grounded in the ESCO Skills pillar and is expanded with a curated set of common industry synonyms. ESCO's skill model is inherently linked to its occupations model, defining the essential and optional knowledge, skills, and competences for each job profile. By using ESCO as a reference, the system actively combats the ``vocabulary gap'' where different employers use divergent terms for the same competency. This ground-truth linking is a foundational step for a recommendation system that can accurately connect student skills to job requirements, a known challenge in recruitment informatics~\cite{giabelli2021skills, lacic2020recommender}. The lexicon is not static; it is designed to be periodically updated to incorporate emerging technologies (e.g., new JavaScript frameworks, AI/ML libraries) as they gain traction in the labor market. This maintenance process is essential for building and sustaining a reliable, long-term knowledge base.
 
 \subsection{Internal Categorization and Mapping}
 While ESCO provides the granular canonical depth required for semantic precision, it is not directly suitable for the top-level user interface. A student browsing for an internship is unlikely to search for ``ESCO Occupation 2512,'' and a hierarchical tree of hundreds of four-level occupations is unsuitable for exploratory browsing. Therefore, the system introduces a supplementary internal categorization layer: a flatter set of high-level categories designed to facilitate initial browsing and provide a stable foundation for faceted filtering~\cite{faliagka2012online}.
 
-\subsubsection{Domain-Specific Categories}
+\subsection{Domain-Specific Categories}
 The system defines five top-level categories that reflect the distribution and concentration of the current internship dataset, particularly within the technology and business sectors. These categories are designed to be mutually exclusive, collectively exhaustive for the target domain, and understandable to a student user.
 
 
@@ -230,7 +230,7 @@ The evaluation is designed to examine both output quality and operational charac
 \subsection{Ground Truth Construction}
 A reliable and representative reference evaluation set is necessary for credible assessment. It serves as the reference point against which system outputs are measured, enabling the computation of accuracy and retrieval metrics. The construction process, detailed below, was designed to mitigate bias, support domain representativeness, and provide a benchmark for both structured extraction and semantic tasks~\cite{buttcher2016information, christen2012data}.
 
-\subsubsection{Dataset Composition and Sampling Strategy}
+\subsection{Dataset Composition and Sampling Strategy}
 The evaluation set comprises the 327 internship listings available in the working catalog. This size is modest, but it is sufficient for a prototype-level evaluation of data normalization, category coverage, and retrieval behavior.
 
 
@@ -241,7 +241,7 @@ The evaluation set comprises the 327 internship listings available in the workin
 \item Heterogeneous JSON Sources: Additional JSON outputs from scraping simulations are used to inspect schema variation, non-standard keys, nested structures, and inconsistent data types. This material stress-tests the ingestion pipeline's robustness to schema-less data, also known as the ``schema-on-read'' challenge~\cite{abiteboul1997querying, doan2012principles}.
 
 \end{itemize}
-\subsubsection{Annotation Process and Schema}
+\subsection{Annotation Process and Schema}
 The annotation protocol is designed for manual review of the 327-listing catalog. The task is defined by a codebook, excerpted in Appendix A, and mapped directly to the Internship target schema defined in the methodology chapter. For each listing, annotators are asked to:
 
 
@@ -256,7 +256,7 @@ The annotation protocol is designed for manual review of the 327-listing catalog
 \item Query-Relevance Judgments: To prepare the IR benchmark, annotators created a diverse pool of 30 information needs (see the relevant section) and provided relevance judgments on a 4-point graded scale (Irrelevant, Marginally Relevant, Relevant, Highly Relevant) for a subset of queries.
 
 \end{itemize}
-\subsubsection{Inter-Annotator Agreement and Adjudication}
+\subsection{Inter-Annotator Agreement and Adjudication}
 To ensure the reliability and reproducibility of the ground truth, inter-annotator agreement (IAA) was measured using both Cohen's Kappa for categorical tasks (title normalization) and Krippendorff's Alpha for the interval-scale relevance judgments~\cite{jurafsky2023speech}. A pilot annotation round was conducted on 50 items. Disagreements were analyzed, and the codebook was refined in an iterative process. In the final annotation phase, a dual-annotation pass was performed on the entire 500-item set. The resulting IAA scores were:
 
 
@@ -267,7 +267,7 @@ To ensure the reliability and reproducibility of the ground truth, inter-annotat
 \item Relevance Judgments (NDCG): Krippendorff's Alpha = 0.78, indicating substantial agreement. All cases of disagreement were resolved through a synchronous adjudication session involving both annotators and the thesis supervisor, establishing a single reference label for every field and query-document pair.
 
 \end{itemize}
-\subsubsection{Query Pool for Retrieval Evaluation}
+\subsection{Query Pool for Retrieval Evaluation}
 A set of 30 distinct search queries was formulated to simulate real student information needs, designed to test the distinct capabilities of lexical and semantic search. The queries fall into three categories:
 
 
@@ -283,7 +283,7 @@ A set of 30 distinct search queries was formulated to simulate real student info
 \subsection{Metrics}
 The evaluation uses a multi-faceted set of established metrics to quantify different performance aspects and avoid dependence on a single numerical score~\cite{manning2008introduction, jurafsky2023speech, li2020survey}.
 
-\subsubsection{Extraction and Classification Accuracy}
+\subsection{Extraction and Classification Accuracy}
 For atomic field-level extraction (RQ1) and categorical mapping (RQ2), where the output is a predicted value or label, the study uses standard classification metrics under an exact-match criterion unless otherwise noted:
 
 
@@ -296,7 +296,7 @@ For atomic field-level extraction (RQ1) and categorical mapping (RQ2), where the
 \item Top-k Accuracy: The primary metric for evaluating the title normalization model (RQ2). The study reports Top-1 exact-match accuracy and Top-3 accuracy. Top-3 reflects whether the correct ESCO occupation is within the model's top three predictions, which is relevant for a system that may use top candidates for query expansion or filtering facets~\cite{menghani2023efficient}.
 
 \end{itemize}
-\subsubsection{Information Retrieval Quality}
+\subsection{Information Retrieval Quality}
 For the end-to-end search evaluation (RQ3), the study uses metrics that assess ranked lists of results, accounting for the position of relevant documents and graded relevance levels~\cite{baeza2011modern, buttcher2016information}:
 
 
@@ -313,7 +313,7 @@ For the end-to-end search evaluation (RQ3), the study uses metrics that assess r
 \item Normalized Discounted Cumulative Gain (NDCG at $k$): This metric accounts for multi-level graded relevance judgments. By discounting the gain of a document logarithmically by its rank, NDCG rewards systems that place highly relevant documents in the highest positions. The study reports NDCG at 10.
 
 \end{itemize}
-\subsubsection{System Efficiency and Cost}
+\subsection{System Efficiency and Cost}
 For evaluating the system's operational profile (RQ4), the study defines concrete efficiency metrics aligned with calls for more pragmatic and Green NLP evaluation [46, 37]:
 
 
@@ -331,7 +331,7 @@ For evaluating the system's operational profile (RQ4), the study defines concret
 \subsection{Experimental Configuration}
 To attribute performance differences to specific system components, the evaluation uses a comparative methodology involving defined baselines and model ablation studies. This design is standard practice in modern IR research for isolating the contribution of each component in a complex pipeline~\cite{thakur2021beir, luan2021sparse}.
 
-\subsubsection{Baselines and Ablation Study}
+\subsection{Baselines and Ablation Study}
 The evaluation compares the following configurations, which represent progressive increases in system complexity and semantic capability:
 
 
@@ -348,10 +348,10 @@ The evaluation compares the following configurations, which represent progressiv
 \item Baseline 4: LLM-Only (Layer C): A simulated pipeline where a single GPT-3.5-turbo API call, guided by a zero-shot Chain-of-Thought prompt, replaces the entire enrichment pipeline for each listing. This system is used exclusively for the efficiency and cost comparison in RQ4. It serves as an upper bound on potential accuracy and a lower bound on cost-efficiency.
 
 \end{itemize}
-\subsubsection{Implementation Details and Hardware}
+\subsection{Implementation Details and Hardware}
 To ensure reproducibility and a fair efficiency comparison (RQ4), all experiments should be conducted on a single, controlled hardware environment: a workstation with an Intel Core i7-10750H CPU (6 cores, 12 threads), 16GB of RAM, and 715GB of total storage, with no dedicated GPU. This configuration embodies the ``commodity hardware'' constraint stated in the thesis objectives. Static file services and the Next.js API are run in production mode, and process metrics can be captured using the native Node.js process.memoryUsage() API and custom timing middleware for latency measurements. When the vector-search extension is implemented, the same hardware should be used for ANN index measurements~\cite{johnson2019billion}.
 
-\subsubsection{Trade-off Analysis: The Accuracy-Cost Pareto Frontier}
+\subsection{Trade-off Analysis: The Accuracy-Cost Pareto Frontier}
 A central contribution of this thesis is the investigation of the accuracy-cost trade-off. To visualize this relationship, the evaluation plots Top-1 accuracy for title normalization (RQ2) and MAP for retrieval (RQ3) for Baseline 2, Baseline 3, and the LLM-only Baseline 4 against their respective enrichment and query costs. A system in the upper-left quadrant of this Pareto plot, where accuracy is high and cost is low, represents a more favorable solution. This analysis is intended to determine whether a lightweight tiered pipeline can deliver usable semantic capability at lower cost, thereby motivating the architectural choices central to this thesis~\cite{hsieh2023distilling, menghani2023efficient}.
 
 
