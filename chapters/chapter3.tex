@@ -2,9 +2,18 @@
 
 \section{Chapter Introduction}
 
-This chapter documents the concrete technological environment and development tools employed to implement the internship aggregation prototype. Its purpose is twofold. First, it provides a reproducible account of the software stack, libraries, infrastructure components, and development practices that support the system. Second, it establishes a clear separation of concerns from the theoretical foundations presented in Chapter 2: whereas Chapter 2 explains the \textit{concepts} behind information extraction, taxonomies, and retrieval models, this chapter identifies the \textit{specific tools} used in the current implementation and the extension points reserved for later semantic retrieval work.
+This chapter documents the concrete technological environment and development tools used to implement the proposed internship aggregation and semantic enrichment system. Its purpose is twofold. First, it provides a reproducible account of the software stack, libraries, infrastructure components, and development practices that support the implementation. Second, it establishes a clear separation from the theoretical foundations presented in Chapter 2: whereas Chapter 2 explains the concepts behind information extraction, semantic classification, and data normalization, this chapter identifies the specific tools used to realize those concepts in working software.
 
-The chapter is organized into six main areas: (1) the application development environment (presentation and API layers), (2) database and persistence technologies, (3) data representation and type-safety tools, (4) rule-based natural language processing components, (5) indexing and retrieval design, and (6) the development, testing, and evaluation environment. Each section describes a specific layer of the technology stack, justifies the choice of tools relative to the system's lightweight and cost-aware design goals, and explains how the components interact.
+The chapter is organized into six main areas:
+\begin{enumerate}[label=(\arabic*), leftmargin=2.5em]
+    \item frontend application technologies.
+    \item data representation and storage mechanisms.
+    \item the local semantic processing and enrichment environment.
+    \item text processing and heuristic normalization tools.
+    \item development, testing, and evaluation tooling.
+    \item deployment considerations for automated data ingestion.
+\end{enumerate}
+Each section describes a specific layer of the technology stack, justifies the choice of tools relative to the system's lightweight and cost-aware design goals, and explains how the components interact.
 
 \section{Application Development Environment}
 
