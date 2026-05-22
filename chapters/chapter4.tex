@@ -24,38 +24,35 @@ The third stage, Layer C (Manual Review Flagging and Exception Handling), handle
 This layered methodology allows straightforward cases to be handled efficiently while reserving semantic inference for ambiguous records and preserving a controlled exception path for uncertain outcomes. The result is a hybrid architecture that maintains interpretability, computational practicality, and robustness when processing heterogeneous recruitment data.
 
 \subsection{Functional Requirements and Use Cases}
-The system is designed to serve two primary actors whose distinct needs shape the functional requirements and system scope, as illustrated in Figure~\ref{fig:usecase}. This approach aligns with standard practices in recruitment informatics and user-centered system design~\cite{faliagka2012online, boselli2018classifying}.
-
+The proposed system is designed around the functional requirements of its intended users and supporting system infrastructure, as illustrated in Figure 4.1. The use-case model defines the operational scope of the internship aggregation platform and captures the primary interactions between end users, authenticated users, and supporting backend services.
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item The Student/Job Seeker: This is the primary end-user, interacting with the system to discover relevant internship opportunities. Their core requirements are:
-
-\item Search and Discovery: The ability to browse and query structured internship records, with semantic query expansion identified as a planned enhancement for conceptual queries such as ``build mobile apps'' or ``data science with Python.''
-
-\item Faceted Filtering: The capacity to narrow down a large corpus of results by standardized categories such as job domain (e.g., ``Software,'' ``Data/AI''), location, and required skills.
-
-\item Low-Latency Retrieval: An interactive search experience with low response time, which is a critical parameter for modern user interfaces~\cite{buttcher2016information}.
-
-\item Clear Information Display: Access to a clean, structured view of each internship, with core attributes like salary, skills, and location clearly parsed and presented.
-
-\item The System Administrator/Data Engineer: This actor manages the backend pipeline, ensuring data freshness and quality. Their primary requirements are:
-
-\item Automated Multi-Format Ingestion: A robust module to ingest and normalize data from disparate sources, primarily a large static JSON catalog from web scraping and manually uploaded JSON files from partner institutions, each potentially with a unique schema. This addresses the ``schema-on-read'' challenge described in the relevant section.
-
-\item Unattended Pipeline Execution: The ability to run the full ingestion, cleaning, enrichment, and indexing pipeline as an automated, resilient process with robust error handling and logging.
-
-\item Data Quality Monitoring: Tools to validate the integrity of ingested data, track the performance of deterministic extraction (Layer A), and identify cases that may require escalation or manual review.
-
-\item Performance Oversight: Visibility into system throughput, cache hit rates, and the latency profile of each pipeline stage to assess whether it meets the ``lightweight'' and ``Green AI'' design goals~\cite{schwartz2020green}.
-
+    \item \textbf{Visitor / General User}: The primary public-facing actor is the visitor, who interacts with the platform to discover internship opportunities without requiring authentication.
+    Core functional requirements include:
+    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+        \item \textbf{Browse Internship Listings}: Users must be able to navigate the available internship catalog through a structured listing interface.
+        \item \textbf{Search and Filter Internship Records}:Users must be able to refine internship exploration using keyword-based search and structured filtering based on metadata such as category, skills, and location.
+        \item \textbf{Pagination and Navigation}: The interface must support efficient navigation across larger internship result sets while maintaining responsive interaction.
+        \item \textbf{View Detailed Internship Information}: Users must be able to inspect complete internship details, including normalized descriptions, extracted skills, and structured metadata.
+        \item \textbf{Supporting Interaction Features}: Additional user-facing capabilities include viewing related roles, sharing internship links, applying to external internship postings, and interface personalization features such as theme switching.
+    \end{itemize}
+    \item \textbf{Registered User}:
+    Authenticated users extend the public browsing functionality through persistent account-linked capabilities:
+    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+        \item \textbf{Save Internship Opportunities}: Users can bookmark internship listings for later access.
+        \item \textbf{Manage Saved Roles}: Users can review and organize previously saved internships.
+        \item \textbf{Manage Account Preferences}: Users can configure account-linked settings and personalization options.
+        \item \textbf{Subscription Features}: Registered users may opt into notification-oriented platform integrations and future alert-based functionality.
+    \end{itemize}
+    \item \textbf{Supporting Backend Infrastructure}:
+    The system additionally includes backend processing requirements necessary to maintain platform functionality:
+    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+        \item \textbf{Automated Data Ingestion}: Internship and job listing data must be collected from heterogeneous external sources.
+        \item \textbf{Normalization and Semantic Enrichment}: Raw records must be validated, cleaned, classified, and semantically enriched before deployment to the frontend catalog.
+        \item \textbf{Scheduled Processing Execution}: The processing pipeline must support unattended recurring execution for catalog refreshes.
+        \item \textbf{Data Quality Monitoring}: Processing workflows must provide logging, validation visibility, and classification monitoring to support reliability and reproducibility.
+    \end{itemize}
 \end{itemize}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.82\textwidth]{uml/useCaseDiagram.png}
-\caption{UML use case diagram: actor interactions and system scope.}\label{fig:usecase}
-\end{figure}
 
 \subsection{System Architecture and Component Mapping}
 The system's architecture is organized into four logical tiers, a design pattern that enforces a clean separation of concerns, enhances scalability, and facilitates independent development and testing of each layer~\cite{doan2012principles}.
