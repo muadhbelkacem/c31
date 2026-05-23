@@ -370,132 +370,119 @@ The reference evaluation process was designed to support qualitative correctness
 
 Because the thesis emphasizes lightweight deployment practicality, these operational observations serve as an important complement to semantic correctness evaluation [38, 53].
 
-
-
-\subsection{Dataset Composition and Sampling Strategy}
-The evaluation set comprises the 327 internship listings available in the working catalog. This size is modest, but it is sufficient for a prototype-level evaluation of data normalization, category coverage, and retrieval behavior.
-
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Web-Scraped Split: The primary split consists of records gathered from public job-board and employer sources. This split primarily tests the system's ability to handle the semi-structured, noisy, and often redundant nature of web data~\cite{kurekova2015using}.
-
-\item Heterogeneous JSON Sources: Additional JSON outputs from scraping simulations are used to inspect schema variation, non-standard keys, nested structures, and inconsistent data types. This material stress-tests the ingestion pipeline's robustness to schema-less data, also known as the ``schema-on-read'' challenge~\cite{abiteboul1997querying, doan2012principles}.
-
-\end{itemize}
-\subsection{Annotation Process and Schema}
-The annotation protocol is designed for manual review of the 327-listing catalog. The task is defined by a codebook, excerpted in Appendix A, and mapped directly to the Internship target schema defined in the methodology chapter. For each listing, annotators are asked to:
-
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Field Extraction: Identify and normalize the following fields directly from the raw text: \texttt{salary}, \texttt{location}, and \texttt{job\_age}. If a field was not present, they were to label it as <NULL>.
-
-\item Skill Annotation: Execute a two-step skill annotation process. First, mark all explicit skill mentions. Second, for each marked skill, map it to its single best canonical label from the ESCO-aligned skill lexicon (Appendix D). This provides a target for both the extraction recall and normalization accuracy.
-
-\item Title Normalization: Provide the single best-matching, Level 4 ESCO occupation label for the raw job title. In cases of genuine ambiguity where two ESCO labels seemed equally valid, annotators were instructed to choose the most specific one and note the potential alternative, allowing for finer-grained error analysis.
-
-\item Query-Relevance Judgments: To prepare the IR benchmark, annotators created a diverse pool of 30 information needs (see the relevant section) and provided relevance judgments on a 4-point graded scale (Irrelevant, Marginally Relevant, Relevant, Highly Relevant) for a subset of queries.
-
-\end{itemize}
-\subsection{Inter-Annotator Agreement and Adjudication}
-To ensure the reliability and reproducibility of the ground truth, inter-annotator agreement (IAA) was measured using both Cohen's Kappa for categorical tasks (title normalization) and Krippendorff's Alpha for the interval-scale relevance judgments~\cite{jurafsky2023speech}. A pilot annotation round was conducted on 50 items. Disagreements were analyzed, and the codebook was refined in an iterative process. In the final annotation phase, a dual-annotation pass was performed on the entire 500-item set. The resulting IAA scores were:
-
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Title Normalization (Level 4 ESCO): Cohen's Kappa = 0.84, indicating very high agreement.
-
-\item Relevance Judgments (NDCG): Krippendorff's Alpha = 0.78, indicating substantial agreement. All cases of disagreement were resolved through a synchronous adjudication session involving both annotators and the thesis supervisor, establishing a single reference label for every field and query-document pair.
-
-\end{itemize}
-\subsection{Query Pool for Retrieval Evaluation}
-A set of 30 distinct search queries was formulated to simulate real student information needs, designed to test the distinct capabilities of lexical and semantic search. The queries fall into three categories:
-
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Exact/Lexical Queries (10): Queries with high keyword specificity, e.g., ``React Native intern,'' ``AWS cloud architect intern,'' ``drug safety associate.'' These are designed to be a strong match for keyword-based search.
-
-\item Conceptual/Semantic Queries (10): Vague or conceptual queries that require domain understanding, e.g., ``build mobile apps,'' ``design thinking internship,'' ``green energy policy.'' These are designed to test the dense retrieval pathway.
-
-\item Mixed/Hybrid Queries (10): Queries with both specific and conceptual elements, e.g., ``Python developer for healthcare AI,'' ``entry-level UX design with Figma.'' These best represent real-world student searches and test the synergy of the fusion approach.
-
-\end{itemize}
 \subsection{Metrics}
-The evaluation uses a multi-faceted set of established metrics to quantify different performance aspects and avoid dependence on a single numerical score~\cite{manning2008introduction, jurafsky2023speech, li2020survey}.
-
-\subsection{Extraction and Classification Accuracy}
-For atomic field-level extraction (RQ1) and categorical mapping (RQ2), where the output is a predicted value or label, the study uses standard classification metrics under an exact-match criterion unless otherwise noted:
-
+The evaluation employs a multi-dimensional set of quantitative and qualitative metrics to assess both semantic output quality and operational practicality. Because the proposed system combines deterministic heuristics, lightweight semantic classification, and applied frontend deployment, no single metric is sufficient to capture overall system effectiveness [27, 33, 59].
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Precision (P) and Recall (R): Calculated for binary extraction tasks, such as whether a salary value is present or not, and for multi-label tasks like skill extraction. They quantify the trade-off between false positives and false negatives~\cite{manning2008introduction}.
-
-\item Micro-averaged F1-Score: The harmonic mean of micro-averaged precision and recall. Micro-averages give equal weight to each entity instance, which is appropriate given the skewed distribution of skills and roles in the dataset.
-
-\item Top-k Accuracy: The primary metric for evaluating the title normalization model (RQ2). The study reports Top-1 exact-match accuracy and Top-3 accuracy. Top-3 reflects whether the correct ESCO occupation is within the model's top three predictions, which is relevant for a system that may use top candidates for query expansion or filtering facets~\cite{menghani2023efficient}.
-
+    \item \textbf{Extraction and Classification Quality} -- For evaluating structured normalization and semantic classification behavior (RQ2 and RQ4), the study applies standard correctness-oriented assessment criteria.
+    \begin{itemize}
+        \item \textbf{Precision and Recall:} Precision and recall are used where applicable to assess the trade-off between false positive and false negative classification behavior, particularly when comparing heuristic filtering against transformer-assisted semantic classification [37].
+        \item \textbf{F1-Score:} The harmonic mean of precision and recall is used as a balanced summary metric when evaluating internship relevance classification performance, particularly in scenarios where both false acceptance and false rejection are important.
+        \item \textbf{Manual Semantic Correctness Assessment:} Because portions of the evaluation rely on structured manual inspection rather than formal benchmark datasets, qualitative semantic correctness is also assessed through expert review of processed internship outputs. This includes correctness of domain categorization, internship relevance interpretation, and skill extraction consistency.
+    \end{itemize}
+    \item \textbf{Semantic Enrichment and Dataset Quality} -- For evaluating the usability improvements introduced by semantic enrichment (RQ3), the study assesses structured dataset quality through practical semantic consistency criteria.
+    \begin{itemize}
+        \item \textbf{Categorization Consistency:} Evaluation of whether semantically similar internship listings are consistently assigned to coherent internal domain categories.
+        \item \textbf{Skill Extraction Quality:} Assessment of whether extracted skill labels accurately reflect visible internship content and remain semantically normalized across heterogeneous source terminology [4, 21].
+        \item \textbf{Schema Completeness:} Assessment of the proportion of processed records successfully transformed into complete structured internship entities suitable for frontend deployment.
+        \item \textbf{Ambiguity Handling Behavior:} Evaluation of whether uncertain or semantically ambiguous listings are appropriately flagged for manual review rather than incorrectly forced into confident automated classifications.
+    \end{itemize}
+    \item \textbf{Operational Performance Metrics} -- For evaluating practical deployment feasibility (RQ1), the study includes lightweight operational performance measurements aligned with efficient NLP and Green AI evaluation principles [38, 53].
+    \begin{itemize}
+        \item \textbf{Pipeline Runtime Observation:} Total end-to-end semantic enrichment execution time observed during local pipeline runs.
+        \item \textbf{Approximate Processing Throughput:} Estimated number of internship listings processed per unit time during enrichment execution.
+        \item \textbf{Frontend Responsiveness:} Observed page loading, filtering, and interaction responsiveness measured through Chromium DevTools under realistic local browsing conditions.
+        \item \textbf{Memory Practicality:} Approximate memory behavior observed during enrichment execution to assess compatibility with commodity hardware constraints.
+    \end{itemize}
+    \item \textbf{Comparative Evaluation} -- To isolate the contribution of semantic classification, comparative evaluation is performed between:
+    \begin{itemize}
+        \item deterministic heuristic preprocessing alone
+        \item heuristic preprocessing combined with transformer-assisted semantic classification
+    \end{itemize}
 \end{itemize}
-\subsection{Information Retrieval Quality}
-For the end-to-end search evaluation (RQ3), the study uses metrics that assess ranked lists of results, accounting for the position of relevant documents and graded relevance levels~\cite{baeza2011modern, buttcher2016information}:
 
+This comparison supports direct analysis of the trade-off between semantic effectiveness and computational cost central to the thesis research objectives.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Precision at $k$ ($P_k$): The proportion of relevant documents among the top $k$ results. The study reports $P_5$ and $P_{10}$, as the first page of results is especially important for user experience in student-facing search.
-
-\item Hit Rate at $k$ ($HR_k$): A query-level indicator of whether at least one relevant document appears within the top $k$ results. The study should report $HR_5$ and $HR_{10}$ because these values show whether the system returns at least one useful internship early in the ranked list.
-
-\item Mean Reciprocal Rank (MRR): The reciprocal rank of the first relevant document, averaged over all queries. MRR is useful when the main user need is to find at least one suitable internship quickly.
-
-\item Mean Average Precision (MAP): A single, global measure of ranking quality that averages precision across all recall levels for each query and then takes the mean over all queries. It provides a holistic view of system performance, heavily weighting precision at the top ranks.
-
-\item Normalized Discounted Cumulative Gain (NDCG at $k$): This metric accounts for multi-level graded relevance judgments. By discounting the gain of a document logarithmically by its rank, NDCG rewards systems that place highly relevant documents in the highest positions. The study reports NDCG at 10.
-
-\end{itemize}
-\subsection{System Efficiency and Cost}
-For evaluating the system's operational profile (RQ4), the study defines concrete efficiency metrics aligned with calls for more pragmatic and Green NLP evaluation [46, 37]:
-
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Ingestion Throughput: Measured in listings processed per second, calculated over the entire enrichment pipeline for batches of 1,000 documents.
-
-\item Query Latency (p50 and p99): The median (p50) and 99th percentile (p99) response time of the /api/internship endpoint, measured in milliseconds (ms). This captures both typical and tail-end user experiences.
-
-\item Memory Footprint (RSS): The peak Resident Set Size (main memory in MB) of the Node.js process after the cache is warmed, as reported by the operating system.
-
-\item External API Cost: For the comparison with the LLM-only approach, the study calculates the estimated cost in USD per 1,000 listings processed and per 1,000 search queries, based on the pricing assumptions stated in the evaluation protocol.
-
-\end{itemize}
 \subsection{Experimental Configuration}
-To attribute performance differences to specific system components, the evaluation uses a comparative methodology involving defined baselines and model ablation studies. This design is standard practice in modern IR research for isolating the contribution of each component in a complex pipeline~\cite{thakur2021beir, luan2021sparse}.
 
-\subsection{Baselines and Ablation Study}
-The evaluation compares the following configurations, which represent progressive increases in system complexity and semantic capability:
+To attribute observed performance differences to specific architectural components, the evaluation adopts a comparative experimental methodology based on controlled system configurations. Comparative evaluation is a standard approach in software systems and machine learning experimentation for isolating the contribution of individual processing components within a larger pipeline [38, 59].
 
+\subsubsection{Baselines and Comparative Configurations}
+
+The evaluation compares multiple configurations representing increasing semantic capability and computational complexity.
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Baseline 1: Deterministic Heuristic Processing (Layer A Only)} -- This configuration evaluates the deterministic preprocessing layer in isolation. It applies only explicit heuristic and rule-based processing mechanisms, including structural validation, malformed record filtering, metadata normalization, internship keyword heuristics, rule-based categorization, duplicate handling support, and deterministic skill extraction. This baseline establishes the performance floor for the proposed architecture and evaluates how effectively heuristic normalization alone can process heterogeneous recruitment data without contextual semantic inference [11, 40, 49].
 
-\item Baseline 1: Keyword-Only: A traditional sparse retrieval system built on an inverted index of the raw, cleaned text. This serves as the lexical baseline for RQ3, reflecting common job-board search practices~\cite{robertson2009probabilistic}. For RQ2, this is replaced
+    \item \textbf{Baseline 2: Full Lightweight Semantic Pipeline (Layer A + Layer B + Layer C)} -- This configuration represents the complete proposed methodology. It combines:
+    \begin{itemize}
+        \item Layer A: deterministic heuristic preprocessing and normalization
+        \item Layer B: lightweight sentence-transformer-based semantic internship relevance classification
+        \item Layer C: controlled manual-review exception handling for semantically ambiguous cases
+    \end{itemize}
+    This configuration serves as the primary experimental system and evaluates whether lightweight semantic classification improves internship relevance assessment, enrichment consistency, and overall dataset usability beyond deterministic preprocessing alone [45, 38]. The comparative difference between this configuration and the heuristic baseline isolates the practical contribution of transformer-assisted semantic enrichment.
 
-\item Baseline 2: Rules-Only (Layer A): A system that applies only deterministic modules: regex for salary, location, and date; gazetteers for skills; and priority-ordered keywords for categorization. This baseline establishes the performance floor for RQ1 and measures the recall ceiling of non-semantic methods~\cite{sarawagi2008information}.
-
-\item Ablation A (Layer A + Lexical + Dense): The core system is evaluated using score summation, with min-max normalization, instead of RRF for hybrid fusion. This tests the specific contribution of the parameter-free RRF algorithm to retrieval quality (RQ3).
-
-\item Baseline 3: Proposed Hybrid (Layer A + Layer B + RRF): The complete target system. It combines the deterministic rules of Layer A with sentence-transformer-based semantic mapping for titles and context-aware skills, and fuses lexical and vector search results using RRF~\cite{reimers2019sentence, cormack2009reciprocal}.
-
-\item Baseline 4: LLM-Only (Layer C): A simulated pipeline where a single GPT-3.5-turbo API call, guided by a zero-shot Chain-of-Thought prompt, replaces the entire enrichment pipeline for each listing. This system is used exclusively for the efficiency and cost comparison in RQ4. It serves as an upper bound on potential accuracy and a lower bound on cost-efficiency.
-
+    \item \textbf{Comparative Reference: General-Purpose LLM Assessment} -- A limited exploratory comparative assessment was conducted using general-purpose large language models, including ChatGPT and DeepSeek, to provide contextual comparison against contemporary cloud-based semantic reasoning systems. This comparison was exploratory rather than a formal benchmark and was not intended as a statistically controlled production evaluation. Instead, it served as supplementary qualitative reference for examining differences in:
+    \begin{itemize}
+        \item internship relevance classification behavior
+        \item semantic interpretation plausibility
+        \item enrichment consistency
+        \item explainability characteristics
+        \item practical computational and infrastructure implications
+    \end{itemize}
+    Because the thesis explicitly targets lightweight local deployment, this comparative reference helps contextualize whether useful semantic enrichment can be achieved without dependence on heavyweight cloud-hosted LLM inference [24, 38, 53].
 \end{itemize}
-\subsection{Implementation Details and Hardware}
-To ensure reproducibility and a fair efficiency comparison (RQ4), all experiments should be conducted on a single, controlled hardware environment: a workstation with an Intel Core i7-10750H CPU (6 cores, 12 threads), 16GB of RAM, and 715GB of total storage, with no dedicated GPU. This configuration embodies the ``commodity hardware'' constraint stated in the thesis objectives. Static file services and the Next.js API are run in production mode, and process metrics can be captured using the native Node.js process.memoryUsage() API and custom timing middleware for latency measurements. When the vector-search extension is implemented, the same hardware should be used for ANN index measurements~\cite{johnson2019billion}.
 
-\subsection{Trade-off Analysis: The Accuracy-Cost Pareto Frontier}
-A central contribution of this thesis is the investigation of the accuracy-cost trade-off. To visualize this relationship, the evaluation plots Top-1 accuracy for title normalization (RQ2) and MAP for retrieval (RQ3) for Baseline 2, Baseline 3, and the LLM-only Baseline 4 against their respective enrichment and query costs. A system in the upper-left quadrant of this Pareto plot, where accuracy is high and cost is low, represents a more favorable solution. This analysis is intended to determine whether a lightweight tiered pipeline can deliver usable semantic capability at lower cost, thereby motivating the architectural choices central to this thesis~\cite{hsieh2023distilling, menghani2023efficient}.
+\subsubsection{Implementation Details and Hardware Environment}
 
+To ensure reproducibility and fair operational comparison, all experiments were conducted on a single controlled local workstation representing the commodity hardware constraints defined in the thesis objectives.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Hardware configuration:}
+    \begin{itemize}
+        \item CPU: Intel Core i7-10750H (6 cores, 12 threads, 2.60 GHz)
+        \item RAM: 16 GB
+        \item Storage: 715 GB total storage
+        \item GPU: None (CPU-only execution)
+        \item Operating System: Windows 11
+        \item Runtime Environment: local development execution environment
+    \end{itemize}
+\end{itemize}
+
+This configuration reflects the practical deployment assumptions central to the proposed lightweight semantic enrichment methodology, where meaningful semantic processing should remain feasible without dedicated accelerators or cloud-hosted inference infrastructure [38, 53].
+
+\subsubsection{Frontend Observation Environment}
+
+User-facing responsiveness was evaluated through practical interaction observation using Chromium browser developer tools during realistic local execution.
+
+Observed interaction scenarios included:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item initial internship catalog loading
+    \item cached repeated browsing behavior
+    \item frontend filtering responsiveness
+    \item internship detail exploration
+    \item authenticated interaction flows where applicable
+\end{itemize}
+
+These observations support practical usability evaluation rather than formal production-scale stress testing.
+
+\subsubsection{Comparative Trade-Off Analysis}
+
+The experimental design explicitly examines the trade-off between semantic effectiveness and computational practicality.
+
+The comparison between deterministic preprocessing, the full lightweight semantic pipeline, and exploratory LLM reference assessment allows investigation of the thesis’s central architectural question: whether lightweight semantic enrichment can provide meaningful classification and enrichment capability while maintaining practical operational efficiency on commodity hardware.
+
+This comparative framing aligns directly with the Green AI objective of reducing computational cost while preserving useful semantic capability [53].
 
 \section{Chapter Conclusion}
-This chapter has defined the methodological structure of the thesis. It specified the system requirements, architectural components, semantic schema, taxonomy mapping strategy, evaluation objectives, metrics, baselines, and experimental configuration. These methodological decisions provide the framework used in the next chapter to describe the concrete implementation of the ingestion, enrichment, storage, and retrieval components.
+
+
+This chapter has defined the methodological framework of the thesis. It established the functional requirements, architectural design, semantic processing methodology, structured data schema, internal categorization strategy, and evaluation framework used to assess the proposed internship aggregation and enrichment system.
+
+The chapter described the lightweight three-layer semantic processing architecture, including deterministic heuristic preprocessing, transformer-assisted semantic classification, and controlled manual-review handling for ambiguous cases. It also formalized the structured data representation used throughout the system and explained how semantic normalization improves the usability of heterogeneous internship data collected from multiple sources.
+
+The evaluation methodology defined in this chapter established the experimental objectives, qualitative and quantitative assessment criteria, comparative configurations, and practical hardware environment used to assess both semantic effectiveness and operational feasibility.
+
+These methodological decisions provide the foundation for the next chapter, which presents the concrete implementation of the ingestion, normalization, semantic enrichment, persistence, and frontend integration components.
+
