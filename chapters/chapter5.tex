@@ -817,3 +817,18 @@ The data-access layer includes defensive checks for malformed or missing data. F
 
 This prevents malformed catalog data from crashing the frontend application and improves the robustness of the platform during development and dataset refresh cycles. This defensive handling is consistent with data-cleaning literature emphasizing the importance of detecting and containing malformed records before they propagate through downstream systems [11].
 
+\subsection{Summary of Storage and Persistence Design}
+
+The storage and persistence design separates three concerns:
+
+Static internship catalog delivery through public/intern_data.json
+Server/API data access and caching through data.ts and Next.js route handlers
+Dynamic user persistence through Supabase-backed saved roles and authentication state
+
+This architecture supports lightweight deployment, practical frontend responsiveness, and reliable user-specific persistence without requiring the static internship catalog to be stored in a full relational database.
+
+\section{Chapter Conclusion}
+
+This chapter has described the implementation of the core system components that operationalize the methodology presented in the previous chapter. It detailed the ingestion and preprocessing pipeline, deterministic normalization procedures, semantic enrichment mechanisms, skill extraction, domain categorization, caching strategies, hybrid storage architecture, and the API-based data-access layer that connects the processed internship catalog to the frontend application.
+
+Together, these implementation components transform heterogeneous internship data into structured, application-ready records while preserving the lightweight and computationally efficient design objectives of the thesis. The resulting system provides the practical foundation for the empirical evaluation presented in the next chapter, where extraction quality, semantic consistency, system responsiveness, retrieval effectiveness, and cost characteristics are assessed through the defined evaluation framework.
