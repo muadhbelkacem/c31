@@ -96,7 +96,65 @@ By resolving structurally predictable inconsistencies early in the pipeline, the
 
 
 \subsection{Data Enrichment and Categorization}
-Following sanitization, the system enriches the listing with derived metadata. These enrichment steps create the structured fields that power the faceted filtering and deduplication described in the system's functional requirements. While simple, these heuristic methods provide a high-utility baseline that eliminates the need for more complex processing in the majority of cases.
+
+Following preprocessing and sanitization, the system enriches each internship record with derived metadata required for structured filtering, semantic consistency, duplicate control, and frontend usability.
+
+These enrichment operations are primarily implemented within Layer A, where deterministic heuristics provide efficient metadata generation before contextual semantic classification is applied.
+
+\subsubsection{Stable Identifier Generation and Duplicate Handling}
+
+To maintain persistent referencing across ingestion cycles and support duplicate detection, the system generates deterministic identifiers using the generateId function.
+
+This process consists of:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Slugification:} Textual fields such as internship titles and company names are normalized into URL-safe string representations by converting text to lowercase, replacing non-alphanumeric separators with standardized delimiters, and removing formatting inconsistencies.
+    \item \textbf{Deterministic concatenation:} The normalized title and company identifiers are concatenated to produce a stable internal record identifier.
+    \item \textbf{Collision-based duplicate handling:} When newly ingested records generate identifiers that already exist in the processed dataset, the collision acts as a strong duplicate indicator. The pipeline then applies duplicate handling logic to avoid redundant internship entries and preserve a cleaner canonical dataset.
+\end{itemize}
+
+Deterministic identifier generation provides an explainable and computationally inexpensive strategy for practical duplicate control within heterogeneous recruitment datasets [10, 15, 50].
+
+\subsubsection{Heuristic Categorization}
+
+The enrichment pipeline applies keyword-based categorization logic through the categorizeJob mechanism to assign structured domain labels to internship listings.
+
+This categorization supports practical semantic normalization by reducing vocabulary inconsistency across heterogeneous recruitment sources and enabling structured filtering within the frontend application.
+
+The broader internal semantic categorization framework spans multiple professional domains, while simplified higher-level groupings are used where appropriate for frontend usability and skill-oriented browsing.
+
+Because deterministic categorization is computationally inexpensive, predictable, and explainable, it provides an effective first-pass classification layer before contextual semantic interpretation is introduced [49].
+
+\subsubsection{Skill Extraction}
+
+Initial skill extraction is performed using deterministic matching against curated internal skill reference libraries.
+
+The extraction mechanism compares internship titles and descriptions against controlled vocabularies containing technical competencies, normalized terminology variants, and commonly occurring recruitment skill expressions.
+
+This approach provides several advantages:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Efficiency:} Dictionary-based matching remains computationally lightweight and suitable for high-volume preprocessing.
+    \item \textbf{Explainability:} Extracted skills can be directly traced to explicit textual matches rather than opaque model inference.
+    \item \textbf{Consistency:} Controlled vocabularies reduce inconsistent labeling caused by employer terminology variation.
+\end{itemize}
+
+The skill extraction design is informed by standardized vocabulary normalization principles used in recruitment informatics while remaining lightweight and practically maintainable [17, 20].
+
+\subsubsection{Layer A Role in the Tiered Architecture}
+
+Deterministic enrichment provides the structured baseline for internship processing.
+
+However, heuristic enrichment remains limited when encountering:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item ambiguous job terminology
+    \item unseen or emerging technologies
+    \item paraphrased competency descriptions
+    \item semantically unclear internship postings
+\end{itemize}
+
+For such cases, Layer B introduces transformer-assisted contextual semantic interpretation, preserving the efficiency advantages of deterministic enrichment while improving robustness for uncertain or ambiguous records [45, 38].
 
 \subsection{Stable Identifier Generation and Collision Handling}
 To ensure persistent, unique referencing across multiple ingestion cycles and to enable effective duplicate detection, the generateId function creates a deterministic, URL-friendly slug. This process is foundational for the data curation strategy and works as follows:
