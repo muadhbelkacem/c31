@@ -423,3 +423,50 @@ Measured characteristics include:
 
 Because the thesis emphasizes lightweight deployment practicality, these operational observations serve as an important complement to semantic correctness evaluation [38, 53].
 
+\subsection{Metrics}
+
+The evaluation employs a multi-dimensional set of quantitative and qualitative metrics to assess both semantic output quality and operational practicality. Because the proposed system combines deterministic heuristics, lightweight semantic classification, and applied frontend deployment, no single metric is sufficient to capture overall system effectiveness [27, 33, 59].
+
+\subsubsection{Extraction and Classification Quality}
+
+For evaluating structured normalization and semantic classification behavior (RQ2 and RQ4), the study applies standard correctness-oriented assessment criteria.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Precision and Recall:} Precision and recall are used where applicable to assess the trade-off between false positive and false negative classification behavior, particularly when comparing heuristic filtering against transformer-assisted semantic classification [37].
+    \item \textbf{F1-Score:} The harmonic mean of precision and recall is used as a balanced summary metric when evaluating internship relevance classification performance, particularly in scenarios where both false acceptance and false rejection are important.
+    \item \textbf{Manual Semantic Correctness Assessment:} Because portions of the evaluation rely on structured manual inspection rather than formal benchmark datasets, qualitative semantic correctness is also assessed through expert review of processed internship outputs. This includes correctness of domain categorization, internship relevance interpretation, and skill extraction consistency.
+\end{itemize}
+
+\subsubsection{Semantic Enrichment and Dataset Quality}
+
+For evaluating the usability improvements introduced by semantic enrichment (RQ3), the study assesses structured dataset quality through practical semantic consistency criteria.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Categorization Consistency:} Evaluation of whether semantically similar internship listings are consistently assigned to coherent internal domain categories.
+    \item \textbf{Skill Extraction Quality:} Assessment of whether extracted skill labels accurately reflect visible internship content and remain semantically normalized across heterogeneous source terminology [4, 21].
+    \item \textbf{Schema Completeness:} Assessment of the proportion of processed records successfully transformed into complete structured internship entities suitable for frontend deployment.
+    \item \textbf{Ambiguity Handling Behavior:} Evaluation of whether uncertain or semantically ambiguous listings are appropriately flagged for manual review rather than incorrectly forced into confident automated classifications.
+\end{itemize}
+
+\subsubsection{Operational Performance Metrics}
+
+For evaluating practical deployment feasibility (RQ1), the study includes lightweight operational performance measurements aligned with efficient NLP and Green AI evaluation principles [38, 53].
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Pipeline Runtime Observation:} Total end-to-end semantic enrichment execution time observed during local pipeline runs.
+    \item \textbf{Approximate Processing Throughput:} Estimated number of internship listings processed per unit time during enrichment execution.
+    \item \textbf{Frontend Responsiveness:} Observed page loading, filtering, and interaction responsiveness measured through Chromium DevTools under realistic local browsing conditions.
+    \item \textbf{Memory Practicality:} Approximate memory behavior observed during enrichment execution to assess compatibility with commodity hardware constraints.
+\end{itemize}
+
+\subsubsection{Comparative Evaluation}
+
+To isolate the contribution of semantic classification, comparative evaluation is performed between:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item deterministic heuristic preprocessing alone
+    \item heuristic preprocessing combined with transformer-assisted semantic classification
+\end{itemize}
+
+This comparison supports direct analysis of the trade-off between semantic effectiveness and computational cost central to the thesis research objectives.
+
