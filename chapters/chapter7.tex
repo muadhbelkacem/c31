@@ -197,88 +197,31 @@ Despite these limitations, the broader architectural findings—particularly reg
 
 
 \section{Ethical, Legal, and Privacy Considerations}
-The deployment of automated systems for processing internship listings raises several ethical, legal, and privacy concerns that warrant explicit discussion. While the current implementation is a research prototype rather than a production system, anticipating these issues is important for responsible technology development.
+The deployment of automated systems for aggregating, processing, and semantically enriching internship opportunities raises important ethical, legal, and privacy considerations.
+
+Although the current implementation is a research prototype rather than a production deployment, anticipating these concerns is essential for responsible system design and future operational scalability.
+
 
 \subsection{Data Privacy and Terms of Service Compliance}
-The internship listings used in this research were collected from publicly accessible sources, including job boards, university career portals, and employer websites. However, “publicly accessible” does not necessarily imply “freely usable for any purpose.” Many platforms prohibit automated scraping in their terms of service, even when the data is publicly viewable. Researchers and practitioners deploying similar systems must ensure compliance with applicable terms of service, robots.txt directives, and data protection regulations such as the General Data Protection Regulation (GDPR) in Europe or the California Consumer Privacy Act (CCPA) in the United States.
 
-From a privacy perspective, internship listings may contain personally identifiable information (PII) in free-text fields. For example, a job description might include the name and email address of a hiring manager, or an application instruction that reveals personal contact information. The ingestion pipeline described in this thesis does not explicitly detect or redact PII, which could create privacy risks if the data is stored or shared. A production deployment should incorporate PII detection and redaction mechanisms, or ensure that data retention policies minimize exposure.
+The internship listings used in this research were collected from publicly accessible online recruitment sources, primarily internship and employment listing platforms.
 
-\subsection{Algorithmic Fairness and Bias}
-Automated recruitment systems have been shown to exhibit bias along dimensions such as gender, race, age, and educational background \cite{hunkenschroer2022ethics}. The system proposed in this thesis does not directly make hiring decisions; it merely structures and indexes internship listings for search. Nevertheless, bias can enter through multiple channels.
+However, public accessibility does not automatically imply unrestricted reuse.
 
-Recent studies from 2024 highlight that human reviewers are often heavily influenced by biased AI recommendations, consistently mirroring the system's prejudices even when they believe they are providing independent oversight \cite{humanbias2024}. Furthermore, the emergence of ``AI Self-preferencing''—where screening models rate resumes higher if they match the model's own writing style—introduces new classes of socioeconomic bias that penalize candidates who do not use generative AI tools. Under the EU AI Act (2024), AI-powered recruitment systems are classified as ``high-risk,'' requiring mandatory audits and high levels of transparency to mitigate such proxy discrimination \cite{euiaact2024}.
+Many online platforms impose restrictions on automated scraping, data extraction, redistribution, or commercial reuse through terms of service, robots.txt directives, or platform-specific access policies. Any production deployment of similar systems would therefore require careful legal review to ensure compliance with applicable contractual obligations and jurisdictional requirements.
 
-\subsection{Transparency and Explainability}
-The tiered architecture provides greater transparency than end-to-end neural or LLM-based alternatives. Rule-based components (Layer A) are fully explainable: one can inspect the regex pattern or keyword anchor that produced a given extraction. The lightweight transformer components (Layer B) are less transparent but can be analyzed using tools such as attention visualization or saliency mapping. In contrast, LLM-based systems (Layer C) are often treated as black boxes, making it difficult to audit why a particular classification or extraction occurred.
+Privacy considerations also arise from the content of recruitment listings themselves.
 
-For deployment contexts where explainability is legally or practically required (e.g., in regulated hiring processes under EU law), the proposed system's design—with its emphasis on deterministic and heuristic methods—may be advantageous. However, the embedding-based title normalization remains difficult to explain to non-technical stakeholders, suggesting room for hybrid approaches that provide post-hoc explanations.
+Although internship postings are generally organizationally published materials, free-text descriptions may occasionally contain personally identifiable information, such as recruiter contact names, email addresses, phone numbers, or direct application instructions.
 
-\subsection{Completion Note}
-This section provides a framework for ethical analysis rather than a complete institutional review. Any production deployment of this system should undergo formal ethics review, legal compliance assessment, and stakeholder consultation. The specific data protection measures, fair processing notices, and consent mechanisms will depend on the deployment jurisdiction and institutional policies.
-
-\section{Conclusion and Future Work}
-This thesis has presented a lightweight, tiered approach to semantic structuring of internship listings, addressing the challenges of high-volume, noisy recruitment data in a computationally efficient manner. By combining deterministic rule-based extraction (Layer A) with compact transformer models (Layer B) and a reserved LLM fallback (Layer C), the proposed architecture demonstrates that structured knowledge bases can be built while substantially reducing dependence on costly and latency-prone LLM-based processing. This direction aligns with the broader principles of sustainable and efficient AI, often referred to as Green AI \cite{schwartz2020green, menghani2023efficient}.
-
-\subsection{Summary of Findings}
-The empirical results reported in Chapter 6 provide support for the four research questions that guided this thesis.
-
-\begin{itemize}[leftmargin=1.4em, itemsep=0.25em, topsep=0.25em]
-\item \textbf{RQ1 (Extraction Fidelity):} The deterministic rule-based Layer A provides a practical first pass for structured fields where source values or predictable surface patterns are available. It remains limited for implicit, narrative, or ambiguous information, confirming the need for semantic fallback to achieve stronger coverage.
-
-\item \textbf{RQ2 (Semantic Alignment):} The thesis specifies a transformer-based ESCO mapping experiment using all-MiniLM-L6-v2, but the current prototype does not yet implement this Layer B evaluation. Completing it is necessary before reporting Top-k ESCO accuracy.
-
-\item \textbf{RQ3 (Retrieval Quality):} The thesis defines a hybrid retrieval benchmark using lexical search, dense vector retrieval, Reciprocal Rank Fusion, $HR_k$, and $NDCG_k$. The prototype currently provides the structured catalog foundation; completing the hybrid retrieval implementation is required before reporting statistically significant ranking gains.
-
-\item \textbf{RQ4 (System Efficiency):} The implemented Layer A pipeline is lightweight because it runs locally on the 327-listing catalog and avoids external model calls. Full speedup, cost, and p99 latency claims should be reported after controlled benchmark runs against the LLM-only and hybrid-retrieval baselines.
-\end{itemize}
-
-\subsection{Future Directions}
-While the current system provides a solid foundation for internship analytics and semantic search, several limitations identified in the evaluation point toward concrete directions for future research and development.
-
-\subsection{Multilingual and Cross-lingual Extraction}
-A primary limitation of the current implementation is its exclusive focus on English-language listings. Expanding the pipeline to support multilingual extraction would be essential for a truly global internship platform. Recent advances in cross-lingual dense retrieval, such as the Translate-Distill framework (2024), suggest that monolingual teachers can guide cross-lingual dual-encoder students to achieve high semantic relevance in low-resource target languages without requiring large parallel corpora \cite{translatedistill2024}. Applying such techniques to the ESCO taxonomy would enable zero-shot transfer of skill extraction capabilities across European languages.
-
-\subsection{Contextual Skill Weighting and Section Segmentation}
-The current skill extraction module treats all mentions of a skill equally, regardless of where they appear in the job description. However, skills listed in a “Required Qualifications” section are substantially more important than skills mentioned only in “Nice to Have” or “About the Company” boilerplate. Similarly, skills mentioned multiple times or in proximity to other strong signals may indicate higher importance.
-
-Future work could employ specialized sequence labeling models or compact transformer variants to segment job postings into functional sections: “Responsibilities,” “Requirements,” “Preferred Qualifications,” “Benefits,” and “Company Description” \cite{qin2018enhancing, bhola2020retrieving}. Section labels would then inform skill weighting (e.g., skills in “Requirements” count more than those in “Company Description”). More sophisticated approaches could use attention mechanisms to learn section importance from user interaction data.
-
-\subsection{Self-training and Knowledge Distillation}
-A future LLM-only comparison may show higher accuracy on difficult edge cases, but likely at higher cost. This suggests an opportunity for self-training or knowledge distillation: using the LLM to generate high-confidence labels and rationales for a larger unlabeled corpus. Recent work at NeurIPS (2024) demonstrates that incorporating these rationales into the distillation process allows small student models to achieve near-LLM performance with significantly less synthetic data \cite{rationale2024}. Distilling the extraction logic of a teacher LLM into the lightweight all-MiniLM-L6-v2 transformer layer could close part of the remaining accuracy gap while preserving the efficiency advantages of local inference.
-
-\subsection{Continuous Monitoring for Taxonomy Drift}
-The technical and professional landscape is in constant flux. New programming frameworks, cloud platforms, and job roles emerge regularly, while others become obsolete. The ESCO taxonomy itself is updated only periodically (approximately every 2–3 years), creating a risk of mismatch between the system's semantic schema and the actual language used in current job postings.
-
-To address this challenge, future work should implement automated drift detection that monitors the frequency of unextracted or out-of-vocabulary n-grams in recent listings \cite{shvaiko2013ontology, staab2009handbook}. When a new term (e.g., “LangChain” or “RAG”) appears with increasing frequency, the system could flag it for human review and potential addition to the skill lexicon. More ambitiously, unsupervised or semi-supervised methods could learn new skill embeddings from corpus statistics and propose additions to the taxonomy.
-
-\subsection{User Interaction and Feedback Integration}
-The current evaluation relies on offline metrics and expert-annotated relevance judgments. While this approach provides controlled, reproducible measurements, it cannot fully capture how real users would interact with the system or whether the structured outputs improve actual internship discovery outcomes.
-
-Future work should deploy the system as a working prototype with real student users and collect interaction data: search queries, clicks, bookmarking behavior, and explicit relevance feedback. This data would enable several improvements. First, click models could be used to infer relevance judgments implicitly, creating a large-scale training signal for re-ranking models. Second, A/B testing could compare the hybrid retrieval strategy against baselines in terms of user engagement metrics (click-through rate, session length, successful applications). Third, collaborative filtering could supplement content-based retrieval by recommending internships that similar users have found valuable.
-
-\subsection{Completion of Comparative Evaluation}
-As noted in the thesis structure, a complete comparative evaluation against external internship platforms (e.g., LinkedIn Jobs, Indeed, Handshake) remains as future work. Such a comparison would require:
+The current implementation does not explicitly perform automated PII detection or redaction. While this limitation is acceptable within the controlled research context, production deployment would require stronger privacy safeguards, including:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Query set alignment:} Developing a shared query set that is representative of typical student searches across platforms.
-    \item \textbf{Result collection:} Automated or manual collection of search results from each platform for the same queries.
-    \item \textbf{Blind relevance assessment:} Having expert annotators judge the relevance of results from all platforms without knowing the source, to avoid platform-specific bias.
-    \item \textbf{Metric computation:} Computing $HR_k$, $NDCG_k$, MAP, and MRR for each platform and testing for statistical significance.
+    \item automated PII detection
+    \item selective field redaction
+    \item retention minimization policies
+    \item access controls for stored metadata
 \end{itemize}
 
-This comparison would situate the proposed system's retrieval quality relative to established production systems, providing a more complete picture of its practical value.
+Depending on deployment geography, applicable regulatory frameworks may include GDPR, CCPA, or equivalent privacy legislation.
 
-\subsection{Practical Implications for Deployment}
-Beyond academic contributions, the findings of this thesis have practical implications for organizations seeking to implement internship or job posting analytics systems.
-
-First, the tiered architecture offers a cost-effective deployment model. Organizations can start with a rule-based system (Layer A) for immediate value, add lightweight transformer components (Layer B) as semantic requirements grow, and reserve LLM fallback (Layer C) for the small fraction of ambiguous cases that justify higher cost. This modular approach avoids the all-or-nothing decision between lexical-only and LLM-only architectures.
-
-Second, the hybrid retrieval strategy (lexical + dense vectors + RRF) is parameter-free and robust across domains, making it suitable for organizations without extensive IR expertise. Unlike learned ranking models that require large training sets, RRF fusion works out-of-the-box with standard lexical and semantic components.
-
-Third, the use of commodity hardware (no GPU required) and the open-source all-MiniLM-L6-v2 transformer means that the system can be deployed on modest infrastructure, making it accessible to universities, non-profits, and small-to-medium enterprises with limited IT budgets.
-
-\section{Chapter Conclusion}
-This chapter has interpreted the empirical findings reported in Chapter 6, identified the principal error sources (implicit information, semantic ambiguity, format variability), discussed the accuracy-cost trade-offs that motivate the tiered architecture, and examined threats to validity including annotation bias, dataset generalizability, and metric appropriateness. The chapter has also provided a substantive discussion of ethical, legal, and privacy considerations, including data privacy, algorithmic fairness, and transparency requirements. Finally, it has outlined specific directions for future work: multilingual extraction, contextual skill weighting, self-training and distillation, taxonomy drift monitoring, user feedback integration, and completion of external platform comparisons.
-
-The thesis concludes that the proposed lightweight pipeline is a practical and cost-effective approach for organizing internship listings into a structured catalog. The implemented prototype demonstrates that useful cleaning, categorization, skill extraction, caching, and browsing can be achieved without dependence on costly LLM APIs or specialized hardware. The remaining work, particularly transformer-based semantic mapping, hybrid retrieval evaluation, external platform comparison, and ethical compliance review, is necessary before production deployment.
