@@ -1,0 +1,59 @@
+{
+  "positive_title_terms": [
+    "intern", "internship", "co-op", "coop", "student intern",
+    "summer intern", "winter intern", "fall intern", "spring intern",
+    "stagiaire", "stage"
+  ],
+  "positive_description_terms": [
+    "internship program", "as an intern", "interns will", "co-op position",
+    "coop position", "student internship", "stage coop", "stage / coop"
+  ],
+  "student_indicators": [
+    "student", "currently enrolled", "enrolled", "pursuing", "bachelor",
+    "bachelor's", "master", "master's", "phd", "university", "college",
+    "degree", "undergraduate", "graduate school", "étudiant", "étudiante",
+    "etudiant", "etudiante", "inscrit", "inscrite", "baccalauréat",
+    "baccalaureat", "maîtrise", "maitrise", "université", "universite"
+  ],
+  "duration_indicators": [
+    "4 months", "8 months", "12 months", "16 weeks", "12 weeks",
+    "winter 2025", "winter 2026", "summer 2025", "summer 2026",
+    "fall 2025", "fall 2026", "spring 2025", "spring 2026",
+    "hiver 2025", "hiver 2026", "été 2025", "été 2026",
+    "durée", "duree", "duration", "start date", "end date"
+  ],
+  "french_stage_context": [
+    "stagiaire", "étudiant", "étudiante", "etudiant", "etudiante",
+    "durée", "duree", "baccalauréat", "baccalaureat", "maîtrise",
+    "maitrise", "université", "universite", "coop", "alternance"
+  ],
+  "stage_exclusion_phrases": [
+    "at any stage of application", "at any stage of recruitment",
+    "at any stage of employment", "any stage of the process",
+    "at any stage of the process", "recruitment process", "application process"
+  ],
+  "low_experience_terms": ["entry-level", "entry level", "0-2 years", "0 to 2 years", "no experience", "aucune expérience"],
+  "english_positive_keyword_weights": {
+    "intern": 0.30,
+    "internship": 0.35,
+    "co-op": 0.30,
+    "coop": 0.25,
+    "student intern": 0.25,
+    "graduate program": 0.20,
+    "trainee": 0.22,
+    "junior": 0.10
+  },
+  "french_positive_keyword_weights": {
+    "stage": 0.30,
+    "stagiaire": 0.35,
+    "étudiant": 0.18,
+    "etudiant": 0.18,
+    "étudiante": 0.18,
+    "etudiante": 0.18,
+    "alternance": 0.25,
+    "maîtrise": 0.12,
+    "maitrise": 0.12,
+    "baccalauréat": 0.12,
+    "baccalaureat": 0.12
+  }
+}

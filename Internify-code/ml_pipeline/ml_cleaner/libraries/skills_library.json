@@ -1,0 +1,724 @@
+{
+  "Python": {
+    "synonyms": [
+      "python"
+    ],
+    "description": "Python programming scripting automation backend data science"
+  },
+  "Java": {
+    "synonyms": [
+      "java"
+    ],
+    "description": "Java programming object oriented backend software"
+  },
+  "JavaScript": {
+    "synonyms": [
+      "javascript",
+      "js"
+    ],
+    "description": "JavaScript frontend web backend programming"
+  },
+  "TypeScript": {
+    "synonyms": [
+      "typescript",
+      "ts"
+    ],
+    "description": "TypeScript typed JavaScript programming"
+  },
+  "C": {
+    "synonyms": [
+      "c programming",
+      "language c"
+    ],
+    "description": "C programming embedded systems software"
+  },
+  "C++": {
+    "synonyms": [
+      "c++",
+      "cpp"
+    ],
+    "description": "C++ programming embedded systems software"
+  },
+  "C#": {
+    "synonyms": [
+      "c#",
+      "c sharp"
+    ],
+    "description": "C sharp Microsoft .NET programming"
+  },
+  "Go": {
+    "synonyms": [
+      "golang",
+      "go programming"
+    ],
+    "description": "Go programming backend systems"
+  },
+  "Rust": {
+    "synonyms": [
+      "rust"
+    ],
+    "description": "Rust programming systems software"
+  },
+  "SQL": {
+    "synonyms": [
+      "sql",
+      "mysql",
+      "relational database"
+    ],
+    "description": "SQL relational databases querying"
+  },
+  "HTML": {
+    "synonyms": [
+      "html"
+    ],
+    "description": "HTML web markup"
+  },
+  "CSS": {
+    "synonyms": [
+      "css"
+    ],
+    "description": "CSS web styling"
+  },
+  "React": {
+    "synonyms": [
+      "react",
+      "reactjs",
+      "react.js"
+    ],
+    "description": "React frontend UI components"
+  },
+  "Angular": {
+    "synonyms": [
+      "angular"
+    ],
+    "description": "Angular frontend web framework"
+  },
+  "Node.js": {
+    "synonyms": [
+      "node.js",
+      "nodejs"
+    ],
+    "description": "Node.js JavaScript runtime backend"
+  },
+  "APIs": {
+    "synonyms": [
+      "api",
+      "apis",
+      "application programming interfaces"
+    ],
+    "description": "Application programming interfaces APIs integrations"
+  },
+  "Git": {
+    "synonyms": [
+      "git",
+      "github",
+      "gitlab",
+      "bitbucket",
+      "version control"
+    ],
+    "description": "Git version control collaboration"
+  },
+  "Linux": {
+    "synonyms": [
+      "linux",
+      "unix",
+      "nix"
+    ],
+    "description": "Linux Unix operating system command line"
+  },
+  "Docker": {
+    "synonyms": [
+      "docker",
+      "containerization",
+      "containers"
+    ],
+    "description": "Docker containerization deployment"
+  },
+  "Kubernetes": {
+    "synonyms": [
+      "kubernetes",
+      "k8s"
+    ],
+    "description": "Kubernetes container orchestration"
+  },
+  "Machine Learning": {
+    "synonyms": [
+      "machine learning",
+      "artificial intelligence",
+      "ai/ml"
+    ],
+    "description": "machine learning models prediction classification"
+  },
+  "Deep Learning": {
+    "synonyms": [
+      "deep learning",
+      "neural networks"
+    ],
+    "description": "deep learning neural networks"
+  },
+  "NLP": {
+    "synonyms": [
+      "nlp",
+      "natural language processing"
+    ],
+    "description": "natural language processing text analytics"
+  },
+  "Data Analysis": {
+    "synonyms": [
+      "data analysis",
+      "analytics",
+      "data analytics",
+      "analysis of data"
+    ],
+    "description": "data analysis reporting insights"
+  },
+  "Statistics": {
+    "synonyms": [
+      "statistics",
+      "statistical methods",
+      "statistical"
+    ],
+    "description": "statistics probability data analysis"
+  },
+  "Pandas": {
+    "synonyms": [
+      "pandas"
+    ],
+    "description": "Pandas Python dataframes"
+  },
+  "NumPy": {
+    "synonyms": [
+      "numpy"
+    ],
+    "description": "NumPy numerical computing"
+  },
+  "PyTorch": {
+    "synonyms": [
+      "pytorch"
+    ],
+    "description": "PyTorch machine learning framework"
+  },
+  "TensorFlow": {
+    "synonyms": [
+      "tensorflow"
+    ],
+    "description": "TensorFlow machine learning framework"
+  },
+  "Scikit-learn": {
+    "synonyms": [
+      "scikit-learn",
+      "sklearn"
+    ],
+    "description": "Scikit-learn machine learning Python"
+  },
+  "Power BI": {
+    "synonyms": [
+      "power bi",
+      "powerbi"
+    ],
+    "description": "Power BI dashboards business intelligence"
+  },
+  "Tableau": {
+    "synonyms": [
+      "tableau"
+    ],
+    "description": "Tableau dashboards data visualization"
+  },
+  "Excel": {
+    "synonyms": [
+      "excel",
+      "microsoft excel",
+      "ms excel",
+      "microsoft office",
+      "ms office",
+      "office suite",
+      "spreadsheets"
+    ],
+    "description": "Excel spreadsheets Microsoft Office analysis"
+  },
+  "Snowflake": {
+    "synonyms": [
+      "snowflake"
+    ],
+    "description": "Snowflake cloud data warehouse"
+  },
+  "Cybersecurity": {
+    "synonyms": [
+      "cybersecurity",
+      "information security",
+      "computer security"
+    ],
+    "description": "cybersecurity security vulnerabilities defense"
+  },
+  "Vulnerability Research": {
+    "synonyms": [
+      "vulnerability research",
+      "security vulnerabilities"
+    ],
+    "description": "vulnerability research software security"
+  },
+  "Penetration Testing": {
+    "synonyms": [
+      "penetration testing",
+      "pentesting",
+      "pen testing"
+    ],
+    "description": "penetration testing offensive security"
+  },
+  "SIEM": {
+    "synonyms": [
+      "siem"
+    ],
+    "description": "SIEM security monitoring"
+  },
+  "Threat Hunting": {
+    "synonyms": [
+      "threat hunting",
+      "threat intelligence"
+    ],
+    "description": "threat hunting cyber intelligence"
+  },
+  "TCP/IP": {
+    "synonyms": [
+      "tcp/ip",
+      "tcp ip"
+    ],
+    "description": "TCP/IP networking protocol"
+  },
+  "Networking": {
+    "synonyms": [
+      "networking",
+      "network protocols",
+      "osi model",
+      "dns"
+    ],
+    "description": "computer networking protocols infrastructure"
+  },
+  "Wireshark": {
+    "synonyms": [
+      "wireshark"
+    ],
+    "description": "Wireshark packet analysis"
+  },
+  "Malware Analysis": {
+    "synonyms": [
+      "malware analysis",
+      "malware"
+    ],
+    "description": "malware analysis reverse engineering"
+  },
+  "CTF": {
+    "synonyms": [
+      "ctf",
+      "capture the flag"
+    ],
+    "description": "cybersecurity capture the flag exercises"
+  },
+  "OSI Model": {
+    "synonyms": [
+      "osi model",
+      "osi reference model"
+    ],
+    "description": "OSI networking model"
+  },
+  "AWS": {
+    "synonyms": [
+      "aws",
+      "amazon web services"
+    ],
+    "description": "AWS cloud services"
+  },
+  "Azure": {
+    "synonyms": [
+      "azure",
+      "microsoft azure"
+    ],
+    "description": "Microsoft Azure cloud"
+  },
+  "GCP": {
+    "synonyms": [
+      "gcp",
+      "google cloud"
+    ],
+    "description": "Google Cloud Platform"
+  },
+  "CI/CD": {
+    "synonyms": [
+      "ci/cd",
+      "continuous integration",
+      "continuous deployment"
+    ],
+    "description": "CI CD software delivery pipelines"
+  },
+  "Terraform": {
+    "synonyms": [
+      "terraform"
+    ],
+    "description": "Terraform infrastructure as code"
+  },
+  "Monitoring": {
+    "synonyms": [
+      "monitoring",
+      "observability"
+    ],
+    "description": "systems monitoring observability"
+  },
+  "Cloud Infrastructure": {
+    "synonyms": [
+      "cloud infrastructure",
+      "cloud-native",
+      "cloud native"
+    ],
+    "description": "cloud infrastructure platforms"
+  },
+  "AutoCAD": {
+    "synonyms": [
+      "autocad"
+    ],
+    "description": "AutoCAD CAD engineering drawings"
+  },
+  "GIS": {
+    "synonyms": [
+      "gis",
+      "geographic information system"
+    ],
+    "description": "Geographic Information System mapping GIS"
+  },
+  "LabVIEW": {
+    "synonyms": [
+      "labview"
+    ],
+    "description": "LabVIEW test automation engineering"
+  },
+  "Altium": {
+    "synonyms": [
+      "altium",
+      "altium designer"
+    ],
+    "description": "Altium PCB design software"
+  },
+  "PCB": {
+    "synonyms": [
+      "pcb",
+      "printed circuit board"
+    ],
+    "description": "PCB circuit board design"
+  },
+  "FPGA": {
+    "synonyms": [
+      "fpga",
+      "fpgas"
+    ],
+    "description": "FPGA programmable logic"
+  },
+  "VHDL": {
+    "synonyms": [
+      "vhdl"
+    ],
+    "description": "VHDL hardware description language"
+  },
+  "ModelSim": {
+    "synonyms": [
+      "modelsim"
+    ],
+    "description": "ModelSim simulation tool"
+  },
+  "Oscilloscope": {
+    "synonyms": [
+      "oscilloscope",
+      "oscilloscopes"
+    ],
+    "description": "Oscilloscope electronics measurement"
+  },
+  "Embedded Systems": {
+    "synonyms": [
+      "embedded systems",
+      "embedded software"
+    ],
+    "description": "Embedded systems firmware hardware software"
+  },
+  "RTOS": {
+    "synonyms": [
+      "rtos",
+      "real-time operating system"
+    ],
+    "description": "real time operating system embedded"
+  },
+  "Electrical Design": {
+    "synonyms": [
+      "electrical design",
+      "electrical hardware"
+    ],
+    "description": "electrical engineering design"
+  },
+  "Mechanical Design": {
+    "synonyms": [
+      "mechanical design"
+    ],
+    "description": "mechanical engineering design"
+  },
+  "Civil Engineering": {
+    "synonyms": [
+      "civil engineering",
+      "civil technologist"
+    ],
+    "description": "civil engineering infrastructure construction"
+  },
+  "Project Coordination": {
+    "synonyms": [
+      "project coordination",
+      "coordinate projects",
+      "project coordinator"
+    ],
+    "description": "project coordination planning"
+  },
+  "Accounting": {
+    "synonyms": [
+      "accounting",
+      "comptabilité",
+      "comptabilite"
+    ],
+    "description": "accounting bookkeeping audit finance"
+  },
+  "Finance": {
+    "synonyms": [
+      "finance",
+      "financial analysis",
+      "financial modeling",
+      "financial modelling"
+    ],
+    "description": "finance financial analysis investment"
+  },
+  "Operations": {
+    "synonyms": [
+      "operations",
+      "supply chain",
+      "logistics",
+      "warehouse",
+      "entrepôt"
+    ],
+    "description": "operations logistics supply chain"
+  },
+  "SAP": {
+    "synonyms": [
+      "sap",
+      "sap ewm",
+      "s/4 hana",
+      "s4 hana"
+    ],
+    "description": "SAP enterprise systems"
+  },
+  "PowerPoint": {
+    "synonyms": [
+      "powerpoint",
+      "microsoft powerpoint",
+      "ms powerpoint",
+      "presentations"
+    ],
+    "description": "PowerPoint presentations"
+  },
+  "Strategy": {
+    "synonyms": [
+      "strategy",
+      "strategic planning",
+      "business strategy"
+    ],
+    "description": "strategy planning"
+  },
+  "Project Management": {
+    "synonyms": [
+      "project management",
+      "gestion de projet",
+      "waterfall"
+    ],
+    "description": "project management planning delivery"
+  },
+  "Customer Service": {
+    "synonyms": [
+      "customer service",
+      "customer relations",
+      "customer-centric",
+      "customer support"
+    ],
+    "description": "customer service relations support"
+  },
+  "Administration": {
+    "synonyms": [
+      "administration",
+      "administrative support"
+    ],
+    "description": "administration office support"
+  },
+  "Data Entry": {
+    "synonyms": [
+      "data entry",
+      "order entry"
+    ],
+    "description": "data entry records"
+  },
+  "Documentation": {
+    "synonyms": [
+      "documentation",
+      "documenting",
+      "reports",
+      "prepare reports"
+    ],
+    "description": "documentation reporting"
+  },
+  "Recruitment": {
+    "synonyms": [
+      "recruitment",
+      "recruiting",
+      "screening candidates"
+    ],
+    "description": "recruitment human resources"
+  },
+  "Human Resources": {
+    "synonyms": [
+      "human resources",
+      "hr",
+      "ressources humaines"
+    ],
+    "description": "human resources HR"
+  },
+  "Pharmacy": {
+    "synonyms": [
+      "pharmacy",
+      "pharmacist",
+      "pharmacie"
+    ],
+    "description": "pharmacy healthcare medication"
+  },
+  "Patient Care": {
+    "synonyms": [
+      "patient care",
+      "patients",
+      "counsel patients"
+    ],
+    "description": "patient care healthcare"
+  },
+  "Medication Dispensing": {
+    "synonyms": [
+      "dispense prescriptions",
+      "dispense medications",
+      "medication dispensing"
+    ],
+    "description": "medication dispensing pharmacy"
+  },
+  "KROLL": {
+    "synonyms": [
+      "kroll"
+    ],
+    "description": "KROLL pharmacy computer system"
+  },
+  "HealthWatch": {
+    "synonyms": [
+      "healthwatch",
+      "healthwatch pharmacy computer system",
+      "pharmacy computer system"
+    ],
+    "description": "HealthWatch pharmacy computer system"
+  },
+  "Clinical Care": {
+    "synonyms": [
+      "clinical care",
+      "clinical"
+    ],
+    "description": "clinical healthcare care"
+  },
+  "Pharmacy License": {
+    "synonyms": [
+      "pharmacy license",
+      "pharmacists license",
+      "provincial pharmacy license"
+    ],
+    "description": "professional pharmacy license"
+  },
+  "Dietitian": {
+    "synonyms": [
+      "dietitian",
+      "dietician"
+    ],
+    "description": "dietitian healthcare nutrition"
+  },
+  "Healthcare": {
+    "synonyms": [
+      "healthcare",
+      "health care",
+      "medical",
+      "clinical"
+    ],
+    "description": "healthcare medical clinical"
+  },
+  "UI/UX": {
+    "synonyms": [
+      "ui/ux",
+      "ux",
+      "user experience",
+      "user interface"
+    ],
+    "description": "UI UX user experience design"
+  },
+  "Figma": {
+    "synonyms": [
+      "figma"
+    ],
+    "description": "Figma design prototyping"
+  },
+  "Product Design": {
+    "synonyms": [
+      "product design"
+    ],
+    "description": "product design user experience"
+  },
+  "Graphic Design": {
+    "synonyms": [
+      "graphic design",
+      "social media graphic designer"
+    ],
+    "description": "graphic design visual design"
+  },
+  "Adobe": {
+    "synonyms": [
+      "adobe",
+      "photoshop",
+      "illustrator"
+    ],
+    "description": "Adobe design tools"
+  },
+  "Visual Design": {
+    "synonyms": [
+      "visual design",
+      "visual"
+    ],
+    "description": "visual design creative"
+  },
+  "Communication": {
+    "synonyms": [
+      "communication",
+      "oral communication",
+      "written communication",
+      "verbal communication",
+      "presentation skills"
+    ],
+    "description": "communication written verbal presentation"
+  },
+  "Problem Solving": {
+    "synonyms": [
+      "problem solving",
+      "problem-solving",
+      "analytical skills",
+      "critical thinking",
+      "résolution de problèmes"
+    ],
+    "description": "problem solving analytical critical thinking"
+  },
+  "Agile": {
+    "synonyms": [
+      "agile",
+      "scrum",
+      "kanban"
+    ],
+    "description": "Agile Scrum methodology"
+  }
+}

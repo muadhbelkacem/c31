@@ -1,0 +1,44 @@
+{
+  "title_negative_keywords": {
+    "senior": -0.30,
+    "director": -0.35,
+    "principal": -0.30,
+    "staff engineer": -0.30,
+    "staff pharmacist": -0.35,
+    "head of": -0.30,
+    "manager": -0.25,
+    "licensee": -0.30,
+    "gestionnaire": -0.18
+  },
+  "title_negative_patterns": [
+    {"pattern": "\\blead\\s+(software|backend|frontend|engineer|developer|designer|analyst|architect)\\b", "weight": -0.18, "reason": "title seniority pattern: lead"},
+    {"pattern": "\\b(manager|gestionnaire|licensee)\\b", "weight": -0.22, "reason": "title seniority/professional keyword"}
+  ],
+  "professional_negative_patterns": [
+    {"pattern": "class\\s+[a-z]\\s+pharmacists?\\s+license\\s+a\\s+must", "weight": -0.45, "reason": "professional pharmacist license required"},
+    {"pattern": "pharmacy\\s+license\\s*\\(required\\)|pharmacy\\s+license\\s+required", "weight": -0.45, "reason": "pharmacy license required"},
+    {"pattern": "acp\\s+license\\s+a\\s+must", "weight": -0.40, "reason": "professional ACP license required"},
+    {"pattern": "valid\\s+provincial\\s+pharmacy\\s+license", "weight": -0.45, "reason": "professional pharmacy license required"},
+    {"pattern": "professional\\s+license\\s+required", "weight": -0.35, "reason": "professional license required"},
+    {"pattern": "leadership\\s+and\\s+performance\\s+management\\s+skills\\s+required", "weight": -0.25, "reason": "leadership/performance management required"},
+    {"pattern": "provide\\s+(on-going\\s+)?training\\s+for\\s+all\\s+new\\s+and\\s+existing", "weight": -0.20, "reason": "trains existing staff"},
+    {"pattern": "direct\\s+reports", "weight": -0.25, "reason": "direct reports/supervisory responsibility"},
+    {"pattern": "supervisory\\s+responsibility", "weight": -0.25, "reason": "supervisory responsibility"},
+    {"pattern": "sign[- ]?on\\s+bonus|signing\\s+bonus", "weight": -0.15, "reason": "signing bonus professional role signal"}
+  ],
+  "experience_negative_patterns": [
+    {"pattern": "\\b[3-9]\\s+years?\\s+to\\s+less\\s+than\\s+\\d+\\s+years?\\b", "weight": -0.35, "reason": "multi-year experience requirement"},
+    {"pattern": "\\b[5-9]\\+\\s*years\\b", "weight": -0.35, "reason": "experienced-job years requirement"},
+    {"pattern": "\\b\\d{2}\\+\\s*years\\b", "weight": -0.35, "reason": "experienced-job years requirement"},
+    {"pattern": "\\bminimum\\s+[5-9]\\s+years\\b", "weight": -0.35, "reason": "experienced-job years requirement"},
+    {"pattern": "\\b[5-9]\\s+years\\s+of\\s+experience\\b", "weight": -0.35, "reason": "experienced-job years requirement"},
+    {"pattern": "\\b[5-9]\\s+ans\\s+d['’]?exp[eé]rience\\b", "weight": -0.35, "reason": "experienced-job years requirement"}
+  ],
+  "employment_negative_patterns": [
+    {"pattern": "\\bfull[- ]time\\b", "weight": -0.18, "reason": "full-time job indicator"},
+    {"pattern": "\\bpermanent\\b", "weight": -0.25, "reason": "permanent job indicator"},
+    {"pattern": "\\bpart[- ]time\\s+permanent\\b", "weight": -0.25, "reason": "permanent job indicator"},
+    {"pattern": "\\btemps\\s+plein\\b", "weight": -0.18, "reason": "full-time job indicator"},
+    {"pattern": "\\b30\\s*(to|à|-|–)\\s*40\\s+hours\\b", "weight": -0.12, "reason": "standard employment hours"}
+  ]
+}
