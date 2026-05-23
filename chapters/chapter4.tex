@@ -141,23 +141,9 @@ The conceptual model additionally includes user-oriented entities such as \textt
 
 Although Figure 4.2 presents a conceptual UML abstraction rather than a strict implementation class hierarchy, it provides a useful representation of the principal data entities and their interactions within the proposed system.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{uml/classdiagram.png}
-    \caption{UML class representation of the proposed system’s conceptual core data model.}
-    \label{fig:class_diagram}
-\end{figure}
-
 \subsection{Application Interaction Flow}
 
 Figure 4.3 illustrates the high-level interaction sequence between the user, frontend application, and backend persistence services during normal platform operation. The interaction model follows an asynchronous request-response architecture typical of modern web applications.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{uml/sequenceDiagramFrontend.png}
-    \caption{UML sequence diagram illustrating the high-level interaction between the user and system components.}
-    \label{fig:sequence_diagram}
-\end{figure}
 
 The sequence begins when a user visits the internship platform, triggering the frontend application to load the available internship catalog for browsing. Structured internship data is retrieved through backend application services and rendered to the user interface.
 
@@ -168,6 +154,22 @@ Authenticated interaction is additionally supported through the user account wor
 Registered users may also persist saved internship interactions. When a user bookmarks an internship, the frontend communicates with the persistence layer to store the user–internship association, after which confirmation is returned to the interface.
 
 This interaction architecture separates frontend presentation behavior from backend persistence responsibilities while supporting responsive user interaction and authenticated account-linked functionality.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{uml/classdiagram.png}
+    \caption{UML class representation of the proposed system’s conceptual core data model.}
+    \label{fig:class_diagram}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{uml/sequenceDiagramFrontend.png}
+    \caption{UML sequence diagram illustrating the high-level interaction between the user and system components.}
+    \label{fig:sequence_diagram}
+\end{figure}
+
+\clearpage
 
 \subsection{Ingestion and Semantic Enrichment Workflow}
 
