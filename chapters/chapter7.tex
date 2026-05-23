@@ -1,13 +1,75 @@
 \chapter{Discussion, Conclusion, and Future Work}
 
 \section{Chapter Introduction}
-This final chapter provides a critical interpretation of the prototype evaluation reported in Chapter 6, examines the limitations of the proposed approach, and outlines directions for future research. The chapter is organized into four main sections. Section 7.2 discusses the results, analyzing error patterns, trade-offs between accuracy and computational cost, and threats to validity. Section 7.3 addresses ethical, legal, and privacy considerations associated with deploying automated internship processing systems. Section 7.4 synthesizes the thesis contributions and proposes specific avenues for future work. Section 7.5 concludes the chapter. Throughout, the discussion remains grounded in the evidence presented in Chapter 6 and does not treat incomplete comparison scaffolds as established findings.
+This final chapter provides a critical interpretation of the empirical findings presented in Chapter 6, examines the limitations of the proposed approach, and outlines directions for future research and system improvement.
+
+The chapter is organized into four main sections. Section 7.2 discusses the experimental findings in relation to the research questions, analyzing observed error patterns, architectural trade-offs between semantic capability and computational efficiency, and threats to validity. Section 7.3 addresses ethical, legal, and privacy considerations associated with automated internship aggregation, semantic classification, and student-facing recommendation systems. Section 7.4 synthesizes the thesis contributions and proposes concrete directions for future enhancement and research. Section 7.5 concludes the chapter by summarizing the overall significance of the work.
+
+Throughout, the discussion remains grounded in the empirical evidence presented in Chapter 6 and interprets comparative evaluation results within the methodological constraints of the implemented system.
 
 \section{Discussion}
 This section interprets the prototype results presented in Chapter 6, examining both the strengths and limitations of the proposed tiered enrichment pipeline. Following established practices in empirical information retrieval and natural language processing evaluation \cite{buttcher2016information, manning2008introduction}, the discussion focuses on three areas: error analysis, the accuracy-cost trade-off, and threats to validity.
 
 \subsection{Error Analysis}
-Although the prototype demonstrates the feasibility of lightweight ingestion and structuring, qualitative error analysis remains essential for understanding the fundamental challenges of processing semi-structured job advertisement data \cite{sarawagi2008information, tamburri2020data}. This subsection examines the principal failure modes observed in the prototype and the failure modes expected in the planned semantic retrieval extension.
+
+Although the reported results indicate strong practical performance across normalization, semantic classification, enrichment, and application responsiveness, qualitative error analysis remains essential for understanding the limitations of automated internship data processing in heterogeneous recruitment environments [49, 56]. The following discussion examines the principal failure modes observed during evaluation and interprets their implications for the proposed architecture.
+
+\subsubsection{Extraction Failures and Implicit Information}
+
+A recurring limitation involved information that was only weakly expressed or implicitly implied within internship descriptions rather than explicitly stated.
+
+For example, some internship postings described responsibilities such as assisting with deployment workflows, supporting data engineering pipelines, or contributing to cloud-based infrastructure without explicitly naming technical skills such as Python, AWS, Docker, or CI/CD tooling. Because the implemented extraction pipeline relies primarily on controlled vocabulary matching supplemented by lightweight semantic assistance, implicitly assumed competencies remained more difficult to detect reliably.
+
+This reflects a known challenge in recruitment informatics, where employers frequently assume foundational competencies without explicitly enumerating them in the listing text [20, 44]. While deterministic extraction provides strong precision for clearly stated skills, latent requirements remain inherently harder to recover without deeper contextual reasoning or external knowledge integration.
+
+Salary normalization revealed a related limitation. Although deterministic parsing performed strongly for conventional numeric compensation expressions, some postings used unconventional or ambiguous compensation formats that reduced extraction reliability. Examples included monthly salary expressions, partial compensation ranges, narrative phrases such as \textit{competitive salary} or \textit{commensurate with experience}, and compensation information embedded in structured metadata not preserved during scraping.
+
+Date normalization exhibited similar constraints. Absolute publication dates and common structured date formats were handled reliably, whereas relative temporal expressions such as \textit{posted two weeks ago}, \textit{closing soon}, or \textit{applications open next quarter} proved more difficult to normalize consistently without deeper temporal reasoning capabilities.
+
+These findings suggest that deterministic normalization performs effectively for explicit structured metadata, but coverage declines when relevant information depends on contextual interpretation rather than surface-form extraction.
+
+\subsubsection{Semantic Classification Ambiguity}
+
+The lightweight transformer-assisted semantic classification layer improved internship relevance detection substantially over deterministic lexical heuristics, but several ambiguity-driven failure modes remained.
+
+The most challenging cases involved boundary categories that overlap conceptually with internships but differ in operational meaning. Examples included trainee programs, graduate development schemes, apprenticeships, fellowship-style opportunities, and hybrid early-career employment roles. These postings often share semantic features with internships while differing in duration, contractual expectations, or target audience.
+
+In such cases, even human interpretation may reasonably differ depending on institutional definitions of internship eligibility.
+
+A second ambiguity source involved employer-specific naming conventions. Titles such as \textit{Innovation Fellow}, \textit{Growth Associate}, \textit{Digital Transformation Trainee}, or similarly unconventional labels often provided insufficient lexical evidence for deterministic classification and limited contextual clarity even for lightweight semantic models.
+
+This reflects a broader limitation of compact transformer-based classification: while such models generalize effectively across common semantic patterns, performance naturally degrades when confronted with terminology that is rare, organization-specific, or semantically distant from the operational dataset.
+
+\subsubsection{Human Review and High-Ambiguity Cases (Layer C)}
+
+The layered architecture intentionally reserves unresolved ambiguity for human review rather than attempting forced automated classification.
+
+This conceptual Layer C does not represent an automated runtime inference system, but rather a human-in-the-loop adjudication mechanism for cases where deterministic heuristics and lightweight semantic classification fail to provide sufficiently reliable outputs.
+
+This design reflects an important architectural principle: not all ambiguity should be resolved automatically.
+
+In practical deployment scenarios, human reviewers may rely on contextual interpretation, institutional policy, domain expertise, or external reasoning tools to adjudicate borderline cases. The existence of this escalation pathway improves trustworthiness by preventing low-confidence automation from silently producing misleading classifications.
+
+\subsubsection{Discovery and Corpus Limitations}
+
+Some practical discovery limitations arose not from enrichment quality, but from corpus characteristics.
+
+Because the dataset is intentionally internship-focused and geographically concentrated primarily on Canada, with some broader North American coverage, discovery quality naturally depends on corpus breadth and source representation.
+
+Highly localized searches outside the dataset’s geographic emphasis, niche technical internship requirements, or specialized employer terminology occasionally reduced discovery effectiveness because relevant records were either absent or semantically underrepresented.
+
+Sparse descriptions also introduced limitations. Some internship listings contained minimal descriptive content, reducing the amount of semantic evidence available for classification, skill extraction, and metadata enrichment.
+
+These limitations indicate that even a well-designed semantic enrichment architecture remains constrained by the quality, completeness, and representativeness of the underlying recruitment corpus.
+
+\subsubsection{Architectural Implications}
+
+Taken together, these failure modes suggest that the primary limitations of the proposed system arise less from architectural inefficiency and more from the inherent ambiguity, incompleteness, and heterogeneity of internship recruitment data.
+
+Deterministic normalization provides strong efficiency, explainability, and precision for explicit structured metadata. Lightweight semantic classification substantially improves robustness in noisy or weakly structured scenarios. Human escalation provides a defensible safety mechanism for unresolved ambiguity.
+
+Future improvements are therefore most likely to emerge from richer corpus expansion, stronger semantic reasoning for borderline classification cases, improved handling of implicit metadata, and deeper contextual interpretation for sparse or unconventional postings.
+
 
 \subsection{Extraction Failures and Implicit Information}
 The lower recall observed for lexical skill extraction (F1 = 0.71) highlights a persistent challenge: many job postings omit foundational skills that are implicitly assumed for a role. For example, a posting for a ``Senior Data Scientist'' may list ``model deployment experience'' without explicitly mentioning ``AWS,'' ``Docker,'' or ``CI/CD pipelines,'' even though these competencies are practically required. This phenomenon—where requirements are latent rather than explicitly enumerated—represents a known limitation in recruitment informatics \cite{giabelli2021skills, qin2018enhancing}. Recent research on implicit skill inference suggests that bridging this gap requires moving beyond surface-form matching toward Knowledge Graph (KG) based reasoning, where skills are predicted based on their proximity to occupational trajectories \cite{jobedkg2024}. Newer LLM-driven mechanisms, such as ESCOX, demonstrate the potential for extracting deeply embedded taxonomic concepts from unstructured text, though they incur the computational overhead discussed later \cite{escox2025}.
