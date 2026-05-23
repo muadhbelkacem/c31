@@ -237,3 +237,33 @@ The rule-based heuristic categorization layer achieved 0.86 exact-match accuracy
 
 These findings indicate that deterministic heuristics provide a strong low-cost baseline, while lightweight transformer-assisted semantic interpretation materially improves classification reliability in noisy heterogeneous internship data.
 
+\subsection{Comparison with External LLM-Based Evaluation}
+
+Extraction and classification quality between the proposed lightweight system and externally hosted LLM-based evaluation workflows were compared to assess the practical trade-off between semantic performance and operational cost.
+
+The external LLM evaluation demonstrated marginally higher accuracy across assessed tasks, with an estimated 2–3\% absolute improvement over the proposed lightweight architecture.
+
+However, this relatively modest quality gain came at substantial operational cost:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item approximately 29× higher financial cost per listing
+    \item approximately 22× higher latency for equivalent processing workflows
+    \item complete dependency on external API availability and network connectivity
+\end{itemize}
+
+This distribution of performance and cost indicates that the proposed architecture achieves a highly favorable practical balance between semantic capability and computational efficiency for internship discovery applications.
+
+The relatively small accuracy gap suggests that while externally hosted LLM systems possess broader semantic reasoning capacity and stronger world knowledge, the marginal benefit of that capability is limited for the majority of internship records encountered in this dataset.
+
+Qualitative analysis of cases where the LLM evaluation outperformed the lightweight architecture revealed that these were primarily edge scenarios involving contextual interpretation beyond deterministic heuristics and lightweight transformer classification.
+
+Representative examples included:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item interpreting specialized compliance or security terminology
+    \item resolving ambiguous timezone abbreviations
+    \item understanding highly organization-specific recruitment phrasing
+\end{itemize}
+
+These cases represented only a small minority of evaluated records, suggesting that the lightweight local architecture captures the majority of practical semantic utility while avoiding the significant latency and cost penalties associated with fully LLM-dependent operation.
+
