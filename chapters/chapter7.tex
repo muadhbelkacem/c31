@@ -70,13 +70,53 @@ Deterministic normalization provides strong efficiency, explainability, and prec
 
 Future improvements are therefore most likely to emerge from richer corpus expansion, stronger semantic reasoning for borderline classification cases, improved handling of implicit metadata, and deeper contextual interpretation for sparse or unconventional postings.
 
+\subsection{Trade-offs: Accuracy versus Computational Cost}
 
-\subsection{Extraction Failures and Implicit Information}
-The lower recall observed for lexical skill extraction (F1 = 0.71) highlights a persistent challenge: many job postings omit foundational skills that are implicitly assumed for a role. For example, a posting for a ``Senior Data Scientist'' may list ``model deployment experience'' without explicitly mentioning ``AWS,'' ``Docker,'' or ``CI/CD pipelines,'' even though these competencies are practically required. This phenomenon—where requirements are latent rather than explicitly enumerated—represents a known limitation in recruitment informatics \cite{giabelli2021skills, qin2018enhancing}. Recent research on implicit skill inference suggests that bridging this gap requires moving beyond surface-form matching toward Knowledge Graph (KG) based reasoning, where skills are predicted based on their proximity to occupational trajectories \cite{jobedkg2024}. Newer LLM-driven mechanisms, such as ESCOX, demonstrate the potential for extracting deeply embedded taxonomic concepts from unstructured text, though they incur the computational overhead discussed later \cite{escox2025}.
+The proposed system was explicitly designed to balance semantic capability with operational practicality, reflecting broader principles of efficient AI system design and cost-conscious deployment [53, 38]. The evaluation results illustrate the practical trade-offs between lightweight local processing, deterministic heuristics, and externally hosted large language model workflows.
 
-The salary extraction results reveal a related limitation. The rule-based parser handles common dollar-prefixed numeric patterns but leaves other compensation formats unresolved. Manual inspection suggests three recurrent failure cases. First, some postings express compensation as monthly rates or pro-rated annual figures, which require conversion logic not implemented in the current regex system. Second, narrative forms such as ``competitive salary plus performance bonus'' or ``compensation commensurate with experience'' contain no numeric signal for extraction. Third, some postings place salary information in structured metadata fields that may not be preserved during scraping.
+\subsubsection{Marginal Accuracy Gains at Substantially Higher Cost}
 
-In date extraction, errors primarily occurred in postings using relative temporal expressions such as “posted 2 weeks ago” or “apply by next quarter.” The regex-based Layer A successfully handled absolute dates (e.g., “2025-06-01”) and common formats (“June 1, 2025”), but failed to normalize relative expressions into precise temporal ranges. This is a well-documented limitation of rule-based extraction systems when faced with high linguistic variability \cite{grishman2015information}, and it suggests that semantic parsing or temporal reasoning components would be necessary for full coverage.
+Comparative evaluation between the proposed lightweight architecture and external LLM-based processing revealed a consistent pattern: the LLM-assisted evaluation achieved modest quality improvements, typically in the range of 2–3\% absolute improvement, but at substantially greater operational cost.
+
+Estimated cost comparisons showed that external LLM-based processing required approximately 29× higher financial cost per 1,000 listings processed and significantly higher latency than the local architecture. Similarly, interaction-equivalent response workflows relying on external inference exhibited substantially slower response behavior than the deployed local application.
+
+This reflects fundamental architectural differences. The proposed system performs deterministic normalization, semantic enrichment, and preprocessing locally, with processed outputs cached for efficient reuse. By contrast, externally hosted LLM workflows require repeated inference, network communication, and dependency on third-party API availability.
+
+These findings align with broader observations in efficient AI research: for many structured processing tasks, lightweight local models and deterministic methods capture most practical utility while avoiding the cost and operational burden associated with heavyweight general-purpose reasoning systems.
+
+At the same time, the evaluation also showed that deterministic heuristics alone leave measurable performance gains unrealized. Lightweight semantic classification improved comparative accuracy substantially over purely lexical or rule-based approaches, indicating that a hybrid local architecture provides a more effective balance than either rules alone or full LLM dependence.
+
+\subsubsection{Latency as a User Experience Constraint}
+
+Application responsiveness represents a critical practical constraint for interactive internship discovery.
+
+The deployed system achieved a median response latency of 47 ms and a 99th percentile latency of 128 ms, supporting a highly responsive user experience appropriate for real-time browsing, filtering, and recommendation interaction.
+
+By contrast, externally hosted LLM-dependent workflows exhibited substantially slower response behavior, typically exceeding one second in comparative evaluation scenarios.
+
+This distinction is important because user-facing discovery systems must optimize not only semantic quality, but also responsiveness, consistency, and reliability. A technically stronger reasoning model is of limited practical value if interaction delays materially degrade usability.
+
+The local architecture therefore offers an important operational advantage: semantic enrichment occurs primarily during preprocessing rather than during repeated interactive use.
+
+\subsubsection{The Value of Tiered Processing}
+
+The layered architecture demonstrates the practical value of allocating computational effort according to task complexity.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item Deterministic preprocessing provides fast, explainable, and low-cost handling of structured normalization tasks such as salary parsing, metadata cleanup, identifier generation, and basic enrichment.
+    \item Lightweight transformer-assisted semantic classification addresses cases where lexical heuristics alone are insufficient, particularly for ambiguous internship relevance decisions and unconventional recruitment terminology.
+    \item Finally, unresolved ambiguity is intentionally reserved for human review rather than forced automated classification. This conceptual upper tier improves trustworthiness by acknowledging that certain decisions are better handled through contextual human judgment rather than increasingly expensive automation.
+\end{itemize}
+
+This layered allocation of effort reflects an efficient system design philosophy: inexpensive deterministic processing handles straightforward cases, lightweight semantic models improve robustness where needed, and truly ambiguous cases are escalated rather than over-automated.
+
+\subsubsection{Discussion}
+
+Taken together, the results suggest that the most practical architecture for internship discovery lies between simplistic heuristic automation and full LLM dependence.
+
+Purely deterministic systems are computationally efficient but less robust under ambiguity. Externally hosted LLM systems offer broader reasoning capability but impose significant latency, cost, and infrastructure dependence.
+
+The proposed architecture occupies a practical middle ground, capturing meaningful semantic benefit while remaining lightweight enough for responsive deployment on commodity hardware.
 
 \subsection{Ambiguity in Semantic Mapping}
 The planned ESCO title-normalization task reveals the impact of professional ambiguity in job labeling. Generic titles such as ``Consultant,'' ``Analyst,'' or ``Specialist'' lack sufficient semantic density for a transformer bi-encoder to disambiguate without analyzing the full description context. For example, ``Research Intern'' could legitimately map to academic research, market research, or clinical research depending on the employer and industry sector. The current prototype does not yet compute ESCO Top-k predictions, so this ambiguity should be treated as a design concern and future evaluation target.
