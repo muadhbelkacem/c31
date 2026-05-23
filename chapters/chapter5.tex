@@ -156,48 +156,25 @@ However, heuristic enrichment remains limited when encountering:
 
 For such cases, Layer B introduces transformer-assisted contextual semantic interpretation, preserving the efficiency advantages of deterministic enrichment while improving robustness for uncertain or ambiguous records [45, 38].
 
-\subsection{Stable Identifier Generation and Collision Handling}
-To ensure persistent, unique referencing across multiple ingestion cycles and to enable effective duplicate detection, the generateId function creates a deterministic, URL-friendly slug. This process is foundational for the data curation strategy and works as follows:
-
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Slugification: A dedicated helper function converts a given string (e.g., a company name or job title) to lowercase, replaces any sequence of non-alphanumeric characters with a single hyphen, and removes leading/trailing hyphens.
-
-\item Concatenation: The canonical ID is formed by concatenating the slugified title and slugified company name, separated by a hyphen.
-
-\item Deterministic Blocking: This generated ID serves as a blocking key for record linkage~\cite{christen2012data}. In deduplication, if a newly ingested listing generates an ID that already exists in the catalog, it is a strong signal of duplication. Recent surveys of record linkage in medical and professional informatics confirm that deterministic rules remain a robust foundation for identifying matches in large-scale datasets where persistent identifiers are required~\cite{sariyar2026record}. The system can then append a suffix or apply a heuristic to select the canonical record based on completeness or source authority. Deterministic blocking is efficient because it limits pairwise comparisons to the small blocks where a collision occurs. This approach directly addresses the deduplication and canonicalization challenges described earlier and provides an explainable, low-cost strategy for maintaining a clean search index for the end user.
-
-\end{itemize}
-\subsection{Keyword-Based Categorization}
-The \texttt{categorizeJob} function provides an immediate, high-level domain classification by applying keyword-anchored heuristics. This maps the normalized job title to categories such as Software, Data/AI, Design, Marketing, Healthcare, and Business. For instance, titles containing ``software,'' ``developer,'' or ``engineer'' are classified as Software, while titles containing ``data,'' ``analyst,'' ``ai,'' or ``scientist'' are classified as Data/AI. The evaluation proceeds in priority order from more specific technical anchors to the default Business category.
-
-\subsection{Skill Extraction}
-The system's initial layer of skill extraction, implemented in the \texttt{extractSkills} function, uses a dictionary-based approach, also known as gazetteer matching. It matches descriptions against a case-insensitive list of common technical and professional skills, including \texttt{python}, \texttt{react}, \texttt{sql}, \texttt{aws}, \texttt{machine learning}, \texttt{figma}, and \texttt{communication}.
-
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Precision and Efficiency: This method offers high precision for terms present in its lexicon. It identifies terms such as ``Python'' or ``AWS'' when they appear in recognized forms. It is also computationally efficient, requiring only a single pass over the text using standard data structures.
-
-\item Display Control: To keep cards readable, the current implementation returns at most five matched skills per listing. This is a pragmatic interface constraint rather than a learned salience model.
-
-\item Limitation and Role in Tiered Strategy: The lexicon's inherent limitation is its inability to detect novel or unlisted skills, such as a new JavaScript framework, or skills expressed through paraphrase. For this reason, \texttt{extractSkills} is designated as an initial high-precision layer, while more complex, ambiguous, or novel skills are reserved for semantic processing in a later Layer B.
-
-\end{itemize}
 \subsection{Performance Optimization and the Caching Sub-System}
-To translate the theoretical efficiency of individual heuristics into a practical low-latency system, the pipeline uses an in-memory caching strategy. After an internship listing has passed through validation, cleaning, and enrichment, the fully structured Internship object is placed into a server-side in-memory cache. The data.ts module acts as the sole data-access interface, first checking the cache for requested data before falling back to slower re-processing from the JSON file. This strategy has important implications for the system's performance profile:
 
+To translate the efficiency of deterministic preprocessing and semantic enrichment into practical frontend responsiveness, the system employs an in-memory caching strategy.
+
+After internship records have passed through validation, preprocessing, enrichment, and structured transformation, the resulting processed Internship objects are stored in a server-side in-memory cache. The data.ts module acts as the primary data-access interface, checking cached processed data before falling back to reloading and reprocessing the underlying JSON dataset.
+
+This caching strategy has several important implications for the system’s operational profile.
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Amortized Computational Cost:} The computational cost of ingestion, preprocessing, deterministic enrichment, semantic classification, and structured transformation is incurred only during data refresh or cache regeneration. This one-time processing cost is then amortized across repeated frontend and API access requests, substantially reducing redundant computation during normal application use.
 
-\item Amortized Cost: The entire cost of the ingestion and enrichment pipeline---including file I/O, text processing, and regex analysis---is paid only once per data refresh cycle. This one-time cost is then amortized over potentially hundreds of thousands of read requests from the API layer.
+    \item \textbf{Low-Latency Application Responsiveness:} By serving pre-processed structured internship records directly from memory, the system supports responsive frontend interaction for browsing, filtering, and internship exploration. This design avoids repeated execution of computationally heavier semantic processing during ordinary user interaction, preserving practical responsiveness for interactive application use [7].
 
-\item Low-Latency Retrieval: By serving pre-processed objects directly from memory, the system is designed to support low response times required for modern interactive search experiences~\cite{buttcher2016information}. This stands in contrast to architectures that perform semantic analysis at query time.
+    \item \textbf{Lightweight Operational Efficiency:} The caching strategy directly supports the lightweight architectural goals of the thesis [38, 53]. Because semantic enrichment is performed during preprocessing rather than repeatedly during frontend interaction, the system avoids unnecessary repeated inference cost, excess CPU utilization, and dependence on external cloud-based semantic processing services. This design aligns with the thesis objective of achieving meaningful semantic enrichment while remaining computationally practical on commodity hardware.
 
-\item Lightweight Operational Profile: This design supports the system's lightweight and Green AI orientation~\cite{schwartz2020green}. It avoids the per-query energy and computational cost that would be incurred by re-computing enrichments or making round-trip calls to external LLM APIs for every user search. The cache invalidation strategy is tied directly to the data refresh cycle, prioritizing efficiency and predictable performance. In summary, this chapter has detailed a tiered data-preparation pipeline aligned with the system's core design principles. By front-loading the computational cost of deterministic cleaning and enrichment and then using an in-memory cache, the preprocessing layer provides a clean, structured, and queryable dataset for the semantic and search components in subsequent sections.
-
+    \item \textbf{Cache Lifecycle Management:} Cache invalidation is coupled to the underlying data refresh cycle, ensuring that processed internship records remain synchronized with updated source datasets while preserving operational efficiency. This provides a predictable and explainable caching lifecycle without introducing unnecessary architectural complexity.
 \end{itemize}
+
+In summary, the caching subsystem transforms the preprocessing and semantic enrichment pipeline from a repeated computational burden into an amortized preparation stage, enabling practical frontend responsiveness while preserving the lightweight deployment philosophy of the proposed system.
 
 \section{Lightweight Semantic Enrichment Pipeline}
 The semantic enrichment pipeline is the computational core of the system. It transforms raw, unstructured text into the structured, semantically enriched format defined in the methodology chapter. This section provides a detailed account of the implementation of a high-performance, rule-based extraction engine developed in TypeScript and designed to minimize latency and avoid the operational costs associated with external model inference. The design draws on established principles in Information Extraction (IE) and introduces heuristics tailored to the characteristics of internship listings~\cite{sarawagi2008information, nadeau2007survey}.
