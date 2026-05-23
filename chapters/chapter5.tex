@@ -518,133 +518,84 @@ Skill extraction supports the system in two ways. First, it improves frontend us
 
 The implementation therefore fits the overall three-layer architecture: deterministic and synonym-based extraction provide efficient Layer A enrichment, while conservative embedding-based matching extends coverage where explicit text matching alone is insufficient. Ambiguous or low-confidence outputs remain visible through metadata and manual-review behavior in the broader pipeline.
 
-\subsection{Lexicon Construction and Maintenance}
-The skill lexicon serves as the knowledge base for the extraction module. In the current prototype it is a compact, manually defined list of common skills and tools observed in internship descriptions. This keeps the implementation simple and inspectable. A future ESCO-aligned lexicon could expand this list with canonical labels, aliases, and maintenance rules based on unextracted n-grams in recent listings.
-
-\subsection{Matching Algorithm}
-The extractSkills function implements a case-insensitive, whole-word matching algorithm against the curated lexicon. The algorithm processes the job description text through the following stages:
-
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Tokenization and Normalization: The description is tokenized using a whitespace-aware tokenizer that preserves multi-word skill phrases; for example, ``Machine Learning'' is treated as a single candidate. Tokens are lowercased and stripped of trailing punctuation.
-
-\item Phrase Matching: For each lexicon entry (both canonical labels and synonyms), the algorithm scans the normalized token sequence for exact matches. To handle multi-word skills, the algorithm employs a greedy longest-match strategy: it first attempts to match the longest possible phrase at each position before falling back to shorter sub-phrases. This prevents, for example, the word ``learning'' from being extracted when ``Machine Learning'' is present.
-
-\item Contextual Filtering: A post-processing filter removes matches that appear in negated contexts, such as ``no experience with Python required,'' or within section headings that are unlikely to represent actual requirements, such as boilerplate ``About Us'' sections. The filter uses a set of negation cues within a configurable window of tokens before the matched skill.
-
-\item Canonical Mapping: In the current implementation, each matched keyword is converted to a display label by capitalizing the first character. A future ESCO-aligned version should map each synonym to a canonical skill identifier so that filtering, search, and analytics operate on a consistent vocabulary.
-
-\end{itemize}
-\subsection{Ranking and Density Control}
-A raw list of matched skills, while informative, does not distinguish between a job's core requirements and incidental mentions. A listing that mentions ``Python'' once in a list of 20 other technologies has a different skill profile than one that mentions ``Python'' extensively. To surface the most salient skills while avoiding ``keyword stuffing'' amplification, the system employs a density control mechanism inspired by TF-IDF principles but adapted for the skill extraction domain [17, 4]. The ranking algorithm assigns each extracted skill a composite score based on three factors:
-
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Normalized Frequency: The raw count of the skill's occurrences in the description, divided by the total token count, preventing longer descriptions from dominating.
-
-\item Diversity Bonus: A multiplicative factor that rewards descriptions mentioning a broader range of distinct skills. This directly counteracts keyword stuffing: a description that mentions ``Java'' 50 times but no other technologies receives a lower diversity bonus than one mentioning 10 distinct tools.
-
-\item Position Weighting: Skills appearing earlier in the description (which typically corresponds to the ``Requirements'' or ``Qualifications'' section) receive a higher weight than those appearing in boilerplate footer text. The final skill list presented to users is truncated to a configurable maximum (default: 10 skills), with skills ranked by this composite score. This ensures that the displayed skills represent the core requirements of the role, facilitating both accurate search matching and quick comprehension by browsing users.
-
-\end{itemize}
 \subsection{Heuristic Role Categorization}
-The final enrichment step maps each internship to a high-level domain category, enabling the faceted filtering that is a core functional requirement of the system. The \texttt{categorizeJob} function evaluates the normalized job title against a hierarchy of professional anchors. This categorization provides immediate value for UI navigation even before more sophisticated semantic mapping is applied.
 
-\subsection{Category Taxonomy Design}
-The category taxonomy defines five mutually exclusive, collectively exhaustive top-level domains: Software, Data/AI, Design, Healthcare, and Business. This design reflects the empirical distribution of internships in the corpus and is intentionally flat, using a shallow taxonomy optimized for user navigation rather than an exhaustive ontological hierarchy. Each category is associated with a set of anchor terms that serve as high-precision signals for membership.
+The final enrichment stage assigns each processed internship record to a high-level professional domain category. This category supports frontend filtering, browsing, and structured interpretation of internship listings.
 
-\subsection{Priority-Ordered Classification}
-The classification algorithm includes several design features intended to enhance robustness. Anchor terms are defined as substrings rather than requiring exact token matches, capturing morphological variations; for example, ``designer'' matches both ``Designer'' and ``Designing.'' The normalization step applies the same sanitization pipeline described earlier, ensuring consistent matching regardless of source formatting. The default fallback to ``Business'' reflects the empirical observation that many unclassifiable listings in the corpus fall within professional-services domains. This categorization supports the discovery mechanisms discussed in retrieval theory by providing a stable and predictable taxonomy browser [2, 11].
+The implemented categorization module is not limited to a small five-category taxonomy. Instead, it uses a broader internal domain label space designed to reflect the diversity of internship postings encountered in the dataset. The supported domain labels include software engineering, data science, cybersecurity, cloud and DevOps, business, design, engineering, healthcare, and general fallback roles.
 
+The categorization process is implemented in the DomainClassifier component and combines weighted keyword rules with an optional prototype-embedding fallback.
 
-\begin{algorithmbox}[Heuristic Role Categorization]
+\subsubsection{Weighted Keyword-Based Classification}
+
+The primary categorization mechanism uses domain-specific keyword dictionaries. Each domain is associated with weighted anchor terms that indicate domain membership. For example, software engineering contains anchors such as programming languages and software development terms, while cybersecurity contains terms such as vulnerability, threat, and information security.
+
+For each record, the classifier evaluates the normalized title and description text against these keyword dictionaries. Matching terms contribute weighted scores to their associated domains. The domain with the strongest score is selected as the primary category.
+
+A simplified version of the keyword-scoring logic is shown in Listing 5.7.
+
 \begin{verbatim}
-procedure CategorizeJob(title)
-  titleLower <- normalize(title)
-  if contains(titleLower, "software", "developer", "engineer")
-      return "Software"
-  if contains(titleLower, "data", "analyst", "ai", "scientist")
-      return "Data/AI"
-  if contains(titleLower, "design", "ux", "ui")
-      return "Design"
-  if contains(titleLower, "marketing")
-      return "Marketing"
-  if contains(titleLower, "pharmacist", "health", "medical")
-      return "Healthcare"
-  return "Business"
-end procedure
+Listing 5.7: Simplified weighted domain keyword scoring
+
+def _keyword_scores(self, text: str) -> Counter[str]:
+    scores: Counter[str] = Counter()
+
+    for domain, keywords in self.domain_keywords.items():
+        for keyword, weight in keywords.items():
+            if keyword_matches(text, keyword):
+                scores[domain] += weight
+
+    return scores
 \end{verbatim}
-\end{algorithmbox}
 
-\subsection{Caching and Performance Considerations}
-To translate the theoretical efficiency of individual enrichment modules into practical, low-latency system performance, the results of the enrichment pipeline are stored in a server-side in-memory cache. This caching strategy is the single most impactful performance optimization in the system, fundamentally shaping its operational profile and cost characteristics.
+\subsubsection{Priority-Based Tie Resolution}
 
-\subsection{Cache Architecture}
-The cache is implemented as a server-side Map<string, Internship> structure, keyed by the stable identifier generated in the relevant section. The data.ts module serves as the sole access interface, implementing a read-through caching pattern: on a cache miss, the module reads the raw data from the static JSON catalog, executes the full enrichment pipeline, stores the result in the cache, and returns the enriched object. Subsequent requests for the same identifier are served directly from memory.
+When multiple domains receive equal scores, the system applies a fixed priority order to resolve ambiguity. This prevents unstable category assignment when a posting contains signals from several related domains.
 
-\subsection{Amortized Cost Model}
-This architecture embodies an amortized cost model that is central to the system's lightweight operational philosophy. The computational cost of the enrichment pipeline, including file I/O, text sanitization, regex processing, skill extraction, and categorization, is paid once per data refresh cycle. This one-time cost is then amortized over read requests from the API layer. The cost model contrasts with architectures that perform semantic analysis at query time, where each user request incurs the full computational burden [7, 37].
+For example, a posting mentioning both software development and cloud infrastructure may contain evidence for more than one category. The priority order ensures that such cases are handled consistently rather than randomly.
 
-\subsection{Cache Invalidation Strategy}
-Cache invalidation is tied directly to the data refresh cycle. When new scrape data is ingested or the enrichment logic is updated, the cache is cleared and repopulated lazily on subsequent requests. This strategy eliminates the complexity of partial invalidation while ensuring that users always receive data processed by the most recent pipeline version. For production deployments with continuous ingestion, a time-to-live (TTL) mechanism can be layered on top, automatically refreshing cached entries after a configurable interval to accommodate incremental data updates.
+\subsubsection{Confidence Estimation and Embedding Fallback}
 
-\subsection{Performance Targets}
-With the caching layer in place, the system is designed to support low-latency read requests, a requirement for modern interactive search systems. This implementation aligns with the server-first patterns of Next.js, where server-side caching reduces client-side overhead and improves perceived performance~\cite{riva2025realworld}. This performance profile is intended to run on commodity hardware without specialized infrastructure, directly addressing the lightweight design goal articulated in the problem statement. The contrast with LLM-dependent architectures is instructive: a single LLM API call for semantic enrichment can introduce substantial latency and per-request financial cost, making caching-amortized local processing an important architectural mechanism for sustainable operation at scale.
+The classifier calculates a confidence value based on the strength of the winning domain score relative to the total matched evidence. If keyword confidence is low, the system may invoke a lightweight sentence-transformer prototype comparison.
 
-\subsection{Summary}
-This section has presented the lightweight semantic enrichment pipeline, detailing the architecture, algorithms, and design principles used to transform raw, heterogeneous internship listings into structured, semantically enriched entities. The pipeline's tiered and deterministic design supports accurate extraction across salary, skill, and category dimensions while reducing external API dependency. The caching strategy amortizes computational cost across many user requests, supporting responsive and cost-conscious search. Together with the semantic schema and retrieval infrastructure described in this thesis, the enrichment pipeline forms the foundation for a sustainable internship discovery platform.
+In this fallback stage, the job text is embedded and compared against short domain descriptions. A prototype embedding result is accepted only when it exceeds a confidence threshold and has sufficient margin over the next-best label.
 
+\begin{verbatim}
+Listing 5.8: Simplified prototype embedding fallback
 
-\section{Storage, Indexing, and Persistence}
-This chapter describes the data persistence and retrieval mechanisms that support the internship search platform. It details the hybrid storage strategy that combines local file-based data for the internship catalog with cloud-based relational storage for user interactions.
+def _embedding_classify(self, text: str) -> DomainResult | None:
+    if self.model is None or self.domain_embeddings is None:
+        return None
 
-\subsection{Hybrid Data Storage Architecture}
-The system adopts a hybrid approach to data management, balancing the high-speed read requirements of a static catalog with the transactional persistence needed for user-specific features.
+    embedding = self.model.encode(
+        text[:1800],
+        convert_to_tensor=True,
+        normalize_embeddings=True
+    )
 
-\subsection{Static Catalog and Data Normalization}
-The primary repository for internship listings is a large-scale \texttt{intern\_data.json} file. To ensure data integrity, the system implements a robust ingestion pipeline:
+    sims = util.cos_sim(embedding, self.domain_embeddings)[0]
+    pairs = sorted(zip(self.labels, sims), key=lambda item: item[1], reverse=True)
 
+    label, score = pairs[0]
+    margin = score - pairs[1][1]
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    if score >= self.threshold and margin >= 0.015:
+        return DomainResult(
+            primary=label,
+            confidence=round(min(float(score), 0.95), 3),
+            method="prototype embedding fallback"
+        )
 
-\item Data Cleaning: Raw strings are normalized using techniques described in data cleaning literature~\cite{chu2016data}.
+    return None
+\end{verbatim}
 
-\item Stable Identifier Generation: The system generates deterministic IDs to enable effective record linkage and deduplication [8, 14].
+\subsubsection{General Fallback Category}
 
-\item Type Safety: Ingested objects are transformed into a formal semantic schema~\cite{sarawagi2008information}.
+If neither keyword scoring nor embedding fallback produces a confident domain assignment, the system assigns the record to a general category. This prevents records from being forced into inappropriate specialized categories while preserving frontend compatibility.
 
-\end{itemize}
-\subsection{Relational Persistence (Supabase)}
-For authentication and dynamic user state, the system utilizes Supabase, a backend leveraging PostgreSQL. This relational foundation provides the necessary transactional support for features like user authentication, bookmarks, and saved roles, adhering to the principles of reliable data systems.
+\subsubsection{Architectural Role}
 
-\subsection{Indexing and Metadata Enrichment}
-Beyond simple storage, the system enriches the data to facilitate efficient discovery through category labels, skill tags, and stable identifiers. High-dimensional semantic search remains an extension of this foundation.
+Domain categorization contributes to the system’s semantic enrichment layer by transforming heterogeneous employer terminology into stable application-facing labels. The weighted keyword rules provide fast and explainable Layer A classification, while the embedding fallback provides additional semantic flexibility for low-confidence cases.
 
-\subsection{Heuristic Categorization}
-As the source data is often unstructured, the system performs real-time metadata enrichment:
+This design preserves the lightweight implementation philosophy of the system while improving robustness when processing noisy internship listings [38, 45, 49].
 
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Category Mapping: Roles are classified into domains using keyword-based heuristics.
-
-\item Skill Extraction: Descriptions are parsed against a predefined taxonomy to create a tag-based index [17, 4].
-
-\end{itemize}
-\subsection{Performance Optimization}
-To handle the overhead of repeated catalog access, the implementation uses in-memory caching for processed records. This avoids re-reading and re-processing the JSON catalog for every request.
-
-\subsection{Retrieval and API Design}
-The system's data access layer is exposed via REST endpoints, designed for resilience and scalability.
-
-\subsection{The Internship API}
-The API serves as the unified data source, incorporating fail-safe logic to handle malformed input or missing catalog files.
-
-\subsection{Search and Similarity Foundations}
-The architecture includes utilities for similarity search. While current filtering relies on category matches, the system is structured to support future vector-based recommendation engines by leveraging Approximate Nearest Neighbor (ANN) indexing techniques~\cite{johnson2019billion}.
-
-
-\section{Chapter Conclusion}
-This chapter has described the implementation of the main system components: ingestion, preprocessing, enrichment, stable identifier generation, skill extraction, categorization, caching, persistence, indexing, and API access. The implementation supports the evaluation described in the next chapter by producing structured internship records and retrieval outputs that can be measured with extraction, classification, ranking, latency, and cost metrics.
