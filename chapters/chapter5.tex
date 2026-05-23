@@ -44,38 +44,57 @@ This validation includes checks for:
 This defensive preprocessing stage reduces the risk of invalid source data propagating into semantic enrichment components and improves overall pipeline robustness [11, 15].
 
 \subsection{Preprocessing and Sanitization}
-Raw data obtained from web scraping is inherently noisy and may contain inconsistent formatting, boilerplate text, and presentation artifacts that are irrelevant to the semantic content. Layer A applies a series of deterministic, rule-based sanitization functions. These functions are computationally inexpensive, predictable, and easy to debug, aligning with the goal of maximizing efficiency for high-volume, high-confidence tasks.
 
+Raw recruitment data obtained from web scraping and heterogeneous JSON sources is inherently noisy, frequently containing inconsistent formatting, duplicated whitespace, residual HTML artifacts, incomplete metadata, and presentation-oriented content irrelevant to semantic interpretation.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+To address this, Layer A applies deterministic rule-based preprocessing and sanitization operations. These operations are computationally inexpensive, predictable, explainable, and well suited for high-volume preprocessing tasks where full semantic inference is unnecessary [11, 49].
 
-\item Field Normalization: Functions like cleanTitle and cleanLocation perform foundational normalization. The process involves:
+\subsubsection{Field Normalization}
 
-\end{itemize}
+Foundational preprocessing functions such as cleanTitle, cleanLocation, and related normalization utilities standardize textual metadata before semantic processing.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Text Normalization: Transforming text into a standardized canonical form by lowercasing all characters, collapsing multiple whitespace characters into a single space, and trimming leading/trailing whitespace. This directly reduces surface-form variance, a critical prerequisite for reliable downstream matching~\cite{chu2016data}.
-
-\item HTML Artifact Stripping: Web-scraped text frequently contains residual HTML entities (e.g., \&amp;, \&lt;) and inline tags. A series of regular expression substitutions are applied to convert common entities to their unicode equivalents and remove any remaining tag structures.
-
-\item Specific Normalizations: In the current implementation, title, company, and location normalization primarily trims missing or empty values and substitutes explicit placeholders such as \texttt{Position Not Specified}, \texttt{Company Not Specified}, and \texttt{Location Not Specified}. More aggressive geographic normalization is left as future work.
-
-\end{itemize}
+This stage includes:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Salary Extraction: The cleanSalary function is a prime example of a high-precision, deterministic extraction module that operates with zero inference cost. It follows a ``Select-then-Extract'' paradigm~\cite{liu2024survey}, where high-confidence patterns are first identified to isolate the target text before applying specific parsing rules. It employs a tiered set of regular expressions to parse the highly variable salary information found in free text~\cite{sarawagi2008information}:
-
-\item Pattern Identification: The first tier identifies the presence of standard patterns, such as an hourly rate (e.g., ``\$15 - \$20 / hr''), an annual salary (e.g., ``\$70k - \$90k''), or a single value (e.g., ``Up to \$50/hr'').
-
-\item Numeric Extraction: Once a pattern is detected, a second tier extracts the numeric entities, stripping non-numeric characters like \$ and k/K, and correctly interpreting the k suffix as a multiplication factor.
-
-\item Structuring and Validation: The cleaned string is then mapped to the \texttt{salary} field in the \texttt{Internship} interface. A heuristic validation filter ensures that entries with missing critical fields are excluded from the final dataset.
-
-\item Description Cleaning: The free-text job description often contains substantial noise as well as important semantic information. The \texttt{cleanDescription} function trims each line, removes empty lines, and preserves the full description instead of truncating it. This keeps the listing readable in the detail view and leaves enough text for future semantic analysis.
-
+    \item \textbf{Text normalization:} Text is transformed into a more consistent representation through whitespace collapsing, trimming, formatting cleanup, and normalization of superficial formatting inconsistencies. This reduces surface-form variability and improves downstream semantic consistency [11].
+    \item \textbf{HTML artifact removal:} Web-scraped recruitment text frequently contains residual markup artifacts, encoded entities, or formatting remnants. These artifacts are removed or normalized to improve textual cleanliness before further processing.
+    \item \textbf{Metadata standardization:} Common formatting inconsistencies in titles, locations, and structured fields are normalized into a more stable internal representation suitable for deterministic filtering and semantic classification.
 \end{itemize}
+
+\subsubsection{Salary Extraction}
+
+Salary information represents a highly structured extraction task well suited to deterministic processing.
+
+The cleanSalary function applies rule-based pattern matching to identify common salary expressions within heterogeneous recruitment text.
+
+This includes detection of:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item hourly compensation formats
+    \item annual salary ranges
+    \item abbreviated compensation notation (e.g., “k” suffixes)
+    \item single-value compensation mentions
+\end{itemize}
+
+When salary patterns are successfully detected, numeric values are normalized into a consistent structured representation compatible with the internal internship schema.
+
+Because compensation extraction follows relatively stable textual patterns, deterministic regular expressions provide an efficient and explainable alternative to model-based inference for this task [49].
+
+\subsubsection{Description Cleaning}
+
+Internship descriptions often contain substantial non-semantic noise alongside useful role information.
+
+The cleanDescription preprocessing stage removes formatting clutter, excessive whitespace, repetitive boilerplate content, and other presentation-oriented text artifacts that reduce semantic clarity.
+
+This improves the signal quality presented to downstream semantic classification components by reducing irrelevant textual noise and preserving meaningful internship content [11].
+
+\subsubsection{Role in the Semantic Pipeline}
+
+These preprocessing operations collectively form the deterministic sanitization foundation of Layer A.
+
+By resolving structurally predictable inconsistencies early in the pipeline, the system reserves transformer-assisted semantic inference for cases requiring genuine contextual interpretation, thereby preserving computational efficiency while improving downstream enrichment reliability.
+
+
 \subsection{Data Enrichment and Categorization}
 Following sanitization, the system enriches the listing with derived metadata. These enrichment steps create the structured fields that power the faceted filtering and deduplication described in the system's functional requirements. While simple, these heuristic methods provide a high-utility baseline that eliminates the need for more complex processing in the majority of cases.
 
