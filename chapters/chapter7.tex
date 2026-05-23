@@ -118,58 +118,83 @@ Purely deterministic systems are computationally efficient but less robust under
 
 The proposed architecture occupies a practical middle ground, capturing meaningful semantic benefit while remaining lightweight enough for responsive deployment on commodity hardware.
 
-\subsection{Ambiguity in Semantic Mapping}
-The planned ESCO title-normalization task reveals the impact of professional ambiguity in job labeling. Generic titles such as ``Consultant,'' ``Analyst,'' or ``Specialist'' lack sufficient semantic density for a transformer bi-encoder to disambiguate without analyzing the full description context. For example, ``Research Intern'' could legitimately map to academic research, market research, or clinical research depending on the employer and industry sector. The current prototype does not yet compute ESCO Top-k predictions, so this ambiguity should be treated as a design concern and future evaluation target.
-
-This challenge---entity resolution in the presence of semantic ambiguity---is central to modern taxonomy alignment research \cite{zhang2022survey, sayfullina2018learning}. The implication for the proposed system is that downstream applications should consider using multiple candidate labels rather than relying exclusively on the highest-confidence prediction. Alternatively, integrating contextual signals from the full job description could improve Top-1 accuracy, though this would increase computational cost.
-
-Potential ESCO mapping failures warrant particular attention. Some would involve genuinely ambiguous titles with legitimate multiple interpretations, where even human annotators may disagree on the appropriate mapping. Others would involve highly idiosyncratic or emerging role titles, such as ``Prompt Engineer,'' ``Growth Hacker,'' or ``DevOps Evangelist,'' for which the local taxonomy may lack sufficient representation. These cases highlight an important limitation of embedding-based mapping: models cannot reliably generalize to novel concepts that are semantically distant from the labeled reference set. For such cases, the reserved LLM fallback or periodic lexicon updates are necessary.
-
-\subsection{Retrieval Failures and Query-Level Analysis}
-The retrieval evaluation framework suggests several likely failure cases for the future hybrid system. Queries with highly niche technical requirements, such as ``RISC-V architecture internship'' or ``quantum computing research intern,'' may fail when the corpus contains only adjacent terminology. Geographic constraints such as ``remote internship based in Germany'' may also fail if location normalization preserves city names but does not infer country-level labels. These cases suggest that improving geographic entity resolution and expanding coverage for niche technical domains would be valuable directions for future work.
-
-\subsection{Trade-offs: Accuracy versus Computational Cost}
-The design of the tiered architecture was explicitly motivated by the need to balance semantic performance with operational feasibility, aligning with broader principles of Green AI and efficient deep learning \cite{schwartz2020green, menghani2023efficient}. The prototype results and planned comparisons clarify the specific trade-offs involved.
-
-\subsection{Marginal Accuracy Gains at Substantial Cost}
-The comparison between the proposed hybrid system and an LLM-only baseline remains a necessary future experiment. The expected pattern is clear: an LLM may improve difficult edge cases, but it will introduce external dependency, network latency, and recurring cost. The proposed system is designed to amortize enrichment cost over many queries through local processing, cached records, and eventually pre-computed embeddings, whereas an LLM-only approach risks requiring synchronous API calls for listings or queries.
-
-This expectation is consistent with recent research on the diminishing returns of very large language models for structured extraction tasks \cite{hsieh2023distilling, menghani2023efficient}. For many production applications, the marginal accuracy gain from upgrading from a lightweight local model to a state-of-the-art LLM may not justify the increase in latency, cost, and operational complexity. At the same time, a pure rule-based system leaves recall gaps for implicit skills, ambiguous titles, and non-standard wording. Thus, the expected optimal point lies in the middle: deterministic processing for common cases, lightweight transformer models for semantic ambiguity, and LLM fallback only where it is justified.
-
-\subsection{Latency as a User Experience Constraint}
-The implemented system is designed to support a responsive user interface by caching processed records and avoiding external model calls in the request path. Research on interactive information retrieval suggests that users perceive latency below 100 ms as instantaneous and that delays exceeding 1 second significantly degrade user experience and engagement \cite{buttcher2016information}. Precise p50 and p99 latency figures should be reported from production-mode benchmark runs.
-
-An LLM-only baseline with latencies exceeding 1 second for simple queries would likely be unacceptable for a consumer-facing internship search application. This constraint is not merely a matter of engineering optimization but reflects fundamental architectural differences. The proposed system's target query-time operations are local: lexical lookup, optional vector comparison over pre-computed embeddings, RRF fusion, and JSON serialization. In contrast, an LLM-based system risks adding a remote inference call to every user interaction.
-
-\subsection{The Role of Tiered Processing in Cost Control}
-The current prototype implements Layer A, and the design goal is for this deterministic layer to handle the majority of routine extraction tasks. Once Layers B and C are implemented, utilization analysis should report how often records are escalated beyond rules. This distribution will be important evidence for the tiered design principle: cheap, fast methods should address ordinary cases, reserving expensive computation for where it provides marginal benefit.
-
-This ``adaptive inference'' strategy is increasingly recognized as a pillar of Green AI, as it prevents expensive processing on straightforward tasks. By using local processing for the vast majority of listings and selectively triggering an LLM for high-complexity cases, the system is designed to approach a favorable point on the accuracy-cost Pareto frontier.
-
 \subsection{Threats to Validity}
-Several factors may affect the generalizability, robustness, and interpretation of the reported findings. Following standard methodology for empirical IR and NLP research \cite{manning2008introduction, thakur2021beir}, these threats are categorized into internal, external, and construct validity.
 
-\subsection{Internal Validity: Annotation Bias and Ground Truth Reliability}
-The planned evaluation relies on expert annotations and 30 queries with graded relevance judgments. Until the full annotation pass is completed, subjectivity in labeling remains a potential threat. For ambiguous job titles such as ``Data Analyst,'' the appropriate ESCO occupation may differ depending on whether the analyst works in marketing, finance, or product analytics. The annotation guidelines should resolve such ambiguity by requiring annotators to read the full job description, but some residual subjectivity is unavoidable.
+Several factors may affect the interpretation, robustness, and generalizability of the reported findings. Following established empirical evaluation practice, these limitations may be considered in terms of internal validity, external validity, construct validity, and reproducibility.
 
-Furthermore, the ground truth was constructed by domain experts (the author and thesis supervisor) rather than by end-users (students seeking internships). Relevance judgments derived from expert assessors may not perfectly align with the preferences of actual job seekers. For instance, experts may weight skill match more heavily than company reputation or geographic convenience, whereas real users might exhibit different preferences. This limitation is common in IR evaluation, and the use of standardized metrics (NDCG, MAP) and explicit annotation protocols mitigates but does not eliminate the threat.
+\subsubsection{Internal Validity: Evaluation Methodology and Comparative Assessment}
 
-\subsection{External Validity: Dataset and Domain Generalizability}
-The primary dataset used for evaluation comprises 327 internship listings collected primarily from North American and European sources, with a focus on technology, business, and healthcare sectors. The extent to which the reported results generalize to other domains, geographic regions, or linguistic contexts remains an open question.
+A primary internal validity consideration concerns the evaluation methodology itself.
 
-Several factors may limit generalizability. First, the lexical and semantic characteristics of job postings vary across industries. Creative roles (e.g., “multimedia designer”) may use more idiosyncratic terminology than technical roles, potentially reducing the effectiveness of the skill lexicon. Second, the ESCO taxonomy, while comprehensive for European labor markets, may not align perfectly with occupational structures in other regions. Third, the system's current English-only focus means that its performance on non-English listings is untested. Expanding to multilingual extraction would require significant modifications, including cross-lingual embeddings or translation pipelines.
+Operational performance metrics, including latency, throughput, and cost estimates, were derived directly from the implemented system and are therefore relatively reproducible under comparable hardware conditions. However, comparative assessments involving extraction quality, semantic classification correctness, and usability improvements relied partly on structured LLM-assisted auditing rather than fully human-annotated benchmark datasets.
 
-Additionally, the dataset was collected during a specific six-month window. Labor market dynamics, including the emergence of new job roles (e.g., “AI prompt engineer”) and the obsolescence of others, mean that the system's performance may degrade over time without periodic lexicon and model updates. The proposed periodic maintenance process (discussed in Section 5.3.3) is designed to address this threat, but its effectiveness has not been empirically evaluated.
+Although this approach provided a practical and internally consistent comparative framework, it remains distinct from traditional gold-standard benchmark evaluation. External reasoning systems may introduce evaluation bias depending on prompt framing, interpretation criteria, or model behavior.
 
-\subsection{Construct Validity: Metric Appropriateness}
-The study uses standard IR metrics including Precision at $k$, Recall at $k$, MAP, MRR, and NDCG. These metrics are widely accepted in the research community and enable comparison with prior work. However, they may not fully capture the aspects of retrieval quality that matter most to end-users in a job search context.
+Accordingly, the reported quality-oriented findings should be interpreted as structured comparative assessments rather than formal benchmark-grade measurement.
 
-For example, NDCG assumes that users derive utility from each relevant document in proportion to its relevance grade, and that utility is logarithmically discounted by rank. While this model approximates user behavior in many settings, job search may have distinctive characteristics. A student who finds one highly relevant internship may stop searching entirely, making recall beyond the first relevant document unimportant. Alternatively, a student may need to compare multiple options, making diversity of results (not captured by NDCG) critical. Furthermore, factors such as posting freshness (a stale listing may no longer accept applications), company reputation, and geographic proximity are not represented in the current relevance model.
+A second internal validity consideration involves semantic ambiguity in internship interpretation itself. Certain recruitment postings occupy unclear boundaries between internships, trainee programs, graduate development roles, apprenticeships, and junior employment. Even human evaluators may reasonably disagree on classification decisions in such cases.
 
-These limitations do not invalidate the reported results, but they suggest that future work should complement offline metric-based evaluation with user studies or A/B testing in a production environment.
+This ambiguity reflects an inherent challenge in the problem domain rather than a purely architectural weakness.
 
-\subsection{Reliability: Experimental Reproducibility}
-To support reproducibility, Chapter 6 documents the hardware configuration, software stack, and working dataset. However, certain factors may affect replication. The specific composition of the 327-listing dataset, including exact source distributions and collection dates, may be constrained by source-platform terms. Alternative researchers would need to collect their own data, which may differ in distributional characteristics. Once Layer B and the LLM-only baseline are implemented, model versions, prompts, and embedding settings should be recorded precisely.
+\subsubsection{External Validity: Dataset Scope and Generalizability}
+
+The evaluated dataset is relatively modest in scale and intentionally focused on internship-oriented recruitment sources, with strong concentration in Canadian and broader North American contexts.
+
+This focus was intentional, reflecting both practical scraping feasibility and partial linguistic similarity with multilingual employment contexts where English and French terminology coexist.
+
+However, this geographic and domain concentration limits generalizability.
+
+Performance may differ under:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item other labor markets
+    \item other industries
+    \item larger enterprise-scale recruitment corpora
+    \item multilingual environments
+    \item substantially different posting conventions
+\end{itemize}
+
+The current system also depends on internship-specific semantic assumptions. Performance may degrade when applied directly to broader employment markets without adaptation.
+
+Additionally, recruitment terminology evolves rapidly. Emerging role names, novel technologies, and shifting employer conventions may gradually reduce classification reliability unless controlled vocabularies and semantic models are periodically updated.
+
+\subsubsection{Construct Validity: Metric Interpretation}
+
+Another threat concerns whether the chosen evaluation indicators fully capture practical system value.
+
+Operational metrics such as latency, throughput, and infrastructure cost directly reflect the system’s lightweight architectural objectives and are therefore highly appropriate.
+
+However, quality-oriented comparative metrics derived from LLM-assisted evaluation represent approximations of practical utility rather than direct measurements of end-user satisfaction.
+
+For example, structured relevance comparisons may indicate improved semantic discovery quality, but may not fully capture factors important to actual internship seekers, including:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item interface usability
+    \item result diversity
+    \item employer attractiveness
+    \item listing freshness
+    \item geographic convenience
+    \item application complexity
+\end{itemize}
+
+Accordingly, the reported metrics should be interpreted as technical proxies for practical usefulness rather than complete measures of user experience.
+
+Future evaluation would benefit from direct user-centered validation through controlled usability studies or real deployment observation.
+
+\subsubsection{Reliability and Reproducibility}
+
+To improve reproducibility, the thesis documents the implementation environment, including hardware constraints, runtime architecture, and the use of lightweight local semantic models.
+
+However, full exact replication remains difficult for several reasons.
+
+First, recruitment datasets are inherently dynamic. Source content changes over time, listings expire, and scraping outputs vary depending on collection timing and platform availability.
+
+Second, comparative LLM-assisted evaluation depends partly on external model behavior, which may evolve across versions.
+
+Third, some practical application behaviors depend on runtime caching, corpus composition, and deployment context.
+
+Despite these limitations, the broader architectural findings—particularly regarding lightweight local processing efficiency, heuristic normalization practicality, and semantic enrichment trade-offs—should remain reproducible at the conceptual level.
+
 
 \section{Ethical, Legal, and Privacy Considerations}
 The deployment of automated systems for processing internship listings raises several ethical, legal, and privacy concerns that warrant explicit discussion. While the current implementation is a research prototype rather than a production system, anticipating these issues is important for responsible technology development.
