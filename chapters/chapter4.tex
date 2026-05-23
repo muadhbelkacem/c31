@@ -149,24 +149,48 @@ Registered users may also persist saved internship interactions. When a user boo
 
 This interaction architecture separates frontend presentation behavior from backend persistence responsibilities while supporting responsive user interaction and authenticated account-linked functionality.
 
-
 \subsection{Ingestion and Semantic Enrichment Workflow}
+
 The data ingestion and enrichment pipeline constitutes the methodological core of the proposed system and directly supports the research objective of balancing semantic processing effectiveness with computational efficiency. The pipeline follows a staged transformation methodology in which raw heterogeneous recruitment data is progressively refined into structured internship records using the most appropriate processing mechanism for each task [11, 15].
 
 The workflow is implemented through the previously defined three-layer processing architecture.
 
+\subsubsection*{Layer A: Deterministic Heuristic Processing}
+
+The first stage performs high-confidence preprocessing using explicit rule-based operations that incur negligible inference cost. This layer prioritizes speed, transparency, and reproducibility.
+
+Primary operations include:
+
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Layer A: Deterministic Heuristic Processing} -- The first stage performs high-confidence preprocessing using explicit rule-based operations that incur negligible inference cost. This layer prioritizes speed, transparency, and reproducibility. Primary operations include:
-    \begin{itemize}
-        \item \textbf{Structural validation:} Raw records are checked for required field integrity before transformation begins. Malformed or incomplete records are excluded from further processing to preserve downstream consistency.
-        \item \textbf{Text cleaning and normalization:} Raw recruitment text is normalized through whitespace cleanup, formatting correction, and removal of residual markup artifacts to reduce surface-level variability [11].
-        \item \textbf{Deterministic attribute extraction:} Structured attributes such as salary information and normalized metadata are extracted using explicit parsing logic where pattern-based extraction is reliable.
-        \item \textbf{Stable identifier generation:} A deterministic identifier is generated from normalized record metadata to support consistent record referencing and duplicate management across ingestion cycles [10, 16].
-        \item \textbf{Initial heuristic filtering:} Clearly irrelevant non-internship postings are excluded through explicit internship-oriented keyword and structural heuristics.
-    \end{itemize}
-    \item \textbf{Layer B: Lightweight Semantic Classification} -- The second stage handles semantically ambiguous records that cannot be reliably resolved through deterministic heuristics alone. This layer applies lightweight sentence-transformer semantic inference using the all-MiniLM-L6-v2 model [45]. The model supports contextual internship relevance assessment and semantic enrichment tasks where explicit rule matching is insufficient. Unlike heavyweight cloud-hosted language model pipelines, this approach executes locally and avoids per-request inference cost, preserving the lightweight design objectives of the system [38, 53].
-    \item \textbf{Layer C: Manual Review Flagging and Exception Handling} -- The final stage handles records whose classification confidence remains uncertain after automated processing. Rather than forcing unreliable automated categorization, ambiguous records are flagged for later human inspection using structured review indicators (e.g., needs\_manual\_review). This provides a controlled exception mechanism that improves dataset reliability while preserving automated pipeline throughput.
+    \item \textbf{Structural validation:} Raw records are checked for required field integrity before transformation begins. Malformed or incomplete records are excluded from further processing to preserve downstream consistency.
+    \item \textbf{Text cleaning and normalization:} Raw recruitment text is normalized through whitespace cleanup, formatting correction, and removal of residual markup artifacts to reduce surface-level variability [11].
+    \item \textbf{Deterministic attribute extraction:} Structured attributes such as salary information and normalized metadata are extracted using explicit parsing logic where pattern-based extraction is reliable.
+    \item \textbf{Stable identifier generation:} A deterministic identifier is generated from normalized record metadata to support consistent record referencing and duplicate management across ingestion cycles [10, 16].
+    \item \textbf{Initial heuristic filtering:} Clearly irrelevant non-internship postings are excluded through explicit internship-oriented keyword and structural heuristics.
 \end{itemize}
+
+\subsubsection*{Layer B: Lightweight Semantic Classification}
+
+The second stage handles semantically ambiguous records that cannot be reliably resolved through deterministic heuristics alone.
+
+This layer applies lightweight sentence-transformer semantic inference using the all-MiniLM-L6-v2 model [45]. The model supports contextual internship relevance assessment and semantic enrichment tasks where explicit rule matching is insufficient.
+
+Unlike heavyweight cloud-hosted language model pipelines, this approach executes locally and avoids per-request inference cost, preserving the lightweight design objectives of the system [38, 53].
+
+\subsubsection*{Layer C: Manual Review Flagging and Exception Handling}
+
+The final stage handles records whose classification confidence remains uncertain after automated processing.
+
+Rather than forcing unreliable automated categorization, ambiguous records are flagged for later human inspection using structured review indicators (e.g., \texttt{needs\_manual\_review}). This provides a controlled exception mechanism that improves dataset reliability while preserving automated pipeline throughput.
+
+\subsubsection*{Export and Deployment Preparation}
+
+After processing, accepted internship records are serialized into the structured JSON catalog consumed by the frontend application.
+
+This deployment-oriented export model separates computational enrichment from user-facing application delivery, ensuring that expensive semantic processing occurs during scheduled ingestion rather than during live user interaction.
+
+This staged methodology preserves interpretability, computational practicality, and semantic robustness while maintaining compatibility with recurring automated data refresh workflows.
+
 
 \subsection{Export and Deployment Preparation}
 
