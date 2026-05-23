@@ -27,6 +27,13 @@ This layered methodology allows straightforward cases to be handled efficiently 
 
 The proposed system is designed around the functional requirements of its intended users and supporting system infrastructure, as illustrated in Figure 4.1. The use-case model defines the operational scope of the internship aggregation platform and captures the primary interactions between end users, authenticated users, and supporting backend services.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{uml/useCaseDiagram.png}
+    \caption{UML use-case diagram of the proposed internship aggregation system.}
+    \label{fig:use_case}
+\end{figure}
+
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Visitor / General User:} The primary public-facing actor is the visitor, who interacts with the platform to discover internship opportunities without requiring authentication. Core functional requirements include:
     \begin{itemize}
@@ -132,12 +139,23 @@ The conceptual model additionally includes user-oriented entities such as \textt
 
 Although Figure 4.2 presents a conceptual UML abstraction rather than a strict implementation class hierarchy, it provides a useful representation of the principal data entities and their interactions within the proposed system.
 
-% -- put class uml here btw --
-% Figure 4.2: UML class representation of the proposed system’s conceptual core data model.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{uml/classdiagram.png}
+    \caption{UML class representation of the proposed system’s conceptual core data model.}
+    \label{fig:class_diagram}
+\end{figure}
 
 \subsection{Application Interaction Flow}
 
 Figure 4.3 illustrates the high-level interaction sequence between the user, frontend application, and backend persistence services during normal platform operation. The interaction model follows an asynchronous request-response architecture typical of modern web applications.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{uml/sequenceDiagramFrontend.png}
+    \caption{UML sequence diagram illustrating the high-level interaction between the user and system components.}
+    \label{fig:sequence_diagram}
+\end{figure}
 
 The sequence begins when a user visits the internship platform, triggering the frontend application to load the available internship catalog for browsing. Structured internship data is retrieved through backend application services and rendered to the user interface.
 
