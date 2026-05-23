@@ -27,13 +27,6 @@ This layered methodology allows straightforward cases to be handled efficiently 
 
 The proposed system is designed around the functional requirements of its intended users and supporting system infrastructure, as illustrated in Figure 4.1. The use-case model defines the operational scope of the internship aggregation platform and captures the primary interactions between end users, authenticated users, and supporting backend services.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{uml/useCaseDiagram.png}
-    \caption{UML use-case diagram of the proposed internship aggregation system.}
-    \label{fig:use_case}
-\end{figure}
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Visitor / General User:} The primary public-facing actor is the visitor, who interacts with the platform to discover internship opportunities without requiring authentication. Core functional requirements include:
     \begin{itemize}
@@ -60,6 +53,15 @@ The proposed system is designed around the functional requirements of its intend
         \item \textbf{Data Quality Monitoring:} Processing workflows must provide logging, validation visibility, and classification monitoring to support reliability and reproducibility.
     \end{itemize}
 \end{itemize}
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{uml/useCaseDiagram.png}
+    \caption{UML use-case diagram of the proposed internship aggregation system.}
+    \label{fig:use_case}
+\end{figure}
+\clearpage
 
 \subsection{System Architecture and Component Mapping}
 
