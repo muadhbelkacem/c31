@@ -354,3 +354,72 @@ The evaluation is explicitly structured around the four research questions defin
     \item \textbf{RQ4 (Heuristic Normalization Automation):} Which heuristic-based normalization strategies can automate the ingestion of inconsistently structured internship data into a unified schema? This objective evaluates the effectiveness of deterministic preprocessing and heuristic normalization for transforming heterogeneous raw recruitment data into a structured canonical schema. Particular emphasis is placed on structural validation, malformed record filtering, metadata normalization, duplicate handling support, and deterministic attribute extraction [11, 40, 49].
 \end{itemize}
 
+\subsection{Ground Truth Construction}
+
+A reliable evaluation reference is necessary to assess the semantic processing quality and practical behavior of the proposed system. Because the thesis focuses on lightweight applied system development rather than large-scale benchmark creation, the evaluation uses a manually inspected representative reference subset rather than a formal externally annotated benchmark corpus.
+
+The reference evaluation process was designed to support qualitative correctness assessment, structured output verification, comparative pipeline analysis, and practical performance observation [10, 49, 59].
+
+\subsubsection{Evaluation Dataset and Reference Construction}
+
+The evaluation is based on internship and job listing data processed through the implemented enrichment pipeline. The underlying dataset consists of heterogeneous recruitment records collected from multiple online sources, including scraped internship listings and structured JSON-based partner data with varying schema quality.
+
+A representative evaluation subset was manually inspected to assess semantic correctness and structured output quality. The sampling process intentionally included diverse posting types, ambiguous internship descriptions, clearly irrelevant professional roles, and heterogeneous metadata quality to ensure meaningful evaluation coverage.
+
+This manually reviewed subset served as the practical reference point for evaluating:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item heuristic normalization correctness
+    \item internship relevance classification behavior
+    \item semantic enrichment consistency
+    \item structured schema completeness
+    \item ambiguity handling and manual-review flagging behavior
+\end{itemize}
+
+\subsubsection{Manual Semantic Verification}
+
+Because the thesis evaluates a practical applied enrichment system rather than a formal benchmark competition model, semantic correctness assessment was performed through structured manual inspection of processed outputs.
+
+This review focused on comparing raw recruitment records against enriched outputs to determine whether:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item irrelevant non-internship postings were correctly excluded
+    \item ambiguous internship listings were semantically interpreted appropriately
+    \item extracted skills aligned with visible listing content
+    \item domain categorization remained semantically coherent
+    \item normalized metadata fields preserved meaningful information
+\end{itemize}
+
+This manual verification process supports qualitative evaluation of semantic enrichment effectiveness and classification robustness [21, 49].
+
+\subsubsection{Comparative Pipeline Assessment}
+
+To isolate the contribution of semantic classification, comparative observation was conducted between deterministic heuristic preprocessing alone and the combined heuristic + transformer-assisted enrichment pipeline.
+
+This comparison supports evaluation of:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item classification improvement for ambiguous listings
+    \item reduction in false positive internship acceptance
+    \item improved semantic interpretation beyond keyword heuristics
+    \item practical trade-offs between inference cost and enrichment quality
+\end{itemize}
+
+This comparative design directly supports the evaluation of RQ1 and RQ2.
+
+\subsubsection{Operational Performance Reference Measurements}
+
+Practical performance evaluation was conducted through direct runtime observation during local execution.
+
+Measured characteristics include:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item end-to-end enrichment runtime
+    \item approximate processing throughput
+    \item semantic pipeline execution practicality
+    \item frontend interaction responsiveness measured through Chromium DevTools
+    \item cache-assisted browsing responsiveness after initial frontend data loading
+\end{itemize}
+
+Because the thesis emphasizes lightweight deployment practicality, these operational observations serve as an important complement to semantic correctness evaluation [38, 53].
+
