@@ -368,3 +368,19 @@ Caching and server-side preprocessing provided the largest operational efficienc
 
 Taken together, these observations support the thesis claim that the combination of deterministic heuristics and lightweight semantic processing provides a practical balance between explainability, semantic capability, and computational efficiency.
 
+\section{Summary of Findings}
+
+The experimental results provide empirical support for the research questions defined in Chapter 1.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{RQ1 (Lightweight Semantic Enrichment and Efficiency).} The proposed lightweight architecture demonstrated strong computational practicality on commodity hardware. The system processed 47.3 listings per second, completed enrichment of the full 327-listing dataset in approximately 6.2 minutes, and maintained a median application response latency of 47 ms with a 99th percentile latency of 128 ms. Compared with external LLM-based evaluation workflows, the architecture achieved substantial operational advantages, including approximately 22× higher throughput, significantly lower latency, and an estimated 29× to 120× lower operational cost. These findings support the thesis claim that practical semantic enrichment can be achieved without heavyweight cloud-based inference infrastructure.
+
+    \item \textbf{RQ2 (Transformer-Assisted Internship Relevance Classification).} The lightweight sentence-transformer semantic classification layer substantially improved internship relevance classification compared with deterministic keyword-oriented heuristics. Comparative evaluation showed improvement from 0.63 to 0.78 Top-1 accuracy, with Top-3 accuracy reaching 0.91. The strongest gains were observed in ambiguous recruitment scenarios involving employer-specific terminology, vague role naming, and hybrid early-career opportunities. These findings indicate that lightweight transformer models provide meaningful semantic classification benefits while remaining computationally practical.
+
+    \item \textbf{RQ3 (Semantic Enrichment for Internship Usability).} Semantic enrichment materially improved internship discovery usability and frontend exploration quality. Comparative evaluation showed measurable gains over keyword-oriented discovery behavior, including a 29\% improvement in NDCG10 (0.52 → 0.67), 19\% improvement in HR5 (0.67 → 0.80), and stronger recommendation coherence for semantically related internship opportunities. Structured skill extraction, category assignment, metadata normalization, and related-role discovery collectively improved the interpretability and navigability of heterogeneous internship listings.
+
+    \item \textbf{RQ4 (Heuristic Normalization of Heterogeneous Data).} The deterministic preprocessing and normalization pipeline successfully transformed noisy heterogeneous internship data into a unified structured schema suitable for downstream application use. LLM-assisted evaluation indicated strong extraction performance for structured fields, with salary normalization achieving approximately 98\% precision, date extraction 95\%, and company metadata consistency 97\%, while performance declined for implicitly expressed or ambiguous metadata such as inferred locations. These findings confirm that heuristic normalization provides an effective low-cost foundation for internship data ingestion, while highlighting expected limitations for semantically implicit information.
+\end{itemize}
+
+Overall, the findings indicate that the proposed architecture successfully balances explainability, semantic enrichment capability, computational efficiency, and practical usability, supporting the central thesis objective of lightweight internship discovery on commodity hardware.
+
