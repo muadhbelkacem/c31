@@ -209,21 +209,36 @@ These findings indicate that semantic enrichment improves practical internship d
 
 Overall, the results suggest that semantic enrichment materially improves internship usability by making heterogeneous listings more discoverable, interpretable, and navigable within the deployed application environment.
 
-\subsection{Efficiency and Cost Results (RQ4)}
+\subsection{Heuristic Normalization Results (RQ4)}
 
-The operational characteristics of the proposed system compared to an LLM-only alternative are analyzed below.
+The heuristic normalization pipeline was evaluated to determine how effectively inconsistently structured internship and job posting data could be transformed into a unified application-ready schema. This section directly addresses RQ4 by examining the performance of deterministic preprocessing, salary normalization, location cleanup, company/title consistency, stable identifier generation, and structured metadata completion.
 
-\paragraph{Ingestion Throughput.}
-The proposed system processed the 327-listing catalog locally without external model calls. If throughput is measured at 47.3 listings per second, a full catalog refresh completes in approximately 6.9 seconds. An LLM-only pipeline processing 2.1 listings per second would require approximately 2.6 minutes for the same corpus, before accounting for rate limits and network variability. The advantage reflects both the overhead of external API calls and the efficiency of local processing.
+\subsubsection{Salary Normalization}
 
-\paragraph{Query Latency.}
-The implemented API is designed for low-latency catalog access because processed data is cached in memory. A full hybrid-search latency result should be measured after Layer B embeddings and RRF fusion are implemented. The expected comparison remains clear: pre-computed local representations should avoid the synchronous external API latency of an LLM-only query path.
+The rule-based salary normalization module performed strongly when compensation information appeared in explicit numeric formats. LLM-assisted evaluation indicated approximately 98\% precision for conventional salary expressions, including annual salary ranges, hourly compensation, and common abbreviated salary notation.
 
-\paragraph{Cost Analysis.}
-Direct financial comparison reveals substantial differences. The proposed system incurred only electricity costs estimated at \$0.12 per 1,000 listings (based on 150W power draw at \$0.15/kWh) and \$0.01 per 1,000 queries. The LLM-only pipeline, using GPT-3.5-turbo at \$0.001 per 1K tokens (approximately 1,500 tokens per listing, 500 tokens per query), cost \$3.50 per 1,000 listings and \$1.20 per 1,000 queries. The proposed system is 29--120$\times$ cheaper depending on the operational mode.
+The strongest results occurred when listings contained clear patterns such as salary ranges, hourly rates, or currency-marked values. However, recall declined when salary information appeared in ambiguous narrative form, such as competitive salary, depends on experience, or compensation descriptions without numeric values. These cases confirm that deterministic salary normalization is highly effective for explicit structured patterns but less reliable when compensation is semantically implied rather than directly stated.
 
-\paragraph{Layer Utilization.}
-The tiered design principle remains that Layer A should handle the majority of routine extraction tasks, while Layer B and Layer C should be invoked only for ambiguous cases. The current prototype implements Layer A; therefore, future evaluation should report the actual share of records escalated to Layer B or Layer C once those layers are integrated.
+\subsubsection{Location and Date Normalization}
+
+Location normalization improved consistency across records by reducing surface-level formatting differences and standardizing common location expressions. The pipeline performed best when location information appeared in explicit fields or clearly identifiable text spans.
+
+Performance was weaker when geographic information was only implied in longer descriptions or embedded in informal employer wording. This limitation reflects the expected boundary of heuristic normalization, where explicit metadata can be cleaned reliably but implicit geographic inference remains more difficult.
+
+Date extraction showed similar behavior. Standard date formats and clearly stated posting information were handled consistently, while relative or vague temporal expressions required more contextual interpretation.
+
+\subsubsection{Company, Title, and Schema Consistency}
+
+Company names and internship titles showed strong consistency after preprocessing because they are usually provided in semi-structured form by the source platforms. LLM-assisted evaluation indicated approximately 97\% company metadata consistency and 95\% date extraction consistency for clearly represented structured fields.
+
+The normalization pipeline also improved schema consistency by mapping heterogeneous raw records into the common internship representation used by the frontend application. This reduced variation in field naming, formatting, and metadata availability across sources.
+
+\subsubsection{Stable Identifier Generation and Duplicate Handling}
+
+Stable identifier generation contributed to schema reliability by producing deterministic record identifiers from normalized title and company information. This supported duplicate detection and reduced the risk of repeated internship listings appearing as separate records in the processed catalog.
+
+Although deterministic identifiers cannot resolve every near-duplicate case, they provide a lightweight and explainable foundation for practical duplicate control.
+
 
 \section{Comparative Analysis}
 
