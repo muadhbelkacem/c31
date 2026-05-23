@@ -599,3 +599,120 @@ Domain categorization contributes to the system’s semantic enrichment layer by
 
 This design preserves the lightweight implementation philosophy of the system while improving robustness when processing noisy internship listings [38, 45, 49].
 
+\subsection{Caching and Performance Considerations}
+
+To translate the efficiency of the enrichment and normalization modules into practical application responsiveness, the system uses several caching mechanisms across the server-side data-access layer and the client-side role-detail interface.
+
+The caching design reflects the fact that the internship catalog is primarily read-heavy. The dataset is generated during the ingestion and enrichment workflow and then consumed repeatedly by the frontend application. Therefore, the system avoids unnecessary repeated file reads and normalization work during ordinary user interaction.
+
+\subsubsection{Server-Side Catalog Cache}
+
+The primary data-access cache is implemented in the data.ts module. This module exposes getInternships(), which reads the static public/intern\_data.json catalog, normalizes the raw records using normalizeRoleArray(), filters them using isProductionAcceptedInternship(), and stores the accepted internship array in a module-level cache.
+
+After the first successful load, subsequent calls to getInternships() return the cached normalized internship list rather than re-reading and reprocessing the JSON file.
+
+A simplified version of this mechanism is shown in Listing 5.9.
+
+\begin{verbatim}
+Listing 5.9: Server-side internship catalog cache
+
+let cachedInternships: Internship[] | null = null;
+
+export async function getInternships(): Promise<Internship[]> {
+  if (cachedInternships) return cachedInternships;
+
+  const filePath = path.join(process.cwd(), 'public', 'intern_data.json');
+  const fileContents = await fs.readFile(filePath, 'utf8');
+  const data = JSON.parse(fileContents);
+
+  cachedInternships = normalizeRoleArray(data)
+    .filter(role => isProductionAcceptedInternship(role));
+
+  return cachedInternships;
+}
+\end{verbatim}
+
+This cache supports efficient server-side loading for the main internship listing page.
+
+\subsubsection{API-Level Cache with Time-to-Live}
+
+The /api/internship route implements an additional cache for API-based access. This cache stores processed roles and associates them with a timestamp. Cached data is reused while it remains within the configured time-to-live period.
+
+In the current implementation, the cache duration is five minutes. This provides a simple balance between responsiveness and data freshness.
+
+\begin{verbatim}
+Listing 5.10: API cache with time-to-live
+
+let cachedRoles: any[] | null = null;
+let lastFetchTime = 0;
+const CACHE_TTL = 5 * 60 * 1000;
+
+async function getProcessedData(): Promise<any[]> {
+  const now = Date.now();
+
+  if (cachedRoles && now - lastFetchTime < CACHE_TTL) {
+    return cachedRoles;
+  }
+
+  const fileContents = await fs.readFile(filePath, 'utf8');
+  const data = JSON.parse(fileContents);
+
+  cachedRoles = normalizeRoleArray(data)
+    .filter(role => isProductionAcceptedInternship(role));
+
+  lastFetchTime = now;
+  return cachedRoles;
+}
+\end{verbatim}
+
+The API route also supports explicit cache clearing through a POST request with the clear-cache action, allowing regenerated data to be reflected without restarting the application.
+
+\subsubsection{Role Detail and Similar Internship Cache}
+
+The role-detail page retrieves an individual internship using the /api/internship/[id] endpoint. That endpoint reads and normalizes the JSON catalog for the requested role rather than using the list cache directly.
+
+However, the role-detail interface also computes similar internship recommendations. To avoid repeating similar-role computation and duplicate API requests for the same current role, the client-side role page maintains a Map<string, Internship[]> cache keyed by the current internship ID.
+
+This cache stores similar internship results after they are first computed.
+
+\begin{verbatim}
+Listing 5.11: Client-side similar internship cache
+
+const similarInternshipsCache = new Map<string, Internship[]>();
+
+if (similarInternshipsCache.has(currentInternship.id)) {
+  setSimilarInternships(
+    similarInternshipsCache.get(currentInternship.id)!
+  );
+  return;
+}
+
+similarInternshipsCache.set(currentInternship.id, similar);
+\end{verbatim}
+
+This cache improves responsiveness when users revisit or re-render role detail views that require similar internship recommendations.
+
+\subsubsection{Amortized Processing Cost}
+
+The caching strategy reflects an amortized cost model. Normalization, filtering, and production acceptance checks are performed when the dataset is loaded or refreshed, rather than repeatedly for every frontend interaction.
+
+This reduces redundant computation during browsing, filtering, and page navigation. It also supports the thesis objective of maintaining practical responsiveness on commodity hardware while avoiding unnecessary repeated semantic or heuristic processing [38, 53].
+
+\subsubsection{Frontend Responsiveness}
+
+The frontend receives normalized internship records and performs interactive search, filtering, and pagination on the client side. Search and filtering are implemented through React state and memoized filtering logic, while pagination is synchronized with URL parameters.
+
+This means that after the internship dataset has been loaded, many common interactions do not require additional server-side semantic processing. The resulting interaction model supports fast browsing and filtering behavior, especially after the initial dataset load.
+
+\subsubsection{Cache Lifecycle}
+
+The cache lifecycle is tied to data refresh and time-based invalidation. The server-side data.ts cache persists for the lifetime of the server process, while the API route cache uses a five-minute TTL and can be cleared manually through the API.
+
+This design is simple, explainable, and appropriate for a static internship catalog that is regenerated periodically rather than continuously rewritten during normal user interaction.
+
+\subsubsection{Lightweight Operational Profile}
+
+The caching strategy supports the lightweight design of the system by ensuring that enriched and normalized internship records can be reused efficiently after preparation. Unlike architectures that perform semantic inference or external LLM calls during each user request, this implementation front-loads enrichment into the data preparation workflow and serves already processed records during application use.
+
+This reduces repeated computation, avoids unnecessary external inference dependency, and supports practical deployment on commodity hardware.
+
