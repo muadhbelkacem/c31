@@ -301,22 +301,76 @@ The methodology formalizes the evaluation objectives, links them to the research
 Because the thesis explicitly targets lightweight practical deployment rather than large-scale cloud inference, the evaluation additionally considers computational efficiency and resource practicality in alignment with Green AI principles [53].
 
 \subsection{Evaluation Objectives}
-The evaluation is designed to examine both output quality and operational characteristics. The primary objective is to determine whether the tiered hybrid architecture, consisting of Layers A, B, and a reserved Layer C, provides a favorable balance between semantic fidelity, retrieval relevance, and resource efficiency. The evaluation is structured around four research questions, each linked to testable hypotheses and metrics drawn from related literature~\cite{li2020survey, menghani2023efficient, thakur2021beir}:
+The evaluation is designed to assess both the semantic output quality and the practical operational characteristics of the proposed internship aggregation and enrichment system. The primary objective is to determine whether the proposed lightweight three-layer architecture can achieve meaningful semantic enrichment and internship classification while remaining computationally practical for deployment on commodity hardware.
 
+The evaluation is explicitly structured around the four research questions defined in Chapter 1, with each question mapped to measurable experimental objectives grounded in prior literature on information extraction, semantic processing, and efficient machine learning systems [33, 38, 49, 59].
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item RQ1 (Extraction Fidelity): How accurately does the deterministic, rule-based pipeline (Layer A) extract critical structured fields---specifically compensation, geographic locations, and posting dates---from the heterogeneous and noisy text of internship listings, as compared to a human-annotated ground truth? This question tests the fundamental hypothesis that high-precision rules can correctly resolve the majority of structured data without the overhead of learned models~\cite{sarawagi2008information, nadeau2007survey}.
-
-\item RQ2 (Semantic Alignment): To what extent does the embedding-based semantic mapping (Layer B) improve the classification of raw, idiosyncratic job titles into canonical ESCO occupations over a purely keyword-heuristic baseline? The hypothesis is that an all-MiniLM-L6-v2 transformer bi-encoder, operating in a dense semantic space, can capture non-lexical synonymy that is not visible to surface-form matching~\cite{reimers2019sentence, lin2021pretrained}.
-
-\item RQ3 (Retrieval Quality): Does the proposed hybrid search strategy, which fuses lexical and semantic (dense vector) relevance signals via Reciprocal Rank Fusion (RRF), improve precision and ranking quality for student-centric conceptual queries compared with keyword-only search? The evaluation focuses on retrieval utility, assessing whether retrieved documents effectively satisfy user information needs~\cite{salemi2024erag}. The hypothesis is that this dual-path approach is necessary to address both exact terminology matches and the broader semantic gap in career discovery~\cite{thakur2021beir, luan2021sparse, cormack2009reciprocal}.
-
-\item RQ4 (System Efficiency and Scalability): What are the concrete computational costs---specifically ingestion throughput, query latency, main memory footprint, and external API financial cost---of the multi-layered pipeline, and how do these metrics scale with corpus size on commodity hardware? This question directly benchmarks the system's ``lightweight'' claim against a hypothetical LLM-only (Layer C) pipeline, investigating the accuracy-cost Pareto frontier~\cite{menghani2023efficient, hsieh2023distilling}.
-
+    \item \textbf{RQ1 (Architecture Efficiency–Quality Balance):} How can a lightweight semantic enrichment pipeline balance internship classification quality with computational efficiency on commodity hardware? This objective evaluates the overall effectiveness of the proposed three-layer architecture by examining the trade-off between semantic processing quality and practical computational cost. Measurements include enrichment consistency, runtime practicality, memory behavior, and frontend responsiveness under realistic operating conditions. This directly tests the thesis claim that meaningful semantic enrichment can be achieved without heavyweight infrastructure or cloud-dependent inference [38, 53].
+    \item \textbf{RQ2 (Sentence-Transformer Classification Effectiveness):} How effectively can lightweight sentence-transformer models support internship relevance classification for noisy internship and job postings? This objective evaluates the contribution of the transformer-based semantic classification layer when handling ambiguous or noisy recruitment data that cannot be reliably resolved through deterministic heuristics alone. The evaluation focuses on internship relevance classification quality, semantic ambiguity resolution, and practical inference behavior using lightweight sentence-transformer models [45, 38].
+    \item \textbf{RQ3 (Semantic Enrichment Usability Improvement):} How effectively can semantic enrichment techniques improve the usability of internship records collected from heterogeneous online sources? This objective evaluates whether semantic enrichment improves the practical usability of aggregated internship data by reducing vocabulary inconsistency, improving structured categorization, supporting skill extraction, and producing cleaner frontend-consumable internship records. The focus is on semantic consistency, dataset usability, and structured enrichment effectiveness rather than live retrieval benchmarking [15, 21, 49].
+    \item \textbf{RQ4 (Heuristic Normalization Automation):} Which heuristic-based normalization strategies can automate the ingestion of inconsistently structured internship data into a unified schema? This objective evaluates the effectiveness of deterministic preprocessing and heuristic normalization for transforming heterogeneous raw recruitment data into a structured canonical schema. Particular emphasis is placed on structural validation, malformed record filtering, metadata normalization, duplicate handling support, and deterministic attribute extraction [11, 40, 49].
 \end{itemize}
+
 \subsection{Ground Truth Construction}
-A reliable and representative reference evaluation set is necessary for credible assessment. It serves as the reference point against which system outputs are measured, enabling the computation of accuracy and retrieval metrics. The construction process, detailed below, was designed to mitigate bias, support domain representativeness, and provide a benchmark for both structured extraction and semantic tasks~\cite{buttcher2016information, christen2012data}.
+A reliable evaluation reference is necessary to assess the semantic processing quality and practical behavior of the proposed system. Because the thesis focuses on lightweight applied system development rather than large-scale benchmark creation, the evaluation uses a manually inspected representative reference subset rather than a formal externally annotated benchmark corpus.
+
+The reference evaluation process was designed to support qualitative correctness assessment, structured output verification, comparative pipeline analysis, and practical performance observation [10, 49, 59].
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Evaluation Dataset and Reference Construction} -- The evaluation is based on internship and job listing data processed through the implemented enrichment pipeline. The underlying dataset consists of heterogeneous recruitment records collected from multiple online sources, including scraped internship listings and structured JSON-based partner data with varying schema quality.
+
+    A representative evaluation subset was manually inspected to assess semantic correctness and structured output quality. The sampling process intentionally included diverse posting types, ambiguous internship descriptions, clearly irrelevant professional roles, and heterogeneous metadata quality to ensure meaningful evaluation coverage.
+
+    This manually reviewed subset served as the practical reference point for evaluating:
+    \begin{itemize}
+        \item heuristic normalization correctness
+        \item internship relevance classification behavior
+        \item semantic enrichment consistency
+        \item structured schema completeness
+        \item ambiguity handling and manual-review flagging behavior
+    \end{itemize}
+
+    \item \textbf{Manual Semantic Verification} -- Because the thesis evaluates a practical applied enrichment system rather than a formal benchmark competition model, semantic correctness assessment was performed through structured manual inspection of processed outputs.
+
+    This review focused on comparing raw recruitment records against enriched outputs to determine whether:
+    \begin{itemize}
+        \item irrelevant non-internship postings were correctly excluded
+        \item ambiguous internship listings were semantically interpreted appropriately
+        \item extracted skills aligned with visible listing content
+        \item domain categorization remained semantically coherent
+        \item normalized metadata fields preserved meaningful information
+    \end{itemize}
+
+    This manual verification process supports qualitative evaluation of semantic enrichment effectiveness and classification robustness [21, 49].
+
+    \item \textbf{Comparative Pipeline Assessment} -- To isolate the contribution of semantic classification, comparative observation was conducted between deterministic heuristic preprocessing alone and the combined heuristic + transformer-assisted enrichment pipeline.
+
+    This comparison supports evaluation of:
+    \begin{itemize}
+        \item classification improvement for ambiguous listings
+        \item reduction in false positive internship acceptance
+        \item improved semantic interpretation beyond keyword heuristics
+        \item practical trade-offs between inference cost and enrichment quality
+    \end{itemize}
+
+    This comparative design directly supports the evaluation of RQ1 and RQ2.
+
+    \item \textbf{Operational Performance Reference Measurements} -- Practical performance evaluation was conducted through direct runtime observation during local execution.
+
+    Measured characteristics include:
+    \begin{itemize}
+        \item end-to-end enrichment runtime
+        \item approximate processing throughput
+        \item semantic pipeline execution practicality
+        \item frontend interaction responsiveness measured through Chromium DevTools
+        \item cache-assisted browsing responsiveness after initial frontend data loading
+    \end{itemize}
+\end{itemize}
+
+Because the thesis emphasizes lightweight deployment practicality, these operational observations serve as an important complement to semantic correctness evaluation [38, 53].
+
+
 
 \subsection{Dataset Composition and Sampling Strategy}
 The evaluation set comprises the 327 internship listings available in the working catalog. This size is modest, but it is sufficient for a prototype-level evaluation of data normalization, category coverage, and retrieval behavior.
