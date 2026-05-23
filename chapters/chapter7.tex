@@ -289,3 +289,128 @@ The empirical findings presented in Chapter 6 provide support for the four resea
 
 Taken together, the findings support the central thesis claim that practical internship discovery systems can benefit substantially from lightweight semantic enrichment architectures that balance explainability, computational efficiency, and semantic capability.
 
+\subsection{Future Directions}
+
+While the current system provides a practical foundation for internship aggregation, semantic enrichment, and lightweight discovery support, the evaluation identified several opportunities for future improvement.
+
+\subsubsection{Multilingual and Cross-Lingual Processing}
+
+A major limitation of the current implementation is its primary focus on English-language internship listings.
+
+Although the dataset includes some bilingual employment contexts due to its Canadian emphasis, the extraction and semantic processing pipeline is not designed as a fully multilingual system.
+
+Future work could extend the architecture to support multilingual and cross-lingual internship discovery, particularly for English–French recruitment contexts and broader international expansion.
+
+Potential approaches include multilingual sentence-transformer models, cross-lingual embedding alignment, or translation-assisted normalization pipelines.
+
+Such improvements would substantially expand the accessibility and geographic applicability of the platform.
+
+\subsubsection{Stronger Contextual Skill Understanding}
+
+The current skill extraction pipeline prioritizes efficiency, controlled vocabulary matching, and conservative semantic assistance.
+
+While effective for explicit skill mentions, it remains limited in handling implicit competency inference and deeper contextual interpretation.
+
+Future work could improve this through richer contextual modeling, including:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item better distinction between required vs preferred skills
+    \item improved handling of implicit competencies
+    \item recognition of role-specific skill clusters
+    \item stronger disambiguation of ambiguous technical terminology
+\end{itemize}
+
+Sequence labeling architectures or fine-tuned contextual extraction models could improve extraction quality while preserving local deployment feasibility.
+
+\subsubsection{Model Distillation and Lightweight Improvement}
+
+Comparative evaluation indicated that external LLM-assisted reasoning can produce modest quality improvements over the current lightweight architecture, particularly in ambiguous semantic classification scenarios.
+
+This suggests a practical future direction: using larger reasoning models as offline teachers rather than runtime dependencies.
+
+Knowledge distillation or pseudo-label generation could be used to improve local lightweight classifiers while preserving deployment efficiency.
+
+This would align well with the thesis objective of maximizing semantic capability without introducing heavyweight operational dependencies.
+
+\subsubsection{Vocabulary Evolution and Semantic Drift}
+
+Recruitment terminology evolves continuously.
+
+New technologies, frameworks, role names, and employer conventions emerge regularly, potentially reducing extraction accuracy over time.
+
+Examples include evolving terminology around:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item generative AI tooling
+    \item emerging cloud platforms
+    \item novel software engineering roles
+    \item organization-specific internship naming conventions
+\end{itemize}
+
+Future work could introduce controlled monitoring for vocabulary drift, including:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item periodic review of unmatched terminology
+    \item candidate term surfacing for lexicon updates
+    \item semi-automated taxonomy maintenance workflows
+\end{itemize}
+
+This would improve long-term robustness without requiring full architectural redesign.
+
+\subsubsection{User-Centered Evaluation}
+
+The current evaluation focused primarily on technical performance, structured comparative analysis, and architectural practicality.
+
+A major future improvement would be direct user-centered validation.
+
+Deploying the platform with real student users would allow collection of practical behavioral evidence, including:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item search interaction patterns
+    \item click behavior
+    \item bookmarking activity
+    \item recommendation usefulness feedback
+    \item discovery success outcomes
+\end{itemize}
+
+Such evaluation would provide stronger evidence regarding real-world usefulness than offline technical comparison alone.
+
+User studies could also identify interface-level improvements that purely architectural evaluation cannot capture.
+
+\subsubsection{Expanded Corpus Coverage}
+
+The current dataset is intentionally internship-focused and geographically concentrated, particularly in Canadian and broader North American recruitment contexts.
+
+While appropriate for the scope of this thesis, broader deployment would benefit from larger and more diverse source coverage.
+
+Future expansion could include:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item additional internship platforms
+    \item university opportunity portals
+    \item regional employer listings
+    \item broader international internship ecosystems
+    \item more specialized technical internship sources
+\end{itemize}
+
+Improved corpus breadth would directly improve discovery quality, niche opportunity coverage, and geographic robustness.
+
+\subsubsection{Comparative Platform Evaluation}
+
+A more comprehensive comparative evaluation against established internship discovery platforms remains a valuable future direction.
+
+Such analysis could examine practical differences in:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item discoverability
+    \item result relevance
+    \item filtering quality
+    \item metadata consistency
+    \item responsiveness
+    \item usability
+\end{itemize}
+
+Because commercial platforms differ significantly in corpus size, ranking logic, personalization, and access constraints, designing a fair comparative methodology would require careful experimental control.
+
+Nevertheless, such evaluation would provide stronger practical positioning for the proposed system relative to real-world alternatives.
+
