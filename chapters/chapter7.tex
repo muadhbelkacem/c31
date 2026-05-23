@@ -414,3 +414,19 @@ Because commercial platforms differ significantly in corpus size, ranking logic,
 
 Nevertheless, such evaluation would provide stronger practical positioning for the proposed system relative to real-world alternatives.
 
+\subsection{Practical Implications for Deployment}
+
+Beyond its academic contributions, the findings of this thesis have several practical implications for organizations seeking to implement lightweight internship or recruitment data processing systems.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item First, the layered architecture offers a pragmatic and cost-effective deployment strategy. Organizations can begin with deterministic normalization and rule-based enrichment for immediate operational value, then incrementally introduce lightweight semantic classification components as data complexity and ambiguity increase. Cases that remain unresolved can be escalated to human review rather than forcing increasingly expensive automated reasoning. This modular progression avoids the impractical extremes of either simplistic lexical-only systems or full dependence on heavyweight external inference services.
+
+    \item Second, the demonstrated ability to operate effectively on commodity hardware significantly lowers the barrier to deployment. Because the proposed architecture relies on lightweight local processing rather than large-scale cloud-hosted inference infrastructure, it is feasible for organizations with constrained computational resources, including universities, student career platforms, non-profit employment initiatives, and small-to-medium enterprises.
+
+    \item Third, the architectural emphasis on deterministic preprocessing and structured enrichment provides strong practical explainability. Metadata normalization, identifier generation, salary parsing, and controlled skill extraction can be directly inspected and audited, which improves operational trust compared with opaque end-to-end black-box systems. This transparency may be especially valuable in educational, advisory, or public-sector contexts where system behavior should remain understandable and accountable.
+
+    \item Fourth, the modular design supports practical extensibility. Additional enrichment layers, multilingual support, improved recommendation mechanisms, or stronger semantic classification models could be introduced incrementally without requiring complete architectural redesign.
+\end{itemize}
+
+Taken together, these practical characteristics suggest that lightweight semantic enrichment architectures may offer a realistic middle ground between low-capability rule-only systems and operationally expensive large-model deployments.
+
