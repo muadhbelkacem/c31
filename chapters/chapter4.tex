@@ -470,3 +470,76 @@ To isolate the contribution of semantic classification, comparative evaluation i
 
 This comparison supports direct analysis of the trade-off between semantic effectiveness and computational cost central to the thesis research objectives.
 
+\subsection{Experimental Configuration}
+
+To attribute observed performance differences to specific architectural components, the evaluation adopts a comparative experimental methodology based on controlled system configurations. Comparative evaluation is a standard approach in software systems and machine learning experimentation for isolating the contribution of individual processing components within a larger pipeline [38, 59].
+
+\subsubsection{Baselines and Comparative Configurations}
+
+The evaluation compares multiple configurations representing increasing semantic capability and computational complexity.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Baseline 1: Deterministic Heuristic Processing (Layer A Only)} -- This configuration evaluates the deterministic preprocessing layer in isolation. It applies only explicit heuristic and rule-based processing mechanisms, including structural validation, malformed record filtering, metadata normalization, internship keyword heuristics, rule-based categorization, duplicate handling support, and deterministic skill extraction. This baseline establishes the performance floor for the proposed architecture and evaluates how effectively heuristic normalization alone can process heterogeneous recruitment data without contextual semantic inference [11, 40, 49].
+
+    \item \textbf{Baseline 2: Full Lightweight Semantic Pipeline (Layer A + Layer B + Layer C)} -- This configuration represents the complete proposed methodology. It combines:
+    \begin{itemize}
+        \item Layer A: deterministic heuristic preprocessing and normalization
+        \item Layer B: lightweight sentence-transformer-based semantic internship relevance classification
+        \item Layer C: controlled manual-review exception handling for semantically ambiguous cases
+    \end{itemize}
+    This configuration serves as the primary experimental system and evaluates whether lightweight semantic classification improves internship relevance assessment, enrichment consistency, and overall dataset usability beyond deterministic preprocessing alone [45, 38]. The comparative difference between this configuration and the heuristic baseline isolates the practical contribution of transformer-assisted semantic enrichment.
+
+    \item \textbf{Comparative Reference: General-Purpose LLM Assessment} -- A limited exploratory comparative assessment was conducted using general-purpose large language models, including ChatGPT and DeepSeek, to provide contextual comparison against contemporary cloud-based semantic reasoning systems. This comparison was exploratory rather than a formal benchmark and was not intended as a statistically controlled production evaluation. Instead, it served as supplementary qualitative reference for examining differences in:
+    \begin{itemize}
+        \item internship relevance classification behavior
+        \item semantic interpretation plausibility
+        \item enrichment consistency
+        \item explainability characteristics
+        \item practical computational and infrastructure implications
+    \end{itemize}
+    Because the thesis explicitly targets lightweight local deployment, this comparative reference helps contextualize whether useful semantic enrichment can be achieved without dependence on heavyweight cloud-hosted LLM inference [24, 38, 53].
+\end{itemize}
+
+\subsubsection{Implementation Details and Hardware Environment}
+
+To ensure reproducibility and fair operational comparison, all experiments were conducted on a single controlled local workstation representing the commodity hardware constraints defined in the thesis objectives.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Hardware configuration:}
+    \begin{itemize}
+        \item CPU: Intel Core i7-10750H (6 cores, 12 threads, 2.60 GHz)
+        \item RAM: 16 GB
+        \item Storage: 715 GB total storage
+        \item GPU: None (CPU-only execution)
+        \item Operating System: Windows 11
+        \item Runtime Environment: local development execution environment
+    \end{itemize}
+\end{itemize}
+
+This configuration reflects the practical deployment assumptions central to the proposed lightweight semantic enrichment methodology, where meaningful semantic processing should remain feasible without dedicated accelerators or cloud-hosted inference infrastructure [38, 53].
+
+\subsubsection{Frontend Observation Environment}
+
+User-facing responsiveness was evaluated through practical interaction observation using Chromium browser developer tools during realistic local execution.
+
+Observed interaction scenarios included:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item initial internship catalog loading
+    \item cached repeated browsing behavior
+    \item frontend filtering responsiveness
+    \item internship detail exploration
+    \item authenticated interaction flows where applicable
+\end{itemize}
+
+These observations support practical usability evaluation rather than formal production-scale stress testing.
+
+\subsubsection{Comparative Trade-Off Analysis}
+
+The experimental design explicitly examines the trade-off between semantic effectiveness and computational practicality.
+
+The comparison between deterministic preprocessing, the full lightweight semantic pipeline, and exploratory LLM reference assessment allows investigation of the thesis’s central architectural question: whether lightweight semantic enrichment can provide meaningful classification and enrichment capability while maintaining practical operational efficiency on commodity hardware.
+
+This comparative framing aligns directly with the Green AI objective of reducing computational cost while preserving useful semantic capability [53].
+
+
