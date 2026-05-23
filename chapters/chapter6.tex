@@ -292,3 +292,64 @@ Qualitative comparison showed substantial usability improvements. Raw listings r
 
 This comparison directly validates the contribution of the heuristic normalization and semantic enrichment architecture, demonstrating that the primary value of the proposed system lies not in broader data collection than commercial platforms, but in transforming noisy internship data into a significantly more usable discovery resource.
 
+\section{Reliability and Error Analysis}
+
+\subsection{Evaluation Reliability}
+
+Because the evaluation combines direct runtime measurement with structured LLM-assisted comparative assessment, reliability was considered from both computational and analytical perspectives.
+
+Operational performance metrics—including ingestion throughput, application latency, memory footprint, and cost estimation—were obtained directly from the implemented system under a fixed hardware environment, providing reproducible quantitative measurements.
+
+Quality-oriented assessments involving extraction consistency, classification correctness, semantic enrichment usefulness, and comparative baseline performance were supported through structured external LLM-assisted auditing using controlled evaluation prompts. While this does not constitute formal benchmark annotation by human experts, it provides a consistent proxy methodology for comparative assessment across heterogeneous internship records.
+
+Accordingly, the reported quality comparisons should be interpreted as structured comparative evaluation rather than gold-standard benchmark measurement.
+
+\subsection{Error Analysis}
+
+Analysis of observed failures revealed several recurring categories of system limitation.
+
+\subsubsection{Extraction and Normalization Errors}
+
+The most common extraction failures involved implicit or weakly expressed information, where relevant metadata was present only indirectly within descriptive text rather than as explicit structured values.
+
+Examples included:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item professional competencies implied through descriptive phrasing rather than named technical skills
+    \item compensation described narratively rather than numerically
+    \item geographic constraints embedded in free-form descriptive text
+\end{itemize}
+
+These cases highlight the inherent limitations of deterministic heuristic extraction when semantic interpretation depends on contextual inference.
+
+A second category involved format variance beyond deterministic coverage, where source-specific compensation, date, or metadata formatting fell outside the expected normalization rules.
+
+Examples included:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item unconventional compensation units
+    \item abbreviated or mixed-format location strings
+    \item inconsistent employer-specific metadata conventions
+\end{itemize}
+
+These represent engineering limitations that could be addressed through broader heuristic coverage.
+
+A third category involved semantic ambiguity, particularly where internship boundaries overlapped with trainee programs, graduate employment schemes, apprenticeships, or hybrid early-career roles.
+
+Such ambiguity remains difficult for both deterministic heuristics and lightweight semantic classification.
+
+\subsubsection{Discovery and Usability Limitations}
+
+Failures in internship discovery were most often attributable to corpus limitations rather than enrichment logic.
+
+Observed limitations included:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item highly niche technical requirements with limited representation
+    \item strongly localized searches outside the dataset’s geographic focus
+    \item incomplete source descriptions reducing metadata richness
+    \item inconsistent terminology reducing semantic alignment
+\end{itemize}
+
+These findings indicate that corpus breadth remains an important practical limitation for discovery effectiveness.
+
