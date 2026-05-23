@@ -1,11 +1,13 @@
 \chapter{System Design and Implementation}
 
 \section{Chapter Introduction}
+
 This chapter describes the concrete implementation of the proposed methodology within the software system. It follows the practical processing flow from heterogeneous data ingestion and preprocessing through semantic enrichment, structured persistence, caching, API communication, and frontend integration.
 
 The focus is on implementation mechanisms directly reflected in the developed system, translating the methodological architecture defined in Chapter 4 into operational software components. Particular attention is given to how lightweight deterministic processing, transformer-assisted semantic classification, and structured data normalization are integrated to support practical internship aggregation and enrichment on commodity hardware.
 
 \section{Data Collection and Preprocessing}
+
 This section details the implementation of the data acquisition, normalization, and semantic enrichment pipeline that forms the computational foundation of the system. As established in the methodology chapter, the primary implementation challenge is transforming noisy, heterogeneous internship and job listing data into structured, semantically enriched records suitable for frontend presentation and practical internship discovery.
 
 The implementation must remain robust against inconsistent source formatting, incomplete metadata, duplicate records, multilingual terminology variation, and noisy recruitment content commonly found in web-sourced internship data [15, 49]. At the same time, it must preserve the lightweight deployment philosophy central to this thesis by avoiding unnecessary computational complexity and dependence on heavyweight external inference services [38, 53].
@@ -20,7 +22,7 @@ The data ingestion pipeline serves as the primary entry point for internship dat
 
 As illustrated in Figure X, the ingestion workflow follows a staged asynchronous architecture beginning with automated data acquisition, followed by cleaning and enrichment, persistence, and eventual frontend retrieval. This staged design reflects established data integration practices for handling heterogeneous semi-structured data sources [1, 11, 15].
 
-\subsubsection{Source Acquisition}
+\subsubsection*{Source Acquisition}
 
 The ingestion process begins with automated collection of internship data through the scraping component (ScraperService), which gathers raw internship and recruitment records from supported online sources.
 
@@ -28,19 +30,17 @@ This acquisition stage is designed as an asynchronous process so that data colle
 
 The system primarily operates on structured JSON-based recruitment data, allowing both scraped datasets and externally provided JSON internship records to enter the same downstream normalization pipeline.
 
-\subsubsection{Initial Structural Validation (Layer 0)}
+\subsubsection*{Initial Structural Validation (Layer 0)}
 
 Before semantic enrichment begins, the pipeline performs an initial validation stage to verify that incoming data is structurally processable.
 
 This validation includes checks for:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item valid JSON formatting
-    \item expected structural completeness
-    \item required field presence
-    \item rejection of clearly malformed or unusable records
+\item valid JSON formatting
+\item expected structural completeness
+\item required field presence
+\item rejection of clearly malformed or unusable records
 \end{itemize}
-
 This defensive preprocessing stage reduces the risk of invalid source data propagating into semantic enrichment components and improves overall pipeline robustness [11, 15].
 
 \begin{figure}[htbp]
@@ -57,38 +57,34 @@ Raw recruitment data obtained from web scraping and heterogeneous JSON sources i
 
 To address this, Layer A applies deterministic rule-based preprocessing and sanitization operations. These operations are computationally inexpensive, predictable, explainable, and well suited for high-volume preprocessing tasks where full semantic inference is unnecessary [11, 49].
 
-\subsubsection{Field Normalization}
+\subsubsection*{Field Normalization}
 
 Foundational preprocessing functions such as cleanTitle, cleanLocation, and related normalization utilities standardize textual metadata before semantic processing.
 
 This stage includes:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Text normalization:} Text is transformed into a more consistent representation through whitespace collapsing, trimming, formatting cleanup, and normalization of superficial formatting inconsistencies. This reduces surface-form variability and improves downstream semantic consistency [11].
-    \item \textbf{HTML artifact removal:} Web-scraped recruitment text frequently contains residual markup artifacts, encoded entities, or formatting remnants. These artifacts are removed or normalized to improve textual cleanliness before further processing.
-    \item \textbf{Metadata standardization:} Common formatting inconsistencies in titles, locations, and structured fields are normalized into a more stable internal representation suitable for deterministic filtering and semantic classification.
+\item \textbf{Text normalization:} Text is transformed into a more consistent representation through whitespace collapsing, trimming, formatting cleanup, and normalization of superficial formatting inconsistencies. This reduces surface-form variability and improves downstream semantic consistency [11].
+\item \textbf{HTML artifact removal:} Web-scraped recruitment text frequently contains residual markup artifacts, encoded entities, or formatting remnants. These artifacts are removed or normalized to improve textual cleanliness before further processing.
+\item \textbf{Metadata standardization:} Common formatting inconsistencies in titles, locations, and structured fields are normalized into a more stable internal representation suitable for deterministic filtering and semantic classification.
 \end{itemize}
-
-\subsubsection{Salary Extraction}
+\subsubsection*{Salary Extraction}
 
 Salary information represents a highly structured extraction task well suited to deterministic processing.
 
 The cleanSalary function applies rule-based pattern matching to identify common salary expressions within heterogeneous recruitment text.
 
 This includes detection of:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item hourly compensation formats
-    \item annual salary ranges
-    \item abbreviated compensation notation (e.g., “k” suffixes)
-    \item single-value compensation mentions
+\item hourly compensation formats
+\item annual salary ranges
+\item abbreviated compensation notation (e.g., “k” suffixes)
+\item single-value compensation mentions
 \end{itemize}
-
 When salary patterns are successfully detected, numeric values are normalized into a consistent structured representation compatible with the internal internship schema.
 
 Because compensation extraction follows relatively stable textual patterns, deterministic regular expressions provide an efficient and explainable alternative to model-based inference for this task [49].
 
-\subsubsection{Description Cleaning}
+\subsubsection*{Description Cleaning}
 
 Internship descriptions often contain substantial non-semantic noise alongside useful role information.
 
@@ -96,12 +92,11 @@ The cleanDescription preprocessing stage removes formatting clutter, excessive w
 
 This improves the signal quality presented to downstream semantic classification components by reducing irrelevant textual noise and preserving meaningful internship content [11].
 
-\subsubsection{Role in the Semantic Pipeline}
+\subsubsection*{Role in the Semantic Pipeline}
 
 These preprocessing operations collectively form the deterministic sanitization foundation of Layer A.
 
 By resolving structurally predictable inconsistencies early in the pipeline, the system reserves transformer-assisted semantic inference for cases requiring genuine contextual interpretation, thereby preserving computational efficiency while improving downstream enrichment reliability.
-
 
 \subsection{Data Enrichment and Categorization}
 
@@ -109,21 +104,19 @@ Following preprocessing and sanitization, the system enriches each internship re
 
 These enrichment operations are primarily implemented within Layer A, where deterministic heuristics provide efficient metadata generation before contextual semantic classification is applied.
 
-\subsubsection{Stable Identifier Generation and Duplicate Handling}
+\subsubsection*{Stable Identifier Generation and Duplicate Handling}
 
 To maintain persistent referencing across ingestion cycles and support duplicate detection, the system generates deterministic identifiers using the generateId function.
 
 This process consists of:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Slugification:} Textual fields such as internship titles and company names are normalized into URL-safe string representations by converting text to lowercase, replacing non-alphanumeric separators with standardized delimiters, and removing formatting inconsistencies.
-    \item \textbf{Deterministic concatenation:} The normalized title and company identifiers are concatenated to produce a stable internal record identifier.
-    \item \textbf{Collision-based duplicate handling:} When newly ingested records generate identifiers that already exist in the processed dataset, the collision acts as a strong duplicate indicator. The pipeline then applies duplicate handling logic to avoid redundant internship entries and preserve a cleaner canonical dataset.
+\item \textbf{Slugification:} Textual fields such as internship titles and company names are normalized into URL-safe string representations by converting text to lowercase, replacing non-alphanumeric separators with standardized delimiters, and removing formatting inconsistencies.
+\item \textbf{Deterministic concatenation:} The normalized title and company identifiers are concatenated to produce a stable internal record identifier.
+\item \textbf{Collision-based duplicate handling:} When newly ingested records generate identifiers that already exist in the processed dataset, the collision acts as a strong duplicate indicator. The pipeline then applies duplicate handling logic to avoid redundant internship entries and preserve a cleaner canonical dataset.
 \end{itemize}
-
 Deterministic identifier generation provides an explainable and computationally inexpensive strategy for practical duplicate control within heterogeneous recruitment datasets [10, 15, 50].
 
-\subsubsection{Heuristic Categorization}
+\subsubsection*{Heuristic Categorization}
 
 The enrichment pipeline applies keyword-based categorization logic through the categorizeJob mechanism to assign structured domain labels to internship listings.
 
@@ -133,35 +126,31 @@ The broader internal semantic categorization framework spans multiple profession
 
 Because deterministic categorization is computationally inexpensive, predictable, and explainable, it provides an effective first-pass classification layer before contextual semantic interpretation is introduced [49].
 
-\subsubsection{Skill Extraction}
+\subsubsection*{Skill Extraction}
 
 Initial skill extraction is performed using deterministic matching against curated internal skill reference libraries.
 
 The extraction mechanism compares internship titles and descriptions against controlled vocabularies containing technical competencies, normalized terminology variants, and commonly occurring recruitment skill expressions.
 
 This approach provides several advantages:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Efficiency:} Dictionary-based matching remains computationally lightweight and suitable for high-volume preprocessing.
-    \item \textbf{Explainability:} Extracted skills can be directly traced to explicit textual matches rather than opaque model inference.
-    \item \textbf{Consistency:} Controlled vocabularies reduce inconsistent labeling caused by employer terminology variation.
+\item \textbf{Efficiency:} Dictionary-based matching remains computationally lightweight and suitable for high-volume preprocessing.
+\item \textbf{Explainability:} Extracted skills can be directly traced to explicit textual matches rather than opaque model inference.
+\item \textbf{Consistency:} Controlled vocabularies reduce inconsistent labeling caused by employer terminology variation.
 \end{itemize}
-
 The skill extraction design is informed by standardized vocabulary normalization principles used in recruitment informatics while remaining lightweight and practically maintainable [17, 20].
 
-\subsubsection{Layer A Role in the Tiered Architecture}
+\subsubsection*{Layer A Role in the Tiered Architecture}
 
 Deterministic enrichment provides the structured baseline for internship processing.
 
 However, heuristic enrichment remains limited when encountering:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item ambiguous job terminology
-    \item unseen or emerging technologies
-    \item paraphrased competency descriptions
-    \item semantically unclear internship postings
+\item ambiguous job terminology
+\item unseen or emerging technologies
+\item paraphrased competency descriptions
+\item semantically unclear internship postings
 \end{itemize}
-
 For such cases, Layer B introduces transformer-assisted contextual semantic interpretation, preserving the efficiency advantages of deterministic enrichment while improving robustness for uncertain or ambiguous records [45, 38].
 
 \subsection{Performance Optimization and the Caching Sub-System}
@@ -172,19 +161,36 @@ After internship records have passed through validation, preprocessing, enrichme
 
 This caching strategy has several important implications for the system’s operational profile.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Amortized Computational Cost:} The computational cost of ingestion, preprocessing, deterministic enrichment, semantic classification, and structured transformation is incurred only during data refresh or cache regeneration. This one-time processing cost is then amortized across repeated frontend and API access requests, substantially reducing redundant computation during normal application use.
+\subsubsection*{Amortized Computational Cost}
 
-    \item \textbf{Low-Latency Application Responsiveness:} By serving pre-processed structured internship records directly from memory, the system supports responsive frontend interaction for browsing, filtering, and internship exploration. This design avoids repeated execution of computationally heavier semantic processing during ordinary user interaction, preserving practical responsiveness for interactive application use [7].
+The computational cost of ingestion, preprocessing, deterministic enrichment, semantic classification, and structured transformation is incurred only during data refresh or cache regeneration.
 
-    \item \textbf{Lightweight Operational Efficiency:} The caching strategy directly supports the lightweight architectural goals of the thesis [38, 53]. Because semantic enrichment is performed during preprocessing rather than repeatedly during frontend interaction, the system avoids unnecessary repeated inference cost, excess CPU utilization, and dependence on external cloud-based semantic processing services. This design aligns with the thesis objective of achieving meaningful semantic enrichment while remaining computationally practical on commodity hardware.
+This one-time processing cost is then amortized across repeated frontend and API access requests, substantially reducing redundant computation during normal application use.
 
-    \item \textbf{Cache Lifecycle Management:} Cache invalidation is coupled to the underlying data refresh cycle, ensuring that processed internship records remain synchronized with updated source datasets while preserving operational efficiency. This provides a predictable and explainable caching lifecycle without introducing unnecessary architectural complexity.
-\end{itemize}
+\subsubsection*{Low-Latency Application Responsiveness}
+
+By serving pre-processed structured internship records directly from memory, the system supports responsive frontend interaction for browsing, filtering, and internship exploration.
+
+This design avoids repeated execution of computationally heavier semantic processing during ordinary user interaction, preserving practical responsiveness for interactive application use [7].
+
+\subsubsection*{Lightweight Operational Efficiency}
+
+The caching strategy directly supports the lightweight architectural goals of the thesis [38, 53].
+
+Because semantic enrichment is performed during preprocessing rather than repeatedly during frontend interaction, the system avoids unnecessary repeated inference cost, excess CPU utilization, and dependence on external cloud-based semantic processing services.
+
+This design aligns with the thesis objective of achieving meaningful semantic enrichment while remaining computationally practical on commodity hardware.
+
+\subsubsection*{Cache Lifecycle Management}
+
+Cache invalidation is coupled to the underlying data refresh cycle, ensuring that processed internship records remain synchronized with updated source datasets while preserving operational efficiency.
+
+This provides a predictable and explainable caching lifecycle without introducing unnecessary architectural complexity.
 
 In summary, the caching subsystem transforms the preprocessing and semantic enrichment pipeline from a repeated computational burden into an amortized preparation stage, enabling practical frontend responsiveness while preserving the lightweight deployment philosophy of the proposed system.
 
 \section{Lightweight Semantic Enrichment Pipeline}
+
 The semantic enrichment pipeline forms the computational core of the proposed system. Its purpose is to transform noisy, heterogeneous internship and recruitment data into the structured, semantically enriched representation defined in the methodology chapter.
 
 The implementation follows the lightweight three-layer architecture introduced earlier, combining deterministic preprocessing, contextual semantic classification, and controlled exception handling to balance semantic effectiveness with computational efficiency.
@@ -209,57 +215,48 @@ Where deterministic heuristics provide insufficient confidence, the pipeline inv
 
 Finally, semantically enriched internship records are transformed into the structured Internship representation and persisted within the application’s caching layer for efficient frontend access.
 
-\subsubsection{Pipeline Orchestration}
+\subsubsection*{Pipeline Orchestration}
 
 The enrichment process is orchestrated through a central processing workflow that accepts raw recruitment records and progressively transforms them into structured internship entities.
 
 The orchestration follows a dependency-aware staged sequence, where outputs from earlier normalization stages provide the input required for downstream enrichment and classification operations.
 
 A representative processing sequence includes:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Structural normalization}
-    \begin{itemize}
-      \item title cleaning
-      \item company normalization
-      \item description sanitization
-      \item metadata cleanup
-    \end{itemize}
-    \item \textbf{Deterministic enrichment}
-    \begin{itemize}
-      \item stable identifier generation
-      \item salary extraction
-      \item duplicate detection
-      \item heuristic categorization
-      \item controlled skill extraction
-    \end{itemize}
-    \item \textbf{Semantic interpretation}
-    \begin{itemize}
-      \item internship relevance classification
-      \item ambiguity detection
-      \item semantic consistency assessment
-      \item manual-review exception flagging
-    \end{itemize}
-    \item \textbf{Final structuring}
-    \begin{itemize}
-      \item canonical internship object generation
-      \item cache persistence
-      \item frontend/API availability
-    \end{itemize}
+\item Structural normalization
+\item title cleaning
+\item company normalization
+\item description sanitization
+\item metadata cleanup
+\item Deterministic enrichment
+\item stable identifier generation
+\item salary extraction
+\item duplicate detection
+\item heuristic categorization
+\item controlled skill extraction
+\item Semantic interpretation
+\item internship relevance classification
+\item ambiguity detection
+\item semantic consistency assessment
+\item manual-review exception flagging
+\item Final structuring
+\item canonical internship object generation
+\item cache persistence
+\item frontend/API availability
 \end{itemize}
-
 This staged orchestration improves modularity, simplifies debugging, and allows individual enrichment components to be independently tested and refined.
 
-\subsubsection{Design Principles and Trade-Offs}
+\subsubsection*{Design Principles and Trade-Offs}
 
 The implementation reflects several core design principles that define the operational behavior of the proposed system.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Deterministic explainability:} High-confidence structured tasks are handled through transparent rule-based logic, ensuring reproducibility, easier debugging, and predictable behavior.
-    \item \textbf{Local computation:} Semantic processing is performed locally within the application environment, minimizing dependence on external services and preserving practical deployment efficiency.
-    \item \textbf{Progressive refinement:} Computationally inexpensive deterministic methods are applied first, while more expensive contextual semantic processing is reserved only for uncertain cases requiring deeper interpretation.
-    \item \textbf{Controlled uncertainty handling:} Semantically ambiguous cases are not blindly forced into deterministic outcomes; instead, controlled escalation through semantic interpretation or manual review preserves system trustworthiness.
-\end{itemize}
+Deterministic explainability: High-confidence structured tasks are handled through transparent rule-based logic, ensuring reproducibility, easier debugging, and predictable behavior.
+
+Local computation: Semantic processing is performed locally within the application environment, minimizing dependence on external services and preserving practical deployment efficiency.
+
+Progressive refinement: Computationally inexpensive deterministic methods are applied first, while more expensive contextual semantic processing is reserved only for uncertain cases requiring deeper interpretation.
+
+Controlled uncertainty handling: Semantically ambiguous cases are not blindly forced into deterministic outcomes; instead, controlled escalation through semantic interpretation or manual review preserves system trustworthiness.
 
 These principles directly address the central thesis objective of balancing semantic effectiveness with practical computational efficiency on commodity hardware [38, 53].
 
@@ -269,24 +266,22 @@ Deterministic attribute normalization provides the structured preprocessing foun
 
 This normalization layer addresses recurring challenges in recruitment data integration, including surface-form variance, inconsistent field naming across sources, duplicated records, noisy descriptions, salary variation, and inconsistent location formatting [11, 15, 49].
 
-\subsubsection{Text Sanitization Primitives}
+\subsubsection*{Text Sanitization Primitives}
 
 Before specialized enrichment occurs, textual fields pass through a shared sanitization pipeline designed to remove noise while preserving semantic content.
 
 This preprocessing includes:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item HTML entity decoding and markup removal
-    \item whitespace normalization
-    \item URL stripping
-    \item repeated-line reduction
-    \item removal of common job-board boilerplate
-    \item formatting cleanup for frontend-safe rendering
+\item HTML entity decoding and markup removal
+\item whitespace normalization
+\item URL stripping
+\item repeated-line reduction
+\item removal of common job-board boilerplate
+\item formatting cleanup for frontend-safe rendering
 \end{itemize}
-
 These transformations reduce surface-form variance and improve downstream consistency for duplicate detection, deterministic extraction, and semantic classification.
 
-\subsubsection{Stable Identifier Generation and Duplicate Handling}
+\subsubsection*{Stable Identifier Generation and Duplicate Handling}
 
 To maintain referential integrity across ingestion cycles and support duplicate detection, the system implements deterministic stable identifier generation.
 
@@ -296,9 +291,7 @@ The identifier generation logic uses slugification, where textual metadata is lo
 
 Listing 5.1 shows the simplified stable identifier generation logic.
 
-\begin{verbatim}
-Listing 5.1: Stable identifier generation logic
-
+\begin{lstlisting}[caption={Stable identifier generation logic}]
 function generateStableRoleId(title: string, company: string): string {
   const cleanTitle = title
     .toLowerCase()
@@ -316,24 +309,20 @@ function generateStableRoleId(title: string, company: string): string {
 
   return `${cleanTitle}-${cleanCompany}`;
 }
-\end{verbatim}
+\end{lstlisting}
 
 This identifier serves several architectural roles:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item persistent application reference
-    \item frontend routing support
-    \item duplicate detection key
-    \item canonical record tracking across ingestion cycles
+\item persistent application reference
+\item frontend routing support
+\item duplicate detection key
+\item canonical record tracking across ingestion cycles
 \end{itemize}
-
 When identifier collisions occur, duplicate handling logic appends numeric suffixes to preserve uniqueness without overwriting distinct listings.
 
 Listing 5.2 illustrates collision handling.
 
-\begin{verbatim}
-Listing 5.2: Collision handling logic
-
+\begin{lstlisting}[caption={Collision handling logic}]
 let finalId = baseId;
 let counter = 1;
 
@@ -343,31 +332,27 @@ while (seenIds.has(finalId)) {
 }
 
 seenIds.add(finalId);
-\end{verbatim}
+\end{lstlisting}
 
 In addition to identifier-based duplicate control, the preprocessing pipeline applies deterministic deduplication using normalized canonical links and similarity checks between title, company, location, and description metadata. Deterministic duplicate handling remains computationally inexpensive while providing robust control over redundant recruitment records [10, 50].
 
-\subsubsection{Regex-Based Salary Parsing and Compensation Normalization}
+\subsubsection*{Regex-Based Salary Parsing and Compensation Normalization}
 
 Compensation extraction represents a structured normalization task well suited to deterministic processing.
 
 Internship salary information frequently appears in inconsistent formats, including:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item hourly rates (\$15–20/hr)
-    \item annual salary ranges (\$70k–90k)
-    \item single-value compensation (Up to \$50/hr)
-    \item employer-estimated ranges
-    \item partially structured compensation text
+\item hourly rates (\$15–20/hr)
+\item annual salary ranges (\$70k–90k)
+\item single-value compensation (Up to \$50/hr)
+\item employer-estimated ranges
+\item partially structured compensation text
 \end{itemize}
-
 The salary normalization logic applies deterministic pattern matching and text cleaning to detect recognizable compensation expressions.
 
 Listing 5.3 presents a simplified salary normalization example.
 
-\begin{verbatim}
-Listing 5.3: Salary normalization logic
-
+\begin{lstlisting}[caption={Salary normalization logic}]
 function cleanSalary(salary: string): string {
   if (!salary) return "Salary not specified";
 
@@ -381,33 +366,29 @@ function cleanSalary(salary: string): string {
 
   return cleaned;
 }
-\end{verbatim}
+\end{lstlisting}
 
 Where salary values are sufficiently structured, hourly compensation may be normalized into annualized equivalents to improve cross-listing comparability.
 
 This deterministic approach provides explainable compensation normalization without requiring model-based inference, making it well suited to high-volume preprocessing workloads [49].
 
-\subsubsection{Location Normalization}
+\subsubsection*{Location Normalization}
 
 Geographic location information frequently exhibits substantial inconsistency across recruitment sources.
 
 The location normalization stage applies deterministic cleaning to improve geographic consistency while preserving user-relevant meaning.
 
 This includes:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item whitespace normalization
-    \item markup removal
-    \item fallback handling for missing values
-    \item preservation of remote or hybrid indicators where relevant
-    \item normalization of inconsistent location formatting
+\item whitespace normalization
+\item markup removal
+\item fallback handling for missing values
+\item preservation of remote or hybrid indicators where relevant
+\item normalization of inconsistent location formatting
 \end{itemize}
-
 Listing 5.4 shows representative location cleaning logic.
 
-\begin{verbatim}
-Listing 5.4: Location normalization logic
-
+\begin{lstlisting}[caption={Location normalization logic}]
 function cleanLocation(location: string): string {
   if (!location) return "Location not specified";
 
@@ -416,11 +397,11 @@ function cleanLocation(location: string): string {
     .replace(/\s+/g, ' ')
     .trim();
 }
-\end{verbatim}
+\end{lstlisting}
 
 Normalized location metadata improves frontend filtering, browsing consistency, and geographic comparability across heterogeneous listings.
 
-\subsubsection{Architectural Role}
+\subsubsection*{Architectural Role}
 
 Deterministic normalization forms the high-efficiency foundation of Layer A.
 
@@ -434,7 +415,7 @@ As established in the research objectives, the system must identify relevant pro
 
 This design preserves the efficiency and explainability of dictionary-based extraction while allowing the system to detect semantically related skills when explicit lexical matching is insufficient [20, 38].
 
-\subsubsection{Controlled Skill Reference Library}
+\subsubsection*{Controlled Skill Reference Library}
 
 The skill extraction module is supported by an internally curated JSON-based skill library. The current operational library contains more than 500 canonical skill entries, organized across 23 professional skill groups, with synonym and descriptive metadata used to support both exact matching and semantic comparison.
 
@@ -442,7 +423,7 @@ The library covers internship-relevant competencies across areas such as softwar
 
 Although the design is inspired by standardized labor-market vocabulary principles such as ESCO, the implementation does not attempt full ESCO ontology alignment. Instead, ESCO is used as a conceptual reference for controlled vocabulary normalization, while the operational system relies on a maintainable internal skill library suited to the internship dataset [17].
 
-\subsubsection{Exact and Synonym-Based Matching}
+\subsubsection*{Exact and Synonym-Based Matching}
 
 The first extraction stage performs deterministic matching against canonical skill names and their configured synonyms. The ML pipeline uses boundary-aware regular expression matching so that recognized skills are extracted only when they appear as meaningful terms rather than arbitrary substrings.
 
@@ -450,9 +431,7 @@ This is particularly important for short technical terms. For example, the imple
 
 A simplified version of the deterministic matching logic is shown in Listing 5.5.
 
-\begin{verbatim}
-Listing 5.5: Simplified exact and synonym-based skill matching
-
+\begin{lstlisting}[caption={Simplified exact and synonym-based skill matching}]
 def _keyword_hits(self, text: str) -> set[str]:
     found: set[str] = set()
 
@@ -465,11 +444,11 @@ def _keyword_hits(self, text: str) -> set[str]:
                 break
 
     return found
-\end{verbatim}
+\end{lstlisting}
 
 This deterministic stage provides a fast and explainable baseline. Extracted skills can be traced directly to either a canonical skill label or one of its configured aliases.
 
-\subsubsection{Conservative Embedding-Based Skill Matching}
+\subsubsection*{Conservative Embedding-Based Skill Matching}
 
 To improve semantic coverage beyond explicit keyword matching, the ML pipeline optionally applies local sentence-transformer embeddings. Skill descriptions from the controlled library are embedded once, and segments of the job text are compared against these skill representations.
 
@@ -477,9 +456,7 @@ This stage is intentionally conservative. A semantic skill match is accepted onl
 
 The simplified semantic matching logic is shown in Listing 5.6.
 
-\begin{verbatim}
-Listing 5.6: Conservative semantic skill matching
-
+\begin{lstlisting}[caption={Conservative semantic skill matching}]
 def _embedding_hits(self, text: str) -> set[str]:
     if self.model is None or self.skill_embeddings is None:
         return set()
@@ -504,23 +481,23 @@ def _embedding_hits(self, text: str) -> set[str]:
             found.add(self.skill_names[top_idx])
 
     return found
-\end{verbatim}
+\end{lstlisting}
 
 In the implemented configuration, semantic skill matching uses the same lightweight local sentence-transformer family as the broader semantic classification pipeline. This supports the thesis objective of improving semantic enrichment while avoiding dependence on cloud-hosted LLM inference [45, 38].
 
-\subsubsection{Skill Output Ordering and Limits}
+\subsubsection*{Skill Output Ordering and Limits}
 
 The final skill list combines deterministic keyword matches and accepted semantic matches. Keyword matches are prioritized, and the resulting set is sorted into a stable order before being capped by a maximum skill limit.
 
 In the ML pipeline, the default maximum is fifteen skills per listing. In the frontend fallback logic, extracted skills are capped more aggressively for display purposes. This prevents long descriptions from producing excessively large skill lists and keeps the frontend internship cards readable.
 
-\subsubsection{Website Fallback Extraction}
+\subsubsection*{Website Fallback Extraction}
 
 The Next.js frontend also contains a lightweight fallback extractor. When an internship record does not already provide a skills array, the frontend scans the description for a smaller predefined set of common skill keywords and returns a capped list.
 
 This fallback is simpler than the ML pipeline extractor. Its purpose is frontend resilience rather than full semantic enrichment. In normal operation, the richer ML pipeline output supplies the skills field directly.
 
-\subsubsection{Architectural Role}
+\subsubsection*{Architectural Role}
 
 Skill extraction supports the system in two ways. First, it improves frontend usability by exposing structured competencies that students can quickly read and use for filtering. Second, it contributes semantic metadata that supports consistency across heterogeneous internship records.
 
@@ -534,7 +511,7 @@ The implemented categorization module is not limited to a small five-category ta
 
 The categorization process is implemented in the DomainClassifier component and combines weighted keyword rules with an optional prototype-embedding fallback.
 
-\subsubsection{Weighted Keyword-Based Classification}
+\subsubsection*{Weighted Keyword-Based Classification}
 
 The primary categorization mechanism uses domain-specific keyword dictionaries. Each domain is associated with weighted anchor terms that indicate domain membership. For example, software engineering contains anchors such as programming languages and software development terms, while cybersecurity contains terms such as vulnerability, threat, and information security.
 
@@ -542,9 +519,7 @@ For each record, the classifier evaluates the normalized title and description t
 
 A simplified version of the keyword-scoring logic is shown in Listing 5.7.
 
-\begin{verbatim}
-Listing 5.7: Simplified weighted domain keyword scoring
-
+\begin{lstlisting}[caption={Simplified weighted domain keyword scoring}]
 def _keyword_scores(self, text: str) -> Counter[str]:
     scores: Counter[str] = Counter()
 
@@ -554,54 +529,45 @@ def _keyword_scores(self, text: str) -> Counter[str]:
                 scores[domain] += weight
 
     return scores
-\end{verbatim}
-
-\subsubsection{Priority-Based Tie Resolution}
+\end{lstlisting}
+\subsubsection*{Priority-Based Tie Resolution}
 
 When multiple domains receive equal scores, the system applies a fixed priority order to resolve ambiguity. This prevents unstable category assignment when a posting contains signals from several related domains.
 
 For example, a posting mentioning both software development and cloud infrastructure may contain evidence for more than one category. The priority order ensures that such cases are handled consistently rather than randomly.
 
-\subsubsection{Confidence Estimation and Embedding Fallback}
+\subsubsection*{Confidence Estimation and Embedding Fallback}
 
 The classifier calculates a confidence value based on the strength of the winning domain score relative to the total matched evidence. If keyword confidence is low, the system may invoke a lightweight sentence-transformer prototype comparison.
 
 In this fallback stage, the job text is embedded and compared against short domain descriptions. A prototype embedding result is accepted only when it exceeds a confidence threshold and has sufficient margin over the next-best label.
 
-\begin{verbatim}
-Listing 5.8: Simplified prototype embedding fallback
-
+\begin{lstlisting}[caption={Simplified prototype embedding fallback}]
 def _embedding_classify(self, text: str) -> DomainResult | None:
     if self.model is None or self.domain_embeddings is None:
         return None
+\end{lstlisting}
 
-    embedding = self.model.encode(
-        text[:1800],
-        convert_to_tensor=True,
-        normalize_embeddings=True
-    )
+embedding = self.model.encode( text[:1800], convert\_to\_tensor=True, normalize\_embeddings=True )
 
-    sims = util.cos_sim(embedding, self.domain_embeddings)[0]
-    pairs = sorted(zip(self.labels, sims), key=lambda item: item[1], reverse=True)
+sims = util.cos\_sim(embedding, self.domain\_embeddings)[0] pairs = sorted(zip(self.labels, sims), key=lambda item: item[1], reverse=True)
 
-    label, score = pairs[0]
-    margin = score - pairs[1][1]
+label, score = pairs[0] margin = score - pairs[1][1]
 
-    if score >= self.threshold and margin >= 0.015:
-        return DomainResult(
-            primary=label,
-            confidence=round(min(float(score), 0.95), 3),
-            method="prototype embedding fallback"
-        )
-
-    return None
-\end{verbatim}
-
-\subsubsection{General Fallback Category}
+if score >= self.threshold and margin >= 0.015:
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\item return DomainResult(
+\item primary=label,
+\item confidence=round(min(float(score), 0.95), 3),
+\item method="prototype embedding fallback"
+\item )
+\item return None
+\end{itemize}
+\subsubsection*{General Fallback Category}
 
 If neither keyword scoring nor embedding fallback produces a confident domain assignment, the system assigns the record to a general category. This prevents records from being forced into inappropriate specialized categories while preserving frontend compatibility.
 
-\subsubsection{Architectural Role}
+\subsubsection*{Architectural Role}
 
 Domain categorization contributes to the system’s semantic enrichment layer by transforming heterogeneous employer terminology into stable application-facing labels. The weighted keyword rules provide fast and explainable Layer A classification, while the embedding fallback provides additional semantic flexibility for low-confidence cases.
 
@@ -613,7 +579,7 @@ To translate the efficiency of the enrichment and normalization modules into pra
 
 The caching design reflects the fact that the internship catalog is primarily read-heavy. The dataset is generated during the ingestion and enrichment workflow and then consumed repeatedly by the frontend application. Therefore, the system avoids unnecessary repeated file reads and normalization work during ordinary user interaction.
 
-\subsubsection{Server-Side Catalog Cache}
+\subsubsection*{Server-Side Catalog Cache}
 
 The primary data-access cache is implemented in the data.ts module. This module exposes getInternships(), which reads the static public/intern\_data.json catalog, normalizes the raw records using normalizeRoleArray(), filters them using isProductionAcceptedInternship(), and stores the accepted internship array in a module-level cache.
 
@@ -621,9 +587,7 @@ After the first successful load, subsequent calls to getInternships() return the
 
 A simplified version of this mechanism is shown in Listing 5.9.
 
-\begin{verbatim}
-Listing 5.9: Server-side internship catalog cache
-
+\begin{lstlisting}[caption={Server-side internship catalog cache}]
 let cachedInternships: Internship[] | null = null;
 
 export async function getInternships(): Promise<Internship[]> {
@@ -638,19 +602,17 @@ export async function getInternships(): Promise<Internship[]> {
 
   return cachedInternships;
 }
-\end{verbatim}
+\end{lstlisting}
 
 This cache supports efficient server-side loading for the main internship listing page.
 
-\subsubsection{API-Level Cache with Time-to-Live}
+\subsubsection*{API-Level Cache with Time-to-Live}
 
 The /api/internship route implements an additional cache for API-based access. This cache stores processed roles and associates them with a timestamp. Cached data is reused while it remains within the configured time-to-live period.
 
 In the current implementation, the cache duration is five minutes. This provides a simple balance between responsiveness and data freshness.
 
-\begin{verbatim}
-Listing 5.10: API cache with time-to-live
-
+\begin{lstlisting}[caption={API cache with time-to-live}]
 let cachedRoles: any[] | null = null;
 let lastFetchTime = 0;
 const CACHE_TTL = 5 * 60 * 1000;
@@ -671,11 +633,11 @@ async function getProcessedData(): Promise<any[]> {
   lastFetchTime = now;
   return cachedRoles;
 }
-\end{verbatim}
+\end{lstlisting}
 
 The API route also supports explicit cache clearing through a POST request with the clear-cache action, allowing regenerated data to be reflected without restarting the application.
 
-\subsubsection{Role Detail and Similar Internship Cache}
+\subsubsection*{Role Detail and Similar Internship Cache}
 
 The role-detail page retrieves an individual internship using the /api/internship/[id] endpoint. That endpoint reads and normalizes the JSON catalog for the requested role rather than using the list cache directly.
 
@@ -683,9 +645,7 @@ However, the role-detail interface also computes similar internship recommendati
 
 This cache stores similar internship results after they are first computed.
 
-\begin{verbatim}
-Listing 5.11: Client-side similar internship cache
-
+\begin{lstlisting}[caption={Client-side similar internship cache}]
 const similarInternshipsCache = new Map<string, Internship[]>();
 
 if (similarInternshipsCache.has(currentInternship.id)) {
@@ -696,29 +656,29 @@ if (similarInternshipsCache.has(currentInternship.id)) {
 }
 
 similarInternshipsCache.set(currentInternship.id, similar);
-\end{verbatim}
+\end{lstlisting}
 
 This cache improves responsiveness when users revisit or re-render role detail views that require similar internship recommendations.
 
-\subsubsection{Amortized Processing Cost}
+\subsubsection*{Amortized Processing Cost}
 
 The caching strategy reflects an amortized cost model. Normalization, filtering, and production acceptance checks are performed when the dataset is loaded or refreshed, rather than repeatedly for every frontend interaction.
 
 This reduces redundant computation during browsing, filtering, and page navigation. It also supports the thesis objective of maintaining practical responsiveness on commodity hardware while avoiding unnecessary repeated semantic or heuristic processing [38, 53].
 
-\subsubsection{Frontend Responsiveness}
+\subsubsection*{Frontend Responsiveness}
 
 The frontend receives normalized internship records and performs interactive search, filtering, and pagination on the client side. Search and filtering are implemented through React state and memoized filtering logic, while pagination is synchronized with URL parameters.
 
 This means that after the internship dataset has been loaded, many common interactions do not require additional server-side semantic processing. The resulting interaction model supports fast browsing and filtering behavior, especially after the initial dataset load.
 
-\subsubsection{Cache Lifecycle}
+\subsubsection*{Cache Lifecycle}
 
 The cache lifecycle is tied to data refresh and time-based invalidation. The server-side data.ts cache persists for the lifetime of the server process, while the API route cache uses a five-minute TTL and can be cleared manually through the API.
 
 This design is simple, explainable, and appropriate for a static internship catalog that is regenerated periodically rather than continuously rewritten during normal user interaction.
 
-\subsubsection{Lightweight Operational Profile}
+\subsubsection*{Lightweight Operational Profile}
 
 The caching strategy supports the lightweight design of the system by ensuring that enriched and normalized internship records can be reused efficiently after preparation. Unlike architectures that perform semantic inference or external LLM calls during each user request, this implementation front-loads enrichment into the data preparation workflow and serves already processed records during application use.
 
@@ -736,7 +696,7 @@ This hybrid design follows the broader data-integration principle of separating 
 
 The system adopts a hybrid data storage architecture that distinguishes between the static internship catalog and dynamic user interaction state.
 
-\subsubsection{Static Internship Catalog}
+\subsubsection*{Static Internship Catalog}
 
 The primary repository for processed internship listings is the public/intern\_data.json file. This file contains normalized, enriched, and production-accepted internship records generated by the upstream cleaning and semantic enrichment pipeline.
 
@@ -745,17 +705,16 @@ During application execution, the catalog is accessed through the server-side da
 This file-based catalog strategy is appropriate for the internship dataset because the catalog is read-heavy and updated through scheduled or manual refresh cycles rather than continuously modified during user interaction.
 
 The static catalog provides several implementation advantages:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item simple deployment with the frontend application
-    \item fast read access after initial loading
-    \item easy replacement when the enrichment pipeline generates a new dataset
-    \item reduced operational complexity compared with storing the static catalog in a relational database
+\item simple deployment with the frontend application
+\item fast read access after initial loading
+\item easy replacement when the enrichment pipeline generates a new dataset
 \end{itemize}
+reduced operational complexity compared with storing the static catalog in a relational database
 
 This design keeps the core internship discovery dataset lightweight and portable while preserving enough structure for filtering, browsing, and detailed role display.
 
-\subsubsection{Relational Persistence through Supabase}
+\subsubsection*{Relational Persistence through Supabase}
 
 Dynamic user-specific data is handled separately through Supabase. The frontend uses a Supabase client to support authenticated interaction features, particularly saved internship functionality.
 
@@ -768,28 +727,26 @@ This relational persistence layer is appropriate for user-linked data because sa
 Although the implementation does not use a dedicated search index or vector index, the processed internship records contain structured metadata that supports practical discovery within the application.
 
 The most important metadata fields include:
-
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item category
-    \item skills
-    \item location
-    \item salary
-    \item company
-    \item platform
-    \item is\_real\_internship
-    \item internship\_probability
-    \item needs\_manual\_review
+\item category
+\item skills
+\item location
+\item salary
+\item company
+\item platform
+\item is\_real\_internship
+\item internship\_probability
+\item needs\_manual\_review
 \end{itemize}
-
 These fields are produced during normalization and semantic enrichment, then used by the frontend to support browsing, filtering, and internship interpretation.
 
-\subsubsection{Category and Skill Metadata}
+\subsubsection*{Category and Skill Metadata}
 
 The category field provides a high-level professional domain label for each internship record. The skills field stores extracted competencies produced by the skill extraction pipeline. Together, these fields support structured filtering and role comparison without requiring a separate retrieval engine.
 
 For example, the frontend can group or filter internships by domain category, while skill lists allow users to quickly assess whether a posting matches their competencies or interests.
 
-\subsubsection{Similar Internship Recommendations}
+\subsubsection*{Similar Internship Recommendations}
 
 The role-detail interface also uses metadata for lightweight recommendation behavior. Similar internships are selected using category matching first, followed by skill overlap. If insufficient similar records are found, the interface falls back to other valid internships.
 
@@ -801,25 +758,25 @@ This approach is consistent with efficient machine learning and Green AI princip
 
 The internship catalog is exposed through Next.js route handlers that provide structured JSON access to the frontend application. Next.js API routes support colocating backend request handling with the application framework, which fits the system’s lightweight deployment approach [46].
 
-\subsubsection{Internship List API}
+\subsubsection*{Internship List API}
 
 The /api/internship endpoint returns the accepted internship catalog. Internally, the route reads public/intern\_data.json, normalizes records through normalizeRoleArray(), filters accepted internships, and caches the processed list using a five-minute time-to-live.
 
 This API-level cache reduces repeated file reads and normalization work during API-based access. The route also supports a cache-clearing action through a POST request with the clear-cache parameter, allowing refreshed catalog data to be exposed without restarting the application.
 
-\subsubsection{Internship Detail API}
+\subsubsection*{Internship Detail API}
 
 The /api/internship/[id] endpoint retrieves a single internship by identifier. It reads the JSON catalog, normalizes and filters the records, and returns the matching internship if found. If the requested role does not exist, the endpoint returns a structured 404 response.
 
 This endpoint provides a simple and predictable mechanism for role-detail pages to retrieve individual internship records.
 
-\subsubsection{Server-Side Data Access}
+\subsubsection*{Server-Side Data Access}
 
 The main homepage also accesses internship data through the server-side getInternships() function in data.ts. This function supports server-side rendering by loading and caching the normalized internship catalog before passing it into the frontend page component.
 
 As a result, the initial internship list can be rendered from already-processed application data, while interactive search, filtering, and pagination are handled in the frontend using React state and memoized filtering logic.
 
-\subsubsection{Data Access Resilience}
+\subsubsection*{Data Access Resilience}
 
 The data-access layer includes defensive checks for malformed or missing data. For example, the system verifies that the JSON file is not empty, rejects invalid top-level formats, and returns empty arrays or structured errors when data cannot be parsed correctly.
 
@@ -828,11 +785,11 @@ This prevents malformed catalog data from crashing the frontend application and 
 \subsection{Summary of Storage and Persistence Design}
 
 The storage and persistence design separates three concerns:
-
-Static internship catalog delivery through public/intern_data.json
-Server/API data access and caching through data.ts and Next.js route handlers
-Dynamic user persistence through Supabase-backed saved roles and authentication state
-
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+\item Static internship catalog delivery through public/intern\_data.json
+\item Server/API data access and caching through data.ts and Next.js route handlers
+\item Dynamic user persistence through Supabase-backed saved roles and authentication state
+\end{itemize}
 This architecture supports lightweight deployment, practical frontend responsiveness, and reliable user-specific persistence without requiring the static internship catalog to be stored in a full relational database.
 
 \section{Chapter Conclusion}
