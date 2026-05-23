@@ -201,3 +201,77 @@ This chapter first defines the structured labeling model used within the interns
 
 These design decisions are grounded in established principles of data integration, semantic normalization, and information extraction, directly addressing the semantic consistency challenges identified in the problem statement [15, 49, 54].
 
+\subsection{Target Schema Definition}
+
+To achieve a unified and structured representation of heterogeneous recruitment data, the system requires a clearly defined target schema. External internship data originates from multiple heterogeneous sources, including semi-structured scraped web content and partner-provided JSON datasets with inconsistent schema definitions. Direct frontend consumption of such raw data is impractical without normalization, validation, and structural transformation. The target schema therefore serves as the formal structured representation into which raw records are transformed during the enrichment pipeline [49].
+
+The schema is not merely a passive storage format; it functions as a formal semantic contract that ensures consistency across ingestion, semantic processing, persistence, and frontend presentation. By enforcing a shared structured representation, the system reduces ambiguity and limits data inconsistency propagation across pipeline stages [15].
+
+\subsubsection{Structural Requirements}
+
+The schema design is motivated by three primary functional objectives:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Identity and Provenance:} Aggregated recruitment data frequently contains duplicate or near-duplicate records across scraping cycles. To support stable identification and dataset consistency, the schema requires a deterministic primary identifier generated from normalized record metadata. Source traceability is additionally preserved through direct reference to the original internship listing URL, supporting auditing, freshness management, and provenance tracking [10].
+
+    \item \textbf{Structured Discovery Support:} The frontend application requires structured metadata that enables users to efficiently browse and filter internship listings. The schema therefore includes standardized attributes such as category labels, extracted skills, location metadata, salary normalization, and company information. These fields support practical faceted interaction and consistent frontend presentation [3].
+
+    \item \textbf{Cross-Layer Semantic Consistency:} The schema must support interoperability between preprocessing logic, semantic enrichment mechanisms, persistence layers, API delivery, and frontend rendering. A consistent structured entity reduces ambiguity between independently evolving application components and improves maintainability.
+\end{itemize}
+
+\subsubsection{The Internship Interface as a Formal Contract}
+
+These structural requirements are implemented through the TypeScript \texttt{Internship} interface, which serves as the canonical representation of processed internship records throughout the application.
+
+By defining a shared strongly typed structure, the system ensures that all processing stages—from normalization logic and semantic enrichment through API serialization and frontend rendering—operate on a consistent data entity definition. This improves implementation reliability and reduces the risk of malformed data propagation [49].
+
+The principal fields include:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Core Identity and Provenance}
+    \begin{itemize}
+        \item \texttt{id: string} — deterministic unique identifier generated from normalized internship metadata
+        \item \texttt{link: string} — original internship source URL
+    \end{itemize}
+    \item \textbf{Structured Discovery Attributes}
+    \begin{itemize}
+        \item \texttt{category: string} — application-facing internship domain category
+        \item \texttt{skills: string[]} — extracted skill labels
+        \item \texttt{location: string} — normalized location metadata
+        \item \texttt{salary: string} — cleaned salary representation
+    \end{itemize}
+    \item \textbf{Additional Metadata}
+    \begin{itemize}
+        \item \texttt{title: string} — normalized internship title
+        \item \texttt{description: string} — cleaned internship description
+        \item \texttt{company: string} — employer name
+        \item \texttt{job\_age: string} — posting age or publication timing metadata
+        \item \texttt{platform: string} — originating source platform
+        \item \texttt{rating: string} — employer rating where available
+        \item \texttt{duration?: string} — optional internship duration metadata
+    \end{itemize}
+\end{itemize}
+
+The formal TypeScript interface is shown in Listing 4.1.
+
+\begin{verbatim}
+Listing 4.1: The formal TypeScript Internship interface serving as the canonical schema
+for processed internship records.
+
+interface Internship {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  salary: string;
+  description: string;
+  category: string;
+  skills: string[];
+  link: string;
+  job_age: string;
+  platform: string;
+  rating: string;
+  duration?: string;
+}
+\end{verbatim}
+
