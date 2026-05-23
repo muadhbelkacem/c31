@@ -273,3 +273,19 @@ By combining deterministic heuristic normalization (Layer A), lightweight transf
 This design aligns with broader principles of efficient and sustainable AI system development, often discussed under the umbrella of Green AI, where computational practicality, explainability, and responsible resource usage are prioritized alongside model capability [53, 38].
 
 
+\subsection{Summary of Findings}
+
+The empirical findings presented in Chapter 6 provide support for the four research questions that guided this thesis.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{RQ1 (Lightweight Semantic Enrichment and Computational Efficiency).} The evaluation demonstrated that a lightweight local architecture can provide meaningful semantic enrichment while maintaining strong computational practicality on commodity hardware. The implemented system processed approximately 47.3 listings per second, completed enrichment of the full 327-listing dataset in approximately 6.2 minutes, and maintained a median response latency of 47 ms, with 99th percentile latency of 128 ms. Comparative cost analysis further indicated substantial efficiency advantages over external LLM-based workflows, supporting the thesis objective of lightweight semantic processing without heavyweight infrastructure dependence.
+
+    \item \textbf{RQ2 (Transformer-Assisted Internship Relevance Classification).} The lightweight transformer-assisted semantic classification layer substantially improved internship relevance classification compared with deterministic lexical heuristics. Comparative evaluation showed improved semantic handling of ambiguous postings, unconventional role naming, and employer-specific internship terminology, demonstrating that compact transformer models can provide meaningful classification benefits while remaining operationally practical.
+
+    \item \textbf{RQ3 (Semantic Enrichment for Internship Usability).} The semantic enrichment pipeline improved the practical usability of heterogeneous internship listings by transforming noisy source data into structured, interpretable records suitable for frontend filtering, recommendation support, and discovery workflows. Skill extraction, category assignment, metadata normalization, and related-role enrichment collectively improved the discoverability and interpretability of internship opportunities.
+
+    \item \textbf{RQ4 (Heuristic Normalization of Heterogeneous Data).} The deterministic normalization pipeline proved effective for transforming inconsistently structured internship data into a unified operational schema. Comparative evaluation indicated strong performance for explicit structured metadata such as salary, date, and company extraction, while also highlighting expected limitations when information was implicit, weakly expressed, or semantically ambiguous. These findings confirm that heuristic normalization provides a strong low-cost foundation for internship data ingestion.
+\end{itemize}
+
+Taken together, the findings support the central thesis claim that practical internship discovery systems can benefit substantially from lightweight semantic enrichment architectures that balance explainability, computational efficiency, and semantic capability.
+
