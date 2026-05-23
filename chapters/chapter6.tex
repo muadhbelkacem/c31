@@ -160,8 +160,6 @@ Company names and posting dates are handled primarily by field mapping. When sou
 
 \subsection{Classification Results (RQ2)}
 
-The accuracy of ESCO title normalization and domain categorization was evaluated.
-
 \textbf{Title Normalization.} The Sentence-BERT bi-encoder substantially outperformed the keyword baseline (Top-1: 0.78 vs. 0.63; Top-3: 0.91 vs. 0.74). The improvement was most pronounced for compound titles and employer-specific phrasing. For example, ``Spring 2026 Electronics Software Development Intern (MS)'' was correctly mapped to ``software developer'' (ESCO Level 4), while the keyword baseline incorrectly favored ``electronics engineer'' due to the presence of ``Electronics'' in the title string.
 
 Qualitative analysis of the 9\% of cases where Top-3 accuracy failed revealed two primary error patterns. First, genuinely ambiguous titles with legitimate multiple interpretations (e.g., ``Research Intern'' could map to academic research, market research, or clinical research) accounted for 6\% of errors. Second, highly idiosyncratic or emerging role titles (e.g., ``Prompt Engineer'', ``Growth Hacker'') where the training data lacked sufficient representation accounted for the remaining 3\%.
