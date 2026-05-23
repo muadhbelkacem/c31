@@ -1,6 +1,7 @@
 \chapter{Discussion, Conclusion, and Future Work}
 
 \section{Chapter Introduction}
+
 This final chapter provides a critical interpretation of the empirical findings presented in Chapter 6, examines the limitations of the proposed approach, and outlines directions for future research and system improvement.
 
 The chapter is organized into four main sections. Section 7.2 discusses the experimental findings in relation to the research questions, analyzing observed error patterns, architectural trade-offs between semantic capability and computational efficiency, and threats to validity. Section 7.3 addresses ethical, legal, and privacy considerations associated with automated internship aggregation, semantic classification, and student-facing recommendation systems. Section 7.4 synthesizes the thesis contributions and proposes concrete directions for future enhancement and research. Section 7.5 concludes the chapter by summarizing the overall significance of the work.
@@ -8,13 +9,12 @@ The chapter is organized into four main sections. Section 7.2 discusses the expe
 Throughout, the discussion remains grounded in the empirical evidence presented in Chapter 6 and interprets comparative evaluation results within the methodological constraints of the implemented system.
 
 \section{Discussion}
-This section interprets the prototype results presented in Chapter 6, examining both the strengths and limitations of the proposed tiered enrichment pipeline. Following established practices in empirical information retrieval and natural language processing evaluation \cite{buttcher2016information, manning2008introduction}, the discussion focuses on three areas: error analysis, the accuracy-cost trade-off, and threats to validity.
 
 \subsection{Error Analysis}
 
 Although the reported results indicate strong practical performance across normalization, semantic classification, enrichment, and application responsiveness, qualitative error analysis remains essential for understanding the limitations of automated internship data processing in heterogeneous recruitment environments [49, 56]. The following discussion examines the principal failure modes observed during evaluation and interprets their implications for the proposed architecture.
 
-\subsubsection{Extraction Failures and Implicit Information}
+\subsubsection*{Extraction Failures and Implicit Information}
 
 A recurring limitation involved information that was only weakly expressed or implicitly implied within internship descriptions rather than explicitly stated.
 
@@ -22,13 +22,13 @@ For example, some internship postings described responsibilities such as assisti
 
 This reflects a known challenge in recruitment informatics, where employers frequently assume foundational competencies without explicitly enumerating them in the listing text [20, 44]. While deterministic extraction provides strong precision for clearly stated skills, latent requirements remain inherently harder to recover without deeper contextual reasoning or external knowledge integration.
 
-Salary normalization revealed a related limitation. Although deterministic parsing performed strongly for conventional numeric compensation expressions, some postings used unconventional or ambiguous compensation formats that reduced extraction reliability. Examples included monthly salary expressions, partial compensation ranges, narrative phrases such as \textit{competitive salary} or \textit{commensurate with experience}, and compensation information embedded in structured metadata not preserved during scraping.
+Salary normalization revealed a related limitation. Although deterministic parsing performed strongly for conventional numeric compensation expressions, some postings used unconventional or ambiguous compensation formats that reduced extraction reliability. Examples included monthly salary expressions, partial compensation ranges, narrative phrases such as competitive salary or commensurate with experience, and compensation information embedded in structured metadata not preserved during scraping.
 
-Date normalization exhibited similar constraints. Absolute publication dates and common structured date formats were handled reliably, whereas relative temporal expressions such as \textit{posted two weeks ago}, \textit{closing soon}, or \textit{applications open next quarter} proved more difficult to normalize consistently without deeper temporal reasoning capabilities.
+Date normalization exhibited similar constraints. Absolute publication dates and common structured date formats were handled reliably, whereas relative temporal expressions such as posted two weeks ago, closing soon, or applications open next quarter proved more difficult to normalize consistently without deeper temporal reasoning capabilities.
 
 These findings suggest that deterministic normalization performs effectively for explicit structured metadata, but coverage declines when relevant information depends on contextual interpretation rather than surface-form extraction.
 
-\subsubsection{Semantic Classification Ambiguity}
+\subsubsection*{Semantic Classification Ambiguity}
 
 The lightweight transformer-assisted semantic classification layer improved internship relevance detection substantially over deterministic lexical heuristics, but several ambiguity-driven failure modes remained.
 
@@ -36,11 +36,11 @@ The most challenging cases involved boundary categories that overlap conceptuall
 
 In such cases, even human interpretation may reasonably differ depending on institutional definitions of internship eligibility.
 
-A second ambiguity source involved employer-specific naming conventions. Titles such as \textit{Innovation Fellow}, \textit{Growth Associate}, \textit{Digital Transformation Trainee}, or similarly unconventional labels often provided insufficient lexical evidence for deterministic classification and limited contextual clarity even for lightweight semantic models.
+A second ambiguity source involved employer-specific naming conventions. Titles such as Innovation Fellow, Growth Associate, Digital Transformation Trainee, or similarly unconventional labels often provided insufficient lexical evidence for deterministic classification and limited contextual clarity even for lightweight semantic models.
 
 This reflects a broader limitation of compact transformer-based classification: while such models generalize effectively across common semantic patterns, performance naturally degrades when confronted with terminology that is rare, organization-specific, or semantically distant from the operational dataset.
 
-\subsubsection{Human Review and High-Ambiguity Cases (Layer C)}
+\subsubsection*{Human Review and High-Ambiguity Cases (Layer C)}
 
 The layered architecture intentionally reserves unresolved ambiguity for human review rather than attempting forced automated classification.
 
@@ -50,7 +50,7 @@ This design reflects an important architectural principle: not all ambiguity sho
 
 In practical deployment scenarios, human reviewers may rely on contextual interpretation, institutional policy, domain expertise, or external reasoning tools to adjudicate borderline cases. The existence of this escalation pathway improves trustworthiness by preventing low-confidence automation from silently producing misleading classifications.
 
-\subsubsection{Discovery and Corpus Limitations}
+\subsubsection*{Discovery and Corpus Limitations}
 
 Some practical discovery limitations arose not from enrichment quality, but from corpus characteristics.
 
@@ -62,23 +62,23 @@ Sparse descriptions also introduced limitations. Some internship listings contai
 
 These limitations indicate that even a well-designed semantic enrichment architecture remains constrained by the quality, completeness, and representativeness of the underlying recruitment corpus.
 
-\subsubsection{Architectural Implications}
+\subsubsection*{Architectural Implications}
 
 Taken together, these failure modes suggest that the primary limitations of the proposed system arise less from architectural inefficiency and more from the inherent ambiguity, incompleteness, and heterogeneity of internship recruitment data.
 
 Deterministic normalization provides strong efficiency, explainability, and precision for explicit structured metadata. Lightweight semantic classification substantially improves robustness in noisy or weakly structured scenarios. Human escalation provides a defensible safety mechanism for unresolved ambiguity.
 
-Future improvements are therefore most likely to emerge from richer corpus expansion, stronger semantic reasoning for borderline classification cases, improved handling of implicit metadata, and deeper contextual interpretation for sparse or unconventional postings.
+Future improvements are therefore most likely to emerge from richer corpus expansion, stronger semantic reasoning for borderline classification cases, improved handling of implicit metadata, and deeper contextual interpretation for sparse or unconventional postings
 
 \subsection{Trade-offs: Accuracy versus Computational Cost}
 
 The proposed system was explicitly designed to balance semantic capability with operational practicality, reflecting broader principles of efficient AI system design and cost-conscious deployment [53, 38]. The evaluation results illustrate the practical trade-offs between lightweight local processing, deterministic heuristics, and externally hosted large language model workflows.
 
-\subsubsection{Marginal Accuracy Gains at Substantially Higher Cost}
+\subsubsection*{Marginal Accuracy Gains at Substantially Higher Cost}
 
 Comparative evaluation between the proposed lightweight architecture and external LLM-based processing revealed a consistent pattern: the LLM-assisted evaluation achieved modest quality improvements, typically in the range of 2–3\% absolute improvement, but at substantially greater operational cost.
 
-Estimated cost comparisons showed that external LLM-based processing required approximately 29× higher financial cost per 1,000 listings processed and significantly higher latency than the local architecture. Similarly, interaction-equivalent response workflows relying on external inference exhibited substantially slower response behavior than the deployed local application.
+Estimated cost comparisons showed that external LLM-based processing required approximately 29x higher financial cost per 1,000 listings processed and significantly higher latency than the local architecture. Similarly, interaction-equivalent response workflows relying on external inference exhibited substantially slower response behavior than the deployed local application.
 
 This reflects fundamental architectural differences. The proposed system performs deterministic normalization, semantic enrichment, and preprocessing locally, with processed outputs cached for efficient reuse. By contrast, externally hosted LLM workflows require repeated inference, network communication, and dependency on third-party API availability.
 
@@ -86,7 +86,7 @@ These findings align with broader observations in efficient AI research: for man
 
 At the same time, the evaluation also showed that deterministic heuristics alone leave measurable performance gains unrealized. Lightweight semantic classification improved comparative accuracy substantially over purely lexical or rule-based approaches, indicating that a hybrid local architecture provides a more effective balance than either rules alone or full LLM dependence.
 
-\subsubsection{Latency as a User Experience Constraint}
+\subsubsection*{Latency as a User Experience Constraint}
 
 Application responsiveness represents a critical practical constraint for interactive internship discovery.
 
@@ -98,19 +98,19 @@ This distinction is important because user-facing discovery systems must optimiz
 
 The local architecture therefore offers an important operational advantage: semantic enrichment occurs primarily during preprocessing rather than during repeated interactive use.
 
-\subsubsection{The Value of Tiered Processing}
+\subsubsection*{The Value of Tiered Processing}
 
 The layered architecture demonstrates the practical value of allocating computational effort according to task complexity.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item Deterministic preprocessing provides fast, explainable, and low-cost handling of structured normalization tasks such as salary parsing, metadata cleanup, identifier generation, and basic enrichment.
-    \item Lightweight transformer-assisted semantic classification addresses cases where lexical heuristics alone are insufficient, particularly for ambiguous internship relevance decisions and unconventional recruitment terminology.
-    \item Finally, unresolved ambiguity is intentionally reserved for human review rather than forced automated classification. This conceptual upper tier improves trustworthiness by acknowledging that certain decisions are better handled through contextual human judgment rather than increasingly expensive automation.
-\end{itemize}
+Deterministic preprocessing provides fast, explainable, and low-cost handling of structured normalization tasks such as salary parsing, metadata cleanup, identifier generation, and basic enrichment.
+
+Lightweight transformer-assisted semantic classification addresses cases where lexical heuristics alone are insufficient, particularly for ambiguous internship relevance decisions and unconventional recruitment terminology.
+
+Finally, unresolved ambiguity is intentionally reserved for human review rather than forced automated classification. This conceptual upper tier improves trustworthiness by acknowledging that certain decisions are better handled through contextual human judgment rather than increasingly expensive automation.
 
 This layered allocation of effort reflects an efficient system design philosophy: inexpensive deterministic processing handles straightforward cases, lightweight semantic models improve robustness where needed, and truly ambiguous cases are escalated rather than over-automated.
 
-\subsubsection{Discussion}
+\subsubsection*{Discussion}
 
 Taken together, the results suggest that the most practical architecture for internship discovery lies between simplistic heuristic automation and full LLM dependence.
 
@@ -122,7 +122,7 @@ The proposed architecture occupies a practical middle ground, capturing meaningf
 
 Several factors may affect the interpretation, robustness, and generalizability of the reported findings. Following established empirical evaluation practice, these limitations may be considered in terms of internal validity, external validity, construct validity, and reproducibility.
 
-\subsubsection{Internal Validity: Evaluation Methodology and Comparative Assessment}
+\subsubsection*{Internal Validity: Evaluation Methodology and Comparative Assessment}
 
 A primary internal validity consideration concerns the evaluation methodology itself.
 
@@ -136,7 +136,7 @@ A second internal validity consideration involves semantic ambiguity in internsh
 
 This ambiguity reflects an inherent challenge in the problem domain rather than a purely architectural weakness.
 
-\subsubsection{External Validity: Dataset Scope and Generalizability}
+\subsubsection*{External Validity: Dataset Scope and Generalizability}
 
 The evaluated dataset is relatively modest in scale and intentionally focused on internship-oriented recruitment sources, with strong concentration in Canadian and broader North American contexts.
 
@@ -146,19 +146,19 @@ However, this geographic and domain concentration limits generalizability.
 
 Performance may differ under:
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item other labor markets
-    \item other industries
-    \item larger enterprise-scale recruitment corpora
-    \item multilingual environments
-    \item substantially different posting conventions
+\begin{itemize}
+  \item other labor markets
+  \item other industries
+  \item larger enterprise-scale recruitment corpora
+  \item multilingual environments
+  \item substantially different posting conventions
 \end{itemize}
 
 The current system also depends on internship-specific semantic assumptions. Performance may degrade when applied directly to broader employment markets without adaptation.
 
 Additionally, recruitment terminology evolves rapidly. Emerging role names, novel technologies, and shifting employer conventions may gradually reduce classification reliability unless controlled vocabularies and semantic models are periodically updated.
 
-\subsubsection{Construct Validity: Metric Interpretation}
+\subsubsection*{Construct Validity: Metric Interpretation}
 
 Another threat concerns whether the chosen evaluation indicators fully capture practical system value.
 
@@ -168,20 +168,20 @@ However, quality-oriented comparative metrics derived from LLM-assisted evaluati
 
 For example, structured relevance comparisons may indicate improved semantic discovery quality, but may not fully capture factors important to actual internship seekers, including:
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item interface usability
-    \item result diversity
-    \item employer attractiveness
-    \item listing freshness
-    \item geographic convenience
-    \item application complexity
+\begin{itemize}
+  \item interface usability
+  \item result diversity
+  \item employer attractiveness
+  \item listing freshness
+  \item geographic convenience
+  \item application complexity
 \end{itemize}
 
 Accordingly, the reported metrics should be interpreted as technical proxies for practical usefulness rather than complete measures of user experience.
 
 Future evaluation would benefit from direct user-centered validation through controlled usability studies or real deployment observation.
 
-\subsubsection{Reliability and Reproducibility}
+\subsubsection*{Reliability and Reproducibility}
 
 To improve reproducibility, the thesis documents the implementation environment, including hardware constraints, runtime architecture, and the use of lightweight local semantic models.
 
@@ -195,12 +195,11 @@ Third, some practical application behaviors depend on runtime caching, corpus co
 
 Despite these limitations, the broader architectural findings—particularly regarding lightweight local processing efficiency, heuristic normalization practicality, and semantic enrichment trade-offs—should remain reproducible at the conceptual level.
 
-
 \section{Ethical, Legal, and Privacy Considerations}
+
 The deployment of automated systems for aggregating, processing, and semantically enriching internship opportunities raises important ethical, legal, and privacy considerations.
 
 Although the current implementation is a research prototype rather than a production deployment, anticipating these concerns is essential for responsible system design and future operational scalability.
-
 
 \subsection{Data Privacy and Terms of Service Compliance}
 
@@ -208,7 +207,7 @@ The internship listings used in this research were collected from publicly acces
 
 However, public accessibility does not automatically imply unrestricted reuse.
 
-Many online platforms impose restrictions on automated scraping, data extraction, redistribution, or commercial reuse through terms of service, robots.txt directives, or platform-specific access policies. Any production deployment of similar systems would therefore require careful legal review to ensure compliance with applicable contractual obligations and jurisdictional requirements.
+Many online platforms impose restrictions on automated scraping, data extraction, redistribution, or commercial reuse through terms of service, \texttt{robots.txt} directives, or platform-specific access policies. Any production deployment of similar systems would therefore require careful legal review to ensure compliance with applicable contractual obligations and jurisdictional requirements.
 
 Privacy considerations also arise from the content of recruitment listings themselves.
 
@@ -216,11 +215,11 @@ Although internship postings are generally organizationally published materials,
 
 The current implementation does not explicitly perform automated PII detection or redaction. While this limitation is acceptable within the controlled research context, production deployment would require stronger privacy safeguards, including:
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item automated PII detection
-    \item selective field redaction
-    \item retention minimization policies
-    \item access controls for stored metadata
+\begin{itemize}
+  \item automated PII detection
+  \item selective field redaction
+  \item retention minimization policies
+  \item access controls for stored metadata
 \end{itemize}
 
 Depending on deployment geography, applicable regulatory frameworks may include GDPR, CCPA, or equivalent privacy legislation.
@@ -233,11 +232,11 @@ Classification errors, enrichment failures, or corpus imbalances may influence w
 
 Examples include:
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item underrepresentation of certain industries or employers
-    \item reduced discoverability for unconventional internship terminology
-    \item weaker semantic handling of niche technical roles
-    \item geographic bias introduced through source selection
+\begin{itemize}
+  \item underrepresentation of certain industries or employers
+  \item reduced discoverability for unconventional internship terminology
+  \item weaker semantic handling of niche technical roles
+  \item geographic bias introduced through source selection
 \end{itemize}
 
 Because the dataset is intentionally concentrated in Canadian and broader North American recruitment contexts, opportunities following different linguistic or institutional conventions may be less effectively processed.
@@ -272,20 +271,25 @@ By combining deterministic heuristic normalization (Layer A), lightweight transf
 
 This design aligns with broader principles of efficient and sustainable AI system development, often discussed under the umbrella of Green AI, where computational practicality, explainability, and responsible resource usage are prioritized alongside model capability [53, 38].
 
-
 \subsection{Summary of Findings}
 
 The empirical findings presented in Chapter 6 provide support for the four research questions that guided this thesis.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{RQ1 (Lightweight Semantic Enrichment and Computational Efficiency).} The evaluation demonstrated that a lightweight local architecture can provide meaningful semantic enrichment while maintaining strong computational practicality on commodity hardware. The implemented system processed approximately 47.3 listings per second, completed enrichment of the full 327-listing dataset in approximately 6.2 minutes, and maintained a median response latency of 47 ms, with 99th percentile latency of 128 ms. Comparative cost analysis further indicated substantial efficiency advantages over external LLM-based workflows, supporting the thesis objective of lightweight semantic processing without heavyweight infrastructure dependence.
+\subsubsection*{RQ1 (Lightweight Semantic Enrichment and Computational Efficiency).}
 
-    \item \textbf{RQ2 (Transformer-Assisted Internship Relevance Classification).} The lightweight transformer-assisted semantic classification layer substantially improved internship relevance classification compared with deterministic lexical heuristics. Comparative evaluation showed improved semantic handling of ambiguous postings, unconventional role naming, and employer-specific internship terminology, demonstrating that compact transformer models can provide meaningful classification benefits while remaining operationally practical.
+The evaluation demonstrated that a lightweight local architecture can provide meaningful semantic enrichment while maintaining strong computational practicality on commodity hardware. The implemented system processed approximately 47.3 listings per second, completed enrichment of the full 327-listing dataset in approximately 6.2 minutes, and maintained a median response latency of 47 ms, with 99th percentile latency of 128 ms. Comparative cost analysis further indicated substantial efficiency advantages over external LLM-based workflows, supporting the thesis objective of lightweight semantic processing without heavyweight infrastructure dependence.
 
-    \item \textbf{RQ3 (Semantic Enrichment for Internship Usability).} The semantic enrichment pipeline improved the practical usability of heterogeneous internship listings by transforming noisy source data into structured, interpretable records suitable for frontend filtering, recommendation support, and discovery workflows. Skill extraction, category assignment, metadata normalization, and related-role enrichment collectively improved the discoverability and interpretability of internship opportunities.
+\subsubsection*{RQ2 (Transformer-Assisted Internship Relevance Classification).}
 
-    \item \textbf{RQ4 (Heuristic Normalization of Heterogeneous Data).} The deterministic normalization pipeline proved effective for transforming inconsistently structured internship data into a unified operational schema. Comparative evaluation indicated strong performance for explicit structured metadata such as salary, date, and company extraction, while also highlighting expected limitations when information was implicit, weakly expressed, or semantically ambiguous. These findings confirm that heuristic normalization provides a strong low-cost foundation for internship data ingestion.
-\end{itemize}
+The lightweight transformer-assisted semantic classification layer substantially improved internship relevance classification compared with deterministic lexical heuristics. Comparative evaluation showed improved semantic handling of ambiguous postings, unconventional role naming, and employer-specific internship terminology, demonstrating that compact transformer models can provide meaningful classification benefits while remaining operationally practical.
+
+\subsubsection*{RQ3 (Semantic Enrichment for Internship Usability).}
+
+The semantic enrichment pipeline improved the practical usability of heterogeneous internship listings by transforming noisy source data into structured, interpretable records suitable for frontend filtering, recommendation support, and discovery workflows. Skill extraction, category assignment, metadata normalization, and related-role enrichment collectively improved the discoverability and interpretability of internship opportunities.
+
+\subsubsection*{RQ4 (Heuristic Normalization of Heterogeneous Data).}
+
+The deterministic normalization pipeline proved effective for transforming inconsistently structured internship data into a unified operational schema. Comparative evaluation indicated strong performance for explicit structured metadata such as salary, date, and company extraction, while also highlighting expected limitations when information was implicit, weakly expressed, or semantically ambiguous. These findings confirm that heuristic normalization provides a strong low-cost foundation for internship data ingestion.
 
 Taken together, the findings support the central thesis claim that practical internship discovery systems can benefit substantially from lightweight semantic enrichment architectures that balance explainability, computational efficiency, and semantic capability.
 
@@ -293,7 +297,7 @@ Taken together, the findings support the central thesis claim that practical int
 
 While the current system provides a practical foundation for internship aggregation, semantic enrichment, and lightweight discovery support, the evaluation identified several opportunities for future improvement.
 
-\subsubsection{Multilingual and Cross-Lingual Processing}
+\subsubsection*{Multilingual and Cross-Lingual Processing}
 
 A major limitation of the current implementation is its primary focus on English-language internship listings.
 
@@ -305,7 +309,7 @@ Potential approaches include multilingual sentence-transformer models, cross-lin
 
 Such improvements would substantially expand the accessibility and geographic applicability of the platform.
 
-\subsubsection{Stronger Contextual Skill Understanding}
+\subsubsection*{Stronger Contextual Skill Understanding}
 
 The current skill extraction pipeline prioritizes efficiency, controlled vocabulary matching, and conservative semantic assistance.
 
@@ -313,16 +317,16 @@ While effective for explicit skill mentions, it remains limited in handling impl
 
 Future work could improve this through richer contextual modeling, including:
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item better distinction between required vs preferred skills
-    \item improved handling of implicit competencies
-    \item recognition of role-specific skill clusters
-    \item stronger disambiguation of ambiguous technical terminology
+\begin{itemize}
+  \item better distinction between required vs preferred skills
+  \item improved handling of implicit competencies
+  \item recognition of role-specific skill clusters
+  \item stronger disambiguation of ambiguous technical terminology
 \end{itemize}
 
 Sequence labeling architectures or fine-tuned contextual extraction models could improve extraction quality while preserving local deployment feasibility.
 
-\subsubsection{Model Distillation and Lightweight Improvement}
+\subsubsection*{Model Distillation and Lightweight Improvement}
 
 Comparative evaluation indicated that external LLM-assisted reasoning can produce modest quality improvements over the current lightweight architecture, particularly in ambiguous semantic classification scenarios.
 
@@ -332,7 +336,7 @@ Knowledge distillation or pseudo-label generation could be used to improve local
 
 This would align well with the thesis objective of maximizing semantic capability without introducing heavyweight operational dependencies.
 
-\subsubsection{Vocabulary Evolution and Semantic Drift}
+\subsubsection*{Vocabulary Evolution and Semantic Drift}
 
 Recruitment terminology evolves continuously.
 
@@ -340,24 +344,24 @@ New technologies, frameworks, role names, and employer conventions emerge regula
 
 Examples include evolving terminology around:
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item generative AI tooling
-    \item emerging cloud platforms
-    \item novel software engineering roles
-    \item organization-specific internship naming conventions
+\begin{itemize}
+  \item generative AI tooling
+  \item emerging cloud platforms
+  \item novel software engineering roles
+  \item organization-specific internship naming conventions
 \end{itemize}
 
 Future work could introduce controlled monitoring for vocabulary drift, including:
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item periodic review of unmatched terminology
-    \item candidate term surfacing for lexicon updates
-    \item semi-automated taxonomy maintenance workflows
+\begin{itemize}
+  \item periodic review of unmatched terminology
+  \item candidate term surfacing for lexicon updates
+  \item semi-automated taxonomy maintenance workflows
 \end{itemize}
 
 This would improve long-term robustness without requiring full architectural redesign.
 
-\subsubsection{User-Centered Evaluation}
+\subsubsection*{User-Centered Evaluation}
 
 The current evaluation focused primarily on technical performance, structured comparative analysis, and architectural practicality.
 
@@ -365,19 +369,19 @@ A major future improvement would be direct user-centered validation.
 
 Deploying the platform with real student users would allow collection of practical behavioral evidence, including:
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item search interaction patterns
-    \item click behavior
-    \item bookmarking activity
-    \item recommendation usefulness feedback
-    \item discovery success outcomes
+\begin{itemize}
+  \item search interaction patterns
+  \item click behavior
+  \item bookmarking activity
+  \item recommendation usefulness feedback
+  \item discovery success outcomes
 \end{itemize}
 
 Such evaluation would provide stronger evidence regarding real-world usefulness than offline technical comparison alone.
 
 User studies could also identify interface-level improvements that purely architectural evaluation cannot capture.
 
-\subsubsection{Expanded Corpus Coverage}
+\subsubsection*{Expanded Corpus Coverage}
 
 The current dataset is intentionally internship-focused and geographically concentrated, particularly in Canadian and broader North American recruitment contexts.
 
@@ -385,29 +389,29 @@ While appropriate for the scope of this thesis, broader deployment would benefit
 
 Future expansion could include:
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item additional internship platforms
-    \item university opportunity portals
-    \item regional employer listings
-    \item broader international internship ecosystems
-    \item more specialized technical internship sources
+\begin{itemize}
+  \item additional internship platforms
+  \item university opportunity portals
+  \item regional employer listings
+  \item broader international internship ecosystems
+  \item more specialized technical internship sources
 \end{itemize}
 
 Improved corpus breadth would directly improve discovery quality, niche opportunity coverage, and geographic robustness.
 
-\subsubsection{Comparative Platform Evaluation}
+\subsubsection*{Comparative Platform Evaluation}
 
 A more comprehensive comparative evaluation against established internship discovery platforms remains a valuable future direction.
 
 Such analysis could examine practical differences in:
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item discoverability
-    \item result relevance
-    \item filtering quality
-    \item metadata consistency
-    \item responsiveness
-    \item usability
+\begin{itemize}
+  \item discoverability
+  \item result relevance
+  \item filtering quality
+  \item metadata consistency
+  \item responsiveness
+  \item usability
 \end{itemize}
 
 Because commercial platforms differ significantly in corpus size, ranking logic, personalization, and access constraints, designing a fair comparative methodology would require careful experimental control.
@@ -418,15 +422,13 @@ Nevertheless, such evaluation would provide stronger practical positioning for t
 
 Beyond its academic contributions, the findings of this thesis have several practical implications for organizations seeking to implement lightweight internship or recruitment data processing systems.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item First, the layered architecture offers a pragmatic and cost-effective deployment strategy. Organizations can begin with deterministic normalization and rule-based enrichment for immediate operational value, then incrementally introduce lightweight semantic classification components as data complexity and ambiguity increase. Cases that remain unresolved can be escalated to human review rather than forcing increasingly expensive automated reasoning. This modular progression avoids the impractical extremes of either simplistic lexical-only systems or full dependence on heavyweight external inference services.
+First, the layered architecture offers a pragmatic and cost-effective deployment strategy. Organizations can begin with deterministic normalization and rule-based enrichment for immediate operational value, then incrementally introduce lightweight semantic classification components as data complexity and ambiguity increase. Cases that remain unresolved can be escalated to human review rather than forcing increasingly expensive automated reasoning. This modular progression avoids the impractical extremes of either simplistic lexical-only systems or full dependence on heavyweight external inference services.
 
-    \item Second, the demonstrated ability to operate effectively on commodity hardware significantly lowers the barrier to deployment. Because the proposed architecture relies on lightweight local processing rather than large-scale cloud-hosted inference infrastructure, it is feasible for organizations with constrained computational resources, including universities, student career platforms, non-profit employment initiatives, and small-to-medium enterprises.
+Second, the demonstrated ability to operate effectively on commodity hardware significantly lowers the barrier to deployment. Because the proposed architecture relies on lightweight local processing rather than large-scale cloud-hosted inference infrastructure, it is feasible for organizations with constrained computational resources, including universities, student career platforms, non-profit employment initiatives, and small-to-medium enterprises.
 
-    \item Third, the architectural emphasis on deterministic preprocessing and structured enrichment provides strong practical explainability. Metadata normalization, identifier generation, salary parsing, and controlled skill extraction can be directly inspected and audited, which improves operational trust compared with opaque end-to-end black-box systems. This transparency may be especially valuable in educational, advisory, or public-sector contexts where system behavior should remain understandable and accountable.
+Third, the architectural emphasis on deterministic preprocessing and structured enrichment provides strong practical explainability. Metadata normalization, identifier generation, salary parsing, and controlled skill extraction can be directly inspected and audited, which improves operational trust compared with opaque end-to-end black-box systems. This transparency may be especially valuable in educational, advisory, or public-sector contexts where system behavior should remain understandable and accountable.
 
-    \item Fourth, the modular design supports practical extensibility. Additional enrichment layers, multilingual support, improved recommendation mechanisms, or stronger semantic classification models could be introduced incrementally without requiring complete architectural redesign.
-\end{itemize}
+Fourth, the modular design supports practical extensibility. Additional enrichment layers, multilingual support, improved recommendation mechanisms, or stronger semantic classification models could be introduced incrementally without requiring complete architectural redesign.
 
 Taken together, these practical characteristics suggest that lightweight semantic enrichment architectures may offer a realistic middle ground between low-capability rule-only systems and operationally expensive large-model deployments.
 
@@ -441,4 +443,3 @@ Finally, the chapter outlined several concrete directions for future improvement
 Overall, this thesis concludes that a lightweight semantic enrichment architecture represents a practical and computationally efficient approach for organizing heterogeneous internship data at scale. By combining deterministic normalization, lightweight semantic classification, and structured human escalation for ambiguous cases, the proposed system demonstrates that meaningful internship discovery support can be achieved without dependence on heavyweight cloud-hosted inference infrastructure or specialized hardware.
 
 While additional real-world validation and broader deployment evaluation would strengthen practical confidence, these limitations do not undermine the central technical contribution demonstrated through the implemented system and empirical analysis.
-
