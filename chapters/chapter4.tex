@@ -287,3 +287,26 @@ This inspiration is particularly relevant for skill normalization. Recruitment d
 
 ESCO is therefore used in this research as a semantic design reference rather than a strict operational dependency. This approach preserves the benefits of standardized recruitment terminology while remaining compatible with the thesis objective of lightweight, practical semantic enrichment on commodity infrastructure.
 
+\subsection{Internal Categorization and Mapping}
+
+While ESCO provides a useful conceptual reference for standardized occupational terminology, the proposed system relies on an internally defined categorization framework better aligned with the practical requirements of lightweight semantic enrichment and frontend usability.
+
+A full ontology-driven occupation hierarchy would introduce unnecessary implementation complexity for the scope of this system, particularly given the variability and ambiguity of internship data originating from heterogeneous external sources. Instead, the enrichment pipeline uses curated internal JSON-based semantic reference libraries that support practical classification, skill normalization, and structured filtering.
+
+This internal categorization strategy is informed by ESCO’s principle of controlled vocabulary normalization but is intentionally simplified to support lightweight deployment and maintainable domain adaptation.
+
+The categorization framework is implemented through curated semantic reference resources including domain keyword mappings, internship classification rules, negative role exclusion patterns, and structured skill libraries.
+
+The internal domain space includes categories spanning multiple professional areas, including software engineering, data science, cybersecurity, cloud and DevOps, engineering, healthcare, finance, marketing, operations, sales, human resources, research, education, legal, manufacturing, and related professional domains.
+
+This broader categorization approach provides several methodological advantages:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Practical semantic normalization:} Equivalent or closely related employer terminology can be mapped into consistent internal categories despite vocabulary inconsistency.
+    \item \textbf{Frontend filtering compatibility:} Structured categories support user-facing filtering and browsing functionality without exposing complex external taxonomy structures.
+    \item \textbf{Lightweight maintainability:} JSON-based semantic reference libraries can be updated incrementally as terminology evolves without requiring heavyweight ontology maintenance.
+    \item \textbf{Flexible domain extensibility:} New industries, skill clusters, and internship categories can be introduced through controlled vocabulary updates rather than architectural redesign.
+\end{itemize}
+
+This internal semantic mapping strategy therefore balances conceptual standardization with implementation practicality, directly supporting the lightweight design objectives of the proposed system.
+
