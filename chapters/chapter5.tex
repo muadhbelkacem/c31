@@ -43,6 +43,14 @@ This validation includes checks for:
 
 This defensive preprocessing stage reduces the risk of invalid source data propagating into semantic enrichment components and improves overall pipeline robustness [11, 15].
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{uml/sequenceDiagramInternshipsFetcher.png}
+    \caption{Sequence diagram illustrating the interactions within the data ingestion pipeline for fetching and processing internship records.}
+    \label{fig:ingestion_sequence}
+\end{figure}
+\clearpage
+
 \subsection{Preprocessing and Sanitization}
 
 Raw recruitment data obtained from web scraping and heterogeneous JSON sources is inherently noisy, frequently containing inconsistent formatting, duplicated whitespace, residual HTML artifacts, incomplete metadata, and presentation-oriented content irrelevant to semantic interpretation.
