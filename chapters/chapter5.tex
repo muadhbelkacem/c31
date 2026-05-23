@@ -255,38 +255,171 @@ The implementation reflects several core design principles that define the opera
 
 These principles directly address the central thesis objective of balancing semantic effectiveness with practical computational efficiency on commodity hardware [38, 53].
 
-\subsection{Pipeline Orchestration}
-The enrichment process is orchestrated by a central enrichInternship procedure, which accepts a raw data object and returns a fully structured Internship entity. The orchestration follows a strict topological order, where each function's output serves as the input to subsequent stages. This linear, dependency-managed design simplifies debugging, facilitates unit testing of individual enrichment modules, and reduces the risk that errors in one stage will propagate unpredictably into downstream processes. Figure~\ref{fig:enrichment-lifecycle} illustrates the lifecycle of an individual item as it traverses the enrichment pipeline, from initial ingestion through each processing module to final storage in the structured cache. The diagram highlights the interaction between the main data loop and the specialized enrichment components, emphasizing the sequential dependency chain and the collision-checking mechanism in the identifier generation stage. The top-level enrichment algorithm is presented below.
-
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.90\textwidth]{figures/fig_enrichment_lifecycle.png}
-\caption{UML sequence diagram: individual item enrichment lifecycle.}\label{fig:enrichment-lifecycle}
-\end{figure}
-
-
-\begin{algorithmbox}[Internship Ingestion and Enrichment Pipeline]
-\begin{verbatim}
-procedure EnrichInternship(rawItem)
-  title    <- cleanTitle(rawItem.title)
-  company  <- cleanCompany(rawItem.company)
-  id       <- generateId(title, company)
-  desc     <- cleanDescription(rawItem.description)
-  salary   <- cleanSalary(rawItem.salary)
-  skills   <- extractSkills(desc)
-  category <- categorizeJob(title)
-  return Internship(id, title, company, desc,
-                    salary, skills, category)
-end procedure
-\end{verbatim}
-\end{algorithmbox}
-
-\subsection{Design Principles and Trade-offs}
-The architecture embodies several key design principles that collectively define the system's operational characteristics. First, determinism over probabilism ensures that identical inputs always produce identical outputs, a property essential for debugging, auditing, and maintaining user trust. Second, locality of computation keeps all processing within the application's memory space, eliminating network latency and external service dependencies. Third, progressive refinement applies the cheapest, highest-precision methods first, reserving more expensive techniques for cases where simpler methods prove insufficient. These principles directly address the core tension identified in the problem statement: achieving semantic richness without the costs and latencies of LLM-dependent architectures.
-
 \subsection{Deterministic Attribute Normalization}
-Normalization ensures that data is consistent, comparable, and queryable regardless of the source platform's original formatting conventions~\cite{jurafsky2023speech}. The normalization layer addresses three distinct challenges: surface-form variance (e.g., inconsistent capitalization, punctuation, and whitespace), structural heterogeneity (e.g., different key names for the same concept across sources), and semantic equivalence (e.g., abbreviations and synonyms). Each normalization module is implemented as a pure function, accepting a potentially malformed string and returning a canonical representation.
+
+Deterministic attribute normalization provides the structured preprocessing foundation of the semantic enrichment pipeline. Its purpose is to reduce inconsistency across heterogeneous internship data by transforming noisy source metadata into cleaner, comparable, and frontend-ready representations.
+
+This normalization layer addresses recurring challenges in recruitment data integration, including surface-form variance, inconsistent field naming across sources, duplicated records, noisy descriptions, salary variation, and inconsistent location formatting [11, 15, 49].
+
+\subsubsection{Text Sanitization Primitives}
+
+Before specialized enrichment occurs, textual fields pass through a shared sanitization pipeline designed to remove noise while preserving semantic content.
+
+This preprocessing includes:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item HTML entity decoding and markup removal
+    \item whitespace normalization
+    \item URL stripping
+    \item repeated-line reduction
+    \item removal of common job-board boilerplate
+    \item formatting cleanup for frontend-safe rendering
+\end{itemize}
+
+These transformations reduce surface-form variance and improve downstream consistency for duplicate detection, deterministic extraction, and semantic classification.
+
+\subsubsection{Stable Identifier Generation and Duplicate Handling}
+
+To maintain referential integrity across ingestion cycles and support duplicate detection, the system implements deterministic stable identifier generation.
+
+When source platforms provide a reliable unique identifier, that identifier is preserved. Otherwise, a stable internal identifier is generated using normalized title, company, and location metadata.
+
+The identifier generation logic uses slugification, where textual metadata is lowercased, cleaned, and transformed into URL-safe representations before deterministic concatenation.
+
+Listing 5.1 shows the simplified stable identifier generation logic.
+
+\begin{verbatim}
+Listing 5.1: Stable identifier generation logic
+
+function generateStableRoleId(title: string, company: string): string {
+  const cleanTitle = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+
+  const cleanCompany = company
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+
+  return `${cleanTitle}-${cleanCompany}`;
+}
+\end{verbatim}
+
+This identifier serves several architectural roles:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item persistent application reference
+    \item frontend routing support
+    \item duplicate detection key
+    \item canonical record tracking across ingestion cycles
+\end{itemize}
+
+When identifier collisions occur, duplicate handling logic appends numeric suffixes to preserve uniqueness without overwriting distinct listings.
+
+Listing 5.2 illustrates collision handling.
+
+\begin{verbatim}
+Listing 5.2: Collision handling logic
+
+let finalId = baseId;
+let counter = 1;
+
+while (seenIds.has(finalId)) {
+  finalId = `${baseId}-${counter}`;
+  counter++;
+}
+
+seenIds.add(finalId);
+\end{verbatim}
+
+In addition to identifier-based duplicate control, the preprocessing pipeline applies deterministic deduplication using normalized canonical links and similarity checks between title, company, location, and description metadata. Deterministic duplicate handling remains computationally inexpensive while providing robust control over redundant recruitment records [10, 50].
+
+\subsubsection{Regex-Based Salary Parsing and Compensation Normalization}
+
+Compensation extraction represents a structured normalization task well suited to deterministic processing.
+
+Internship salary information frequently appears in inconsistent formats, including:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item hourly rates (\$15–20/hr)
+    \item annual salary ranges (\$70k–90k)
+    \item single-value compensation (Up to \$50/hr)
+    \item employer-estimated ranges
+    \item partially structured compensation text
+\end{itemize}
+
+The salary normalization logic applies deterministic pattern matching and text cleaning to detect recognizable compensation expressions.
+
+Listing 5.3 presents a simplified salary normalization example.
+
+\begin{verbatim}
+Listing 5.3: Salary normalization logic
+
+function cleanSalary(salary: string): string {
+  if (!salary) return "Salary not specified";
+
+  const cleaned = salary.replace(/\s+/g, ' ').trim();
+
+  const rangeMatch = cleaned.match(/\$?\d+[kK]?\s*-\s*\$?\d+[kK]?/);
+  if (rangeMatch) return rangeMatch[0];
+
+  const singleMatch = cleaned.match(/\$?\d+[kK]?/);
+  if (singleMatch) return singleMatch[0];
+
+  return cleaned;
+}
+\end{verbatim}
+
+Where salary values are sufficiently structured, hourly compensation may be normalized into annualized equivalents to improve cross-listing comparability.
+
+This deterministic approach provides explainable compensation normalization without requiring model-based inference, making it well suited to high-volume preprocessing workloads [49].
+
+\subsubsection{Location Normalization}
+
+Geographic location information frequently exhibits substantial inconsistency across recruitment sources.
+
+The location normalization stage applies deterministic cleaning to improve geographic consistency while preserving user-relevant meaning.
+
+This includes:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item whitespace normalization
+    \item markup removal
+    \item fallback handling for missing values
+    \item preservation of remote or hybrid indicators where relevant
+    \item normalization of inconsistent location formatting
+\end{itemize}
+
+Listing 5.4 shows representative location cleaning logic.
+
+\begin{verbatim}
+Listing 5.4: Location normalization logic
+
+function cleanLocation(location: string): string {
+  if (!location) return "Location not specified";
+
+  return location
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+\end{verbatim}
+
+Normalized location metadata improves frontend filtering, browsing consistency, and geographic comparability across heterogeneous listings.
+
+\subsubsection{Architectural Role}
+
+Deterministic normalization forms the high-efficiency foundation of Layer A.
+
+By resolving predictable structural inconsistencies early, the system reduces unnecessary semantic ambiguity and allows downstream transformer-assisted semantic classification to focus only on records requiring contextual interpretation.
+
+This staged division preserves explainability, reduces computational overhead, and supports the lightweight design objectives of the proposed system [38, 53].
+
 
 \subsection{Text Sanitization Primitives}
 Before specialized normalization can occur, all text fields pass through a common sanitization pipeline. The sanitizeText function applies a sequence of transformations designed to eliminate noise while preserving semantic content:
