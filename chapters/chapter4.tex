@@ -310,3 +310,20 @@ This broader categorization approach provides several methodological advantages:
 
 This internal semantic mapping strategy therefore balances conceptual standardization with implementation practicality, directly supporting the lightweight design objectives of the proposed system.
 
+\subsection{Addressing the Semantic Gap}
+
+A central challenge in heterogeneous recruitment data processing is the semantic gap between inconsistent employer terminology and the structured representations required for reliable internship discovery. Employers frequently describe equivalent roles, competencies, and technologies using highly variable language, abbreviations, informal naming conventions, or domain-specific jargon. Without normalization, this variability reduces dataset consistency, complicates filtering, and weakens structured comparability across listings [18, 49].
+
+The proposed system addresses this semantic gap through a layered semantic normalization strategy informed by both standardized recruitment terminology principles and practical lightweight enrichment methods.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{The first level of this strategy is controlled semantic normalization.} Inspired by frameworks such as ESCO, the system reduces vocabulary inconsistency by aligning heterogeneous employer terminology with internally curated semantic reference libraries [17, 54]. This improves consistency in extracted skills, domain categorization, and structured metadata generation without requiring full ontology-level taxonomy enforcement.
+
+    \item \textbf{The second level is internal categorization and enrichment abstraction.} Raw internship and job descriptions often contain highly specific or inconsistent terminology unsuitable for direct frontend presentation or structured filtering. The enrichment pipeline therefore transforms noisy source language into stable internal categories and normalized skill labels better suited for application-level discovery and user-facing browsing [15, 21].
+
+    \item \textbf{The third level is context-aware semantic classification through lightweight transformer inference.} Deterministic heuristics alone cannot reliably interpret ambiguous terminology or context-dependent internship descriptions. The semantic classification layer therefore provides contextual interpretation where rule-based normalization is insufficient, improving classification robustness for noisy or semantically unclear postings [45, 38].
+\end{itemize}
+
+Rather than addressing the semantic gap through expensive live query-time semantic retrieval, the proposed methodology resolves semantic inconsistency during scheduled enrichment and dataset transformation. This shifts computational complexity away from user interaction and supports the thesis objective of lightweight, practical semantic processing on commodity hardware [38, 53].
+
+
