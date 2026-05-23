@@ -248,3 +248,19 @@ Bias may also emerge through semantic normalization decisions. If role categoriz
 
 While these risks are materially less severe than biases in automated hiring decision systems, they remain important because discovery bias can still shape student opportunity access.
 
+\subsection{Transparency and Explainability}
+
+A major strength of the proposed architecture is its relatively high degree of transparency compared with opaque end-to-end black-box systems.
+
+Deterministic normalization components are highly explainable. Extraction decisions involving salary parsing, identifier generation, metadata normalization, and controlled vocabulary matching can be directly traced to explicit rules or configured matching logic.
+
+The lightweight semantic classification components are less directly interpretable, as with most embedding-based models, but remain operationally simpler and more auditable than large externally hosted generative systems.
+
+Where ambiguity remains unresolved, the architecture intentionally escalates difficult cases to human review rather than forcing low-confidence automated decisions.
+
+This design improves trustworthiness by preserving human oversight for cases where deterministic or lightweight semantic processing cannot provide sufficiently reliable outputs.
+
+Explainability is particularly important in educational or career-support contexts, where users may reasonably expect understandable behavior from recommendation-oriented systems.
+
+Although the current implementation does not expose user-facing explanation interfaces, the architectural design provides a stronger foundation for explainable deployment than fully opaque large-model alternatives.
+
