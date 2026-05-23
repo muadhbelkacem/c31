@@ -789,3 +789,31 @@ This recommendation logic is intentionally lightweight. It does not implement ve
 
 This approach is consistent with efficient machine learning and Green AI principles because it reuses structured metadata rather than introducing unnecessary computation or infrastructure complexity [38, 53].
 
+\subsection{API and Data Access Design}
+
+The internship catalog is exposed through Next.js route handlers that provide structured JSON access to the frontend application. Next.js API routes support colocating backend request handling with the application framework, which fits the system’s lightweight deployment approach [46].
+
+\subsubsection{Internship List API}
+
+The /api/internship endpoint returns the accepted internship catalog. Internally, the route reads public/intern\_data.json, normalizes records through normalizeRoleArray(), filters accepted internships, and caches the processed list using a five-minute time-to-live.
+
+This API-level cache reduces repeated file reads and normalization work during API-based access. The route also supports a cache-clearing action through a POST request with the clear-cache parameter, allowing refreshed catalog data to be exposed without restarting the application.
+
+\subsubsection{Internship Detail API}
+
+The /api/internship/[id] endpoint retrieves a single internship by identifier. It reads the JSON catalog, normalizes and filters the records, and returns the matching internship if found. If the requested role does not exist, the endpoint returns a structured 404 response.
+
+This endpoint provides a simple and predictable mechanism for role-detail pages to retrieve individual internship records.
+
+\subsubsection{Server-Side Data Access}
+
+The main homepage also accesses internship data through the server-side getInternships() function in data.ts. This function supports server-side rendering by loading and caching the normalized internship catalog before passing it into the frontend page component.
+
+As a result, the initial internship list can be rendered from already-processed application data, while interactive search, filtering, and pagination are handled in the frontend using React state and memoized filtering logic.
+
+\subsubsection{Data Access Resilience}
+
+The data-access layer includes defensive checks for malformed or missing data. For example, the system verifies that the JSON file is not empty, rejects invalid top-level formats, and returns empty arrays or structured errors when data cannot be parsed correctly.
+
+This prevents malformed catalog data from crashing the frontend application and improves the robustness of the platform during development and dataset refresh cycles. This defensive handling is consistent with data-cleaning literature emphasizing the importance of detecting and containing malformed records before they propagate through downstream systems [11].
+
