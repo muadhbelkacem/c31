@@ -55,58 +55,57 @@ The proposed system is designed around the functional requirements of its intend
 \end{itemize}
 
 \subsection{System Architecture and Component Mapping}
+
 The proposed system is organized into four logical architectural tiers to separate presentation concerns, application communication, semantic processing responsibilities, and persistence mechanisms. This decomposition improves maintainability, modularity, and implementation clarity by reducing coupling between independently evolving system components [15, 60].
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Presentation Layer (Frontend Application)}: The presentation layer provides the user-facing internship discovery platform implemented using Next.js and React. This layer is responsible for rendering internship data, supporting interactive user functionality, and exposing authenticated application features.
-    Core functional requirements include:
-    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-        \item internship browsing and pagination.
-        \item keyword-based search and structured filtering.
-        \item detailed internship viewing.
-        \item saved internship management for authenticated users.
-        \item account preference interaction.
-        \item UI personalization features.
+    \item \textbf{Presentation Layer (Frontend Application)} -- The presentation layer provides the user-facing internship discovery platform implemented using Next.js and React. This layer is responsible for rendering internship data, supporting interactive user functionality, and exposing authenticated application features.
+
+    Core responsibilities include:
+    \begin{itemize}
+        \item internship browsing and pagination
+        \item keyword-based search and structured filtering
+        \item detailed internship viewing
+        \item saved internship management for authenticated users
+        \item account preference interaction
+        \item UI personalization features
     \end{itemize}
     The presentation layer remains isolated from backend processing logic and consumes structured internship data exclusively through the application communication layer.
 
-    \item \textbf{Application Communication Layer (Next.js Route Handlers)}: The communication layer acts as the controlled interface between the frontend application and backend data services. Implemented using Next.js server-side route handlers, this layer manages request handling, internship data access coordination, response serialization, and caching behavior.
+    \item \textbf{Application Communication Layer (Next.js Route Handlers)} -- The communication layer acts as the controlled interface between the frontend application and backend data services. Implemented using Next.js server-side route handlers, this layer manages request handling, internship data access coordination, response serialization, and caching behavior.
 
     Its responsibilities include:
-
-    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-        \item handling frontend internship data requests.
-        \item delegating access to processed internship records.
-        \item serving structured JSON responses.
-        \item managing response caching behavior.
-        \item isolating frontend components from storage implementation details.
+    \begin{itemize}
+        \item handling frontend internship data requests
+        \item delegating access to processed internship records
+        \item serving structured JSON responses
+        \item managing response caching behavior
+        \item isolating frontend components from storage implementation details
     \end{itemize}
     This architectural separation improves maintainability by preventing frontend logic from depending directly on persistence or enrichment implementation details.
 
-    \item \textbf{Semantic Processing Layer (Python Enrichment Pipeline)}:The semantic processing layer constitutes the computational core of the proposed system and implements the three-layer methodology defined in Section 4.2.1. This layer transforms heterogeneous raw internship and job listing data into structured records suitable for deployment.
+    \item \textbf{Semantic Processing Layer (Python Enrichment Pipeline)} -- The semantic processing layer constitutes the computational core of the proposed system and implements the three-layer methodology defined in Section 4.2.1. This layer transforms heterogeneous raw internship and job listing data into structured records suitable for deployment.
+
     Its responsibilities include:
-    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-        \item \textbf{Layer A (Deterministic Heuristic Processing)}:
-        structural validation, malformed record filtering, normalization, duplicate handling support, internship-specific rule matching, and explicit rejection of clearly irrelevant non-internship postings.
-        \item \textbf{Layer B (Lightweight Semantic Classification)}:
-        context-sensitive internship relevance assessment and semantic enrichment using the lightweight sentence-transformer model (all-MiniLM-L6-v2) for ambiguous records requiring semantic interpretation.
-        \item \textbf{Layer C (Manual Review Flagging and Exception Handling)}:
-        identification and structured flagging of uncertain records requiring later inspection through manual review indicators such as needs_manual_review.
+    \begin{itemize}
+        \item \textbf{Layer A (Deterministic Heuristic Processing):} structural validation, malformed record filtering, normalization, duplicate handling support, internship-specific rule matching, and explicit rejection of clearly irrelevant non-internship postings.
+        \item \textbf{Layer B (Lightweight Semantic Classification):} context-sensitive internship relevance assessment and semantic enrichment using the lightweight sentence-transformer model (all-MiniLM-L6-v2) for ambiguous records requiring semantic interpretation.
+        \item \textbf{Layer C (Manual Review Flagging and Exception Handling):} identification and structured flagging of uncertain records requiring later inspection through manual review indicators such as \texttt{needs\_manual\_review}.
     \end{itemize}
     This layer executes independently from the frontend application runtime and supports automated recurring enrichment workflows.
 
-    \item \textbf{Data Persistence Layer}: The persistence layer manages both public internship catalog delivery and authenticated user application state.
+    \item \textbf{Data Persistence Layer} -- The persistence layer manages both public internship catalog delivery and authenticated user application state.
 
     The architecture uses a hybrid persistence strategy:
-
-    \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-        \item \textbf{Static internship catalog}: processed internship records exported as structured JSON for efficient frontend consumption.
-        \item \textbf{Dynamic application persistence}: Supabase-managed PostgreSQL storage for authentication, saved internships, preferences, and account-linked user functionality.
+    \begin{itemize}
+        \item \textbf{Static internship catalog:} processed internship records exported as structured JSON for efficient frontend consumption
+        \item \textbf{Dynamic application persistence:} Supabase-managed PostgreSQL storage for authentication, saved internships, preferences, and account-linked user functionality
     \end{itemize}
     This separation balances efficient public internship delivery with transactional support for authenticated user interactions.
 \end{itemize}
 
 This architectural decomposition ensures that changes to frontend behavior, enrichment methodology, persistence mechanisms, or user-facing functionality can be introduced with minimal disruption to unrelated system components.
+
 
 \subsection{Core Data Model}
 The proposed system relies on a structured core data model that defines how internship information moves through acquisition, transformation, storage, and user interaction workflows. This model acts as a formal semantic contract between the ingestion pipeline, persistence layer, and frontend application, ensuring that structured data remains consistent throughout the system lifecycle.
