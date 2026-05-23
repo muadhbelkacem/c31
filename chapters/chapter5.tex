@@ -420,54 +420,103 @@ By resolving predictable structural inconsistencies early, the system reduces un
 
 This staged division preserves explainability, reduces computational overhead, and supports the lightweight design objectives of the proposed system [38, 53].
 
-
-\subsection{Text Sanitization Primitives}
-Before specialized normalization can occur, all text fields pass through a common sanitization pipeline. The sanitizeText function applies a sequence of transformations designed to eliminate noise while preserving semantic content:
-
-
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item HTML Entity Resolution: Named entities (e.g., \&amp;, \&lt;, \&\#39;) are converted to their Unicode equivalents using a comprehensive lookup table.
-
-\item Residual Tag Stripping: Any remaining HTML or XML tags are removed using a regular expression that matches balanced angle brackets.
-
-\item Unicode Normalization: Text is normalized to Unicode Normalization Form C (NFC), ensuring that composed and decomposed character sequences are represented consistently.
-
-\item Whitespace Collapsing: All whitespace characters (spaces, tabs, newlines, non-breaking spaces) are collapsed to single spaces, and leading/trailing whitespace is trimmed.
-
-\item Case Folding: Text is converted to lowercase, a standard IR preprocessing step that collapses case-based surface-form variance~\cite{jurafsky2023speech}. This common foundation ensures that all subsequent normalization modules operate on consistently preprocessed input, reducing the complexity of individual specialized functions.
-
-\end{itemize}
-\subsection{Stable Identifier Generation}
-To maintain referential integrity across ingestion cycles and enable efficient duplicate detection, the system implements a deterministic \texttt{generateId} function. Creating unique, persistent keys for record linkage is important for data quality in large-scale aggregators, where the same logical internship may appear across multiple sources or scrape cycles with minor textual variations. The identifier generation algorithm, shown in Listing~\ref{lst:stable-id}, operates in two phases. First, each string is transformed into a URL-safe form by lowercasing, stripping non-alphanumeric characters while preserving intra-word hyphens, replacing whitespace sequences with single hyphens, collapsing consecutive hyphens, and removing leading or trailing hyphens. Second, the normalized title and company strings are concatenated with a hyphen separator. When a collision is detected during processing, the pipeline appends a numeric suffix, such as \texttt{software-engineer-intern-acme-corp-1}. This strategy prevents distinct listings from being overwritten while maintaining the efficiency of deterministic blocking for common cases.
-
-
-\begin{lstlisting}[caption={Stable ID generation logic.},label={lst:stable-id}]
-function generateId(title: string, company: string): string {
-  const cleanTitle = title.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/--+/g, '-')
-    .replace(/^-|-$/g, '');
-
-  const cleanCompany = company.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/--+/g, '-')
-    .replace(/^-|-$/g, '');
-
-  return `${cleanTitle}-${cleanCompany}`;
-}
-\end{lstlisting}
-
-\subsection{Regex-Based Salary Parsing}
-Financial compensation data in internship listings presents a particularly challenging extraction problem. Salary information is often buried within narrative text and expressed in highly variable formats: hourly rates (``\$15-20/hr''), annual salaries (``\$70k-\$90k''), single values (``Up to \$50/hr''), or narrative forms (``competitive salary''). The current \texttt{cleanSalary} module addresses the most common numeric cases through regular expressions that detect dollar-prefixed ranges and single values. If no matching numeric pattern is found, the system returns \texttt{Salary not specified}. This conservative behavior avoids inventing compensation data, but it also means that narrative compensation statements, non-dollar currencies, and monthly or pro-rated amounts remain future extraction work.
-
-\subsection{Location Normalization}
-Geographic location information exhibits substantial surface-form variance across sources. The current \texttt{cleanLocation} function applies conservative normalization: it preserves the provided location when present and substitutes a clear placeholder when missing. More advanced abbreviation expansion, remote-work detection, and ISO country normalization are identified as future improvements.
-
 \subsection{Skill Extraction and Semantic Alignment}
-As established in the research objectives, the system must identify professional competencies from unstructured job descriptions without the overhead of heavy NLP models. The implemented skill extraction module uses lexicon-based matching as a practical first layer.
+
+As established in the research objectives, the system must identify relevant professional competencies from unstructured internship and job descriptions without relying on heavyweight external extraction services. The implementation therefore uses a lightweight hybrid skill extraction strategy that combines deterministic controlled-vocabulary matching with conservative transformer-assisted semantic matching.
+
+This design preserves the efficiency and explainability of dictionary-based extraction while allowing the system to detect semantically related skills when explicit lexical matching is insufficient [20, 38].
+
+\subsubsection{Controlled Skill Reference Library}
+
+The skill extraction module is supported by an internally curated JSON-based skill library. The current operational library contains more than 500 canonical skill entries, organized across 23 professional skill groups, with synonym and descriptive metadata used to support both exact matching and semantic comparison.
+
+The library covers internship-relevant competencies across areas such as software development, data and AI, cybersecurity, cloud and DevOps, engineering, business, healthcare, design, finance, marketing, sales, HR, operations, research, biotech, education, legal, customer support, and manufacturing.
+
+Although the design is inspired by standardized labor-market vocabulary principles such as ESCO, the implementation does not attempt full ESCO ontology alignment. Instead, ESCO is used as a conceptual reference for controlled vocabulary normalization, while the operational system relies on a maintainable internal skill library suited to the internship dataset [17].
+
+\subsubsection{Exact and Synonym-Based Matching}
+
+The first extraction stage performs deterministic matching against canonical skill names and their configured synonyms. The ML pipeline uses boundary-aware regular expression matching so that recognized skills are extracted only when they appear as meaningful terms rather than arbitrary substrings.
+
+This is particularly important for short technical terms. For example, the implementation treats very short aliases conservatively to reduce false positives, while still allowing symbol-based terms such as C++ and C\#.
+
+A simplified version of the deterministic matching logic is shown in Listing 5.5.
+
+\begin{verbatim}
+Listing 5.5: Simplified exact and synonym-based skill matching
+
+def _keyword_hits(self, text: str) -> set[str]:
+    found: set[str] = set()
+
+    for skill, payload in self.skills.items():
+        terms = [skill, *payload.get("synonyms", [])]
+
+        for term in terms:
+            if self._matches_term(text, term):
+                found.add(skill)
+                break
+
+    return found
+\end{verbatim}
+
+This deterministic stage provides a fast and explainable baseline. Extracted skills can be traced directly to either a canonical skill label or one of its configured aliases.
+
+\subsubsection{Conservative Embedding-Based Skill Matching}
+
+To improve semantic coverage beyond explicit keyword matching, the ML pipeline optionally applies local sentence-transformer embeddings. Skill descriptions from the controlled library are embedded once, and segments of the job text are compared against these skill representations.
+
+This stage is intentionally conservative. A semantic skill match is accepted only when the best skill similarity exceeds a configured threshold and is sufficiently separated from the second-best match. This reduces the risk of hallucinated or weakly related skill extraction.
+
+The simplified semantic matching logic is shown in Listing 5.6.
+
+\begin{verbatim}
+Listing 5.6: Conservative semantic skill matching
+
+def _embedding_hits(self, text: str) -> set[str]:
+    if self.model is None or self.skill_embeddings is None:
+        return set()
+
+    found: set[str] = set()
+    chunks = make_text_chunks(text)
+
+    for chunk in chunks:
+        emb = self.model.encode(
+            chunk,
+            convert_to_tensor=True,
+            normalize_embeddings=True
+        )
+
+        sims = util.cos_sim(emb, self.skill_embeddings)[0]
+        ranked = sorted(enumerate(sims), key=lambda item: item[1], reverse=True)
+
+        top_idx, top_score = ranked[0]
+        second_score = ranked[1][1]
+
+        if top_score >= self.threshold and (top_score - second_score) >= self.margin:
+            found.add(self.skill_names[top_idx])
+
+    return found
+\end{verbatim}
+
+In the implemented configuration, semantic skill matching uses the same lightweight local sentence-transformer family as the broader semantic classification pipeline. This supports the thesis objective of improving semantic enrichment while avoiding dependence on cloud-hosted LLM inference [45, 38].
+
+\subsubsection{Skill Output Ordering and Limits}
+
+The final skill list combines deterministic keyword matches and accepted semantic matches. Keyword matches are prioritized, and the resulting set is sorted into a stable order before being capped by a maximum skill limit.
+
+In the ML pipeline, the default maximum is fifteen skills per listing. In the frontend fallback logic, extracted skills are capped more aggressively for display purposes. This prevents long descriptions from producing excessively large skill lists and keeps the frontend internship cards readable.
+
+\subsubsection{Website Fallback Extraction}
+
+The Next.js frontend also contains a lightweight fallback extractor. When an internship record does not already provide a skills array, the frontend scans the description for a smaller predefined set of common skill keywords and returns a capped list.
+
+This fallback is simpler than the ML pipeline extractor. Its purpose is frontend resilience rather than full semantic enrichment. In normal operation, the richer ML pipeline output supplies the skills field directly.
+
+\subsubsection{Architectural Role}
+
+Skill extraction supports the system in two ways. First, it improves frontend usability by exposing structured competencies that students can quickly read and use for filtering. Second, it contributes semantic metadata that supports consistency across heterogeneous internship records.
+
+The implementation therefore fits the overall three-layer architecture: deterministic and synonym-based extraction provide efficient Layer A enrichment, while conservative embedding-based matching extends coverage where explicit text matching alone is insufficient. Ambiguous or low-confidence outputs remain visible through metadata and manual-review behavior in the broader pipeline.
 
 \subsection{Lexicon Construction and Maintenance}
 The skill lexicon serves as the knowledge base for the extraction module. In the current prototype it is a compact, manually defined list of common skills and tools observed in internship descriptions. This keeps the implementation simple and inspectable. A future ESCO-aligned lexicon could expand this list with canonical labels, aliases, and maintenance rules based on unextracted n-grams in recent listings.
