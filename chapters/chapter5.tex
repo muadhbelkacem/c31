@@ -177,10 +177,83 @@ This caching strategy has several important implications for the system’s oper
 In summary, the caching subsystem transforms the preprocessing and semantic enrichment pipeline from a repeated computational burden into an amortized preparation stage, enabling practical frontend responsiveness while preserving the lightweight deployment philosophy of the proposed system.
 
 \section{Lightweight Semantic Enrichment Pipeline}
-The semantic enrichment pipeline is the computational core of the system. It transforms raw, unstructured text into the structured, semantically enriched format defined in the methodology chapter. This section provides a detailed account of the implementation of a high-performance, rule-based extraction engine developed in TypeScript and designed to minimize latency and avoid the operational costs associated with external model inference. The design draws on established principles in Information Extraction (IE) and introduces heuristics tailored to the characteristics of internship listings~\cite{sarawagi2008information, nadeau2007survey}.
+The semantic enrichment pipeline forms the computational core of the proposed system. Its purpose is to transform noisy, heterogeneous internship and recruitment data into the structured, semantically enriched representation defined in the methodology chapter.
+
+The implementation follows the lightweight three-layer architecture introduced earlier, combining deterministic preprocessing, contextual semantic classification, and controlled exception handling to balance semantic effectiveness with computational efficiency.
+
+Layer A provides fast, explainable heuristic processing for structurally predictable tasks such as metadata normalization, salary extraction, duplicate handling, and initial categorization. Layer B introduces lightweight sentence-transformer-based semantic classification for internship relevance assessment and ambiguous cases that cannot be reliably resolved through deterministic rules alone. Layer C provides controlled manual-review escalation for semantically uncertain records requiring human oversight.
+
+This staged design follows established principles in information extraction and semantic data processing, where deterministic normalization is used for high-confidence structured tasks while learned semantic inference is reserved for context-dependent interpretation [21, 33, 49].
+
+A central design objective of the implementation is maintaining practical deployment efficiency. By combining lightweight local semantic models with deterministic preprocessing rather than relying on repeated cloud-hosted LLM inference, the system preserves explainability, reduces computational cost, and remains compatible with commodity hardware constraints [38, 53].
 
 \subsection{Pipeline Architecture and Data Flow}
-The enrichment pipeline operates on a defined ``clean-enrich-structure'' sequence, a design pattern that ensures each processing stage receives data of progressively higher quality and semantic density. Data arriving from web scrapers or manual JSON uploads first undergoes sanitization to remove noise and normalize surface forms~\cite{chu2016data}. The cleaned text is then enriched with semantic tags, including normalized job titles, extracted skills, parsed salary ranges, and domain categories, using a cascade of deterministic heuristics ordered by computational cost and precision. Finally, the fully structured Internship object is stored in a server-side cache for rapid retrieval. This layered approach is consistent with production-grade IE systems that prioritize efficiency, maintainability, and predictable performance over the resource-intensive characteristics of end-to-end neural architectures~\cite{sarawagi2008information, schwartz2020green}.
+
+The semantic enrichment pipeline follows a staged clean–enrich–structure processing architecture in which internship data progressively moves from noisy heterogeneous input toward a structured semantically enriched representation.
+
+This staged design ensures that each processing layer receives data of progressively higher structural quality and semantic clarity, improving overall robustness while preserving computational efficiency [11, 49].
+
+Data entering the pipeline from scraped recruitment sources or structured JSON inputs first undergoes deterministic sanitization and normalization through Layer A preprocessing. This removes formatting noise, resolves superficial inconsistencies, extracts structured metadata, and generates stable internal representations suitable for downstream processing.
+
+Following this deterministic preparation stage, the pipeline applies semantic enrichment operations, including skill extraction, structured categorization, internship relevance assessment, duplicate handling, and contextual classification for ambiguous records.
+
+Where deterministic heuristics provide insufficient confidence, the pipeline invokes lightweight transformer-assisted semantic interpretation through Layer B. This contextual stage improves handling of semantically unclear internship postings while preserving the efficiency advantages of the broader lightweight architecture [45, 38].
+
+Finally, semantically enriched internship records are transformed into the structured Internship representation and persisted within the application’s caching layer for efficient frontend access.
+
+\subsubsection{Pipeline Orchestration}
+
+The enrichment process is orchestrated through a central processing workflow that accepts raw recruitment records and progressively transforms them into structured internship entities.
+
+The orchestration follows a dependency-aware staged sequence, where outputs from earlier normalization stages provide the input required for downstream enrichment and classification operations.
+
+A representative processing sequence includes:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Structural normalization}
+    \begin{itemize}
+      \item title cleaning
+      \item company normalization
+      \item description sanitization
+      \item metadata cleanup
+    \end{itemize}
+    \item \textbf{Deterministic enrichment}
+    \begin{itemize}
+      \item stable identifier generation
+      \item salary extraction
+      \item duplicate detection
+      \item heuristic categorization
+      \item controlled skill extraction
+    \end{itemize}
+    \item \textbf{Semantic interpretation}
+    \begin{itemize}
+      \item internship relevance classification
+      \item ambiguity detection
+      \item semantic consistency assessment
+      \item manual-review exception flagging
+    \end{itemize}
+    \item \textbf{Final structuring}
+    \begin{itemize}
+      \item canonical internship object generation
+      \item cache persistence
+      \item frontend/API availability
+    \end{itemize}
+\end{itemize}
+
+This staged orchestration improves modularity, simplifies debugging, and allows individual enrichment components to be independently tested and refined.
+
+\subsubsection{Design Principles and Trade-Offs}
+
+The implementation reflects several core design principles that define the operational behavior of the proposed system.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Deterministic explainability:} High-confidence structured tasks are handled through transparent rule-based logic, ensuring reproducibility, easier debugging, and predictable behavior.
+    \item \textbf{Local computation:} Semantic processing is performed locally within the application environment, minimizing dependence on external services and preserving practical deployment efficiency.
+    \item \textbf{Progressive refinement:} Computationally inexpensive deterministic methods are applied first, while more expensive contextual semantic processing is reserved only for uncertain cases requiring deeper interpretation.
+    \item \textbf{Controlled uncertainty handling:} Semantically ambiguous cases are not blindly forced into deterministic outcomes; instead, controlled escalation through semantic interpretation or manual review preserves system trustworthiness.
+\end{itemize}
+
+These principles directly address the central thesis objective of balancing semantic effectiveness with practical computational efficiency on commodity hardware [38, 53].
 
 \subsection{Pipeline Orchestration}
 The enrichment process is orchestrated by a central enrichInternship procedure, which accepts a raw data object and returns a fully structured Internship entity. The orchestration follows a strict topological order, where each function's output serves as the input to subsequent stages. This linear, dependency-managed design simplifies debugging, facilitates unit testing of individual enrichment modules, and reduces the risk that errors in one stage will propagate unpredictably into downstream processes. Figure~\ref{fig:enrichment-lifecycle} illustrates the lifecycle of an individual item as it traverses the enrichment pipeline, from initial ingestion through each processing module to final storage in the structured cache. The diagram highlights the interaction between the main data loop and the specialized enrichment components, emphasizing the sequential dependency chain and the collision-checking mechanism in the identifier generation stage. The top-level enrichment algorithm is presented below.
