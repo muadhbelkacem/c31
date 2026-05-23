@@ -755,3 +755,37 @@ The useSavedRoles hook manages saved internship state by reading from and writin
 
 This relational persistence layer is appropriate for user-linked data because saved roles require durable storage, user ownership, and consistency across sessions. Separating this data from the static internship catalog avoids mixing public catalog delivery with account-specific application state.
 
+\subsection{Metadata Organization and Application-Level Discovery}
+
+Although the implementation does not use a dedicated search index or vector index, the processed internship records contain structured metadata that supports practical discovery within the application.
+
+The most important metadata fields include:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item category
+    \item skills
+    \item location
+    \item salary
+    \item company
+    \item platform
+    \item is\_real\_internship
+    \item internship\_probability
+    \item needs\_manual\_review
+\end{itemize}
+
+These fields are produced during normalization and semantic enrichment, then used by the frontend to support browsing, filtering, and internship interpretation.
+
+\subsubsection{Category and Skill Metadata}
+
+The category field provides a high-level professional domain label for each internship record. The skills field stores extracted competencies produced by the skill extraction pipeline. Together, these fields support structured filtering and role comparison without requiring a separate retrieval engine.
+
+For example, the frontend can group or filter internships by domain category, while skill lists allow users to quickly assess whether a posting matches their competencies or interests.
+
+\subsubsection{Similar Internship Recommendations}
+
+The role-detail interface also uses metadata for lightweight recommendation behavior. Similar internships are selected using category matching first, followed by skill overlap. If insufficient similar records are found, the interface falls back to other valid internships.
+
+This recommendation logic is intentionally lightweight. It does not implement vector-based semantic similarity or approximate nearest-neighbor indexing. Instead, it uses already-enriched structured metadata to provide fast, explainable related-role suggestions.
+
+This approach is consistent with efficient machine learning and Green AI principles because it reuses structured metadata rather than introducing unnecessary computation or infrastructure complexity [38, 53].
+
