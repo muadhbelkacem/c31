@@ -1,30 +1,47 @@
 \chapter{System Design and Implementation}
 
 \section{Chapter Introduction}
-This chapter describes how the methodology is implemented in the software system. It follows the processing path from data ingestion and preprocessing to semantic enrichment, storage, indexing, caching, and API access. The chapter focuses on implementation mechanisms that are supported by the existing manuscript evidence and avoids introducing unverified components or deployment claims.
+This chapter describes the concrete implementation of the proposed methodology within the software system. It follows the practical processing flow from heterogeneous data ingestion and preprocessing through semantic enrichment, structured persistence, caching, API communication, and frontend integration.
+
+The focus is on implementation mechanisms directly reflected in the developed system, translating the methodological architecture defined in Chapter 4 into operational software components. Particular attention is given to how lightweight deterministic processing, transformer-assisted semantic classification, and structured data normalization are integrated to support practical internship aggregation and enrichment on commodity hardware.
 
 \section{Data Collection and Preprocessing}
-This chapter details the implementation of the data acquisition, sanitization, and enrichment pipeline, which forms the first computational tier of the system. As established in the methodology chapter, the primary challenge addressed here is the ingestion of raw, heterogeneous internship listings and their transformation into a consistent, structured format. This processed output serves as the foundation on which later semantic enrichment and hybrid retrieval mechanisms can be built. The pipeline must be robust against the data noise inherent in web-sourced content while adhering to the lightweight and cost-effective design philosophy central to this thesis. Recent studies highlight that while Large Language Models (LLMs) offer rapid prototyping for such tasks, rule-based systems maintain a superior profile for deterministic behavior and cost-efficiency in specialized domains~\cite{principe2025enhancing}. The chapter begins by detailing the initial ingestion mechanism, then proceeds through deterministic preprocessing, and finally describes the heuristic enrichment strategies that provide immediate, low-cost structure to the data.
+This section details the implementation of the data acquisition, normalization, and semantic enrichment pipeline that forms the computational foundation of the system. As established in the methodology chapter, the primary implementation challenge is transforming noisy, heterogeneous internship and job listing data into structured, semantically enriched records suitable for frontend presentation and practical internship discovery.
+
+The implementation must remain robust against inconsistent source formatting, incomplete metadata, duplicate records, multilingual terminology variation, and noisy recruitment content commonly found in web-sourced internship data [15, 49]. At the same time, it must preserve the lightweight deployment philosophy central to this thesis by avoiding unnecessary computational complexity and dependence on heavyweight external inference services [38, 53].
+
+Consistent with the three-layer processing architecture defined in Chapter 4, the implementation combines deterministic preprocessing for high-confidence normalization tasks, lightweight transformer-assisted semantic classification for ambiguous postings, and controlled exception handling for uncertain cases requiring manual review.
+
+This section begins with the data ingestion mechanism and source normalization process, then describes deterministic preprocessing, heuristic metadata enrichment, semantic classification integration, and the generation of the structured internship dataset used throughout the application.
 
 \subsection{Data Ingestion Pipeline}
-The ingestion pipeline is the system's entry point for all internship data, designed as an asynchronous, non-blocking process to ensure the main application loop remains responsive. Its core function is to safely acquire raw data from the local JSON repository, validate its structural integrity, and parse it into the system's canonical format. This process directly addresses the ``schema-on-read'' challenge common in integrating semi-structured web data, where different sources may use different keys for the same concept. The diagram illustrates the flow from the asynchronous file read through structural validation to the final caching of parsed Internship objects.
 
+The data ingestion pipeline serves as the primary entry point for internship data entering the system. Its role is to acquire raw recruitment records, perform structural validation and normalization, and prepare data for downstream semantic enrichment before persistence and frontend consumption.
+
+As illustrated in Figure X, the ingestion workflow follows a staged asynchronous architecture beginning with automated data acquisition, followed by cleaning and enrichment, persistence, and eventual frontend retrieval. This staged design reflects established data integration practices for handling heterogeneous semi-structured data sources [1, 11, 15].
+
+\subsubsection{Source Acquisition}
+
+The ingestion process begins with automated collection of internship data through the scraping component (ScraperService), which gathers raw internship and recruitment records from supported online sources.
+
+This acquisition stage is designed as an asynchronous process so that data collection and preprocessing remain decoupled from frontend interaction. Such separation ensures that user-facing application behavior is not directly affected by periodic ingestion and enrichment operations.
+
+The system primarily operates on structured JSON-based recruitment data, allowing both scraped datasets and externally provided JSON internship records to enter the same downstream normalization pipeline.
+
+\subsubsection{Initial Structural Validation (Layer 0)}
+
+Before semantic enrichment begins, the pipeline performs an initial validation stage to verify that incoming data is structurally processable.
+
+This validation includes checks for:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-
-\item Source Acquisition: The primary static catalog is persisted in \texttt{public/intern\_data.json}. The \texttt{getInternships()} function uses the Node.js \texttt{fs.promises} API for asynchronous file reading. This non-blocking I/O model is necessary for a system that must serve user requests without stalling on file-system access, a fundamental principle in responsive server-side applications. This single-file approach for the core catalog supports simple version control and rapid deployment without the operational overhead of a database for static, read-heavy data.
-
-\item Initial Validation (Layer 0): Before any parsing logic is applied, the system performs structural checks on the raw file content. This pre-validation Layer 0 is a defensive programming strategy in automated data pipelines. It verifies that the file is not empty, confirms that the top-level structure is a JSON array, and checks that essential fields such as title and company are present before accepting a record. By failing early at this stage, the system prevents corrupted data from propagating into downstream processes.
-
-\item Structural Parsing: Upon passing validation, the content is parsed into an array of TypeScript \texttt{Internship} objects. This parsing is not only a JSON decode; it maps source fields such as \texttt{platform\_link}, \texttt{date\_posted}, and \texttt{job\_age} into the target schema defined in the methodology chapter. This provides an initial pass at structural normalization and establishes a semantic contract between the raw data and the rest of the application.
-
+    \item valid JSON formatting
+    \item expected structural completeness
+    \item required field presence
+    \item rejection of clearly malformed or unusable records
 \end{itemize}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.88\textwidth]{uml/sequenceDiagramInternshipsFetcher.png}
-\caption{UML sequence diagram: internships fetcher.}\label{fig:ingestion-seq}
-\end{figure}
+This defensive preprocessing stage reduces the risk of invalid source data propagating into semantic enrichment components and improves overall pipeline robustness [11, 15].
 
 \subsection{Preprocessing and Sanitization}
 Raw data obtained from web scraping is inherently noisy and may contain inconsistent formatting, boilerplate text, and presentation artifacts that are irrelevant to the semantic content. Layer A applies a series of deterministic, rule-based sanitization functions. These functions are computationally inexpensive, predictable, and easy to debug, aligning with the goal of maximizing efficiency for high-volume, high-confidence tasks.
