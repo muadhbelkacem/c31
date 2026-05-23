@@ -225,3 +225,26 @@ The current implementation does not explicitly perform automated PII detection o
 
 Depending on deployment geography, applicable regulatory frameworks may include GDPR, CCPA, or equivalent privacy legislation.
 
+\subsection{Algorithmic Fairness and Bias}
+
+Although the proposed system does not make hiring decisions or evaluate candidates, bias can still emerge through automated listing processing and recommendation behavior.
+
+Classification errors, enrichment failures, or corpus imbalances may influence which opportunities become more discoverable to users.
+
+Examples include:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item underrepresentation of certain industries or employers
+    \item reduced discoverability for unconventional internship terminology
+    \item weaker semantic handling of niche technical roles
+    \item geographic bias introduced through source selection
+\end{itemize}
+
+Because the dataset is intentionally concentrated in Canadian and broader North American recruitment contexts, opportunities following different linguistic or institutional conventions may be less effectively processed.
+
+This creates a form of representational bias, where the system performs better for postings resembling the dominant training and scraping distribution.
+
+Bias may also emerge through semantic normalization decisions. If role categorization or skill extraction systematically favors familiar terminology while underrepresenting emerging or non-standard language, certain opportunities may become less visible despite being relevant.
+
+While these risks are materially less severe than biases in automated hiring decision systems, they remain important because discovery bias can still shape student opportunity access.
+
