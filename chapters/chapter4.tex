@@ -106,17 +106,19 @@ The proposed system is organized into four logical architectural tiers to separa
 
 This architectural decomposition ensures that changes to frontend behavior, enrichment methodology, persistence mechanisms, or user-facing functionality can be introduced with minimal disruption to unrelated system components.
 
-
 \subsection{Core Data Model}
+
 The proposed system relies on a structured core data model that defines how internship information moves through acquisition, transformation, storage, and user interaction workflows. This model acts as a formal semantic contract between the ingestion pipeline, persistence layer, and frontend application, ensuring that structured data remains consistent throughout the system lifecycle.
+
+Figure 4.2 presents the conceptual UML representation of the system’s principal entities and their relationships.
 
 The architecture distinguishes between raw acquisition entities and normalized operational entities to reflect the staged transformation of heterogeneous recruitment data.
 
-The RawInternship entity represents unprocessed records obtained from scraping sources. These records preserve original source fields such as raw title, company name, location, description, source URL, and scraping metadata prior to transformation.
+The \texttt{RawInternship} entity represents unprocessed records obtained from scraping sources. These records preserve original source fields such as raw title, company name, location, description, source URL, and scraping metadata prior to transformation.
 
-The DataCleaningService represents the transformation component responsible for converting raw recruitment records into structured internship entities. This stage performs validation, normalization, heuristic filtering, semantic classification, skill extraction, and manual-review exception handling consistent with the three-layer methodology described previously.
+The \texttt{DataCleaningService} represents the transformation component responsible for converting raw recruitment records into structured internship entities. This stage performs validation, normalization, heuristic filtering, semantic classification, skill extraction, and manual-review exception handling consistent with the three-layer methodology described previously.
 
-The normalized Internship entity serves as the central operational data structure used throughout the application. It contains structured attributes including stable identifiers, normalized titles, company metadata, salary information, descriptions, extracted skills, categorical labels, duration metadata, platform provenance, and application links.
+The normalized \texttt{Internship} entity serves as the central operational data structure used throughout the application. It contains structured attributes including stable identifiers, normalized titles, company metadata, salary information, descriptions, extracted skills, categorical labels, duration metadata, platform provenance, and application links.
 
 The design of this schema is motivated by three methodological objectives:
 
@@ -126,9 +128,13 @@ The design of this schema is motivated by three methodological objectives:
     \item \textbf{Cross-layer consistency:} Shared structured entities ensure compatibility between ingestion logic, semantic enrichment, API delivery, and frontend rendering components [15].
 \end{itemize}
 
-The conceptual model additionally includes user-oriented entities such as User and SavedInternship, representing authenticated platform functionality including saved internship persistence and account-linked interaction behavior.
+The conceptual model additionally includes user-oriented entities such as \texttt{User} and \texttt{SavedInternship}, representing authenticated platform functionality including saved internship persistence and account-linked interaction behavior.
 
 Although Figure 4.2 presents a conceptual UML abstraction rather than a strict implementation class hierarchy, it provides a useful representation of the principal data entities and their interactions within the proposed system.
+
+% -- put class uml here btw --
+% Figure 4.2: UML class representation of the proposed system’s conceptual core data model.
+
 
 \subsection{Application Interaction Flow}
 Figure 4.3 illustrates the high-level interaction sequence between the user, frontend application, and backend persistence services during normal platform operation. The interaction model follows an asynchronous request-response architecture typical of modern web applications.
