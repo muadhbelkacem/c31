@@ -338,3 +338,19 @@ The methodology formalizes the evaluation objectives, links them to the research
 Because the thesis explicitly targets lightweight practical deployment rather than large-scale cloud inference, the evaluation additionally considers computational efficiency and resource practicality in alignment with Green AI principles [53].
 
 
+\subsection{Evaluation Objectives}
+
+The evaluation is designed to assess both the semantic output quality and the practical operational characteristics of the proposed internship aggregation and enrichment system. The primary objective is to determine whether the proposed lightweight three-layer architecture can achieve meaningful semantic enrichment and internship classification while remaining computationally practical for deployment on commodity hardware.
+
+The evaluation is explicitly structured around the four research questions defined in Chapter 1, with each question mapped to measurable experimental objectives grounded in prior literature on information extraction, semantic processing, and efficient machine learning systems [33, 38, 49, 59].
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{RQ1 (Architecture Efficiency–Quality Balance):} How can a lightweight semantic enrichment pipeline balance internship classification quality with computational efficiency on commodity hardware? This objective evaluates the overall effectiveness of the proposed three-layer architecture by examining the trade-off between semantic processing quality and practical computational cost. Measurements include enrichment consistency, runtime practicality, memory behavior, and frontend responsiveness under realistic operating conditions. This directly tests the thesis claim that meaningful semantic enrichment can be achieved without heavyweight infrastructure or cloud-dependent inference [38, 53].
+
+    \item \textbf{RQ2 (Sentence-Transformer Classification Effectiveness):} How effectively can lightweight sentence-transformer models support internship relevance classification for noisy internship and job postings? This objective evaluates the contribution of the transformer-based semantic classification layer when handling ambiguous or noisy recruitment data that cannot be reliably resolved through deterministic heuristics alone. The evaluation focuses on internship relevance classification quality, semantic ambiguity resolution, and practical inference behavior using lightweight sentence-transformer models [45, 38].
+
+    \item \textbf{RQ3 (Semantic Enrichment Usability Improvement):} How effectively can semantic enrichment techniques improve the usability of internship records collected from heterogeneous online sources? This objective evaluates whether semantic enrichment improves the practical usability of aggregated internship data by reducing vocabulary inconsistency, improving structured categorization, supporting skill extraction, and producing cleaner frontend-consumable internship records. The focus is on semantic consistency, dataset usability, and structured enrichment effectiveness rather than live retrieval benchmarking [15, 21, 49].
+
+    \item \textbf{RQ4 (Heuristic Normalization Automation):} Which heuristic-based normalization strategies can automate the ingestion of inconsistently structured internship data into a unified schema? This objective evaluates the effectiveness of deterministic preprocessing and heuristic normalization for transforming heterogeneous raw recruitment data into a structured canonical schema. Particular emphasis is placed on structural validation, malformed record filtering, metadata normalization, duplicate handling support, and deterministic attribute extraction [11, 40, 49].
+\end{itemize}
+
