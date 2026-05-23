@@ -219,3 +219,21 @@ The primary limitation of the enriched system emerged in highly specialized tech
 
 Nevertheless, the comparative results suggest that semantic enrichment provides meaningful usability benefits for practical internship discovery by reducing vocabulary mismatch and improving the interpretability of heterogeneous listings.
 
+\subsection{Comparison with Deterministic Heuristic Processing}
+
+The addition of transformer-assisted semantic classification to the deterministic heuristic pipeline improved internship relevance classification performance from 0.63 to 0.78 Top-1 accuracy, representing a 24\% relative improvement.
+
+The benefit was most pronounced in semantically ambiguous recruitment scenarios where rule-based lexical matching alone proved insufficient.
+
+Examples included:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Vague titles:} generic role names such as Consultant, Analyst, or Associate, where deterministic heuristics lacked sufficient contextual understanding to distinguish internship relevance or professional domain appropriately.
+    \item \textbf{Compound titles:} multi-context listings such as Software Engineer Intern — Data Platform, where semantic classification improved contextual interpretation beyond isolated keyword anchors.
+    \item \textbf{Employer-specific terminology:} unconventional or organization-specific naming conventions such as Growth Hacker or DevOps Evangelist, where exact lexical heuristics were more likely to misclassify the listing.
+\end{itemize}
+
+The rule-based heuristic categorization layer achieved 0.86 exact-match accuracy, which proved sufficient for baseline frontend filtering and structured discovery. However, the semantic classification layer improved robustness in ambiguity-heavy boundary cases, increasing categorization consistency to 0.89.
+
+These findings indicate that deterministic heuristics provide a strong low-cost baseline, while lightweight transformer-assisted semantic interpretation materially improves classification reliability in noisy heterogeneous internship data.
+
