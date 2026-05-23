@@ -275,3 +275,15 @@ interface Internship {
 }
 \end{verbatim}
 
+\subsection{Taxonomy Selection: The ESCO Framework}
+
+The European Skills, Competences, Qualifications and Occupations (ESCO) framework provides a standardized multilingual classification system designed to describe occupations, skills, competences, and qualifications within the European labor market [17]. ESCO is widely used in recruitment informatics and labor-market analytics because it provides a structured vocabulary for reducing ambiguity in professional terminology and improving interoperability between heterogeneous employment datasets [20, 31].
+
+ESCO separates labor-market knowledge into interrelated conceptual pillars, most notably occupations and skills. This structured decomposition makes it particularly relevant when processing internship and job listing data, where employers frequently describe equivalent competencies using inconsistent terminology. For example, postings may refer to “frontend engineering,” “UI development,” or “React development” while describing closely related professional skill areas.
+
+Although the proposed system does not implement full ontology-level ESCO occupation mapping, the framework serves as an important conceptual reference for the semantic enrichment methodology. Specifically, ESCO informed the design of the internal categorization logic and the construction of curated JSON-based skill reference libraries used during heuristic normalization and semantic enrichment.
+
+This inspiration is particularly relevant for skill normalization. Recruitment data often contains vocabulary inconsistency, abbreviations, overlapping terminology, and informal naming conventions that reduce structured comparability. By adopting the general principle of controlled vocabulary normalization inspired by ESCO, the system improves consistency in extracted skill labeling while avoiding the implementation complexity of full taxonomy alignment.
+
+ESCO is therefore used in this research as a semantic design reference rather than a strict operational dependency. This approach preserves the benefits of standardized recruitment terminology while remaining compatible with the thesis objective of lightweight, practical semantic enrichment on commodity infrastructure.
+
