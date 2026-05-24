@@ -266,38 +266,22 @@ This chapter first defines the structured labeling model used within the interns
 
 These design decisions are grounded in established principles of data integration, semantic normalization, and information extraction, directly addressing the semantic consistency challenges identified in the problem statement [15, 49, 54].
 
-\subsection{Target Schema Definition}
+\subsection{Unified Internship Schema Definition}
 
-To achieve a unified and structured representation of heterogeneous recruitment data, the system requires a clearly defined target schema. External internship data originates from multiple heterogeneous sources, including semi-structured scraped web content and partner-provided JSON datasets with inconsistent schema definitions. Direct frontend consumption of such raw data is impractical without normalization, validation, and structural transformation. The target schema therefore serves as the formal structured representation into which raw records are transformed during the enrichment pipeline [49].
+To achieve a unified representation of heterogeneous recruitment data, the system requires a clearly defined target schema. External internship data originates from multiple sources, including semi-structured scraped web content and externally supplied JSON datasets with inconsistent field names and formatting. Direct frontend use of such raw data is impractical without cleaning, validation, and structural transformation. The target schema therefore defines the common structure into which raw records are transformed during the enrichment pipeline [49].
+The schema is not only a storage format. It also acts as a shared data contract between preprocessing, semantic enrichment, persistence, API delivery, and frontend presentation. By enforcing a consistent representation, the system reduces ambiguity and limits the propagation of data inconsistencies across pipeline stages [15].
+Schema Design Requirements
+The schema design is motivated by three main requirements.
+Record Identity and Source Traceability
+Aggregated recruitment data may contain duplicate or near-duplicate records across scraping cycles. To support stable identification and dataset consistency, each processed internship record requires a unique identifier. When reliable source identifiers are available, they may be preserved; otherwise, stable identifiers are generated from normalized record metadata such as title, company, and location. Source traceability is also preserved through the original listing URL and source platform information, supporting auditing and provenance tracking [10].
+Discovery-Oriented Metadata
+The frontend application requires structured metadata that allows users to browse, filter, and inspect internship listings efficiently. The schema therefore includes standardized attributes such as category labels, extracted skills, location, salary, company information, and cleaned descriptions. These fields support practical filtering, consistent frontend presentation, and student-facing discovery [3].
+Cross-Layer Consistency
+The schema must support interoperability between preprocessing logic, semantic enrichment, JSON persistence, API delivery, and frontend rendering. A consistent structured entity reduces confusion between independently developed components and improves maintainability.
+Internship Schema as an Application Contract
+These requirements are implemented through the final internship record structure consumed by the web application. The Python enrichment pipeline produces records compatible with this schema, while the TypeScript Internship interface enforces the expected structure inside the Next.js frontend.
 
-The schema is not merely a passive storage format; it functions as a formal semantic contract that ensures consistency across ingestion, semantic processing, persistence, and frontend presentation. By enforcing a shared structured representation, the system reduces ambiguity and limits data inconsistency propagation across pipeline stages [15].
-
-Structural Requirements
-
-The schema design is motivated by three primary functional objectives:
-
-Identity and Provenance
-
-Aggregated recruitment data frequently contains duplicate or near-duplicate records across scraping cycles. To support stable identification and dataset consistency, the schema requires a deterministic primary identifier generated from normalized record metadata. Source traceability is additionally preserved through direct reference to the original internship listing URL, supporting auditing, freshness management, and provenance tracking [10].
-
-Structured Discovery Support
-
-The frontend application requires structured metadata that enables users to efficiently browse and filter internship listings. The schema therefore includes standardized attributes such as category labels, extracted skills, location metadata, salary normalization, and company information. These fields support practical faceted interaction and consistent frontend presentation [3].
-
-Cross-Layer Semantic Consistency
-
-The schema must support interoperability between preprocessing logic, semantic enrichment mechanisms, persistence layers, API delivery, and frontend rendering. A consistent structured entity reduces ambiguity between independently evolving application components and improves maintainability.
-
-The Internship Interface as a Formal Contract
-
-These structural requirements are implemented through the TypeScript Internship interface, which serves as the canonical representation of processed internship records throughout the application.
-
-By defining a shared strongly typed structure, the system ensures that all processing stages—from normalization logic and semantic enrichment through API serialization and frontend rendering—operate on a consistent data entity definition. This improves implementation reliability and reduces the risk of malformed data propagation [49].
-
-The principal fields include:
-
-Core Identity and Provenance
-
+\begin{lstlisting}[caption={Principal fields of the Internship schema}]
 id: string — deterministic unique identifier generated from normalized internship metadata
 
 link: string — original internship source URL
@@ -327,10 +311,7 @@ platform: string — originating source platform
 rating: string — employer rating where available
 
 duration?: string — optional internship duration metadata
-
-The formal TypeScript interface is shown in Listing 4.1.
-
-Listing 4.1: The formal TypeScript Internship interface serving as the canonical schema for processed internship records.
+\end{lstlisting}
 
 \subsection{Taxonomy Selection: The ESCO Framework}
 
