@@ -105,15 +105,16 @@
 \input{chapters/chapter6}
 \input{chapters/chapter7}
 
+% References
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{References}
+\renewcommand{\bibname}{References}
+\bibliographystyle{plain}
+\bibliography{references}
+
 % Appendices
 \appendix
 \input{chapters/appendices}
-
-% Bibliography
-\cleardoublepage
-\phantomsection
-\addcontentsline{toc}{chapter}{Bibliography}
-\bibliographystyle{plain}
-\bibliography{references}
 
 \end{document}
