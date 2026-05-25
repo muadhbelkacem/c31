@@ -25,33 +25,25 @@ important because the proposed approach should be practical and reproducible, bu
 problem. The central problem is how heterogeneous internship postings can be semantically structured to
 support reliable, interpretable, and internship-oriented discovery.
 
-
 \section{Research Design}
 
+This thesis follows a design-oriented empirical research approach. The study begins from a practical information-management problem: internship postings collected from online recruitment environments are semi-structured, lexically inconsistent, semantically ambiguous, and frequently mixed with non-internship opportunities. To investigate this problem, the thesis designs a semantic enrichment model, implements it in a prototype system, and evaluates its behavior on noisy internship and job-posting data.
 
-This thesis follows a design-oriented empirical research approach. The study begins from a practical
-information-management problem: internship postings collected from online recruitment environments are semistructured, lexically inconsistent, semantically ambiguous, and frequently mixed with non-internship
-opportunities. To investigate this problem, the thesis designs a semantic enrichment model, implements it in a
-prototype system, and evaluates its behavior on noisy internship and job-posting data.
-The research design is appropriate because the thesis concerns both representation and system behavior. The
-proposed model cannot be evaluated only by describing its architecture; it must be examined through the quality
-of the records it produces, the discovery behavior it supports, the uncertainty signals it exposes, and the
-limitations it demonstrates under noisy real-world posting conditions.
+The research design is appropriate because the thesis concerns both representation and system behavior. The proposed model cannot be evaluated only by describing its architecture; it must be examined through the quality of the records it produces, the discovery behavior it supports, the uncertainty signals it exposes, and the limitations it demonstrates under noisy real-world posting conditions.
+
 The methodological logic of the thesis follows four stages:
-9. Problem analysis: identify structural, lexical, semantic, and quality-related inconsistencies in heterogeneous
-internship postings.
-10. Model design: define a lightweight semantic enrichment model that combines deterministic normalization,
-controlled vocabulary representation, embedding-based semantic interpretation, and uncertainty handling.
-11. Prototype implementation: implement the model as an internship aggregation and discovery artifact that
-supports ingestion, enrichment, storage, and browsing.
-12. Empirical evaluation: compare the enriched system against deterministic and keyword-oriented baselines,
-while examining discovery effectiveness, trustworthiness, and operational boundaries.
 
+\begin{enumerate}
+    \item \textbf{Problem analysis:} identify structural, lexical, semantic, and quality-related inconsistencies in heterogeneous internship postings.
 
-In this design, the software system functions as an experimental vehicle. It allows the proposed semantic
-structuring model to be tested using concrete data transformations, measurable outputs, and observable
-discovery behavior. Therefore, system architecture, schema design, and pipeline implementation are discussed
-in this chapter only insofar as they support the investigation of the research questions.
+    \item \textbf{Model design:} define a lightweight semantic enrichment model that combines deterministic normalization, controlled vocabulary representation, embedding-based semantic interpretation, and uncertainty handling.
+
+    \item \textbf{Prototype implementation:} implement the model as an internship aggregation and discovery artifact that supports ingestion, enrichment, storage, and browsing.
+
+    \item \textbf{Empirical evaluation:} compare the enriched system against deterministic and keyword-oriented baselines, while examining discovery effectiveness, trustworthiness, and operational boundaries.
+\end{enumerate}
+
+In this design, the software system functions as an experimental vehicle. It allows the proposed semantic structuring model to be tested using concrete data transformations, measurable outputs, and observable discovery behavior. Therefore, system architecture, schema design, and pipeline implementation are discussed in this chapter only insofar as they support the investigation of the research questions.
 
 \section{Methodological Mapping to the Research Questions}
 
