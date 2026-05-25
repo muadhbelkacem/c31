@@ -6,6 +6,26 @@ This chapter describes the concrete implementation of the proposed methodology w
 
 The focus is on implementation mechanisms directly reflected in the developed system, translating the methodological architecture defined in Chapter 4 into operational software components. Particular attention is given to how lightweight deterministic processing, transformer-assisted semantic classification, and structured data normalization are integrated to support practical internship aggregation and enrichment on commodity hardware.
 
+\section{Functional Requirements and Use Case Modeling}
+
+This section presents the use case model of the proposed internship discovery system. The model provides a functional view of the system by showing the main actors that interact with the application and the services available to each actor. Since the system is designed to support internship browsing, filtering, saving, and user-specific interaction, the use case model helps clarify the boundaries of the application and the roles of different users.
+
+The main actors identified in the system are the Visitor, the Registered User, and External Services. A visitor represents an unauthenticated user who can access the public internship discovery interface. This actor can browse internship listings, search and filter results, paginate through available opportunities, view role details, and toggle the visual theme of the interface. These functions correspond to the public discovery features of the application, where users can explore enriched internship records without needing an account.
+
+The Registered User extends the visitor role by accessing additional account-related features after authentication. A registered user can sign up or sign in, save internships, manage saved roles, subscribe to internship updates, and manage account settings. These use cases represent personalized functionality that depends on user authentication and persistent user-specific data. For example, saving internships allows users to keep track of relevant opportunities, while managing saved roles provides a way to review or organize previously selected listings.
+
+The View Role Details use case is central to the internship discovery workflow. From this use case, users can access related actions such as viewing similar roles, sharing an internship, and applying to an internship. These interactions support deeper exploration of internship opportunities after the user selects a specific listing. The diagram also shows that subscription functionality may interact with external services, which can support notification or communication-related features.
+
+Overall, the use case model shows that the system separates public browsing functionality from authenticated user functionality. Public users can discover internship opportunities through search, filtering, pagination, and detailed viewing, while registered users gain access to saved roles, subscriptions, and account management. This organization is consistent with the system's objective of providing a structured internship discovery interface supported by enriched internship records and frontend browsing functionality.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{uml/useCaseDiagram.png}
+    \caption{UML use-case diagram of the proposed internship aggregation system.}
+    \label{fig:use_case}
+\end{figure}
+\clearpage
+
 \section{Data Collection and Preprocessing}
 
 This section details the implementation of the data acquisition, normalization, and semantic enrichment pipeline that forms the computational foundation of the system. As established in the methodology chapter, the primary implementation challenge is transforming noisy, heterogeneous internship and job listing data into structured, semantically enriched records suitable for frontend presentation and practical internship discovery.
