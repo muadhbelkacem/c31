@@ -12,7 +12,7 @@ Throughout, the discussion remains grounded in the empirical evidence presented 
 
 \subsection{Error Analysis}
 
-Although the reported results indicate strong practical performance across normalization, semantic classification, enrichment, and application responsiveness, qualitative error analysis remains essential for understanding the limitations of automated internship data processing in heterogeneous recruitment environments [49, 56]. The following discussion examines the principal failure modes observed during evaluation and interprets their implications for the proposed architecture.
+Although the reported results indicate strong practical performance across normalization, semantic classification, enrichment, and application responsiveness, qualitative error analysis remains essential for understanding the limitations of automated internship data processing in heterogeneous recruitment environments \cite{sarawagi2008information, manning2008introduction}. The following discussion examines the principal failure modes observed during evaluation and interprets their implications for the proposed architecture.
 
 \subsubsection*{Extraction Failures and Implicit Information}
 
@@ -20,7 +20,7 @@ A recurring limitation involved information that was only weakly expressed or im
 
 For example, some internship postings described responsibilities such as assisting with deployment workflows, supporting data engineering pipelines, or contributing to cloud-based infrastructure without explicitly naming technical skills such as Python, AWS, Docker, or CI/CD tooling. Because the implemented extraction pipeline relies primarily on controlled vocabulary matching supplemented by lightweight semantic assistance, implicitly assumed competencies remained more difficult to detect reliably.
 
-This reflects a known challenge in recruitment informatics, where employers frequently assume foundational competencies without explicitly enumerating them in the listing text [20, 44]. While deterministic extraction provides strong precision for clearly stated skills, latent requirements remain inherently harder to recover without deeper contextual reasoning or external knowledge integration.
+This reflects a known challenge in recruitment informatics, where employers frequently assume foundational competencies without explicitly enumerating them in the listing text \cite{pappas2022jobbert, karpukhin2020dense}. While deterministic extraction provides strong precision for clearly stated skills, latent requirements remain inherently harder to recover without deeper contextual reasoning or external knowledge integration.
 
 Salary normalization revealed a related limitation. Although deterministic parsing performed strongly for conventional numeric compensation expressions, some postings used unconventional or ambiguous compensation formats that reduced extraction reliability. Examples included monthly salary expressions, partial compensation ranges, narrative phrases such as competitive salary or commensurate with experience, and compensation information embedded in structured metadata not preserved during scraping.
 
@@ -38,7 +38,7 @@ In such cases, even human interpretation may reasonably differ depending on inst
 
 A second ambiguity source involved employer-specific naming conventions. Titles such as Innovation Fellow, Growth Associate, Digital Transformation Trainee, or similarly unconventional labels often provided insufficient lexical evidence for deterministic classification and limited contextual clarity even for lightweight semantic models.
 
-This reflects a broader limitation of compact transformer-based classification: while such models generalize effectively across common semantic patterns, performance naturally degrades when confronted with terminology that is rare, organization-specific, or semantically distant from the operational dataset.
+This reflects a broader limitation of compact transformer-based classification: while such models generalize effectively across common semantic patterns, performance naturally degrades when confronted with terminology that is rare, organization-specific, or semantically distant from the operational dataset \cite{li2020survey, wadden2019entity}.
 
 \subsubsection*{Human Review and High-Ambiguity Cases (Layer C)}
 
@@ -48,7 +48,7 @@ This conceptual Layer C does not represent an automated runtime inference system
 
 This design reflects an important architectural principle: not all ambiguity should be resolved automatically.
 
-In practical deployment scenarios, human reviewers may rely on contextual interpretation, institutional policy, domain expertise, or external reasoning tools to adjudicate borderline cases. The existence of this escalation pathway improves trustworthiness by preventing low-confidence automation from silently producing misleading classifications.
+In practical deployment scenarios, human reviewers may rely on contextual interpretation, institutional policy, domain expertise, or external reasoning tools to adjudicate borderline cases. The existence of this escalation pathway improves trustworthiness by preventing low-confidence automation from silently producing misleading classifications \cite{hunkenschroer2022ethics, humanbias2024}.
 
 \subsubsection*{Discovery and Corpus Limitations}
 
@@ -72,7 +72,7 @@ Future improvements are therefore most likely to emerge from richer corpus expan
 
 \subsection{Trade-offs: Accuracy versus Computational Cost}
 
-The proposed system was explicitly designed to balance semantic capability with operational practicality, reflecting broader principles of efficient AI system design and cost-conscious deployment [53, 38]. The evaluation results illustrate the practical trade-offs between lightweight local processing, deterministic heuristics, and externally hosted large language model workflows.
+The proposed system was explicitly designed to balance semantic capability with operational practicality, reflecting broader principles of efficient AI system design and cost-conscious deployment \cite{ecothink2026, schwartz2020green}. The evaluation results illustrate the practical trade-offs between lightweight local processing, deterministic heuristics, and externally hosted large language model workflows.
 
 \subsubsection*{Marginal Accuracy Gains at Substantially Higher Cost}
 
@@ -207,7 +207,7 @@ The internship listings used in this research were collected from publicly acces
 
 However, public accessibility does not automatically imply unrestricted reuse.
 
-Many online platforms impose restrictions on automated scraping, data extraction, redistribution, or commercial reuse through terms of service, \texttt{robots.txt} directives, or platform-specific access policies. Any production deployment of similar systems would therefore require careful legal review to ensure compliance with applicable contractual obligations and jurisdictional requirements.
+Many online platforms impose restrictions on automated scraping, data extraction, redistribution, or commercial reuse through terms of service, \texttt{robots.txt} directives, or platform-specific access policies. Any production deployment of similar systems would therefore require careful legal review to ensure compliance with applicable contractual obligations and jurisdictional requirements \cite{euiaact2024}.
 
 Privacy considerations also arise from the content of recruitment listings themselves.
 
@@ -226,7 +226,7 @@ Depending on deployment geography, applicable regulatory frameworks may include 
 
 \subsection{Algorithmic Fairness and Bias}
 
-Although the proposed system does not make hiring decisions or evaluate candidates, bias can still emerge through automated listing processing and recommendation behavior.
+Although the proposed system does not make hiring decisions or evaluate candidates, bias can still emerge through automated listing processing and recommendation behavior \cite{raghavan2020mitigating}.
 
 Classification errors, enrichment failures, or corpus imbalances may influence which opportunities become more discoverable to users.
 
@@ -269,7 +269,7 @@ This thesis has presented a lightweight, layered approach to the semantic struct
 
 By combining deterministic heuristic normalization (Layer A), lightweight transformer-assisted semantic classification (Layer B), and human review for unresolved ambiguity (Layer C), the proposed architecture demonstrates that practical semantic internship discovery can be achieved without dependence on heavyweight cloud-hosted inference infrastructure.
 
-This design aligns with broader principles of efficient and sustainable AI system development, often discussed under the umbrella of Green AI, where computational practicality, explainability, and responsible resource usage are prioritized alongside model capability [53, 38].
+This design aligns with broader principles of efficient and sustainable AI system development, often discussed under the umbrella of Green AI, where computational practicality, explainability, and responsible resource usage are prioritized alongside model capability \cite{ecothink2026, schwartz2020green}.
 
 \subsection{Summary of Findings}
 
