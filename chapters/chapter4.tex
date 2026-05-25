@@ -212,6 +212,13 @@ making the outputs of normalization, enrichment, and classification inspectable.
 This schema is therefore central to the new research framing. It is the representation through which
 heterogeneous postings become semantically structured internship records.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{uml/classdiagram.png}
+    \caption{UML class representation of the proposed system’s conceptual core data model.}
+    \label{fig:class_diagram}
+\end{figure}
+\clearpage
 \subsection{Source Traceability and Metadata Consistency}
 
 Because aggregated postings may come from multiple sources, traceability is necessary. The methodology
@@ -252,7 +259,13 @@ The resulting catalog is then stored in a structured format for application-leve
 This workflow supports the MRQ because it transforms heterogeneous postings into semantically consistent,
 interpretable, and discovery-ready representations. It also connects the methodology directly to Chapter 5, where
 the concrete implementation of these workflow stages is described.
-
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{uml/sequenceDiagramFrontend.png}
+    \caption{UML sequence diagram illustrating the high-level interaction between the user and system components.}
+    \label{fig:sequence_diagram}
+\end{figure}
+\clearpage
 \section{Evaluation Methodology}
 
 The evaluation methodology examines whether the proposed semantic enrichment model improves the
