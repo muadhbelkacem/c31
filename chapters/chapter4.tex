@@ -2,269 +2,63 @@
 
 \section{Chapter Introduction}
 
-This chapter presents the research methodology used to design, structure, and evaluate the proposed internship aggregation and semantic enrichment system. It translates the theoretical principles established in Chapter 2 and the implementation environment described in Chapter 3 into a coherent methodological framework covering system requirements, architectural design, data processing workflow, semantic classification, heuristic normalization, and evaluation strategy.
 
-The purpose of this chapter is to define how the proposed lightweight system was conceptually structured and how its effectiveness will be assessed relative to the research questions introduced in Chapter 1. Particular emphasis is placed on balancing semantic processing quality with computational efficiency, reflecting the thesis objective of practical operation on commodity hardware .
-
-\section{System Overview and Functional Methodology}
-
-This chapter establishes the architectural blueprint and methodological framework for the proposed internship aggregation and semantic enrichment system, which constitutes the central technical contribution of this thesis. As established in the problem statement, the primary challenge is transforming noisy, heterogeneous internship and job listing data into structured, usable internship records while maintaining computational efficiency and avoiding reliance on heavyweight cloud-hosted language model infrastructure \cite{doan2012principles, chu2016data, sarawagi2008information}.
-
-To address this challenge, the thesis proposes a hybrid lightweight processing architecture that combines deterministic heuristic normalization with transformer-based semantic classification. This modular design prioritizes maintainability, transparency, and practical deployment on commodity hardware while preserving sufficient semantic expressiveness for internship relevance assessment and enrichment \cite{schwartz2020green, reimers2019sentence, pappas2022jobbert}.
-
-This chapter defines the system's functional requirements, architectural structure, formal data representation model, and the operational workflow governing data ingestion, semantic enrichment, filtering, and frontend delivery. The proposed methodology is grounded in established principles of information extraction, structured data integration, semantic classification, and practical lightweight machine learning system design \cite{chu2016data, sarawagi2008information, rigotti2024fairness, doan2012principles}.
-
-\subsection{Three-Layer Processing Architecture}
-
-To balance semantic processing quality with computational efficiency, the proposed methodology adopts a lightweight three-layer processing architecture for internship data transformation, classification, and enrichment.
-
-The first stage, Layer A (Deterministic Heuristic Processing), handles computationally inexpensive preprocessing tasks through explicit rule-based logic. This includes structural validation, malformed record filtering, field normalization, duplicate detection support, internship-specific keyword heuristics, and rejection of clearly irrelevant professional job postings. Because these operations rely on deterministic rules rather than learned inference, they are transparent, reproducible, and computationally efficient.
-
-The second stage, Layer B (Lightweight Semantic Classification), processes records that require contextual semantic interpretation beyond explicit heuristic matching. This layer uses a lightweight sentence-transformer model (all-MiniLM-L6-v2) to support internship relevance assessment and semantic enrichment for noisy or ambiguous postings whose meaning cannot be reliably resolved through deterministic rules alone.
-
-The third stage, Layer C (Manual Review Flagging and Exception Handling), handles records that remain uncertain after automated processing. Rather than forcing a potentially incorrect automated classification, ambiguous records are flagged using structured review indicators (e.g., needs\_manual\_review) for later inspection during dataset maintenance or evaluation. This layer improves system reliability by separating high-confidence automated decisions from uncertain edge cases.
-
-This layered methodology allows straightforward cases to be handled efficiently while reserving semantic inference for ambiguous records and preserving a controlled exception path for uncertain outcomes. The result is a hybrid architecture that maintains interpretability, computational practicality, and robustness when processing heterogeneous recruitment data.
-
-\subsection{Functional Requirements and Use Cases}
-
-The proposed system is designed around the functional requirements of its intended users and supporting system infrastructure, as illustrated in Figure 4.1. The use-case model defines the operational scope of the internship aggregation platform and captures the primary interactions between end users, authenticated users, and supporting backend services.
-
-Visitor / General User :
-
-The primary public-facing actor is the visitor, who interacts with the platform to discover internship opportunities without requiring authentication. Core functional requirements include:
-
-\begin{itemize}
-\item Browse Internship Listings: Users must be able to navigate the available internship catalog through a structured listing interface.
-\item Search and Filter Internship Records: Users must be able to refine internship exploration using keyword-based search and structured filtering based on metadata such as category, skills, and location.
-\item Pagination and Navigation: The interface must support efficient navigation across larger internship result sets while maintaining responsive interaction.
-\item View Detailed Internship Information: Users must be able to inspect complete internship details, including normalized descriptions, extracted skills, and structured metadata.
-\item Supporting Interaction Features: Additional user-facing capabilities include viewing related roles, sharing internship links, applying to external internship postings, and interface personalization features such as theme switching.
-\end{itemize}
-
-Registered User
-
-Authenticated users extend the public browsing functionality through persistent account-linked capabilities:
-
-\begin{itemize}
-\item Save Internship Opportunities: Users can bookmark internship listings for later access.
-\item Manage Saved Roles: Users can review and organize previously saved internships.
-\item Manage Account Preferences: Users can configure account-linked settings and personalization options.
-\item Subscription Features: Registered users may opt into notification-oriented platform integrations and future alert-based functionality.
-\end{itemize}
-
-Supporting Backend Infrastructure
-
-The system additionally includes backend processing requirements necessary to maintain platform functionality:
-
-\begin{itemize}
-\item Automated Data Ingestion: Internship and job listing data must be collected from heterogeneous external sources.
-\item Normalization and Semantic Enrichment: Raw records must be validated, cleaned, classified, and semantically enriched before deployment to the frontend catalog.
-\item Scheduled Processing Execution: The processing pipeline must support unattended recurring execution for catalog refreshes.
-\item Data Quality Monitoring: Processing workflows must provide logging, validation visibility, and classification monitoring to support reliability and reproducibility.
-\end{itemize}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{uml/useCaseDiagram.png}
-    \caption{UML use-case diagram of the proposed internship aggregation system.}
-    \label{fig:use_case}
-\end{figure}
-\clearpage
-
-\subsection{System Architecture and Component Mapping}
-
-The proposed system is organized into four logical architectural tiers to separate presentation concerns, application communication, semantic processing responsibilities, and persistence mechanisms. This decomposition improves maintainability, modularity, and implementation clarity by reducing coupling between independently evolving system components \cite{chu2016data, pappas2022jobbert}.
-
-Presentation Layer (Frontend Application)
-
-The presentation layer provides the user-facing internship discovery platform implemented using Next.js and React. This layer is responsible for rendering internship data, supporting interactive user functionality, and exposing authenticated application features.
-
-Core responsibilities include:
-
-\begin{itemize}
-\item internship browsing and pagination
-\item keyword-based search and structured filtering
-\item detailed internship viewing
-\item saved internship management for authenticated users
-\item account preference interaction
-\item UI personalization features
-\end{itemize}
-
-The presentation layer remains isolated from backend processing logic and consumes structured internship data exclusively through the application communication layer.
-
-Application Communication Layer (Next.js Route Handlers)
-
-The communication layer acts as the controlled interface between the frontend application and backend data services. Implemented using Next.js server-side route handlers, this layer manages request handling, internship data access coordination, response serialization, and caching behavior.
-
-Its responsibilities include:
-
-\begin{itemize}
-\item handling frontend internship data requests
-\item delegating access to processed internship records
-\item serving structured JSON responses
-\item managing response caching behavior
-\item isolating frontend components from storage implementation details
-\end{itemize}
-
-This architectural separation improves maintainability by preventing frontend logic from depending directly on persistence or enrichment implementation details.
-
-Semantic Processing Layer (Python Enrichment Pipeline)
-
-The semantic processing layer constitutes the computational core of the proposed system and implements the three-layer methodology defined in Section 4.2.1. This layer transforms heterogeneous raw internship and job listing data into structured records suitable for deployment.
-
-Its responsibilities include:
-
-Layer A (Deterministic Heuristic Processing):
-
-structural validation, malformed record filtering, normalization, duplicate handling support, internship-specific rule matching, and explicit rejection of clearly irrelevant non-internship postings.
-
-Layer B (Lightweight Semantic Classification):
-
-context-sensitive internship relevance assessment and semantic enrichment using the lightweight sentence-transformer model (all-MiniLM-L6-v2) for ambiguous records requiring semantic interpretation.
-
-Layer C (Manual Review Flagging and Exception Handling):
-
-identification and structured flagging of uncertain records requiring later inspection through manual review indicators such as needs\_manual\_review.
-
-This layer executes independently from the frontend application runtime and supports automated recurring enrichment workflows.
-
-Data Persistence Layer
-
-The persistence layer manages both public internship catalog delivery and authenticated user application state.
-
-The architecture uses a hybrid persistence strategy:
-
-\begin{itemize}
-\item Static internship catalog: processed internship records exported as structured JSON for efficient frontend consumption
-\item Dynamic application persistence: Supabase-managed PostgreSQL storage for authentication, saved internships, preferences, and account-linked user functionality
-\end{itemize}
-
-This separation balances efficient public internship delivery with transactional support for authenticated user interactions.
-
-This architectural decomposition ensures that changes to frontend behavior, enrichment methodology, persistence mechanisms, or user-facing functionality can be introduced with minimal disruption to unrelated system components.
-
-\subsection{Core Data Model}
-
-The proposed system relies on a structured core data model that defines how internship information moves through acquisition, transformation, storage, and user interaction workflows. This model acts as a formal semantic contract between the ingestion pipeline, persistence layer, and frontend application, ensuring that structured data remains consistent throughout the system lifecycle.
-
-Figure 4.2 presents the conceptual UML representation of the system's principal entities and their relationships.
-
-The architecture distinguishes between raw acquisition entities and normalized operational entities to reflect the staged transformation of heterogeneous recruitment data.
-
-The RawInternship entity represents unprocessed records obtained from scraping sources. These records preserve original source fields such as raw title, company name, location, description, source URL, and scraping metadata prior to transformation.
-
-The DataCleaningService represents the transformation component responsible for converting raw recruitment records into structured internship entities. This stage performs validation, normalization, heuristic filtering, semantic classification, skill extraction, and manual-review exception handling consistent with the three-layer methodology described previously.
-
-The normalized Internship entity serves as the central operational data structure used throughout the application. It contains structured attributes including stable identifiers, normalized titles, company metadata, salary information, descriptions, extracted skills, categorical labels, duration metadata, platform provenance, and application links.
-
-The design of this schema is motivated by three methodological objectives:
-
-\begin{itemize}
-\item Identity and provenance: Stable identifiers support consistent referencing across ingestion cycles while preserving traceability to original recruitment sources \cite{christen2012data}.
-\item Structured discovery support: Explicit metadata such as category labels, extracted skills, salary normalization, and location fields support efficient filtering, browsing, and frontend presentation \cite{manning2008introduction}.
-\item Cross-layer consistency: Shared structured entities ensure compatibility between ingestion logic, semantic enrichment, API delivery, and frontend rendering components \cite{chu2016data}.
-\end{itemize}
-
-The conceptual model additionally includes user-oriented entities such as User and SavedInternship, representing authenticated platform functionality including saved internship persistence and account-linked interaction behavior.
-
-Although Figure 4.2 presents a conceptual UML abstraction rather than a strict implementation class hierarchy, it provides a useful representation of the principal data entities and their interactions within the proposed system.
-
-Figure 4.2: UML class representation of the proposed system's conceptual core data model.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{uml/classdiagram.png}
-    \caption{UML class representation of the proposed system's conceptual core data model.}
-    \label{fig:class_diagram}
-\end{figure}
-\clearpage
-
-\subsection{Application Interaction Flow}
-
-Figure 4.3 illustrates the high-level interaction sequence between the user, frontend application, and backend persistence services during normal platform operation. The interaction model follows an asynchronous request-response architecture typical of modern web applications.
-
-The sequence begins when a user visits the internship platform, triggering the frontend application to load the available internship catalog for browsing. Structured internship data is retrieved through backend application services and rendered to the user interface.
-
-When a user selects a specific internship, the frontend requests the corresponding structured internship record and presents the normalized internship details, including metadata such as title, company, description, skills, salary information, and application links.
-
-Authenticated interaction is additionally supported through the user account workflow. During login, authentication credentials are submitted through the frontend and validated through the Supabase authentication infrastructure, which returns a session token upon successful verification.
-
-Registered users may also persist saved internship interactions. When a user bookmarks an internship, the frontend communicates with the persistence layer to store the user--internship association, after which confirmation is returned to the interface.
-
-This interaction architecture separates frontend presentation behavior from backend persistence responsibilities while supporting responsive user interaction and authenticated account-linked functionality.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{uml/sequenceDiagramFrontend.png}
-    \caption{UML sequence diagram illustrating the high-level interaction between the user and system components.}
-    \label{fig:sequence_diagram}
-\end{figure}
-\clearpage
-
-\subsection{Ingestion and Semantic Enrichment Workflow}
-
-The data ingestion and enrichment pipeline constitutes the methodological core of the proposed system and directly supports the research objective of balancing semantic processing effectiveness with computational efficiency. The pipeline follows a staged transformation methodology in which raw heterogeneous recruitment data is progressively refined into structured internship records using the most appropriate processing mechanism for each task \cite{doan2012principles, chu2016data}.
-
-The workflow is implemented through the previously defined three-layer processing architecture.
-
-Layer A: Deterministic Heuristic Processing
-
-The first stage performs high-confidence preprocessing using explicit rule-based operations that incur negligible inference cost. This layer prioritizes speed, transparency, and reproducibility.
-
-Primary operations include:
-
-Structural validation:
-
-Raw records are checked for required field integrity before transformation begins. Malformed or incomplete records are excluded from further processing to preserve downstream consistency.
-
-Text cleaning and normalization:
-
-Raw recruitment text is normalized through whitespace cleanup, formatting correction, and removal of residual markup artifacts to reduce surface-level variability \cite{doan2012principles}.
-
-Deterministic attribute extraction:
-
-Structured attributes such as salary information and normalized metadata are extracted using explicit parsing logic where pattern-based extraction is reliable.
-
-Stable identifier generation:
-
-A deterministic identifier is generated from normalized record metadata to support consistent record referencing and duplicate management across ingestion cycles \cite{christen2012data, cormack2009reciprocal}.
-
-Initial heuristic filtering:
-
-Clearly irrelevant non-internship postings are excluded through explicit internship-oriented keyword and structural heuristics.
-
-Layer B: Lightweight Semantic Classification
-
-The second stage handles semantically ambiguous records that cannot be reliably resolved through deterministic heuristics alone.
-
-This layer applies lightweight sentence-transformer semantic inference using the all-MiniLM-L6-v2 model \cite{reimers2019sentence}. The model supports contextual internship relevance assessment and semantic enrichment tasks where explicit rule matching is insufficient.
-
-Unlike heavyweight cloud-hosted language model pipelines, this approach executes locally and avoids per-request inference cost, preserving the lightweight design objectives of the system \cite{schwartz2020green, menghani2023efficient}.
-
-Layer C: Manual Review Flagging and Exception Handling
-
-The final stage handles records whose classification confidence remains uncertain after automated processing.
-
-Rather than forcing unreliable automated categorization, ambiguous records are flagged for later human inspection using structured review indicators (e.g., needs\_manual\_review). This provides a controlled exception mechanism that improves dataset reliability while preserving automated pipeline throughput.
-
-Export and Deployment Preparation
-
-After processing, accepted internship records are serialized into the structured JSON catalog consumed by the frontend application.
-
-This deployment-oriented export model separates computational enrichment from user-facing application delivery, ensuring that expensive semantic processing occurs during scheduled ingestion rather than during live user interaction.
-
-This staged methodology preserves interpretability, computational practicality, and semantic robustness while maintaining compatibility with recurring automated data refresh workflows.
-
-\section{Semantic Categorization and Structured Labeling}
-
-This chapter defines the semantic categorization strategy used to transform heterogeneous internship and job listing data into a consistent structured representation suitable for automated processing and frontend presentation.
-
-Because recruitment data originates from multiple external platforms with inconsistent naming conventions, ambiguous terminology, and variable formatting, the system requires an internal semantic labeling strategy that supports normalization, classification, and structured filtering.
-
-This chapter first defines the structured labeling model used within the internship dataset, including normalized metadata fields and extracted semantic attributes. It then explains the categorization strategy used to group heterogeneous internship postings into consistent application-facing categories. Finally, it describes how semantic normalization reduces vocabulary inconsistency and improves structured discovery across noisy recruitment data.
-
-These design decisions are grounded in established principles of data integration, semantic normalization, and information extraction, directly addressing the semantic consistency challenges identified in the problem statement \cite{chu2016data, sarawagi2008information, senger2024deep}.
+This chapter presents the research methodology used to design and evaluate the proposed semantic enrichment
+model for heterogeneous internship postings. Building on the theoretical foundations discussed in Chapter 2 and
+the technological environment described in Chapter 3, the chapter defines how noisy internship and job-posting
+data are transformed into structured, interpretable, and discovery-ready records.
+The chapter does not treat the prototype application as the main research contribution. Instead, the prototype is
+used as the methodological artifact through which the proposed semantic structuring approach is implemented,
+observed, and evaluated. The research focus is the transformation of heterogeneous internship postings into a
+consistent representation that can support internship-oriented information retrieval beyond keyword-based
+search.
+The methodology is organized around five connected concerns. First, the chapter defines the research design
+used to connect the research questions to the implemented artifact. Second, it explains how heterogeneous
+internship data are inspected and represented as a research problem. Third, it presents the semantic structuring
+model, including deterministic normalization, controlled skill and category representation, embedding-based
+semantic interpretation, and uncertainty-aware review handling. Fourth, it defines the structured internship
+representation used as the target output of the enrichment process. Finally, it establishes the evaluation
+methodology used to compare the proposed model with simpler keyword-oriented and deterministic
+configurations.
+The lightweight nature of the system is treated as a design constraint and evaluation condition. It remains
+important because the proposed approach should be practical and reproducible, but it is not the central research
+problem. The central problem is how heterogeneous internship postings can be semantically structured to
+support reliable, interpretable, and internship-oriented discovery.
+
+
+\section{Research Design}
+
+
+This thesis follows a design-oriented empirical research approach. The study begins from a practical
+information-management problem: internship postings collected from online recruitment environments are semistructured, lexically inconsistent, semantically ambiguous, and frequently mixed with non-internship
+opportunities. To investigate this problem, the thesis designs a semantic enrichment model, implements it in a
+prototype system, and evaluates its behavior on noisy internship and job-posting data.
+The research design is appropriate because the thesis concerns both representation and system behavior. The
+proposed model cannot be evaluated only by describing its architecture; it must be examined through the quality
+of the records it produces, the discovery behavior it supports, the uncertainty signals it exposes, and the
+limitations it demonstrates under noisy real-world posting conditions.
+The methodological logic of the thesis follows four stages:
+9. Problem analysis: identify structural, lexical, semantic, and quality-related inconsistencies in heterogeneous
+internship postings.
+10. Model design: define a lightweight semantic enrichment model that combines deterministic normalization,
+controlled vocabulary representation, embedding-based semantic interpretation, and uncertainty handling.
+11. Prototype implementation: implement the model as an internship aggregation and discovery artifact that
+supports ingestion, enrichment, storage, and browsing.
+12. Empirical evaluation: compare the enriched system against deterministic and keyword-oriented baselines,
+while examining discovery effectiveness, trustworthiness, and operational boundaries.
+
+
+In this design, the software system functions as an experimental vehicle. It allows the proposed semantic
+structuring model to be tested using concrete data transformations, measurable outputs, and observable
+discovery behavior. Therefore, system architecture, schema design, and pipeline implementation are discussed
+in this chapter only insofar as they support the investigation of the research questions.
+
+\section{Methodological Mapping to the Research Questions}
+
+
+The revised research questions require Chapter 4 to explain not only what the system does, but how each
+methodological component contributes to the study. The following mapping connects the methodology to the
+new MRQ and sub-questions.
 
 \subsection{Unified Internship Schema Definition}
 
