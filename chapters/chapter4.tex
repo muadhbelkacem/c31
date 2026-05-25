@@ -273,15 +273,94 @@ claim. The main evaluation question is whether the proposed model produces struc
 reliable, interpretable, and useful for internship-oriented discovery than keyword-oriented or purely
 deterministic alternatives.
 
-\section{Chapter Conclusion}
-\section{Chapter Conclusion}
-\section{Chapter Conclusion}
-\section{Chapter Conclusion}
-\section{Chapter Conclusion}
-\section{Chapter Conclusion}
-\section{Chapter Conclusion}
+\subsection{Evaluation Objectives and Research Question Mapping}
+
+The evaluation methodology is organized around the revised research questions. Each research question is linked to a specific evaluation objective so that the empirical assessment directly reflects the methodological aims of the thesis. Table~\ref{tab:evaluation-objectives-rq-mapping} summarizes this mapping.
+
+\begin{table}[H]
+    \centering
+    \caption{Evaluation objectives and research question mapping}
+    \label{tab:evaluation-objectives-rq-mapping}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{p{0.15\textwidth} p{0.78\textwidth}}
+        \hline
+        \textbf{RQ} & \textbf{Evaluation objective} \\
+        \hline
+
+        \textbf{RQ1} &
+        Identify and characterize the main forms of heterogeneity and ambiguity found in the dataset, including structural inconsistency, lexical variation, semantic ambiguity, and metadata quality problems. \\
+
+        \textbf{RQ2} &
+        Assess whether the combined model of normalization, controlled vocabulary representation, category assignment, and embedding-based interpretation produces coherent structured internship records. \\
+
+        \textbf{RQ3} &
+        Compare the enriched representation against keyword-oriented or deterministic baselines using discovery-focused measures such as relevance, coherence, filtering quality, and interpretability. \\
+
+        \textbf{RQ4} &
+        Evaluate how uncertainty is represented through confidence scores, disagreement cases, ambiguous labels, and manual-review flags. \\
+
+        \textbf{RQ5} &
+        Analyze the methodological and operational limits of the lightweight enrichment approach, including difficult posting types, incomplete information, domain diversity, and local execution feasibility. \\
+
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Ground Truth Construction}
+
+A manually inspected evaluation reference is required because internship relevance cannot be evaluated only from source metadata. The evaluation subset should include clear internships, clear non-internships, ambiguous cases, and records with inconsistent or incomplete metadata. This makes the reference useful for testing both classification correctness and uncertainty handling.
+
+Manual inspection should compare the raw posting with the enriched output. The reviewer should check whether the final internship decision is reasonable, whether the skills reflect visible content, whether the category is coherent, whether salary and location information are preserved correctly, and whether ambiguous cases are properly marked for review.
+
+This approach is suitable for a Master thesis because the goal is not to create a large public benchmark. The goal is to evaluate whether the proposed semantic structuring model behaves reliably on representative noisy internship data. The manual reference also supports error analysis in Chapter 6 and discussion of validity in Chapter 7.
+
+\subsection{Baseline Configurations}
+
+The evaluation should compare the full semantic enrichment model against simpler alternatives. This helps isolate the added value of semantic structuring.
+
+\begin{itemize}
+    \item \textbf{Keyword-oriented baseline:} represents conventional lexical discovery, where relevance depends mainly on exact terms such as internship, intern, student, trainee, or placement.
+
+    \item \textbf{Deterministic baseline:} uses rule-based normalization and heuristic filtering without embedding-based semantic interpretation.
+
+    \item \textbf{Full semantic enrichment model:} combines deterministic normalization, controlled skill/category representation, embedding-based interpretation, and uncertainty-aware manual-review handling.
+
+    \item \textbf{Exploratory LLM reference:} may be used as a contextual comparison, but it should be described as exploratory rather than as a formal production benchmark.
+\end{itemize}
+
+The comparison should show whether semantic enrichment improves discovery quality and representation coherence beyond simpler approaches. It should also show where the lightweight approach remains limited.
+
+\subsection{Metrics}
+
+The revised evaluation should use several categories of metrics because the thesis studies representation, discovery, uncertainty, and operational boundaries.
+
+\begin{itemize}
+    \item \textbf{Classification metrics:} precision, recall, F1-score, Top-1 accuracy, or Top-3 accuracy where applicable, used to assess internship relevance classification.
+
+    \item \textbf{Discovery metrics:} Precision@5, Hit Rate@5, NDCG@10, or similar measures used to evaluate whether enriched records improve the ranking or surfacing of relevant internships.
+
+    \item \textbf{Enrichment quality indicators:} schema completeness, skill extraction consistency, category coherence, salary normalization correctness, date extraction correctness, and metadata preservation.
+
+    \item \textbf{Uncertainty indicators:} proportion of manual-review cases, low-confidence decisions, rule/semantic disagreement cases, and ambiguous records correctly prevented from being overconfidently accepted.
+
+    \item \textbf{Operational feasibility indicators:} processing throughput, runtime, memory practicality, frontend responsiveness, and cost or dependency comparison with heavier LLM-based processing.
+\end{itemize}
+
+The word usability should be used carefully. Unless a formal user study is conducted with students or real users, the evaluation should avoid strong claims about user experience. The more accurate terms are discovery effectiveness, structured discovery quality, coherence, and interpretability.
+
+\subsection{Operational Feasibility Measures}
+
+Operational feasibility remains part of the evaluation, but its role changes under the new research framing. It should no longer be presented as the main research question. Instead, it supports RQ5 by identifying the boundary conditions of lightweight semantic enrichment.
+
+The evaluation may therefore report local execution time, approximate listings processed per second, CPU-only feasibility, frontend loading behavior, and cost comparison with external LLM-based workflows. These measures help demonstrate whether the proposed model can remain practical under realistic student-project or small-platform constraints.
+
+However, these operational measures should be interpreted as supporting evidence. The primary intellectual claim remains that semantic structuring can improve the representation and discovery of heterogeneous internship postings while preserving interpretability and manageable complexity.
 
 
-\subsection{Methodological Mapping to the Research Questions}
-\subsection{Methodological Mapping to the Research Questions}
-\subsection{Methodological Mapping to the Research Questions}
+\section{Chapter Conclusion}
+
+This chapter has defined the revised methodology of the thesis. It reframed the methodology around the semantic structuring of heterogeneous internship postings rather than around the software artifact alone. The chapter explained the design-oriented empirical research approach, the analysis of data heterogeneity, the layered semantic enrichment model, the structured internship representation, the processing workflow, and the evaluation design.
+
+The proposed methodology combines deterministic normalization, controlled skill and category representation, lightweight embedding-based semantic interpretation, and uncertainty-aware manual-review handling. This combination is designed to transform noisy internship and job-posting data into structured records that are more consistent, interpretable, and suitable for internship-oriented discovery.
+
+The evaluation framework defined in this chapter aligns the methodology with the revised main research question and RQ1--RQ5. It examines heterogeneity, semantic structuring behavior, discovery effectiveness, uncertainty handling, and operational boundaries. These methodological decisions provide the foundation for Chapter 5, which describes the concrete implementation of the enrichment model, and Chapter 6, which evaluates its empirical behavior.
