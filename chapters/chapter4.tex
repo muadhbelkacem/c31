@@ -12,7 +12,7 @@ This chapter establishes the architectural blueprint and methodological framewor
 
 To address this challenge, the thesis proposes a hybrid lightweight processing architecture that combines deterministic heuristic normalization with transformer-based semantic classification. This modular design prioritizes maintainability, transparency, and practical deployment on commodity hardware while preserving sufficient semantic expressiveness for internship relevance assessment and enrichment \cite{schwartz2020green, reimers2019sentence, pappas2022jobbert}.
 
-This chapter defines the system’s functional requirements, architectural structure, formal data representation model, and the operational workflow governing data ingestion, semantic enrichment, filtering, and frontend delivery. The proposed methodology is grounded in established principles of information extraction, structured data integration, semantic classification, and practical lightweight machine learning system design \cite{chu2016data, sarawagi2008information, euiaact2024, doan2012principles}.
+This chapter defines the system's functional requirements, architectural structure, formal data representation model, and the operational workflow governing data ingestion, semantic enrichment, filtering, and frontend delivery. The proposed methodology is grounded in established principles of information extraction, structured data integration, semantic classification, and practical lightweight machine learning system design \cite{chu2016data, sarawagi2008information, rigotti2024fairness, doan2012principles}.
 
 \subsection{Three-Layer Processing Architecture}
 
@@ -148,7 +148,7 @@ This architectural decomposition ensures that changes to frontend behavior, enri
 
 The proposed system relies on a structured core data model that defines how internship information moves through acquisition, transformation, storage, and user interaction workflows. This model acts as a formal semantic contract between the ingestion pipeline, persistence layer, and frontend application, ensuring that structured data remains consistent throughout the system lifecycle.
 
-Figure 4.2 presents the conceptual UML representation of the system’s principal entities and their relationships.
+Figure 4.2 presents the conceptual UML representation of the system's principal entities and their relationships.
 
 The architecture distinguishes between raw acquisition entities and normalized operational entities to reflect the staged transformation of heterogeneous recruitment data.
 
@@ -170,12 +170,12 @@ The conceptual model additionally includes user-oriented entities such as User a
 
 Although Figure 4.2 presents a conceptual UML abstraction rather than a strict implementation class hierarchy, it provides a useful representation of the principal data entities and their interactions within the proposed system.
 
-Figure 4.2: UML class representation of the proposed system’s conceptual core data model.
+Figure 4.2: UML class representation of the proposed system's conceptual core data model.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.9\textwidth]{uml/classdiagram.png}
-    \caption{UML class representation of the proposed system’s conceptual core data model.}
+    \caption{UML class representation of the proposed system's conceptual core data model.}
     \label{fig:class_diagram}
 \end{figure}
 \clearpage
@@ -190,7 +190,7 @@ When a user selects a specific internship, the frontend requests the correspondi
 
 Authenticated interaction is additionally supported through the user account workflow. During login, authentication credentials are submitted through the frontend and validated through the Supabase authentication infrastructure, which returns a session token upon successful verification.
 
-Registered users may also persist saved internship interactions. When a user bookmarks an internship, the frontend communicates with the persistence layer to store the user–internship association, after which confirmation is returned to the interface.
+Registered users may also persist saved internship interactions. When a user bookmarks an internship, the frontend communicates with the persistence layer to store the user--internship association, after which confirmation is returned to the interface.
 
 This interaction architecture separates frontend presentation behavior from backend persistence responsibilities while supporting responsive user interaction and authenticated account-linked functionality.
 
@@ -240,7 +240,7 @@ The second stage handles semantically ambiguous records that cannot be reliably 
 
 This layer applies lightweight sentence-transformer semantic inference using the all-MiniLM-L6-v2 model \cite{reimers2019sentence}. The model supports contextual internship relevance assessment and semantic enrichment tasks where explicit rule matching is insufficient.
 
-Unlike heavyweight cloud-hosted language model pipelines, this approach executes locally and avoids per-request inference cost, preserving the lightweight design objectives of the system \cite{schwartz2020green, ecothink2026}.
+Unlike heavyweight cloud-hosted language model pipelines, this approach executes locally and avoids per-request inference cost, preserving the lightweight design objectives of the system \cite{schwartz2020green, menghani2023efficient}.
 
 Layer C: Manual Review Flagging and Exception Handling
 
@@ -264,7 +264,7 @@ Because recruitment data originates from multiple external platforms with incons
 
 This chapter first defines the structured labeling model used within the internship dataset, including normalized metadata fields and extracted semantic attributes. It then explains the categorization strategy used to group heterogeneous internship postings into consistent application-facing categories. Finally, it describes how semantic normalization reduces vocabulary inconsistency and improves structured discovery across noisy recruitment data.
 
-These design decisions are grounded in established principles of data integration, semantic normalization, and information extraction, directly addressing the semantic consistency challenges identified in the problem statement \cite{chu2016data, sarawagi2008information, lsbillms2026}.
+These design decisions are grounded in established principles of data integration, semantic normalization, and information extraction, directly addressing the semantic consistency challenges identified in the problem statement \cite{chu2016data, sarawagi2008information, senger2024deep}.
 
 \subsection{Unified Internship Schema Definition}
 
@@ -282,42 +282,42 @@ Internship Schema as an Application Contract
 These requirements are implemented through the final internship record structure consumed by the web application. The Python enrichment pipeline produces records compatible with this schema, while the TypeScript Internship interface enforces the expected structure inside the Next.js frontend.
 
 \begin{lstlisting}[caption={Principal fields of the Internship schema}]
-id: string — deterministic unique identifier generated from normalized internship metadata
+id: string -- deterministic unique identifier generated from normalized internship metadata
 
-link: string — original internship source URL
+link: string -- original internship source URL
 
 Structured Discovery Attributes
 
-category: string — application-facing internship domain category
+category: string -- application-facing internship domain category
 
-skills: string[] — extracted skill labels
+skills: string[] -- extracted skill labels
 
-location: string — normalized location metadata
+location: string -- normalized location metadata
 
-salary: string — cleaned salary representation
+salary: string -- cleaned salary representation
 
 Additional Metadata
 
-title: string — normalized internship title
+title: string -- normalized internship title
 
-description: string — cleaned internship description
+description: string -- cleaned internship description
 
-company: string — employer name
+company: string -- employer name
 
-job\_age: string — posting age or publication timing metadata
+job\_age: string -- posting age or publication timing metadata
 
-platform: string — originating source platform
+platform: string -- originating source platform
 
-rating: string — employer rating where available
+rating: string -- employer rating where available
 
-duration?: string — optional internship duration metadata
+duration?: string -- optional internship duration metadata
 \end{lstlisting}
 
 \subsection{Taxonomy Selection: The ESCO Framework}
 
 The European Skills, Competences, Qualifications and Occupations (ESCO) framework provides a standardized multilingual classification system designed to describe occupations, skills, competences, and qualifications within the European labor market \cite{esco2024}. ESCO is widely used in recruitment informatics and labor-market analytics because it provides a structured vocabulary for reducing ambiguity in professional terminology and improving interoperability between heterogeneous employment datasets \cite{giabelli2021skills, pappas2022jobbert}.
 
-ESCO separates labor-market knowledge into interrelated conceptual pillars, most notably occupations and skills. This structured decomposition makes it particularly relevant when processing internship and job listing data, where employers frequently describe equivalent competencies using inconsistent terminology. For example, postings may refer to “frontend engineering,” “UI development,” or “React development” while describing closely related professional skill areas.
+ESCO separates labor-market knowledge into interrelated conceptual pillars, most notably occupations and skills. This structured decomposition makes it particularly relevant when processing internship and job listing data, where employers frequently describe equivalent competencies using inconsistent terminology. For example, postings may refer to ``frontend engineering,'' ``UI development,'' or ``React development'' while describing closely related professional skill areas.
 
 Although the proposed system does not implement full ontology-level ESCO occupation mapping, the framework serves as an important conceptual reference for the semantic enrichment methodology. Specifically, ESCO informed the design of the internal categorization logic and the construction of curated JSON-based skill reference libraries used during heuristic normalization and semantic enrichment.
 
@@ -331,7 +331,7 @@ While ESCO provides a useful conceptual reference for standardized occupational 
 
 A full ontology-driven occupation hierarchy would introduce unnecessary implementation complexity for the scope of this system, particularly given the variability and ambiguity of internship data originating from heterogeneous external sources. Instead, the enrichment pipeline uses curated internal JSON-based semantic reference libraries that support practical classification, skill normalization, and structured filtering.
 
-This internal categorization strategy is informed by ESCO’s principle of controlled vocabulary normalization but is intentionally simplified to support lightweight deployment and maintainable domain adaptation.
+This internal categorization strategy is informed by ESCO's principle of controlled vocabulary normalization but is intentionally simplified to support lightweight deployment and maintainable domain adaptation.
 
 The categorization framework is implemented through curated semantic reference resources including domain keyword mappings, internship classification rules, negative role exclusion patterns, and structured skill libraries.
 
@@ -363,35 +363,35 @@ A central challenge in heterogeneous recruitment data processing is the semantic
 
 The proposed system addresses this semantic gap through a layered semantic normalization strategy informed by both standardized recruitment terminology principles and practical lightweight enrichment methods.
 
-The first level of this strategy is controlled semantic normalization. Inspired by frameworks such as ESCO, the system reduces vocabulary inconsistency by aligning heterogeneous employer terminology with internally curated semantic reference libraries \cite{esco2024, lsbillms2026}. This improves consistency in extracted skills, domain categorization, and structured metadata generation without requiring full ontology-level taxonomy enforcement.
+The first level of this strategy is controlled semantic normalization. Inspired by frameworks such as ESCO, the system reduces vocabulary inconsistency by aligning heterogeneous employer terminology with internally curated semantic reference libraries \cite{esco2024, senger2024deep}. This improves consistency in extracted skills, domain categorization, and structured metadata generation without requiring full ontology-level taxonomy enforcement.
 
 The second level is internal categorization and enrichment abstraction. Raw internship and job descriptions often contain highly specific or inconsistent terminology unsuitable for direct frontend presentation or structured filtering. The enrichment pipeline therefore transforms noisy source language into stable internal categories and normalized skill labels better suited for application-level discovery and user-facing browsing \cite{chu2016data, sarawagi2008information}.
 
 The third level is context-aware semantic classification through lightweight transformer inference. Deterministic heuristics alone cannot reliably interpret ambiguous terminology or context-dependent internship descriptions. The semantic classification layer therefore provides contextual interpretation where rule-based normalization is insufficient, improving classification robustness for noisy or semantically unclear postings \cite{reimers2019sentence, schwartz2020green}.
 
-Rather than addressing the semantic gap through expensive live query-time semantic retrieval, the proposed methodology resolves semantic inconsistency during scheduled enrichment and dataset transformation. This shifts computational complexity away from user interaction and supports the thesis objective of lightweight, practical semantic processing on commodity hardware \cite{schwartz2020green, ecothink2026}.
+Rather than addressing the semantic gap through expensive live query-time semantic retrieval, the proposed methodology resolves semantic inconsistency during scheduled enrichment and dataset transformation. This shifts computational complexity away from user interaction and supports the thesis objective of lightweight, practical semantic processing on commodity hardware \cite{schwartz2020green, menghani2023efficient}.
 
 \section{Evaluation Methodology}
 
 This section defines the framework for empirically evaluating the proposed internship aggregation and semantic enrichment system. The evaluation methodology examines extraction reliability, semantic normalization effectiveness, computational efficiency, and practical operational performance under commodity hardware constraints.
 
-The evaluation design is grounded in established principles of Natural Language Processing (NLP), information extraction, and software systems evaluation \cite{chu2016data, sarawagi2008information, thomas2026validity}. Particular emphasis is placed on evaluation validity, ensuring that the chosen measurements accurately reflect the semantic processing quality and practical system behavior being investigated \cite{thomas2026validity}.
+The evaluation design is grounded in established principles of Natural Language Processing (NLP), information extraction, and software systems evaluation \cite{chu2016data, sarawagi2008information, voorhees2005trec}. Particular emphasis is placed on evaluation validity, ensuring that the chosen measurements accurately reflect the semantic processing quality and practical system behavior being investigated \cite{voorhees2005trec}.
 
 The methodology formalizes the evaluation objectives, links them to the research questions, defines the reference dataset and benchmarking conditions, introduces both quantitative and qualitative assessment criteria, and establishes the experimental configurations necessary to examine the trade-off between semantic effectiveness and computational cost.
 
-Because the thesis explicitly targets lightweight practical deployment rather than large-scale cloud inference, the evaluation additionally considers computational efficiency and resource practicality in alignment with Green AI principles \cite{ecothink2026}.
+Because the thesis explicitly targets lightweight practical deployment rather than large-scale cloud inference, the evaluation additionally considers computational efficiency and resource practicality in alignment with Green AI principles \cite{menghani2023efficient}.
 
 \subsection{Evaluation Objectives}
 
 The evaluation is designed to assess both the semantic output quality and the practical operational characteristics of the proposed internship aggregation and enrichment system. The primary objective is to determine whether the proposed lightweight three-layer architecture can achieve meaningful semantic enrichment and internship classification while remaining computationally practical for deployment on commodity hardware.
 
-The evaluation is explicitly structured around the four research questions defined in Chapter 1, with each question mapped to measurable experimental objectives grounded in prior literature on information extraction, semantic processing, and efficient machine learning systems \cite{bruch2023analysis, schwartz2020green, sarawagi2008information, thomas2026validity}.
+The evaluation is explicitly structured around the four research questions defined in Chapter 1, with each question mapped to measurable experimental objectives grounded in prior literature on information extraction, semantic processing, and efficient machine learning systems \cite{bruch2023analysis, schwartz2020green, sarawagi2008information, voorhees2005trec}.
 
-RQ1 (Architecture Efficiency–Quality Balance)
+RQ1 (Architecture Efficiency--Quality Balance)
 
 How can a lightweight semantic enrichment pipeline balance internship classification quality with computational efficiency on commodity hardware?
 
-This objective evaluates the overall effectiveness of the proposed three-layer architecture by examining the trade-off between semantic processing quality and practical computational cost. Measurements include enrichment consistency, runtime practicality, memory behavior, and frontend responsiveness under realistic operating conditions. This directly tests the thesis claim that meaningful semantic enrichment can be achieved without heavyweight infrastructure or cloud-dependent inference \cite{schwartz2020green, ecothink2026}.
+This objective evaluates the overall effectiveness of the proposed three-layer architecture by examining the trade-off between semantic processing quality and practical computational cost. Measurements include enrichment consistency, runtime practicality, memory behavior, and frontend responsiveness under realistic operating conditions. This directly tests the thesis claim that meaningful semantic enrichment can be achieved without heavyweight infrastructure or cloud-dependent inference \cite{schwartz2020green, menghani2023efficient}.
 
 RQ2 (Sentence-Transformer Classification Effectiveness)
 
@@ -415,7 +415,7 @@ This objective evaluates the effectiveness of deterministic preprocessing and he
 
 A reliable evaluation reference is necessary to assess the semantic processing quality and practical behavior of the proposed system. Because the thesis focuses on lightweight applied system development rather than large-scale benchmark creation, the evaluation uses a manually inspected representative reference subset rather than a formal externally annotated benchmark corpus.
 
-The reference evaluation process was designed to support qualitative correctness assessment, structured output verification, comparative pipeline analysis, and practical performance observation \cite{christen2012data, sarawagi2008information, thomas2026validity}.
+The reference evaluation process was designed to support qualitative correctness assessment, structured output verification, comparative pipeline analysis, and practical performance observation \cite{christen2012data, sarawagi2008information, voorhees2005trec}.
 
 Evaluation Dataset and Reference Construction
 
@@ -478,11 +478,11 @@ Measured characteristics include:
 \item cache-assisted browsing responsiveness after initial frontend data loading
 \end{itemize}
 
-Because the thesis emphasizes lightweight deployment practicality, these operational observations serve as an important complement to semantic correctness evaluation \cite{schwartz2020green, ecothink2026}.
+Because the thesis emphasizes lightweight deployment practicality, these operational observations serve as an important complement to semantic correctness evaluation \cite{schwartz2020green, menghani2023efficient}.
 
 \subsection{Metrics}
 
-The evaluation employs a multi-dimensional set of quantitative and qualitative metrics to assess both semantic output quality and operational practicality. Because the proposed system combines deterministic heuristics, lightweight semantic classification, and applied frontend deployment, no single metric is sufficient to capture overall system effectiveness \cite{chu2016data, bruch2023analysis, thomas2026validity}.
+The evaluation employs a multi-dimensional set of quantitative and qualitative metrics to assess both semantic output quality and operational practicality. Because the proposed system combines deterministic heuristics, lightweight semantic classification, and applied frontend deployment, no single metric is sufficient to capture overall system effectiveness \cite{chu2016data, bruch2023analysis, voorhees2005trec}.
 
 Extraction and Classification Quality
 
@@ -522,7 +522,7 @@ Evaluation of whether uncertain or semantically ambiguous listings are appropria
 
 Operational Performance Metrics
 
-For evaluating practical deployment feasibility (RQ1), the study includes lightweight operational performance measurements aligned with efficient NLP and Green AI evaluation principles \cite{schwartz2020green, ecothink2026}.
+For evaluating practical deployment feasibility (RQ1), the study includes lightweight operational performance measurements aligned with efficient NLP and Green AI evaluation principles \cite{schwartz2020green, menghani2023efficient}.
 
 Pipeline Runtime Observation:
 
@@ -596,7 +596,7 @@ explainability characteristics
 
 practical computational and infrastructure implications
 
-Because the thesis explicitly targets lightweight local deployment, this comparative reference helps contextualize whether useful semantic enrichment can be achieved without dependence on heavyweight cloud-hosted LLM inference \cite{eloundou2024gpts, schwartz2020green, ecothink2026}.
+Because the thesis explicitly targets lightweight local deployment, this comparative reference helps contextualize whether useful semantic enrichment can be achieved without dependence on heavyweight cloud-hosted LLM inference \cite{eloundou2024gpts, schwartz2020green, menghani2023efficient}.
 
 Implementation Details and Hardware Environment
 
@@ -616,7 +616,7 @@ Operating System: Windows 11
 
 Runtime Environment: local development execution environment
 
-This configuration reflects the practical deployment assumptions central to the proposed lightweight semantic enrichment methodology, where meaningful semantic processing should remain feasible without dedicated accelerators or cloud-hosted inference infrastructure \cite{schwartz2020green, ecothink2026}.
+This configuration reflects the practical deployment assumptions central to the proposed lightweight semantic enrichment methodology, where meaningful semantic processing should remain feasible without dedicated accelerators or cloud-hosted inference infrastructure \cite{schwartz2020green, menghani2023efficient}.
 
 Frontend Observation Environment
 
@@ -640,9 +640,9 @@ Comparative Trade-Off Analysis
 
 The experimental design explicitly examines the trade-off between semantic effectiveness and computational practicality.
 
-The comparison between deterministic preprocessing, the full lightweight semantic pipeline, and exploratory LLM reference assessment allows investigation of the thesis’s central architectural question: whether lightweight semantic enrichment can provide meaningful classification and enrichment capability while maintaining practical operational efficiency on commodity hardware.
+The comparison between deterministic preprocessing, the full lightweight semantic pipeline, and exploratory LLM reference assessment allows investigation of the thesis's central architectural question: whether lightweight semantic enrichment can provide meaningful classification and enrichment capability while maintaining practical operational efficiency on commodity hardware.
 
-This comparative framing aligns directly with the Green AI objective of reducing computational cost while preserving useful semantic capability \cite{ecothink2026}.
+This comparative framing aligns directly with the Green AI objective of reducing computational cost while preserving useful semantic capability \cite{menghani2023efficient}.
 
 \section{Chapter Conclusion}
 

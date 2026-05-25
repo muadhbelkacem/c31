@@ -48,7 +48,7 @@ This conceptual Layer C does not represent an automated runtime inference system
 
 This design reflects an important architectural principle: not all ambiguity should be resolved automatically.
 
-In practical deployment scenarios, human reviewers may rely on contextual interpretation, institutional policy, domain expertise, or external reasoning tools to adjudicate borderline cases. The existence of this escalation pathway improves trustworthiness by preventing low-confidence automation from silently producing misleading classifications \cite{hunkenschroer2022ethics, humanbias2024}.
+In practical deployment scenarios, human reviewers may rely on contextual interpretation, institutional policy, domain expertise, or external reasoning tools to adjudicate borderline cases. The existence of this escalation pathway improves trustworthiness by preventing low-confidence automation from silently producing misleading classifications \cite{hunkenschroer2022ethics, rigotti2024fairness}.
 
 \subsubsection*{Discovery and Corpus Limitations}
 
@@ -56,7 +56,7 @@ Some practical discovery limitations arose not from enrichment quality, but from
 
 Because the dataset is intentionally internship-focused and geographically concentrated primarily on Canada, with some broader North American coverage, discovery quality naturally depends on corpus breadth and source representation.
 
-Highly localized searches outside the dataset’s geographic emphasis, niche technical internship requirements, or specialized employer terminology occasionally reduced discovery effectiveness because relevant records were either absent or semantically underrepresented.
+Highly localized searches outside the dataset's geographic emphasis, niche technical internship requirements, or specialized employer terminology occasionally reduced discovery effectiveness because relevant records were either absent or semantically underrepresented.
 
 Sparse descriptions also introduced limitations. Some internship listings contained minimal descriptive content, reducing the amount of semantic evidence available for classification, skill extraction, and metadata enrichment.
 
@@ -72,11 +72,11 @@ Future improvements are therefore most likely to emerge from richer corpus expan
 
 \subsection{Trade-offs: Accuracy versus Computational Cost}
 
-The proposed system was explicitly designed to balance semantic capability with operational practicality, reflecting broader principles of efficient AI system design and cost-conscious deployment \cite{ecothink2026, schwartz2020green}. The evaluation results illustrate the practical trade-offs between lightweight local processing, deterministic heuristics, and externally hosted large language model workflows.
+The proposed system was explicitly designed to balance semantic capability with operational practicality, reflecting broader principles of efficient AI system design and cost-conscious deployment \cite{menghani2023efficient, schwartz2020green}. The evaluation results illustrate the practical trade-offs between lightweight local processing, deterministic heuristics, and externally hosted large language model workflows.
 
 \subsubsection*{Marginal Accuracy Gains at Substantially Higher Cost}
 
-Comparative evaluation between the proposed lightweight architecture and external LLM-based processing revealed a consistent pattern: the LLM-assisted evaluation achieved modest quality improvements, typically in the range of 2–3\% absolute improvement, but at substantially greater operational cost.
+Comparative evaluation between the proposed lightweight architecture and external LLM-based processing revealed a consistent pattern: the LLM-assisted evaluation achieved modest quality improvements, typically in the range of 2--3\% absolute improvement, but at substantially greater operational cost.
 
 Estimated cost comparisons showed that external LLM-based processing required approximately 29x higher financial cost per 1,000 listings processed and significantly higher latency than the local architecture. Similarly, interaction-equivalent response workflows relying on external inference exhibited substantially slower response behavior than the deployed local application.
 
@@ -162,7 +162,7 @@ Additionally, recruitment terminology evolves rapidly. Emerging role names, nove
 
 Another threat concerns whether the chosen evaluation indicators fully capture practical system value.
 
-Operational metrics such as latency, throughput, and infrastructure cost directly reflect the system’s lightweight architectural objectives and are therefore highly appropriate.
+Operational metrics such as latency, throughput, and infrastructure cost directly reflect the system's lightweight architectural objectives and are therefore highly appropriate.
 
 However, quality-oriented comparative metrics derived from LLM-assisted evaluation represent approximations of practical utility rather than direct measurements of end-user satisfaction.
 
@@ -193,7 +193,7 @@ Second, comparative LLM-assisted evaluation depends partly on external model beh
 
 Third, some practical application behaviors depend on runtime caching, corpus composition, and deployment context.
 
-Despite these limitations, the broader architectural findings—particularly regarding lightweight local processing efficiency, heuristic normalization practicality, and semantic enrichment trade-offs—should remain reproducible at the conceptual level.
+Despite these limitations, the broader architectural findings--particularly regarding lightweight local processing efficiency, heuristic normalization practicality, and semantic enrichment trade-offs--should remain reproducible at the conceptual level.
 
 \section{Ethical, Legal, and Privacy Considerations}
 
@@ -207,7 +207,7 @@ The internship listings used in this research were collected from publicly acces
 
 However, public accessibility does not automatically imply unrestricted reuse.
 
-Many online platforms impose restrictions on automated scraping, data extraction, redistribution, or commercial reuse through terms of service, \texttt{robots.txt} directives, or platform-specific access policies. Any production deployment of similar systems would therefore require careful legal review to ensure compliance with applicable contractual obligations and jurisdictional requirements \cite{euiaact2024}.
+Many online platforms impose restrictions on automated scraping, data extraction, redistribution, or commercial reuse through terms of service, \texttt{robots.txt} directives, or platform-specific access policies. Any production deployment of similar systems would therefore require careful legal review to ensure compliance with applicable contractual obligations and jurisdictional requirements \cite{rigotti2024fairness}.
 
 Privacy considerations also arise from the content of recruitment listings themselves.
 
@@ -269,7 +269,7 @@ This thesis has presented a lightweight, layered approach to the semantic struct
 
 By combining deterministic heuristic normalization (Layer A), lightweight transformer-assisted semantic classification (Layer B), and human review for unresolved ambiguity (Layer C), the proposed architecture demonstrates that practical semantic internship discovery can be achieved without dependence on heavyweight cloud-hosted inference infrastructure.
 
-This design aligns with broader principles of efficient and sustainable AI system development, often discussed under the umbrella of Green AI, where computational practicality, explainability, and responsible resource usage are prioritized alongside model capability \cite{ecothink2026, schwartz2020green}.
+This design aligns with broader principles of efficient and sustainable AI system development, often discussed under the umbrella of Green AI, where computational practicality, explainability, and responsible resource usage are prioritized alongside model capability \cite{menghani2023efficient, schwartz2020green}.
 
 \subsection{Summary of Findings}
 
@@ -303,7 +303,7 @@ A major limitation of the current implementation is its primary focus on English
 
 Although the dataset includes some bilingual employment contexts due to its Canadian emphasis, the extraction and semantic processing pipeline is not designed as a fully multilingual system.
 
-Future work could extend the architecture to support multilingual and cross-lingual internship discovery, particularly for English–French recruitment contexts and broader international expansion.
+Future work could extend the architecture to support multilingual and cross-lingual internship discovery, particularly for English--French recruitment contexts and broader international expansion.
 
 Potential approaches include multilingual sentence-transformer models, cross-lingual embedding alignment, or translation-assisted normalization pipelines.
 
@@ -434,7 +434,7 @@ Taken together, these practical characteristics suggest that lightweight semanti
 
 \section{Chapter Conclusion}
 
-This chapter has critically interpreted the empirical findings presented in Chapter 6, identified the principal sources of system limitation—including implicit information, semantic ambiguity, corpus incompleteness, and format variability—and discussed the practical trade-offs between semantic capability, explainability, and computational efficiency that motivate the layered architecture.
+This chapter has critically interpreted the empirical findings presented in Chapter 6, identified the principal sources of system limitation--including implicit information, semantic ambiguity, corpus incompleteness, and format variability--and discussed the practical trade-offs between semantic capability, explainability, and computational efficiency that motivate the layered architecture.
 
 The chapter also examined important methodological limitations affecting interpretation and generalizability, including evaluation methodology constraints, dataset scope, construct validity considerations, and reproducibility challenges. In addition, it addressed key ethical, legal, and privacy considerations associated with automated internship aggregation and semantic processing, including data privacy, representational bias, transparency, and responsible deployment concerns.
 

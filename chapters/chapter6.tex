@@ -43,7 +43,7 @@ The raw listings exhibit significant heterogeneity in format, completeness, and 
     \item \textbf{Incomplete fields:} salary, duration, location, and posting metadata are inconsistently available across platforms, requiring fallback normalization and heuristic inference.
 \end{itemize}
 
-These characteristics make the dataset suitable for evaluating the system’s ability to normalize heterogeneous inputs, classify internship relevance, enrich records with structured metadata, and support practical internship discovery under realistic deployment conditions.
+These characteristics make the dataset suitable for evaluating the system's ability to normalize heterogeneous inputs, classify internship relevance, enrich records with structured metadata, and support practical internship discovery under realistic deployment conditions.
 
 \subsubsection{Evaluation Scope}
 
@@ -109,7 +109,7 @@ The evaluation employs a multi-dimensional metric suite aligned with the researc
 
 \subsection{Recommendation and Usability Evaluation Design}
 
-To evaluate the practical usability impact of semantic enrichment (RQ3), the system’s internship discovery and recommendation behavior was assessed through representative application usage scenarios reflecting realistic student exploration patterns.
+To evaluate the practical usability impact of semantic enrichment (RQ3), the system's internship discovery and recommendation behavior was assessed through representative application usage scenarios reflecting realistic student exploration patterns.
 
 Rather than relying on a formal benchmark information-retrieval query corpus, the evaluation focuses on how structured semantic metadata improves internship browsing, filtering, and related-role discovery within the deployed web application.
 
@@ -117,8 +117,8 @@ The evaluation considers three practical interaction scenarios:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Category-Based Discovery:} Assessment of whether internships are consistently assigned to meaningful high-level professional domains such as Software, Data/AI, Business, Design, and Healthcare, enabling intuitive browsing and structured exploration.
-    \item \textbf{Skill-Based Similarity Recommendations:} Assessment of the website’s related-role recommendation behavior, where internships sharing overlapping extracted skills and category similarity are surfaced as similar opportunities. This evaluates whether the semantic enrichment pipeline produces practically useful recommendation behavior for students exploring related roles.
-    \item \textbf{Frontend Filtering and Search Behavior:} Assessment of the application’s lexical filtering mechanisms combined with structured metadata attributes such as category, skills, and location. This evaluates whether enriched internship records improve discoverability and usability compared with raw unstructured listings.
+    \item \textbf{Skill-Based Similarity Recommendations:} Assessment of the website's related-role recommendation behavior, where internships sharing overlapping extracted skills and category similarity are surfaced as similar opportunities. This evaluates whether the semantic enrichment pipeline produces practically useful recommendation behavior for students exploring related roles.
+    \item \textbf{Frontend Filtering and Search Behavior:} Assessment of the application's lexical filtering mechanisms combined with structured metadata attributes such as category, skills, and location. This evaluates whether enriched internship records improve discoverability and usability compared with raw unstructured listings.
 \end{itemize}
 
 These scenarios provide an application-centered evaluation of semantic enrichment utility, directly addressing the research objective of improving internship usability through structured enrichment rather than through formal benchmark retrieval ranking experiments.
@@ -174,7 +174,7 @@ The practical impact of semantic enrichment on internship discovery usability wa
 
 The fully enriched system demonstrated clear improvements over purely lexical filtering behavior. Comparative evaluation showed improvements in discovery effectiveness across user-facing relevance metrics, with P5 increasing by 26\% (0.42 → 0.53), HR5 by 19\% (0.67 → 0.80), and NDCG10 by 29\% (0.52 → 0.67).
 
-These results indicate that structured enrichment—including semantic classification, skill extraction, category assignment, and metadata normalization—substantially improves the relevance and discoverability of internship opportunities compared with keyword-oriented filtering alone.
+These results indicate that structured enrichment--including semantic classification, skill extraction, category assignment, and metadata normalization--substantially improves the relevance and discoverability of internship opportunities compared with keyword-oriented filtering alone.
 
 Compared with reduced semantic configurations, the full enriched system also demonstrated stronger consistency in surfacing relevant internships, suggesting that deterministic heuristics and semantic enrichment provide complementary value rather than redundant functionality.
 
@@ -184,7 +184,7 @@ Performance varied depending on the type of student exploration scenario.
 
 For explicit lexical searches, such as role-specific internship queries with clear terminology, keyword-oriented filtering performed reasonably well. The enriched system preserved this capability while improving metadata consistency and recommendation quality.
 
-For conceptual discovery scenarios, where students searched indirectly through broader interests, domain categories, or related skills rather than exact job titles, semantic enrichment produced clearer advantages. Structured skill extraction and domain categorization improved the system’s ability to connect users with semantically related internship opportunities that might otherwise remain hidden in purely lexical exploration.
+For conceptual discovery scenarios, where students searched indirectly through broader interests, domain categories, or related skills rather than exact job titles, semantic enrichment produced clearer advantages. Structured skill extraction and domain categorization improved the system's ability to connect users with semantically related internship opportunities that might otherwise remain hidden in purely lexical exploration.
 
 The strongest benefits appeared in mixed discovery scenarios, where users combined explicit technical requirements with broader contextual interests. In these cases, semantic enrichment improved recommendation coherence and frontend exploration usability by combining structured filtering with semantically enriched metadata.
 
@@ -249,9 +249,9 @@ Comparative evaluation indicated a 29\% improvement in discovery effectiveness (
 To contextualize this improvement, consider representative discovery scenarios.
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-    \item \textbf{Scenario: “machine learning intern with Python”} -- A purely lexical filtering approach prioritizes listings containing explicit occurrences of terms such as Python and intern. However, relevant listings may describe equivalent technical competencies using related terminology such as deep learning, neural networks, computer vision, or framework-specific references such as PyTorch without repeating the exact search phrase. The semantically enriched system improved discovery performance by leveraging structured skill extraction and contextual classification, increasing HR5 from 0.60 to 0.90.
+    \item \textbf{Scenario: ``machine learning intern with Python''} -- A purely lexical filtering approach prioritizes listings containing explicit occurrences of terms such as Python and intern. However, relevant listings may describe equivalent technical competencies using related terminology such as deep learning, neural networks, computer vision, or framework-specific references such as PyTorch without repeating the exact search phrase. The semantically enriched system improved discovery performance by leveraging structured skill extraction and contextual classification, increasing HR5 from 0.60 to 0.90.
 
-    \item \textbf{Scenario: “frontend web development”} -- Keyword-oriented filtering naturally prioritizes listings explicitly containing terms such as frontend or web. However, semantically related roles may use alternative terminology including React Developer, UI Engineer, or Client-Side Developer. The enriched system improved relevance consistency in this scenario, increasing P5 from 0.40 to 0.70, because structured categorization and skill metadata reduced dependence on exact lexical overlap.
+    \item \textbf{Scenario: ``frontend web development''} -- Keyword-oriented filtering naturally prioritizes listings explicitly containing terms such as frontend or web. However, semantically related roles may use alternative terminology including React Developer, UI Engineer, or Client-Side Developer. The enriched system improved relevance consistency in this scenario, increasing P5 from 0.40 to 0.70, because structured categorization and skill metadata reduced dependence on exact lexical overlap.
 \end{itemize}
 
 The primary limitation of the enriched system emerged in highly specialized technical scenarios where exact terminology remained critical. For narrowly constrained requirements, strict lexical matching occasionally provided stronger precision than broader semantic generalization.
@@ -268,7 +268,7 @@ Examples included:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item \textbf{Vague titles:} generic role names such as Consultant, Analyst, or Associate, where deterministic heuristics lacked sufficient contextual understanding to distinguish internship relevance or professional domain appropriately.
-    \item \textbf{Compound titles:} multi-context listings such as Software Engineer Intern — Data Platform, where semantic classification improved contextual interpretation beyond isolated keyword anchors.
+    \item \textbf{Compound titles:} multi-context listings such as Software Engineer Intern -- Data Platform, where semantic classification improved contextual interpretation beyond isolated keyword anchors.
     \item \textbf{Employer-specific terminology:} unconventional or organization-specific naming conventions such as Growth Hacker or DevOps Evangelist, where exact lexical heuristics were more likely to misclassify the listing.
 \end{itemize}
 
@@ -280,7 +280,7 @@ These findings indicate that deterministic heuristics provide a strong low-cost 
 
 Extraction and classification quality between the proposed lightweight system and externally hosted LLM-based evaluation workflows were compared to assess the practical trade-off between semantic performance and operational cost.
 
-The external LLM evaluation demonstrated marginally higher accuracy across assessed tasks, with an estimated 2–3\% absolute improvement over the proposed lightweight architecture.
+The external LLM evaluation demonstrated marginally higher accuracy across assessed tasks, with an estimated 2--3\% absolute improvement over the proposed lightweight architecture.
 
 However, this relatively modest quality gain came at substantial operational cost:
 
@@ -337,7 +337,7 @@ This comparison directly validates the contribution of the heuristic normalizati
 
 Because the evaluation combines direct runtime measurement with structured LLM-assisted comparative assessment, reliability was considered from both computational and analytical perspectives.
 
-Operational performance metrics—including ingestion throughput, application latency, memory footprint, and cost estimation—were obtained directly from the implemented system under a fixed hardware environment, providing reproducible quantitative measurements.
+Operational performance metrics--including ingestion throughput, application latency, memory footprint, and cost estimation--were obtained directly from the implemented system under a fixed hardware environment, providing reproducible quantitative measurements.
 
 Quality-oriented assessments involving extraction consistency, classification correctness, semantic enrichment usefulness, and comparative baseline performance were supported through structured external LLM-assisted auditing using controlled evaluation prompts. While this does not constitute formal benchmark annotation by human experts, it provides a consistent proxy methodology for comparative assessment across heterogeneous internship records.
 
@@ -385,7 +385,7 @@ Observed limitations included:
 
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
     \item highly niche technical requirements with limited representation
-    \item strongly localized searches outside the dataset’s geographic focus
+    \item strongly localized searches outside the dataset's geographic focus
     \item incomplete source descriptions reducing metadata richness
     \item inconsistent terminology reducing semantic alignment
 \end{itemize}
@@ -401,7 +401,7 @@ Deterministic preprocessing alone provided a strong baseline for structured norm
 
 The addition of lightweight transformer-assisted semantic classification produced the most substantial gains in handling ambiguous internship relevance decisions and noisy employer terminology.
 
-Structured semantic enrichment—including skill extraction, categorization, and metadata normalization—contributed additional improvements in frontend usability, recommendation coherence, and internship discoverability.
+Structured semantic enrichment--including skill extraction, categorization, and metadata normalization--contributed additional improvements in frontend usability, recommendation coherence, and internship discoverability.
 
 Caching and server-side preprocessing provided the largest operational efficiency benefits, enabling low-latency application behavior without repeated semantic computation.
 
@@ -429,7 +429,7 @@ This chapter has presented the empirical evaluation of the proposed internship d
 
 The results indicate that the lightweight architecture achieves a practical balance between semantic capability and computational efficiency on commodity hardware. The system demonstrated strong operational performance, low application latency, and substantially lower cost than externally hosted LLM-based alternatives, while maintaining meaningful semantic enrichment and internship relevance classification performance.
 
-The evaluation also showed that lightweight transformer-assisted semantic classification improves robustness over purely deterministic heuristics, particularly for ambiguous or employer-specific internship postings. Structured semantic enrichment—including skill extraction, categorization, metadata normalization, and preprocessing—further improved the usability and discoverability of heterogeneous internship records within the application.
+The evaluation also showed that lightweight transformer-assisted semantic classification improves robustness over purely deterministic heuristics, particularly for ambiguous or employer-specific internship postings. Structured semantic enrichment--including skill extraction, categorization, metadata normalization, and preprocessing--further improved the usability and discoverability of heterogeneous internship records within the application.
 
 At the same time, the evaluation identified expected limitations, particularly for semantically ambiguous cases, implicit metadata extraction, highly niche technical roles, and corpus coverage constraints. External LLM-based evaluation workflows demonstrated modest performance advantages in certain edge cases, but these gains came with substantially higher latency, infrastructure dependency, and operational cost.
 

@@ -10,7 +10,7 @@ The focus is on implementation mechanisms directly reflected in the developed sy
 
 This section details the implementation of the data acquisition, normalization, and semantic enrichment pipeline that forms the computational foundation of the system. As established in the methodology chapter, the primary implementation challenge is transforming noisy, heterogeneous internship and job listing data into structured, semantically enriched records suitable for frontend presentation and practical internship discovery.
 
-The implementation must remain robust against inconsistent source formatting, incomplete metadata, duplicate records, multilingual terminology variation, and noisy recruitment content commonly found in web-sourced internship data \cite{chu2016data, sarawagi2008information}. At the same time, it must preserve the lightweight deployment philosophy central to this thesis by avoiding unnecessary computational complexity and dependence on heavyweight external inference services \cite{schwartz2020green, ecothink2026}.
+The implementation must remain robust against inconsistent source formatting, incomplete metadata, duplicate records, multilingual terminology variation, and noisy recruitment content commonly found in web-sourced internship data \cite{chu2016data, sarawagi2008information}. At the same time, it must preserve the lightweight deployment philosophy central to this thesis by avoiding unnecessary computational complexity and dependence on heavyweight external inference services \cite{schwartz2020green, menghani2023efficient}.
 
 Consistent with the three-layer processing architecture defined in Chapter 4, the implementation combines deterministic preprocessing for high-confidence normalization tasks, lightweight transformer-assisted semantic classification for ambiguous postings, and controlled exception handling for uncertain cases requiring manual review.
 
@@ -77,7 +77,7 @@ This includes detection of:
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
 \item hourly compensation formats
 \item annual salary ranges
-\item abbreviated compensation notation (e.g., “k” suffixes)
+\item abbreviated compensation notation (e.g., ``k'' suffixes)
 \item single-value compensation mentions
 \end{itemize}
 When salary patterns are successfully detected, numeric values are normalized into a consistent structured representation compatible with the internal internship schema.
@@ -159,7 +159,7 @@ To translate the efficiency of deterministic preprocessing and semantic enrichme
 
 After internship records have passed through validation, preprocessing, enrichment, and structured transformation, the resulting processed Internship objects are stored in a server-side in-memory cache. The data.ts module acts as the primary data-access interface, checking cached processed data before falling back to reloading and reprocessing the underlying JSON dataset.
 
-This caching strategy has several important implications for the system’s operational profile.
+This caching strategy has several important implications for the system's operational profile.
 
 \subsubsection*{Amortized Computational Cost}
 
@@ -171,11 +171,11 @@ This one-time processing cost is then amortized across repeated frontend and API
 
 By serving pre-processed structured internship records directly from memory, the system supports responsive frontend interaction for browsing, filtering, and internship exploration.
 
-This design avoids repeated execution of computationally heavier semantic processing during ordinary user interaction, preserving practical responsiveness for interactive application use \cite{riva2025realworld}.
+This design avoids repeated execution of computationally heavier semantic processing during ordinary user interaction, preserving practical responsiveness for interactive application use \cite{riva2022realworld}.
 
 \subsubsection*{Lightweight Operational Efficiency}
 
-The caching strategy directly supports the lightweight architectural goals of the thesis \cite{schwartz2020green, ecothink2026}.
+The caching strategy directly supports the lightweight architectural goals of the thesis \cite{schwartz2020green, menghani2023efficient}.
 
 Because semantic enrichment is performed during preprocessing rather than repeatedly during frontend interaction, the system avoids unnecessary repeated inference cost, excess CPU utilization, and dependence on external cloud-based semantic processing services.
 
@@ -199,11 +199,11 @@ Layer A provides fast, explainable heuristic processing for structurally predict
 
 This staged design follows established principles in information extraction and semantic data processing, where deterministic normalization is used for high-confidence structured tasks while learned semantic inference is reserved for context-dependent interpretation \cite{sarawagi2008information, grishman2015information, chu2016data}.
 
-A central design objective of the implementation is maintaining practical deployment efficiency. By combining lightweight local semantic models with deterministic preprocessing rather than relying on repeated cloud-hosted LLM inference, the system preserves explainability, reduces computational cost, and remains compatible with commodity hardware constraints \cite{schwartz2020green, ecothink2026}.
+A central design objective of the implementation is maintaining practical deployment efficiency. By combining lightweight local semantic models with deterministic preprocessing rather than relying on repeated cloud-hosted LLM inference, the system preserves explainability, reduces computational cost, and remains compatible with commodity hardware constraints \cite{schwartz2020green, menghani2023efficient}.
 
 \subsection{Pipeline Architecture and Data Flow}
 
-The semantic enrichment pipeline follows a staged clean–enrich–structure processing architecture in which internship data progressively moves from noisy heterogeneous input toward a structured semantically enriched representation.
+The semantic enrichment pipeline follows a staged clean--enrich--structure processing architecture in which internship data progressively moves from noisy heterogeneous input toward a structured semantically enriched representation.
 
 This staged design ensures that each processing layer receives data of progressively higher structural quality and semantic clarity, improving overall robustness while preserving computational efficiency \cite{doan2012principles, sarawagi2008information}.
 
@@ -213,7 +213,7 @@ Following this deterministic preparation stage, the pipeline applies semantic en
 
 Where deterministic heuristics provide insufficient confidence, the pipeline invokes lightweight transformer-assisted semantic interpretation through Layer B. This contextual stage improves handling of semantically unclear internship postings while preserving the efficiency advantages of the broader lightweight architecture \cite{reimers2019sentence, schwartz2020green}.
 
-Finally, semantically enriched internship records are transformed into the structured Internship representation and persisted within the application’s caching layer for efficient frontend access.
+Finally, semantically enriched internship records are transformed into the structured Internship representation and persisted within the application's caching layer for efficient frontend access.
 
 \subsubsection*{Pipeline Orchestration}
 
@@ -258,7 +258,7 @@ Progressive refinement: Computationally inexpensive deterministic methods are ap
 
 Controlled uncertainty handling: Semantically ambiguous cases are not blindly forced into deterministic outcomes; instead, controlled escalation through semantic interpretation or manual review preserves system trustworthiness.
 
-These principles directly address the central thesis objective of balancing semantic effectiveness with practical computational efficiency on commodity hardware \cite{schwartz2020green, ecothink2026}.
+These principles directly address the central thesis objective of balancing semantic effectiveness with practical computational efficiency on commodity hardware \cite{schwartz2020green, menghani2023efficient}.
 
 \subsection{Deterministic Attribute Normalization}
 
@@ -342,8 +342,8 @@ Compensation extraction represents a structured normalization task well suited t
 
 Internship salary information frequently appears in inconsistent formats, including:
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-\item hourly rates (\$15–20/hr)
-\item annual salary ranges (\$70k–90k)
+\item hourly rates (\$15--20/hr)
+\item annual salary ranges (\$70k--90k)
 \item single-value compensation (Up to \$50/hr)
 \item employer-estimated ranges
 \item partially structured compensation text
@@ -407,7 +407,7 @@ Deterministic normalization forms the high-efficiency foundation of Layer A.
 
 By resolving predictable structural inconsistencies early, the system reduces unnecessary semantic ambiguity and allows downstream transformer-assisted semantic classification to focus only on records requiring contextual interpretation.
 
-This staged division preserves explainability, reduces computational overhead, and supports the lightweight design objectives of the proposed system \cite{schwartz2020green, ecothink2026}.
+This staged division preserves explainability, reduces computational overhead, and supports the lightweight design objectives of the proposed system \cite{schwartz2020green, menghani2023efficient}.
 
 \subsection{Skill Extraction and Semantic Alignment}
 
@@ -569,7 +569,7 @@ If neither keyword scoring nor embedding fallback produces a confident domain as
 
 \subsubsection*{Architectural Role}
 
-Domain categorization contributes to the system’s semantic enrichment layer by transforming heterogeneous employer terminology into stable application-facing labels. The weighted keyword rules provide fast and explainable Layer A classification, while the embedding fallback provides additional semantic flexibility for low-confidence cases.
+Domain categorization contributes to the system's semantic enrichment layer by transforming heterogeneous employer terminology into stable application-facing labels. The weighted keyword rules provide fast and explainable Layer A classification, while the embedding fallback provides additional semantic flexibility for low-confidence cases.
 
 This design preserves the lightweight implementation philosophy of the system while improving robustness when processing noisy internship listings \cite{schwartz2020green, reimers2019sentence, sarawagi2008information}.
 
@@ -664,7 +664,7 @@ This cache improves responsiveness when users revisit or re-render role detail v
 
 The caching strategy reflects an amortized cost model. Normalization, filtering, and production acceptance checks are performed when the dataset is loaded or refreshed, rather than repeatedly for every frontend interaction.
 
-This reduces redundant computation during browsing, filtering, and page navigation. It also supports the thesis objective of maintaining practical responsiveness on commodity hardware while avoiding unnecessary repeated semantic or heuristic processing \cite{schwartz2020green, ecothink2026}.
+This reduces redundant computation during browsing, filtering, and page navigation. It also supports the thesis objective of maintaining practical responsiveness on commodity hardware while avoiding unnecessary repeated semantic or heuristic processing \cite{schwartz2020green, menghani2023efficient}.
 
 \subsubsection*{Frontend Responsiveness}
 
@@ -690,7 +690,7 @@ This section describes the storage, persistence, and data-access mechanisms that
 
 This design separates public internship data from dynamic user interaction data. The internship catalog is regenerated through the ingestion and enrichment pipeline, then consumed by the frontend application as structured JSON. In contrast, authenticated user actions such as saving or unsaving internships require persistent user-linked storage and are therefore handled through Supabase.
 
-This hybrid design follows the broader data-integration principle of separating heterogeneous data concerns into appropriate storage and access mechanisms while supporting the lightweight system goals of the thesis \cite{chu2016data, ecothink2026}.
+This hybrid design follows the broader data-integration principle of separating heterogeneous data concerns into appropriate storage and access mechanisms while supporting the lightweight system goals of the thesis \cite{chu2016data, menghani2023efficient}.
 
 \subsection{Hybrid Data Storage Architecture}
 
@@ -752,11 +752,11 @@ The role-detail interface also uses metadata for lightweight recommendation beha
 
 This recommendation logic is intentionally lightweight. It does not implement vector-based semantic similarity or approximate nearest-neighbor indexing. Instead, it uses already-enriched structured metadata to provide fast, explainable related-role suggestions.
 
-This approach is consistent with efficient machine learning and Green AI principles because it reuses structured metadata rather than introducing unnecessary computation or infrastructure complexity \cite{schwartz2020green, ecothink2026}.
+This approach is consistent with efficient machine learning and Green AI principles because it reuses structured metadata rather than introducing unnecessary computation or infrastructure complexity \cite{schwartz2020green, menghani2023efficient}.
 
 \subsection{API and Data Access Design}
 
-The internship catalog is exposed through Next.js route handlers that provide structured JSON access to the frontend application. Next.js API routes support colocating backend request handling with the application framework, which fits the system’s lightweight deployment approach \cite{riva2025realworld}.
+The internship catalog is exposed through Next.js route handlers that provide structured JSON access to the frontend application. Next.js API routes support colocating backend request handling with the application framework, which fits the system's lightweight deployment approach \cite{riva2022realworld}.
 
 \subsubsection*{Internship List API}
 

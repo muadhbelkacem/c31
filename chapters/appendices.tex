@@ -447,7 +447,7 @@ class ClassificationResult:
 
 The frontend uses a TypeScript interface for the public internship object:
 
-\begin{lstlisting}[language=TypeScript, caption=Frontend Internship interface]
+\begin{lstlisting}[language=Java, caption=Frontend Internship interface]
 // frontend/app/lib/jobMapper.ts
 export interface Internship {
  id: string;
@@ -503,7 +503,7 @@ This means that the public API is intentionally stricter than the backend classi
 \section{Implementation excerpt: production frontend filter}
 The following TypeScript excerpt is useful evidence because it shows the exact filter that prevents low-confidence or rejected records from being displayed publicly.
 
-\begin{lstlisting}[language=TypeScript, caption=Frontend production filter]
+\begin{lstlisting}[language=Java, caption=Frontend production filter]
 // frontend/app/lib/jobMapper.ts
 export function isProductionAcceptedInternship(
  role: Internship,

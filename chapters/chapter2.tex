@@ -20,7 +20,7 @@ Recruitment platforms therefore require mechanisms for semantic normalization, s
 
 \subsection{Job Posting Analytics and Skill Extraction}
 
-Job Posting Analytics (JPA) focuses on extracting structured information from recruitment advertisements and labor-market data. Common objectives include identifying skills, occupations, educational requirements, salaries, and experience levels from textual descriptions \cite{cambria2014sentic}.
+Job Posting Analytics (JPA) focuses on extracting structured information from recruitment advertisements and labor-market data. Common objectives include identifying skills, occupations, educational requirements, salaries, and experience levels from textual descriptions \cite{senger2024deep}.
 
 Early work in this area relied heavily on rule-based methods and manually curated dictionaries. Such approaches provided interpretability and precision but struggled with linguistic variation and domain drift. Later developments introduced statistical learning and neural architectures capable of capturing contextual meaning \cite{devlin2019bert}.
 
@@ -32,7 +32,7 @@ A central challenge in labor-market analytics is the vocabulary gap between empl
 
 ESCO and O*NET are among the most widely used occupational knowledge frameworks \cite{esco2024, peterson2001occupational}. These resources organize occupations, skills, competences, and qualifications into structured reference spaces that support matching, categorization, and analysis.
 
-Research on taxonomy alignment investigates how informal textual mentions can be mapped to structured occupational categories. Existing approaches include rule-based normalization, embedding-based semantic matching, ontology alignment techniques, and knowledge-graph methods \cite{snijder2024advancing, shvaiko2013ontology}.
+Research on taxonomy alignment investigates how informal textual mentions can be mapped to structured occupational categories. Existing approaches include rule-based normalization, embedding-based semantic matching, ontology alignment techniques, and knowledge-graph methods \cite{staab2009handbook, shvaiko2013ontology}.
 
 While highly expressive ontological systems can capture rich semantic relations, they often introduce maintenance complexity and sensitivity to evolving labor-market terminology. Lightweight semantic representations therefore remain attractive for systems that prioritize operational feasibility.
 
@@ -105,7 +105,7 @@ Dense representations improve handling of paraphrases, conceptual similarity, an
 
 \subsection{Hybrid Retrieval}
 
-Because lexical and dense retrieval possess complementary strengths, modern systems increasingly employ hybrid retrieval strategies \cite{csontos2026designing}.
+Because lexical and dense retrieval possess complementary strengths, modern systems increasingly employ hybrid retrieval strategies \cite{bruch2023analysis}.
 
 Lexical search remains strong for exact terminology, acronyms, and rare technical terms, whereas semantic retrieval captures conceptual similarity and vocabulary variation. Combining both modalities often improves robustness across diverse query types.
 
@@ -123,7 +123,7 @@ Information extraction methods can help transform recruitment text into structur
 
 \subsection{Complexity of Occupational Taxonomy Alignment}
 
-Occupational taxonomies such as ESCO and O*NET provide valuable support for standardizing occupations, skills, and professional categories. They help connect informal recruitment language with more structured occupational representations. Nevertheless, these resources can be complex to integrate and maintain in a lightweight student-focused system, especially when the input data comes from noisy scraped sources, inconsistent JSON files, and employer-specific descriptions \cite{snijder2024advancing, giabelli2021skills}. Taxonomy alignment alone therefore does not fully solve the practical problem of preparing internship records for direct application use.
+Occupational taxonomies such as ESCO and O*NET provide valuable support for standardizing occupations, skills, and professional categories. They help connect informal recruitment language with more structured occupational representations. Nevertheless, these resources can be complex to integrate and maintain in a lightweight student-focused system, especially when the input data comes from noisy scraped sources, inconsistent JSON files, and employer-specific descriptions \cite{staab2009handbook, giabelli2021skills}. Taxonomy alignment alone therefore does not fully solve the practical problem of preparing internship records for direct application use.
 
 \subsection{Need for More Than Semantic Classification}
 
