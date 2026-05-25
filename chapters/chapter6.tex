@@ -1,3 +1,5 @@
+\chapter{Evidence-Based Evaluation of the Semantic Enrichment Pipeline}
+
 \section{Chapter Introduction}
 
 This chapter presents an evidence-based evaluation of the lightweight semantic enrichment pipeline
@@ -308,4 +310,46 @@ controlled user-evaluation setting. Seventh, the evidence is limited to the proo
 chapter. Unsupported old benchmark metrics and derived claims without a traceable proof file were not
 included.
 
+
+\section{Consolidated Findings by Research Question}
+
+The following table summarizes how the evidence addresses the research questions. The table does not introduce new statistics; it consolidates the interpretation of the evidence presented above.
+
+\begin{table}[H]
+    \centering
+    \caption{Consolidated findings by research question}
+    \label{tab:consolidated_findings_rq}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{p{0.12\textwidth} p{0.28\textwidth} p{0.50\textwidth}}
+        \hline
+        \textbf{Research Question} & \textbf{Evidence Used} & \textbf{Finding} \\
+        \hline
+        RQ1 & Human review and classification distribution &
+        The scraped sample contains substantial fake/non-internship and ambiguous content, showing that internship discovery requires more than direct collection from job sources. \\
+
+        RQ2 & Enriched catalog statistics and metadata coverage &
+        The pipeline produces structured records with internship probabilities, skills, salary fields, links, descriptions, and review indicators. \\
+
+        RQ3 & Search/filter and frontend response evidence &
+        The enriched JSON records support fast structured discovery and low-overhead filtering in the tested local production environment. \\
+
+        RQ4 & Human, ChatGPT5.5-assisted, and Transformer comparison &
+        Ambiguous cases benefit from review, while the Transformer performs strongly as a binary real/fake internship detector. \\
+
+        RQ5 & Build/runtime/file-size evidence and limitations &
+        The approach is locally feasible, but the conclusions are bounded by sample size, local testing, and evidence scope. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The consolidated findings show that the main contribution of the system is not a single benchmark number. Instead, the contribution lies in a defensible enrichment workflow: noisy scraped postings are inspected, classified, structured, enriched, and then delivered in a form that supports efficient internship-oriented discovery.
+
+
+\section{Chapter Conclusion}
+
+This chapter replaced unsupported benchmark-oriented claims with an evidence-based evaluation of the semantic enrichment pipeline. The 300-role classification sample demonstrates that scraped recruitment data contains a meaningful mixture of real internships, fake or non-internship roles, and ambiguous cases. The human, ChatGPT5.5-assisted, and Transformer comparison shows strong sample-level classification behavior while also demonstrating why ambiguity must be preserved rather than hidden.
+
+The enriched frontend catalog evidence shows that the pipeline produces structured internship records with internship probabilities, extracted skills, salary fields where available, links, descriptions, and manual-review indicators. The frontend search/filter and response measurements show that the enriched records can support fast structured discovery under local production test conditions. The build and file-size evidence further supports the operational feasibility of the lightweight approach within the evaluated scope.
+
+Overall, the evidence supports the thesis argument that lightweight semantic enrichment can transform noisy scraped recruitment data into structured, interpretable, and discovery-ready internship records. The findings remain bounded by the 300-role sample, the local test environment, the absence of a formal user study, and the limited scope of the available proof files. These limitations do not invalidate the results, but they define the conditions under which the results should be defended.
 
