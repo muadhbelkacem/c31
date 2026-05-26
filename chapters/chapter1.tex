@@ -4,7 +4,7 @@
 The growth of online recruitment platforms has transformed the way students identify and access
 internship opportunities. Internship advertisements are now distributed across general job boards,
 employer websites, university career portals, professional networks, and specialized recruitment
-platforms \cite{kurekova2015using}. This expansion increases access to opportunities, but it also introduces a significant
+platforms. This expansion increases access to opportunities, but it also introduces a significant
 information-management problem: internship data is dispersed, semi-structured, inconsistently
 described, and frequently mixed with non-internship job postings \cite{doan2012principles, batini2009methodologies}.
 In this context, internship discovery is not merely a search-interface problem. It is a semantic
@@ -55,14 +55,14 @@ educational relevance, training-oriented roles, temporary work arrangements, and
 between internships, graduate schemes, apprenticeships, and junior jobs. Therefore, internship-oriented data enrichment requires more than generic job-posting processing. It requires a
 structured approach that can distinguish real internship opportunities, normalize heterogeneous
 metadata, represent skills consistently, and expose uncertainty where automatic decisions are
-unreliable \cite{kurekova2015using, hunkenschroer2022ethics}.
+unreliable \cite{hunkenschroer2022ethics}.
 
 \section{Problem Statement}
 The central problem addressed in this thesis is the lack of a coherent, interpretable, and
 internship-oriented semantic structuring approach for heterogeneous online internship postings.
 General recruitment platforms are designed primarily for broad job search. As a result, internship
 opportunities are often presented alongside full-time jobs, senior professional roles, graduate
-programs, training advertisements, and unrelated postings \cite{kurekova2015using}. When data is collected from such
+programs, training advertisements, and unrelated postings. When data is collected from such
 platforms, the resulting dataset may contain both relevant and irrelevant records. Before these
 records can support internship discovery, they must be filtered, normalized, enriched, and
 represented consistently \cite{batini2009methodologies, christen2012data}.
@@ -86,7 +86,7 @@ merely in the existence of the software system.
 
 
 \section{Research Gap}
-Existing approaches partially address internship discovery and recruitment data processing, but important limitations remain. General recruitment platforms are not specifically designed for internship-oriented filtering and representation \cite{kurekova2015using}. Information extraction techniques and occupational taxonomies help structure recruitment data, while semantic models improve interpretation of noisy textual content \cite{li2020survey, peterson2001occupational, luan2021sparse}. However, these approaches are often applied independently and may require complex integration, especially when handling heterogeneous and inconsistent internship postings.
+Existing approaches partially address internship discovery and recruitment data processing, but important limitations remain. General recruitment platforms are not specifically designed for internship-oriented filtering and representation. Information extraction techniques and occupational taxonomies help structure recruitment data, while semantic models improve interpretation of noisy textual content \cite{li2020survey, peterson2001occupational, luan2021sparse}. However, these approaches are often applied independently and may require complex integration, especially when handling heterogeneous and inconsistent internship postings.
 
 Therefore, there remains a need for a lightweight internship-focused semantic enrichment pipeline capable of combining normalization, semantic similarity, controlled vocabularies, and uncertainty-aware processing to produce reliable structured records for internship discovery \cite{batini2009methodologies, menghani2023efficient}.
 
