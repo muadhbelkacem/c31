@@ -1,0 +1,5 @@
+page_or_api,cold_load,warm_median,warm_p95
+Homepage /,67.56 ms,10.03 ms,14.85 ms
+Internship API /api/internship,33.60 ms,7.39 ms,12.66 ms
+Role page /role/[id],151.34 ms,8.39 ms,12.87 ms
+Single role API /api/internship/[id],28.26 ms,14.68 ms,22.61 ms

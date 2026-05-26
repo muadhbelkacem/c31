@@ -1,0 +1,9 @@
+metric,result
+Production build,Passed
+Total build time,22.38 seconds
+Compile time,5.4 seconds
+Static page generation,5.2 seconds
+Max build memory,~1.83 GB
+Accepted frontend records,202 internships
+Frontend JSON size,1.15 MB
+Gzipped JSON size,225 KB

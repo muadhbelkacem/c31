@@ -1,0 +1,45 @@
+{
+  "created_at": "2026-05-25T18:40:57.337480+00:00",
+  "statistics": [
+    {
+      "statistic": "Public internships displayed",
+      "value": 202
+    },
+    {
+      "statistic": "Average internship probability",
+      "value": 0.825
+    },
+    {
+      "statistic": "Median internship probability",
+      "value": 0.9
+    },
+    {
+      "statistic": "Manual-review records still shown",
+      "value": "60 / 202"
+    },
+    {
+      "statistic": "Records with extracted skills",
+      "value": "184 / 202"
+    },
+    {
+      "statistic": "Records with no skills",
+      "value": "18 / 202"
+    },
+    {
+      "statistic": "Records with salary available",
+      "value": "106 / 202"
+    },
+    {
+      "statistic": "Records missing salary",
+      "value": "96 / 202"
+    },
+    {
+      "statistic": "Records missing link",
+      "value": "2 / 202"
+    },
+    {
+      "statistic": "Empty descriptions",
+      "value": "0 / 202"
+    }
+  ]
+}

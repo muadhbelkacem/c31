@@ -1,0 +1,83 @@
+[
+  {
+    "platform": "Wellfound",
+    "total": 262,
+    "real_internship": 6,
+    "ambiguous": 1,
+    "fake_non_internship": 255,
+    "real_rate_percent": 2.29,
+    "noise_rate_percent": 97.33
+  },
+  {
+    "platform": "TrueUp",
+    "total": 15,
+    "real_internship": 13,
+    "ambiguous": 1,
+    "fake_non_internship": 1,
+    "real_rate_percent": 86.67,
+    "noise_rate_percent": 6.67
+  },
+  {
+    "platform": "Job Bank",
+    "total": 7,
+    "real_internship": 0,
+    "ambiguous": 0,
+    "fake_non_internship": 7,
+    "real_rate_percent": 0.0,
+    "noise_rate_percent": 100.0
+  },
+  {
+    "platform": "Prosple",
+    "total": 6,
+    "real_internship": 6,
+    "ambiguous": 0,
+    "fake_non_internship": 0,
+    "real_rate_percent": 100.0,
+    "noise_rate_percent": 0.0
+  },
+  {
+    "platform": "Jobillico",
+    "total": 5,
+    "real_internship": 1,
+    "ambiguous": 0,
+    "fake_non_internship": 4,
+    "real_rate_percent": 20.0,
+    "noise_rate_percent": 80.0
+  },
+  {
+    "platform": "Indeed",
+    "total": 2,
+    "real_internship": 1,
+    "ambiguous": 0,
+    "fake_non_internship": 1,
+    "real_rate_percent": 50.0,
+    "noise_rate_percent": 50.0
+  },
+  {
+    "platform": "ECO Canada",
+    "total": 1,
+    "real_internship": 0,
+    "ambiguous": 0,
+    "fake_non_internship": 1,
+    "real_rate_percent": 0.0,
+    "noise_rate_percent": 100.0
+  },
+  {
+    "platform": "communitech",
+    "total": 1,
+    "real_internship": 1,
+    "ambiguous": 0,
+    "fake_non_internship": 0,
+    "real_rate_percent": 100.0,
+    "noise_rate_percent": 0.0
+  },
+  {
+    "platform": "rbc_careers",
+    "total": 1,
+    "real_internship": 1,
+    "ambiguous": 0,
+    "fake_non_internship": 0,
+    "real_rate_percent": 100.0,
+    "noise_rate_percent": 0.0
+  }
+]

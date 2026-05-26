@@ -1,0 +1,301 @@
+index,title,human_label,ml_cleaner_label,ml_is_real_internship,ml_probability,ml_needs_manual_review,match
+1,ClickHouse DBA / Technical Support Engineer (Clickhouse Experience Is a Must),false_internship,false_internship,False,0.1,False,True
+2,Data Engineer (Hybrid),false_internship,false_internship,False,0.1,False,True
+3,"Senior Product Manager, Gusto HR Partners",false_internship,false_internship,False,0.01,False,True
+4,Research Internship (Winter 2026),true_internship,true_internship,True,0.78,False,True
+5,"Software Development Engineer, AWS Timestream",false_internship,false_internship,False,0.1,False,True
+6,Responsable Bureau & Opérations,false_internship,false_internship,False,0.1,False,True
+7,Senior Manager,false_internship,false_internship,False,0.01,False,True
+8,Integrations Engineer,false_internship,false_internship,False,0.1,False,True
+9,Software Engineer (Full Stack),false_internship,false_internship,False,0.1,False,True
+10,"Content Creation AI Agent or Developer - AI Agents Only [Student, New Grad OK]",ambiguous,ambiguous,False,0.52,True,True
+11,Senior Consultant,false_internship,false_internship,False,0.01,False,True
+12,"SEO & GEO Specialist [on-Site, Toronto or Vancouver]",false_internship,false_internship,False,0.1,False,True
+13,Senior Corporate Counsel,false_internship,false_internship,False,0.01,False,True
+14,"Senior Software Engineer II, ICE",false_internship,false_internship,False,0.01,False,True
+15,Vehicle Inspection Associate,false_internship,false_internship,False,0.1,False,True
+16,Information Systems Security Officer,false_internship,false_internship,False,0.1,False,True
+17,Build DevOps Engineer,false_internship,false_internship,False,0.1,False,True
+18,Senior Software Engineer (Analysis),false_internship,false_internship,False,0.01,False,True
+19,"Senior Account Executive, Programmatic (NYC)",false_internship,false_internship,False,0.01,False,True
+20,Vehicle Appraiser (Sell-To-Clutch),false_internship,false_internship,False,0.1,False,True
+21,Information Security Education Analyst,false_internship,false_internship,False,0.1,False,True
+22,"Cleaner, Light Duty",false_internship,false_internship,False,0.1,False,True
+23,Business Development Representative,false_internship,false_internship,False,0.1,False,True
+24,Sales Lead– Remote,false_internship,false_internship,False,0.1,False,True
+25,"Engineering Manager, Backend APIs & Integrations",false_internship,false_internship,False,0.01,False,True
+26,Network Engineer & IT Support - Remote,false_internship,false_internship,False,0.1,False,True
+27,"Shopify Developer (Philippines & Bangladesh, Remote)",false_internship,false_internship,False,0.1,False,True
+28,Brand Lead,false_internship,false_internship,False,0.1,False,True
+29,"Senior Platform Engineer, Observability",false_internship,false_internship,False,0.01,False,True
+30,Senior Machine Learning Developer - Commerce AI,false_internship,false_internship,False,0.01,False,True
+31,Senior Business Systems Analyst,false_internship,false_internship,False,0.01,False,True
+32,Enterprise Account Executive,false_internship,false_internship,False,0.1,False,True
+33,Senior Software Engineer - Platform,false_internship,false_internship,False,0.01,False,True
+34,Founding Sales Representative (Hybrid),false_internship,false_internship,False,0.1,False,True
+35,"Software Engineer, Developer Experience",false_internship,false_internship,False,0.1,False,True
+36,Business Management Analyst,false_internship,false_internship,False,0.1,False,True
+37,ClickHouse Solutions Engineer (Clickhouse Experience Is a Must),false_internship,false_internship,False,0.1,False,True
+38,Sales Development Representative (Setter),false_internship,false_internship,False,0.1,False,True
+39,Staff Full Stack Engineer - Clinical,false_internship,false_internship,False,0.1,False,True
+40,Frontend Software Engineer (UX/UI Focus),false_internship,false_internship,False,0.1,False,True
+41,"Senior Cloud Engineer , Data Stores",false_internship,false_internship,False,0.01,False,True
+42,"Regional Sales Manager, SLED (SC,GA,MS,AL)",false_internship,false_internship,False,0.01,False,True
+43,Software Engineer II - Customer Platform / Runtimes,false_internship,false_internship,False,0.1,False,True
+44,Social Media Sales Closer – Remote Commission Sales Job in Vancouver BC | Miles Ahead Hosting Fast Hosting Vancouver BC,false_internship,false_internship,False,0.1,False,True
+45,Regulatory Compliance Director,false_internship,false_internship,False,0.01,False,True
+46,Trust & Safety Investigator,false_internship,false_internship,False,0.1,False,True
+47,Founding Team Member - Product Engineer,false_internship,false_internship,False,0.1,False,True
+48,Product Designer (Remote),false_internship,false_internship,False,0.1,False,True
+49,Technical Project Manager,false_internship,false_internship,False,0.01,False,True
+50,Operations & Accounting Manager - CFA,false_internship,false_internship,False,0.01,False,True
+51,Pricing Intern (Jan 2026),true_internship,true_internship,True,0.78,False,True
+52,Senior Mechanical Test Engineer,false_internship,false_internship,False,0.01,False,True
+53,Developer Advocate,false_internship,false_internship,False,0.1,False,True
+54,Sr. Software Engineer II (Distributed Systems),false_internship,false_internship,False,0.1,False,True
+55,Senior Employment and Benefits Counsel,false_internship,false_internship,False,0.01,False,True
+56,Enterprise Account Executive,false_internship,false_internship,False,0.1,False,True
+57,Senior Finance Integration Manager,false_internship,false_internship,False,0.01,False,True
+58,IT Field Support Specialist (Imaging),false_internship,false_internship,False,0.1,False,True
+59,Senior Software Engineer (Analysis),false_internship,false_internship,False,0.01,False,True
+60,Training Specialist I,false_internship,false_internship,False,0.1,False,True
+61,"Senior E-Commerce PPC Specialist – Google & Meta Ads (Eastern Europe, Remote)",false_internship,false_internship,False,0.01,False,True
+62,Sales Development Representative,false_internship,false_internship,False,0.1,False,True
+63,Senior Implementation Consultant,false_internship,false_internship,False,0.01,False,True
+64,Peloton Sales Expert (Part-Time) - Kingston,false_internship,false_internship,False,0.1,False,True
+65,"Senior Product Designer, Risk and Protection",false_internship,false_internship,False,0.01,False,True
+66,Senior Full Stack Engineer- Clinical,false_internship,false_internship,False,0.01,False,True
+67,Senior Trust & Safety Investigator I,false_internship,false_internship,False,0.01,False,True
+68,SaaS Sales Manager (Hybrid),false_internship,false_internship,False,0.01,False,True
+69,Staff Technical Support Engineer,false_internship,false_internship,False,0.1,False,True
+70,Principal Developer & Tech Lead,false_internship,false_internship,False,0.01,False,True
+71,"Manager, Applied Science (Telematics & OCR)",false_internship,false_internship,False,0.01,False,True
+72,"Senior Product Manager, Internal Systems",false_internship,false_internship,False,0.18,False,True
+73,Senior AI-First TypeScript Developer (Backend),false_internship,false_internship,False,0.01,False,True
+74,Deep Learning Researcher,false_internship,false_internship,False,0.1,False,True
+75,Frontend Engineer,false_internship,false_internship,False,0.1,False,True
+76,Software Engineering Intern (Summer 2026),true_internship,true_internship,True,0.78,False,True
+77,"Director, Strategic Finance",false_internship,false_internship,False,0.01,False,True
+78,"Engineering Manager, Content Publisher",false_internship,false_internship,False,0.01,False,True
+79,RFIC Design (12-month Co-Op),false_internship,false_internship,False,0.4,True,True
+80,Senior/Principal Product Manager (Risk),false_internship,false_internship,False,0.01,False,True
+81,Senior Software Engineer (Analysis),false_internship,false_internship,False,0.01,False,True
+82,Territory Enterprise Account Executive - West (Bay Area),false_internship,false_internship,False,0.1,False,True
+83,"Android Engineer, Partnerships",false_internship,false_internship,False,0.1,False,True
+84,"Staff Software Engineer, Platform",false_internship,false_internship,False,0.1,False,True
+85,Short Term 2026 Software Engineering Intern/Co-Op,true_internship,true_internship,True,0.78,False,True
+86,Product Manager,false_internship,false_internship,False,0.01,False,True
+87,Engineering Manager 2,false_internship,false_internship,False,0.01,False,True
+88,Software Engineering Intern (2026),true_internship,true_internship,True,0.78,False,True
+89,Product Design Intern - Design & UX - Winter 2026,true_internship,true_internship,True,0.78,False,True
+90,Window Cleaner (Crystal Cleaning),false_internship,false_internship,False,0.1,False,True
+91,Tax Registration Coordinator,false_internship,false_internship,False,0.1,False,True
+92,Senior Machine Learning Engineer (Europe),false_internship,false_internship,False,0.01,False,True
+93,"Lead Engineer, Inference Platform",false_internship,false_internship,False,0.01,False,True
+94,Senior DevSecOps Engineer,false_internship,false_internship,False,0.01,False,True
+95,Content Marketing Intern,true_internship,true_internship,True,0.72,False,True
+96,Engineering Architect,false_internship,false_internship,False,0.1,False,True
+97,Senior Software Engineer,false_internship,false_internship,False,0.01,False,True
+98,Technical Marketing Lead,false_internship,false_internship,False,0.1,False,True
+99,Engineering Architect,false_internship,false_internship,False,0.1,False,True
+100,Software Developer Intern - WINTER 2026,true_internship,true_internship,True,0.78,False,True
+101,Wholesale Manager,false_internship,false_internship,False,0.01,False,True
+102,"ClickHouse Open-Source Database Developer (C++, DB Internals)",false_internship,false_internship,False,0.18,False,True
+103,"Senior Staff Software Engineer, Gusto Embedded Payroll",false_internship,false_internship,False,0.01,False,True
+104,Mid-Market II Account Executive,false_internship,false_internship,False,0.1,False,True
+105,"2026 - Software Engineering Intern, Toronto",true_internship,true_internship,True,0.78,False,True
+106,Director of Product Marketing,false_internship,false_internship,False,0.01,False,True
+107,"Director, Engineering – Payments",false_internship,false_internship,False,0.01,False,True
+108,Executive Assistant,false_internship,false_internship,False,0.1,False,True
+109,"Design, Development & Marketing Specialist – WordPress, Shopify, Ecommerce, Courses",false_internship,false_internship,False,0.1,False,True
+110,Research Engineer,false_internship,false_internship,False,0.1,False,True
+111,Commercial Counsel,false_internship,false_internship,False,0.1,False,True
+112,"Senior Implementation Manager, EMEA",false_internship,false_internship,False,0.01,False,True
+113,"Software Engineer I, Entry-Level (Graduation Date: Fall 2025-Summer 2026)",ambiguous,ambiguous,False,0.52,True,True
+114,Data Annotator - ONSITE(Islamabad),false_internship,false_internship,False,0.1,False,True
+115,Senior Software Engineer II (Ruby on Rails),false_internship,false_internship,False,0.01,False,True
+116,DevOps Engineer,false_internship,false_internship,False,0.1,False,True
+117,"Software Engineering Manager, Cells Infrastructure",false_internship,false_internship,False,0.01,False,True
+118,Applied AI Engineer,false_internship,false_internship,False,0.1,False,True
+119,Backend Engineer (Europe),false_internship,false_internship,False,0.1,False,True
+120,"Senior Manager, Enterprise Risk Management",false_internship,false_internship,False,0.01,False,True
+121,Technical Support Engineer H/F,false_internship,false_internship,False,0.1,False,True
+122,Indigenous Student Internship,true_internship,true_internship,True,0.78,False,True
+123,Mid-Market Customer Success Manager,false_internship,false_internship,False,0.01,False,True
+124,"Engineering Manager, Data Engineering",false_internship,false_internship,False,0.01,False,True
+125,"Senior Technical Writer, Blockchain Solutions",false_internship,false_internship,False,0.01,False,True
+126,Staff Software Engineer,false_internship,false_internship,False,0.1,False,True
+127,"Senior Engineer II, AI Security - Platform Engineering",false_internship,false_internship,False,0.01,False,True
+128,SAP iXp Intern - Agile Test Developer [Vancouver],true_internship,true_internship,True,0.72,False,True
+129,Co-Op Internship,true_internship,true_internship,True,0.78,False,True
+130,Head of Sales / VP of Sales – Miles Ahead Hosting • Commission-Based Role • Remote,false_internship,false_internship,False,0.01,False,True
+131,Ecosystem Engineer,false_internship,false_internship,False,0.1,False,True
+132,Security Analyst,false_internship,false_internship,False,0.1,False,True
+133,Technical Support Engineering Lead H/F,false_internship,false_internship,False,0.1,False,True
+134,Software Engineer,false_internship,false_internship,False,0.1,False,True
+135,Mobility Field Support Specialist,false_internship,false_internship,False,0.1,False,True
+136,"Sr. Product Manager, Secure",false_internship,false_internship,False,0.01,False,True
+137,Staff Security Engineer,false_internship,false_internship,False,0.1,False,True
+138,"Director, Alliances",false_internship,false_internship,False,0.01,False,True
+139,Administrative Assistant,false_internship,false_internship,False,0.1,False,True
+140,Outbound Field Specialist,false_internship,false_internship,False,0.1,False,True
+141,"Full-Stack Engineer, AI Applications",false_internship,false_internship,False,0.1,False,True
+142,AI PM Intern (Vancouver),true_internship,true_internship,True,0.72,False,True
+143,Senior Sales Development Representative - America,false_internship,false_internship,False,0.01,False,True
+144,Integration of AI Into IT Systems Intern (Jan 2026),true_internship,true_internship,True,0.78,False,True
+145,Director of Engineering,false_internship,false_internship,False,0.01,False,True
+146,Digital Growth Marketer,false_internship,false_internship,False,0.1,False,True
+147,Senior Security Engineer I/II - Chicago/Toronto,false_internship,false_internship,False,0.01,False,True
+148,Career Counselor (Part-Time),false_internship,false_internship,False,0.1,False,True
+149,Jr Data Developer,false_internship,false_internship,False,0.1,False,True
+150,Account Executive I (Hybrid),false_internship,false_internship,False,0.1,False,True
+151,"Senior Site Reliability Engineer, Database Operations",false_internship,false_internship,False,0.01,False,True
+152,Sr. Technical Program Manager,false_internship,false_internship,False,0.01,False,True
+153,"Sr. Manager, Engineering",false_internship,false_internship,False,0.01,False,True
+154,Strategic Program Manager,false_internship,false_internship,False,0.01,False,True
+155,Information Security Risk Manager,false_internship,false_internship,False,0.01,False,True
+156,Child-Care Programs Planning Officer,false_internship,false_internship,False,0.25,False,True
+157,Software Engineer II - Customer Platform / Runtimes,false_internship,false_internship,False,0.1,False,True
+158,Staff Product Designer,false_internship,false_internship,False,0.1,False,True
+159,IT Application Associate Student Intern (May 2026),true_internship,true_internship,True,0.78,False,True
+160,"Senior Product Designer, SMB",false_internship,false_internship,False,0.01,False,True
+161,Target Systems Analyst 2,false_internship,false_internship,False,0.1,False,True
+162,Senior Growth Product Manager (Remote CAN),false_internship,false_internship,False,0.01,False,True
+163,"Staff Software Engineer, Platform",false_internship,false_internship,False,0.1,False,True
+164,Software Engineer (Full-Stack),false_internship,false_internship,False,0.1,False,True
+165,Software Engineer / Developer,false_internship,false_internship,False,0.1,False,True
+166,Digital Marketing & Growth Specialist (Startup Role),false_internship,false_internship,False,0.1,False,True
+167,"Senior Product Manager, AI",false_internship,false_internship,False,0.01,False,True
+168,"Software Development Engineer, Amazon DynamoDB",false_internship,false_internship,False,0.1,False,True
+169,"Senior Software Development Engineer in Test, AI Gateway - Shanghai",false_internship,false_internship,False,0.01,False,True
+170,Senior Revenue Systems Strategist,false_internship,false_internship,False,0.01,False,True
+171,Account Executive- Austin TX,false_internship,false_internship,False,0.1,False,True
+172,Head / Vice President of Finance,false_internship,false_internship,False,0.1,False,True
+173,CEO Communications Manager,false_internship,false_internship,False,0.01,False,True
+174,Junior Operations Specialist,false_internship,false_internship,False,0.2,False,True
+175,Associate Footwear Designer,false_internship,false_internship,False,0.1,False,True
+176,Legal Assistant,false_internship,false_internship,False,0.1,False,True
+177,Short Term 2026 Hardware Design Verification Engineering Intern/Co-Op,true_internship,true_internship,True,0.78,False,True
+178,Software Engineer II,false_internship,false_internship,False,0.1,False,True
+179,Senior Security Engineer,false_internship,false_internship,False,0.01,False,True
+180,Quality Assurance Engineer - Remote,false_internship,false_internship,False,0.1,False,True
+181,Marketing Analyst,false_internship,false_internship,False,0.1,False,True
+182,Data Operations Manager,false_internship,false_internship,False,0.01,False,True
+183,Sales Development Representative - Italy,false_internship,false_internship,False,0.1,False,True
+184,Cook,false_internship,false_internship,False,0.1,False,True
+185,"Sr. Software Development Engineer, Amazon AWS",false_internship,false_internship,False,0.1,False,True
+186,Associate Footwear Designer,false_internship,false_internship,False,0.1,False,True
+187,Mid-Level Backend Engineer,false_internship,false_internship,False,0.1,False,True
+188,"Software Engineer, Inbound Sourcing",false_internship,false_internship,False,0.1,False,True
+189,Solutions Engineer,false_internship,false_internship,False,0.1,False,True
+190,Staff DevOps Engineer,false_internship,false_internship,False,0.1,False,True
+191,Strategic Finance Lead: Financial Products,false_internship,false_internship,False,0.1,False,True
+192,"Senior Security Engineer, Application Security",false_internship,false_internship,False,0.01,False,True
+193,"Senior Software Engineer, Developer Experience",false_internship,false_internship,False,0.01,False,True
+194,Logistician 2,false_internship,false_internship,False,0.1,False,True
+195,"Stagiaire en Développement Web, Intern Software Web Developer",true_internship,true_internship,True,0.72,False,True
+196,Intern Software Developer - Summer 2026,true_internship,true_internship,True,0.78,False,True
+197,Construction Worker,false_internship,false_internship,False,0.1,False,True
+198,Backend Developer - Generic Connectivity,false_internship,false_internship,False,0.1,False,True
+199,Senior Recruiter,false_internship,false_internship,False,0.01,False,True
+200,Senior Growth Marketing Manager (GTM AI Team),false_internship,false_internship,False,0.01,False,True
+201,Senior or Principal Full Stack Software Engineer,false_internship,false_internship,False,0.01,False,True
+202,"Senior Site Reliability Engineer, US Public Sector Services",false_internship,false_internship,False,0.01,False,True
+203,SAP iXp Intern - AI & Data Engineer Foundation Model,true_internship,true_internship,True,0.72,False,True
+204,Security Automation Engineer with Python,false_internship,false_internship,False,0.1,False,True
+205,Dental Assistant,false_internship,false_internship,False,0.1,False,True
+206,"Sr. Analyst, Supply Chain Operations",false_internship,false_internship,False,0.1,False,True
+207,"Staff Product Designer, Consumer Money",false_internship,false_internship,False,0.1,False,True
+208,Financial Systems & Business Intelligence Manager (FSBI Mgr),false_internship,false_internship,False,0.01,False,True
+209,Marketing Coordinator,false_internship,false_internship,False,0.1,False,True
+210,Solutions Attorney (West Coast Only),false_internship,false_internship,False,0.1,False,True
+211,Senior Platform Engineer (USA/Canada),false_internship,false_internship,False,0.01,False,True
+212,"Engineering Manager, Data Infrastructure",false_internship,false_internship,False,0.01,False,True
+213,Enterprise Account Executive,false_internship,false_internship,False,0.1,False,True
+214,Future Opportunities at Miles Ahead Hosting,false_internship,false_internship,False,0.1,False,True
+215,Painter,false_internship,false_internship,False,0.1,False,True
+216,"Software Engineering Manager, Time",false_internship,false_internship,False,0.01,False,True
+217,Business Systems Engineer,false_internship,false_internship,False,0.1,False,True
+218,Principal Product Manager (USA),false_internship,false_internship,False,0.01,False,True
+219,"Strategic Solutions Engineer, Strategic Accounts - West Region",false_internship,false_internship,False,0.1,False,True
+220,"Senior Javascript Engineer, Ads",false_internship,false_internship,False,0.01,False,True
+221,Fullstack Engineer,false_internship,false_internship,False,0.1,False,True
+222,"Data Platform Engineer, Business Intelligence",false_internship,false_internship,False,0.1,False,True
+223,"Manager, Data Science (Hybrid)",false_internship,false_internship,False,0.01,False,True
+224,"Senior Backend Developer (Fully Remote, Worldwide)",false_internship,false_internship,False,0.01,False,True
+225,IT Co-op/Intern (Start ASAP),true_internship,true_internship,True,0.78,False,True
+226,Inside Sales - SDR,false_internship,false_internship,False,0.1,False,True
+227,Senior Program Manager,false_internship,false_internship,False,0.01,False,True
+228,Senior Product Designer,false_internship,false_internship,False,0.01,False,True
+229,Solutions Consultant,false_internship,false_internship,False,0.1,False,True
+230,Imaging & Printing Product Marketing Internship,true_internship,true_internship,True,0.72,False,True
+231,Senior Android Engineer - Discovery,false_internship,false_internship,False,0.01,False,True
+232,Senior AEM Developer,false_internship,false_internship,False,0.01,False,True
+233,Remarketing Manager (Wholesale/Auction),false_internship,false_internship,False,0.01,False,True
+234,"Sr Product Designer, Growth Acquisition",false_internship,false_internship,False,0.1,False,True
+235,Software Engineer - Toronto,false_internship,false_internship,False,0.1,False,True
+236,"Senior Software Engineer, Identity & Access Management",false_internship,false_internship,False,0.01,False,True
+237,Business Development Representative,false_internship,false_internship,False,0.1,False,True
+238,"Senior Manager, Talent Acquisition Enablement & Operations",false_internship,false_internship,False,0.01,False,True
+239,"Sr. Associate, Studio Experience",false_internship,false_internship,False,0.1,False,True
+240,Senior Backend Engineer,false_internship,false_internship,False,0.01,False,True
+241,Summer 2026 Long Term Diagnostics Design Engineering Intern/Co-Op,true_internship,true_internship,True,0.78,False,True
+242,Staff Accountant,false_internship,false_internship,False,0.1,False,True
+243,"Software Engineer, Product",false_internship,false_internship,False,0.1,False,True
+244,Sales Executive – Web Hosting & Digital Marketing Commission-Only (Uncapped),false_internship,false_internship,False,0.1,False,True
+245,Senior Product Designer,false_internship,false_internship,False,0.01,False,True
+246,"Program Manager, Customer Success and Retention",false_internship,false_internship,False,0.01,False,True
+247,Senior Fullstack Engineer (Remote),false_internship,false_internship,False,0.01,False,True
+248,People Insights Analyst,false_internship,false_internship,False,0.1,False,True
+249,Director of Paid Media (Remote),false_internship,false_internship,False,0.01,False,True
+250,Software Development Engineer- Amazon Devices,false_internship,false_internship,False,0.1,False,True
+251,2025-2026 AI/ML Research Fellow,false_internship,false_internship,False,0.32,False,True
+252,Data Associate,false_internship,false_internship,False,0.1,False,True
+253,Global Solution Architect (Experiment),false_internship,false_internship,False,0.1,False,True
+254,Marketing Automation Specialist,false_internship,false_internship,False,0.1,False,True
+255,Senior Sales Development Representative - EMEA,false_internship,false_internship,False,0.01,False,True
+256,Frontend Engineer,false_internship,false_internship,False,0.1,False,True
+257,Crypto and Finance Analyst,false_internship,false_internship,False,0.1,False,True
+258,"Social Media Manager (Fully Remote, Worldwide)",false_internship,false_internship,False,0.01,False,True
+259,Product Manager (Senior),false_internship,false_internship,False,0.01,False,True
+260,"Senior Fullstack Developer, Implementation",false_internship,false_internship,False,0.01,False,True
+261,Robotic Process Automation Developer (IT) Student Intern (May 2026),true_internship,true_internship,True,0.78,False,True
+262,Marketing Analyst,false_internship,false_internship,False,0.1,False,True
+263,"Staff Software Engineer, Platform",false_internship,false_internship,False,0.1,False,True
+264,Customer Success Manager,false_internship,false_internship,False,0.01,False,True
+265,Join Our Talent Community!,false_internship,false_internship,False,0.1,False,True
+266,Technical Learning & Development Intern (Jan 2026),true_internship,true_internship,True,0.78,False,True
+267,Workday System Administrator,false_internship,false_internship,False,0.1,False,True
+268,Senior/Principal Product Manager (Risk),false_internship,false_internship,False,0.01,False,True
+269,Software Engineer,false_internship,false_internship,False,0.1,False,True
+270,Senior Technical Program Manager - HR Tech,false_internship,false_internship,False,0.01,False,True
+271,Product Analytics Strategist (Customer Success),false_internship,false_internship,False,0.1,False,True
+272,Head of Estate Planning,false_internship,false_internship,False,0.01,False,True
+273,"Manager, Customer Support",false_internship,false_internship,False,0.01,False,True
+274,Staff Backend Engineer (Europe),false_internship,false_internship,False,0.1,False,True
+275,Product Manager (GTM AI Team),false_internship,false_internship,False,0.01,False,True
+276,Associate Footwear Designer,false_internship,false_internship,False,0.1,False,True
+277,"Senior Solutions Engineer, Strategic Networks",false_internship,false_internship,False,0.01,False,True
+278,Sales Development Manager - France/Italy,false_internship,false_internship,False,0.01,False,True
+279,Co-Op Software Engineer Intern,true_internship,true_internship,True,0.78,False,True
+280,"Corporate Engineering Manager, Automations & Integrations",false_internship,false_internship,False,0.01,False,True
+281,Senior Backend Engineer (USA/Canada),false_internship,false_internship,False,0.01,False,True
+282,Staff Backend Engineer,false_internship,false_internship,False,0.1,False,True
+283,"Staff Product Designer, Time Tools",false_internship,false_internship,False,0.1,False,True
+284,DevOps Engineer,false_internship,false_internship,False,0.1,False,True
+285,"Manager, ServiceNow Development",false_internship,false_internship,False,0.01,False,True
+286,Project Management Intern,true_internship,true_internship,True,0.72,False,True
+287,"Senior Software Engineer, Atlas Clusters Security",false_internship,false_internship,False,0.01,False,True
+288,Senior Manager - Salesforce Developer,false_internship,false_internship,False,0.01,False,True
+289,Software Engineer - Brasilia,false_internship,false_internship,False,0.1,False,True
+290,Office Assistant,false_internship,false_internship,False,0.1,False,True
+291,Global Support Administrator I,false_internship,false_internship,False,0.1,False,True
+292,General Ledger Senior Accountant (Bengaluru),false_internship,false_internship,False,0.01,False,True
+293,Head of Sales,false_internship,false_internship,False,0.01,False,True
+294,Staff Network Reliability Engineer,false_internship,false_internship,False,0.1,False,True
+295,Founding Backend Engineer,false_internship,false_internship,False,0.1,False,True
+296,Senior II Data Scientist - Commerce AI,false_internship,false_internship,False,0.01,False,True
+297,Product Analytics Strategist (Customer Success),false_internship,false_internship,False,0.1,False,True
+298,Financial Solutions Intern,true_internship,true_internship,True,0.72,False,True
+299,Software Engineer Intern,true_internship,true_internship,True,0.72,False,True
+300,"Fullstack Developer Intern, Winter 2026",true_internship,true_internship,True,0.78,False,True

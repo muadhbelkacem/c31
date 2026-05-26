@@ -1,0 +1,36 @@
+
+> html-js@0.1.0 build
+> next build --turbopack
+
+   ▲ Next.js 16.0.7 (Turbopack)
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 6.0s
+   Running TypeScript ...
+   Collecting page data using 55 workers ...
+   Generating static pages using 55 workers (0/7) ...
+   Generating static pages using 55 workers (1/7) 
+Loaded 202 accepted internships from production intern_data.json
+Loaded 202 accepted internships from production intern_data.json
+Loaded 202 accepted internships from production intern_data.json
+Loaded 202 accepted internships from production intern_data.json
+Loaded 202 accepted internships from production intern_data.json
+   Generating static pages using 55 workers (3/7) 
+   Generating static pages using 55 workers (5/7) 
+ ✓ Generating static pages using 55 workers (7/7) in 4.6s
+   Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /account
+├ ƒ /api/internship
+├ ƒ /api/internship/[id]
+├ ○ /robots.txt
+├ ƒ /role/[id]
+└ ○ /sitemap.xml
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

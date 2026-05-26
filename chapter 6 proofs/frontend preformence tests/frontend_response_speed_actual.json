@@ -1,0 +1,54 @@
+{
+  "created_at": "2026-05-25T18:40:57.337480+00:00",
+  "server": "next start -p 3001",
+  "summary": [
+    {
+      "page_or_api": "Homepage /",
+      "path": "/",
+      "cold_load_ms": 25.16,
+      "warm_median_ms": 8.98,
+      "warm_p95_ms": 11.04,
+      "warm_min_ms": 8.24,
+      "warm_max_ms": 13.72,
+      "samples": 20,
+      "http_status": 200,
+      "response_bytes": 973037
+    },
+    {
+      "page_or_api": "Internship API /api/internship",
+      "path": "/api/internship",
+      "cold_load_ms": 37.22,
+      "warm_median_ms": 7.88,
+      "warm_p95_ms": 11.05,
+      "warm_min_ms": 6.74,
+      "warm_max_ms": 12.48,
+      "samples": 20,
+      "http_status": 200,
+      "response_bytes": 905677
+    },
+    {
+      "page_or_api": "Role page /role/[id]",
+      "path": "/role/glassdoor_5008634264187525578",
+      "cold_load_ms": 129.71,
+      "warm_median_ms": 9.22,
+      "warm_p95_ms": 14.61,
+      "warm_min_ms": 7.08,
+      "warm_max_ms": 18.55,
+      "samples": 20,
+      "http_status": 200,
+      "response_bytes": 27110
+    },
+    {
+      "page_or_api": "Single role API /api/internship/[id]",
+      "path": "/api/internship/glassdoor_5008634264187525578",
+      "cold_load_ms": 16.66,
+      "warm_median_ms": 14.12,
+      "warm_p95_ms": 16.85,
+      "warm_min_ms": 12.28,
+      "warm_max_ms": 17.2,
+      "samples": 20,
+      "http_status": 200,
+      "response_bytes": 2827
+    }
+  ]
+}

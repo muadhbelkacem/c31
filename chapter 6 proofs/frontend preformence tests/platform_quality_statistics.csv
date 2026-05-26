@@ -1,0 +1,10 @@
+platform,total,real_internship,ambiguous,fake_non_internship,real_rate_percent,noise_rate_percent
+Wellfound,262,6,1,255,2.29,97.33
+TrueUp,15,13,1,1,86.67,6.67
+Job Bank,7,0,0,7,0.0,100.0
+Prosple,6,6,0,0,100.0,0.0
+Jobillico,5,1,0,4,20.0,80.0
+Indeed,2,1,0,1,50.0,50.0
+ECO Canada,1,0,0,1,0.0,100.0
+communitech,1,1,0,0,100.0,0.0
+rbc_careers,1,1,0,0,100.0,0.0

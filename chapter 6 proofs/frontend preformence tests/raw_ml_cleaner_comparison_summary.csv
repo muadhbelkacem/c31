@@ -1,0 +1,5 @@
+system,scope,true_internship,ambiguous,false_internship,three_class_accuracy_vs_human,precision,recall,notes
+Human inspection (ground truth),300 records,29,2,269,reference,reference,reference,closest result to reality
+ChatGPT 5.5 opinion,300 records,30,3,267,0.9933,0.9667,1.0,2 three-class disagreements
+Old uploaded AI transformer,7 matched records only,3,0,4,0.5714,1.0,0.5,conservative; 3 false negatives on intern titles
+New ml_cleaner,300 records,29,2,269,1.0,1.0,1.0,human-aligned title logic; no skipped records

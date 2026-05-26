@@ -1,0 +1,7 @@
+query,results_found,median_filter_ms,p95_filter_ms,min_ms,max_ms,iterations
+software,67,1.9643,2.4907,1.7162,2.7511,100
+data,95,1.8872,2.3509,1.5752,2.4315,100
+business,138,1.772,2.2819,1.5159,2.3807,100
+marketing,42,1.9068,2.3733,1.7139,2.524,100
+engineering,83,1.6766,1.9589,1.5449,2.2833,100
+finance,27,1.9472,2.3504,1.8035,2.6416,100

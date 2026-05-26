@@ -1,0 +1,14 @@
+
+> html-js@0.1.0 start
+> next start -p 3001
+
+   ▲ Next.js 16.0.7
+   - Local:         http://localhost:3001
+   - Network:       http://172.26.36.10:3001
+
+ ✓ Starting...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ✓ Ready in 792ms
+Supabase environment variables are not set. Auth/save features are disabled for local JSON preview.
+Loaded 202 accepted internships from production intern_data.json
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3001". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
