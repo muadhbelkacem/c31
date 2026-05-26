@@ -4,9 +4,9 @@
 The growth of online recruitment platforms has transformed the way students identify and access
 internship opportunities. Internship advertisements are now distributed across general job boards,
 employer websites, university career portals, professional networks, and specialized recruitment
-platforms. This expansion increases access to opportunities, but it also introduces a significant
+platforms \cite{kurekova2015using}. This expansion increases access to opportunities, but it also introduces a significant
 information-management problem: internship data is dispersed, semi-structured, inconsistently
-described, and frequently mixed with non-internship job postings.
+described, and frequently mixed with non-internship job postings \cite{doan2012principles, batini2009methodologies}.
 In this context, internship discovery is not merely a search-interface problem. It is a semantic
 data-representation problem. Online internship postings often differ in structure, terminology,
 level of detail, and metadata quality. Similar opportunities may be described using different job
@@ -15,34 +15,36 @@ postings that share similar keywords may refer to different types of opportuniti
 internships, graduate programs, apprenticeships, entry-level roles, or full-time professional
 positions.
 Traditional keyword-based retrieval is limited in this environment because it depends heavily on
-exact lexical overlap between user queries and posting content. A student searching for ``software
+exact lexical overlap between user queries and posting content \cite{manning2008introduction, robertson2009probabilistic}. A student searching for ``software
 engineering internship'' may miss relevant postings described as ``junior developer placement,''
 ``backend trainee,'' or ``student programmer.'' At the same time, keyword-based systems may
 retrieve irrelevant postings that contain internship-related terms but do not represent genuine
-internship opportunities.
+internship opportunities. This vocabulary mismatch is a central motivation for semantic retrieval
+and dense representation methods \cite{baeza2011modern, luan2021sparse}.
 This thesis investigates the semantic structuring of heterogeneous internship postings. It proposes
 and evaluates a lightweight semantic enrichment model that transforms noisy recruitment records
 into structured, interpretable, and discovery-oriented internship representations. The emphasis is
 not simply on building a web application, but on examining how semantic normalization, skill
 representation, internship relevance classification, and uncertainty handling can improve the
-reliability of internship-oriented information retrieval.
+reliability of internship-oriented information retrieval \cite{sarawagi2008information, li2020survey, shvaiko2013ontology}.
 
 \section{Research Background}
 Online recruitment data belongs to a broader class of semi-structured textual data. It contains
 structured elements such as job title, company, location, salary, date, and platform source, but
 these fields are often incomplete, inconsistent, or expressed differently across sources. It also
 contains unstructured natural-language descriptions, where requirements, responsibilities, skills,
-and eligibility conditions are embedded in free text.
+and eligibility conditions are embedded in free text \cite{doan2012principles, batini2009methodologies}.
 This creates several challenges for internship discovery. First, there is structural heterogeneity,
 because different platforms and sources use different schemas, field names, formatting
 conventions, and metadata availability. Second, there is lexical heterogeneity, because similar
 internship roles may be expressed using different words, abbreviations, or employer-specific
 terms. Third, there is semantic ambiguity, because the same term may refer to different
 opportunity types depending on context. Fourth, there is quality variation, because scraped or
-externally collected records may include duplicates, missing fields, noisy descriptions, and noninternship postings.
+externally collected records may include duplicates, missing fields, noisy descriptions, and non-internship postings
+\cite{batini2009methodologies, elmagarmid2007duplicate}.
 Research in information extraction, occupational taxonomies, semantic normalization, record
 linkage, lexical retrieval, dense text representation, and hybrid retrieval provides useful
-foundations for addressing these problems. Information extraction supports the transformation of
+foundations for addressing these problems \cite{sarawagi2008information, peterson2001occupational, manning2008introduction, luan2021sparse}. Information extraction supports the transformation of
 textual postings into structured records. Occupational taxonomies and controlled vocabularies
 support the normalization of skills and occupational categories. Dense embeddings and semantic
 similarity methods help reduce the vocabulary gap between different descriptions of similar
@@ -50,25 +52,26 @@ roles. However, these techniques must be adapted carefully to the specific requi
 internship-focused discovery.
 Unlike general job search, internship discovery requires sensitivity to early-career terminology,
 educational relevance, training-oriented roles, temporary work arrangements, and ambiguity
-between internships, graduate schemes, apprenticeships, and junior jobs. Therefore, internshiporiented data enrichment requires more than generic job-posting processing. It requires a
+between internships, graduate schemes, apprenticeships, and junior jobs. Therefore, internship-oriented data enrichment requires more than generic job-posting processing. It requires a
 structured approach that can distinguish real internship opportunities, normalize heterogeneous
 metadata, represent skills consistently, and expose uncertainty where automatic decisions are
-unreliable.
+unreliable \cite{kurekova2015using, hunkenschroer2022ethics}.
 
 \section{Problem Statement}
 The central problem addressed in this thesis is the lack of a coherent, interpretable, and
 internship-oriented semantic structuring approach for heterogeneous online internship postings.
 General recruitment platforms are designed primarily for broad job search. As a result, internship
 opportunities are often presented alongside full-time jobs, senior professional roles, graduate
-programs, training advertisements, and unrelated postings. When data is collected from such
+programs, training advertisements, and unrelated postings \cite{kurekova2015using}. When data is collected from such
 platforms, the resulting dataset may contain both relevant and irrelevant records. Before these
 records can support internship discovery, they must be filtered, normalized, enriched, and
-represented consistently.
+represented consistently \cite{batini2009methodologies, christen2012data}.
 The problem is not only technical. It is also methodological. A system that simply applies
 keyword rules may be explainable but weak in the presence of vocabulary variation. A system
 that relies heavily on large generative models may be semantically flexible but less transparent,
 more costly, and more dependent on external infrastructure. A full occupational taxonomy may
-provide conceptual rigor but may also introduce complexity beyond the needs of a studentcentered internship discovery system.
+provide conceptual rigor but may also introduce complexity beyond the needs of a student-centered internship discovery system
+\cite{manning2008introduction, staab2009handbook, schwartz2020green}.
 This thesis therefore addresses the following research problem:
 
 How can noisy and heterogeneous internship postings be transformed into semantically
@@ -83,9 +86,9 @@ merely in the existence of the software system.
 
 
 \section{Research Gap}
-Existing approaches partially address internship discovery and recruitment data processing, but important limitations remain. General recruitment platforms are not specifically designed for internship-oriented filtering and representation. Information extraction techniques and occupational taxonomies help structure recruitment data, while semantic models improve interpretation of noisy textual content. However, these approaches are often applied independently and may require complex integration, especially when handling heterogeneous and inconsistent internship postings.
+Existing approaches partially address internship discovery and recruitment data processing, but important limitations remain. General recruitment platforms are not specifically designed for internship-oriented filtering and representation \cite{kurekova2015using}. Information extraction techniques and occupational taxonomies help structure recruitment data, while semantic models improve interpretation of noisy textual content \cite{li2020survey, peterson2001occupational, luan2021sparse}. However, these approaches are often applied independently and may require complex integration, especially when handling heterogeneous and inconsistent internship postings.
 
-Therefore, there remains a need for a lightweight internship-focused semantic enrichment pipeline capable of combining normalization, semantic similarity, controlled vocabularies, and uncertainty-aware processing to produce reliable structured records for internship discovery.
+Therefore, there remains a need for a lightweight internship-focused semantic enrichment pipeline capable of combining normalization, semantic similarity, controlled vocabularies, and uncertainty-aware processing to produce reliable structured records for internship discovery \cite{batini2009methodologies, menghani2023efficient}.
 
 \section{Research Aim}
 The aim of this thesis is to design and evaluate a lightweight semantic enrichment model for
@@ -141,7 +144,7 @@ enrichment when applied to noisy, ambiguous, or domain-diverse internship data?
 
 
 \section{Research Approach}
-This thesis follows a design-oriented empirical research approach. The study develops a
+This thesis follows a design-oriented empirical research approach \cite{hevner2004design}. The study develops a
 computational artifact not as an end in itself, but as a means of investigating the semantic
 structuring of heterogeneous internship postings.
 The research approach consists of four stages. First, the problem domain is analyzed through the
@@ -155,17 +158,17 @@ This approach is appropriate because the research problem concerns both represen
 system behavior. The quality of the proposed model cannot be assessed only through theoretical
 discussion; it must be evaluated through its effect on real or representative internship data. At the
 same time, the prototype is not treated as the thesis contribution by itself. It is treated as the
-experimental vehicle through which the proposed semantic enrichment model is examined.
+experimental vehicle through which the proposed semantic enrichment model is examined \cite{hevner2004design}.
 
 \section{Scope and Delimitations}
 This thesis focuses on the semantic structuring and enrichment of internship postings for
 discovery purposes. It does not address candidate selection, automated hiring decisions, student
-ranking, employer-side recruitment decisions, or predictive employability assessment.
+ranking, employer-side recruitment decisions, or predictive employability assessment \cite{hunkenschroer2022ethics, rigotti2024fairness}.
 The system is designed for internship-oriented information retrieval rather than full labor-market
 analytics. Therefore, the semantic categories and skill representations are intended to support
 discovery and browsing, not to provide a complete occupational ontology. Occupational
 frameworks such as ESCO are relevant as conceptual references, but full ontology-level
-alignment is outside the scope of the thesis.
+alignment is outside the scope of the thesis \cite{peterson2001occupational, staab2009handbook}.
 The evaluation focuses on structured data quality, internship relevance classification, semantic
 enrichment, discovery behavior, and uncertainty handling. Claims about user experience should
 remain limited unless supported by a formal user study. Therefore, the thesis should avoid strong
@@ -187,7 +190,7 @@ interpretation, and uncertainty-aware review indicators.
 Third, it defines a structured internship representation that supports source traceability,
 normalized metadata, skill labels, domain categories, internship relevance assessment, and
 discovery-oriented filtering.
-Fourth, it provides an empirical evaluation of the proposed model against simpler keywordoriented and deterministic configurations, examining discovery quality, classification behavior,
+Fourth, it provides an empirical evaluation of the proposed model against simpler keyword-oriented and deterministic configurations, examining discovery quality, classification behavior,
 enrichment consistency, and limitations under noisy real-world posting conditions.
 The technical prototype is an important supporting contribution, but it should not be presented as
 the main intellectual contribution. The main contribution is the semantic enrichment model
