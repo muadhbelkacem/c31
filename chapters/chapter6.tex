@@ -2,9 +2,9 @@
 
 \section{Chapter Introduction}
 
-This chapter presents an evaluation of the lightweight semantic enrichment pipeline developed in this thesis. Its purpose is to examine what the current evidence shows about noisy scraped internship data, semantic structuring, internship detection, structured discovery, uncertainty handling, and local operational feasibility. Technical measurements are therefore treated as supporting feasibility source, not as the main research contribution.
+This chapter presents an evaluation of the lightweight semantic enrichment pipeline developed in this thesis. Its purpose is to examine what the current evidence shows about noisy scraped internship data, semantic structuring, internship detection, structured discovery, uncertainty handling, and local operational feasibility. Technical measurements are therefore treated as supporting feasibility evidence, not as the main research contribution \cite{wohlin2012experimentation, peffers2007design, jain1991art}.
 
-The evaluation is connected to the research questions defined in Chapter 1. RQ1 is addressed through the observed noise, fake roles, and ambiguity in the inspected scraped-role sample. RQ2 is addressed through the structured records produced by the enrichment pipeline, including normalized metadata, extracted skills, internship probabilities, and review indicators. RQ3 is addressed through frontend search, filtering, and response evidence, while avoiding unsupported claims about formal user satisfaction. RQ4 is addressed through the comparison between human review, ChatGPT5.5-assisted review, and Transformer-based internship detection. RQ5 is addressed through local build, file-size, response-time evidence, and the limitations of the evaluation.
+The evaluation is connected to the research questions defined in Chapter 1. RQ1 is addressed through the observed noise, fake roles, and ambiguity in the inspected scraped-role sample. RQ2 is addressed through the structured records produced by the enrichment pipeline, including normalized metadata, extracted skills, internship probabilities, and review indicators. RQ3 is addressed through frontend search, filtering, and response evidence, while avoiding unsupported claims about formal user satisfaction. RQ4 is addressed through the comparison between human review, ChatGPT5.5-assisted review, and Transformer-based internship detection. RQ5 is addressed through local build, file-size, response-time evidence, and the limitations of the evaluation \cite{wohlin2012experimentation}.
 
 All numerical results used in this chapter are limited to the current Chapter 6 supplied classification statistics. The chapter therefore focuses on defensible findings: whether the pipeline can structure noisy recruitment data, support internship detection, preserve uncertainty, and enable efficient structured discovery within the evaluated scope.
 
@@ -13,9 +13,11 @@ All numerical results used in this chapter are limited to the current Chapter 6 
 The evaluation uses a bounded evidence set. Rather than treating the whole implemented project as a
 source of unrestricted numerical claims, the chapter relies on specific proof files that record classification
 comparison, frontend dataset statistics, local build results, local response speed, and frontend search/filter
-timing.
+timing \cite{wohlin2012experimentation, jain1991art}.
 
 \subsection{Evidence Files Used}
+
+The evidence files are treated as traceable evaluation artifacts rather than informal implementation notes, so the chapter only reports measurements and classifications that can be connected to those files \cite{wohlin2012experimentation, jain1991art}.
 
 \begin{itemize}
     \item \texttt{LLM-HUMAN-TRANSFORMER.txt}
@@ -41,12 +43,12 @@ The classification evaluation is conducted on a sample of 300 scraped roles. Hum
 the reference interpretation for this sample. The selected classification identifies 128 roles as real
 internships, 9 as ambiguous cases, and 163 as fake or non-internship roles. This distribution shows that the
 inspected data contains a substantial mixture of valid internships, uncertain opportunities, and irrelevant or
-non-internship records.
+non-internship records \cite{krippendorff2004content, wohlin2012experimentation}.
 
 The 300-role sample is therefore suitable for evaluating the thesis problem because it reflects the central
 difficulty of internship aggregation: records collected from general recruitment sources cannot be assumed
 to be genuine internships simply because they were retrieved by internship-oriented scraping or search
-terms.
+terms \cite{kurekova2015using}.
 
 \subsection{Evaluation Boundaries}
 
@@ -57,7 +59,7 @@ incomplete descriptions. Third, no formal user study was conducted; therefore, t
 structured discovery behavior rather than user satisfaction. Fourth, frontend timing results are local
 measurements observed in the tested environment and should not be treated as universal cloud-deployment
 guarantees. Fifth, files containing older or inconsistent classification distributions were excluded from the
-quantitative argument to preserve a single coherent basis.
+quantitative argument to preserve a single coherent basis \cite{wohlin2012experimentation, jain1991art}.
 
 
 \section{Dataset Noise and Internship-Posting Heterogeneity Results (RQ1)}
@@ -65,7 +67,7 @@ quantitative argument to preserve a single coherent basis.
 RQ1 asks what structural, lexical, and semantic inconsistencies characterize heterogeneous online
 internship postings, and how these inconsistencies affect internship-oriented representation and discovery.
 The 300-role classification sample directly supports this question by showing that scraped recruitment data
-contains both genuine internships and many records that should not be accepted as internships.
+contains both genuine internships and many records that should not be accepted as internships \cite{kurekova2015using, batini2009methodologies}.
 
 In the selected sample, human inspection identified 128 real internships, 9 ambiguous cases, and 163 fake
 or non-internship roles. The fake/non-internship group is larger than the accepted internship group, and the
@@ -78,14 +80,14 @@ level. A posting can contain internship-related words while still not being a re
 can be close to an internship but lack enough evidence for a confident automatic decision. Therefore, a
 thesis evaluation centered only on frontend display or raw scraping volume would be incomplete. The first
 empirical finding is that the data itself requires classification, normalization, and uncertainty-aware
-treatment before being used for internship-oriented discovery.
+treatment before being used for internship-oriented discovery \cite{doan2012principles, sarawagi2008information}.
 
 \section{Semantic Structuring and Enriched Record Quality (RQ2)}
 
 RQ2 asks how rule-based normalization, controlled skill vocabularies, and embedding-based semantic
 representations can be combined into a coherent enrichment model. The frontend catalog statistics provide the output produced by this combined enrichment process. These statistics do not claim perfect
 extraction accuracy; rather, they show the structure and coverage of the records made available to the
-frontend after processing.
+frontend after processing \cite{batini2009methodologies, doan2012principles, sarawagi2008information}.
 
 \begin{table}[H]
     \centering
@@ -106,14 +108,14 @@ standardized for discovery, but missing source information cannot always be reco
 The presence of 60 manual-review records among the 202 displayed records is also significant. It shows
 that the final structured representation does not only classify records; it also preserves uncertainty
 indicators. This supports the thesis design choice of combining automatic enrichment with review-aware
-metadata rather than forcing every posting into a fully confident decision.
+metadata rather than forcing every posting into a fully confident decision \cite{krippendorff2004content}.
 
 
 \section{Internship Detection Evaluation Against Human Review (RQ4 and RQ2)}
 
 This section evaluates internship detection against human review. It supports RQ2 by examining the
 classification component within the enrichment model and supports RQ4 by showing how ambiguous
-cases affect automated decision-making.
+cases affect automated decision-making \cite{sokolova2009systematic, krippendorff2004content, wohlin2012experimentation}.
 
 \begin{table}[H]
     \centering
@@ -132,7 +134,7 @@ interpreted as proof that ChatGPT5.5 is universally 100\% accurate on all intern
 The Transformer classified 132 roles as real internships and 168 roles as fake or non-internships. Unlike
 the human and ChatGPT5.5-assisted review, the Transformer does not produce an ambiguous category.
 Therefore, its performance is interpreted as binary real/fake internship detection. Against the human clear
-real/fake cases, the Transformer achieved 95.19\% accuracy, 93.85\% precision, and 95.31\% recall.
+real/fake cases, the Transformer achieved 95.19\% accuracy, 93.85\% precision, and 95.31\% recall \cite{sokolova2009systematic}.
 
 Precision measures how trustworthy the system is when it classifies a role as a real internship. A high
 precision score means that fewer fake or non-internship roles are incorrectly accepted as real internships.
@@ -143,7 +145,7 @@ These results support a cautious interpretation. The Transformer is effective as
 internship identification in this inspected sample, but its lack of an ambiguous output limits its ability to
 represent uncertainty. Ambiguous cases therefore remain better suited to human review or
 ChatGPT5.5-assisted review, especially when the posting contains incomplete evidence or
-employer-specific terminology.
+employer-specific terminology \cite{krippendorff2004content, hunkenschroer2022ethics}.
 
 
 \section{Discovery-Focused Frontend Evaluation (RQ3)}
@@ -151,7 +153,7 @@ employer-specific terminology.
 RQ3 asks whether semantic enrichment improves relevance, coherence, and interpretability of internship
 discovery compared with keyword-oriented or purely deterministic representations. Since no formal user
 study was conducted, this section does not claim user satisfaction. Instead, it evaluates structured
-discovery behavior through frontend filtering and local response evidence.
+discovery behavior through frontend filtering and local response evidence \cite{manning2008introduction, jarvelin2002cumulated}.
 
 \begin{table}[H]
     \centering
@@ -163,7 +165,7 @@ discovery behavior through frontend filtering and local response evidence.
 Across the tested queries, median filter times remained below 2 ms. The results show that enriched records
 can be searched and filtered quickly in the tested frontend environment. This supports the argument that
 preprocessing and semantic structuring can move expensive cleaning and classification work outside the
-interactive user path, leaving the frontend to operate over compact structured records.
+interactive user path, leaving the frontend to operate over compact structured records \cite{jain1991art, schwartz2020green}.
 
 \begin{table}[H]
     \centering
@@ -177,7 +179,7 @@ The local production response samples show warm median response times of 8.98 ms
 figures support the practical discovery argument: the enriched dataset can be served and explored
 efficiently under the tested local conditions. However, these results should be interpreted as local frontend
 behavior, not as a guarantee of production performance across all networks, deployments, or hardware
-environments.
+environments \cite{jain1991art}.
 
 
 \section{Operational Feasibility of the Lightweight Approach (RQ5)}
@@ -185,7 +187,7 @@ environments.
 RQ5 asks about the methodological and operational limitations of lightweight semantic enrichment.
 Operational feasibility is evaluated here through build logs, static generation evidence, memory usage,
 catalog size, and compressed data size. These measurements are not the central research contribution, but
-they indicate whether the proposed approach remains practical in a lightweight local execution setting.
+they indicate whether the proposed approach remains practical in a lightweight local execution setting \cite{jain1991art, schwartz2020green, menghani2023efficient}.
 
 \begin{table}[H]
     \centering
@@ -203,7 +205,7 @@ These values support the operational feasibility of the lightweight approach und
 conditions. They suggest that the system can produce and serve an enriched internship catalog without
 requiring heavyweight runtime inference during ordinary browsing. At the same time, these results are
 bounded by the size of the evaluated catalog and by the local testing environment. They do not prove
-scalability to very large national datasets or high-traffic production deployment without further testing.
+scalability to very large national datasets or high-traffic production deployment without further testing \cite{jain1991art, wohlin2012experimentation}.
 
 
 \section{Limitations and Threats to Validity (RQ5)}
@@ -212,7 +214,7 @@ Several limitations affect the interpretation of the findings. First, the classi
 300-role inspected sample. Although useful for analyzing noisy scraped recruitment data, this sample
 cannot represent every platform, country, domain, or language context. Second, the classification table is
 treated as the selected evidence basis for this rewritten chapter; proof files containing older or inconsistent
-distributions were excluded rather than mixed with it.
+distributions were excluded rather than mixed with it \cite{wohlin2012experimentation}.
 
 Third, ambiguous cases remain a core limitation. The Transformer does not produce an ambiguous
 category, which means it cannot directly represent uncertainty in the same way as human or
@@ -226,12 +228,12 @@ real student usability. The evidence supports structured discovery behavior, met
 frontend responsiveness, but it does not establish how students would perceive or use the system in a
 controlled user-evaluation setting. Seventh, the evidence is limited to the proof files available for this
 chapter. Unsupported old benchmark metrics and derived claims without a traceable proof file were not
-included.
+included \cite{wohlin2012experimentation, jain1991art}.
 
 
 \section{Consolidated Findings by Research Question}
 
-The following table summarizes how the evidence addresses the research questions. The table does not introduce new statistics; it consolidates the interpretation of the evidence presented above.
+The following table summarizes how the evidence addresses the research questions. The table does not introduce new statistics; it consolidates the interpretation of the evidence presented above \cite{peffers2007design, wohlin2012experimentation}.
 
 \begin{table}[H]
     \centering
@@ -240,16 +242,16 @@ The following table summarizes how the evidence addresses the research questions
     \includegraphics[width=\textwidth]{tables/Consolidated findings by research question.png}
 \end{table}
 
-The consolidated findings show that the main contribution of the system is not a single benchmark number. Instead, the contribution lies in a defensible enrichment workflow: noisy scraped postings are inspected, classified, structured, enriched, and then delivered in a form that supports efficient internship-oriented discovery.
+The consolidated findings show that the main contribution of the system is not a single benchmark number. Instead, the contribution lies in a defensible enrichment workflow: noisy scraped postings are inspected, classified, structured, enriched, and then delivered in a form that supports efficient internship-oriented discovery \cite{batini2009methodologies, doan2012principles}.
 
 
 \section{Chapter Conclusion}
 
-This chapter evaluated the current model both frontend and the transformer using the stats presented in the current Chapter 6. The results show that scraped recruitment data contains real internships, fake or non-internship roles, and ambiguous cases, confirming the need for internship-focused classification before records are presented in the frontend.
+This chapter evaluated the current model both frontend and the transformer using the stats presented in the current Chapter 6. The results show that scraped recruitment data contains real internships, fake or non-internship roles, and ambiguous cases, confirming the need for internship-focused classification before records are presented in the frontend \cite{kurekova2015using, sokolova2009systematic}.
 
 The comparison between human review, ChatGPT5.5-assisted review, and the Transformer shows strong sample-level internship detection performance. At the same time, the presence of ambiguous cases shows that uncertainty should be preserved through review indicators rather than forced into a simple real/fake decision.
 
 The enriched catalog evidence shows that the pipeline produces structured internship records with useful metadata such as internship probabilities, extracted skills, salary information where available, links, descriptions, and review signals. Frontend search, filtering, response-time, build, and file-size evidence further show that these enriched records can support fast structured discovery under the tested local conditions.
 
-Overall, the chapter supports the thesis argument that lightweight semantic enrichment can transform noisy scraped recruitment data into structured, interpretable, and discovery-ready internship records. The findings remain limited by the 300-role sample, the local testing environment, and the absence of a formal user study, but they provide a good evaluation of the system within the stated research scope.
+Overall, the chapter supports the thesis argument that lightweight semantic enrichment can transform noisy scraped recruitment data into structured, interpretable, and discovery-ready internship records. The findings remain limited by the 300-role sample, the local testing environment, and the absence of a formal user study, but they provide a good evaluation of the system within the stated research scope \cite{schwartz2020green, menghani2023efficient, wohlin2012experimentation}.
 
