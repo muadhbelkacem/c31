@@ -6,12 +6,12 @@
 This chapter presents the research methodology used to design and evaluate the proposed semantic enrichment
 model for heterogeneous internship postings. Building on the theoretical foundations discussed in Chapter 2 and
 the technological environment described in Chapter 3, the chapter defines how noisy internship and job-posting
-data are transformed into structured, interpretable, and discovery-ready records.
+data are transformed into structured, interpretable, and discovery-ready records \cite{hevner2004design, peffers2007design}.
 The chapter does not treat the prototype application as the main research contribution. Instead, the prototype is
 used as the methodological artifact through which the proposed semantic structuring approach is implemented,
-observed, and evaluated. The research focus is the transformation of heterogeneous internship postings into a
+observed, and evaluated \cite{hevner2004design}. The research focus is the transformation of heterogeneous internship postings into a
 consistent representation that can support internship-oriented information retrieval beyond keyword-based
-search.
+search \cite{manning2008introduction, baeza2011modern}.
 The methodology is organized around five connected concerns. First, the chapter defines the research design
 used to connect the research questions to the implemented artifact. Second, it explains how heterogeneous
 internship data are inspected and represented as a research problem. Third, it presents the semantic structuring
@@ -23,13 +23,13 @@ configurations.
 The lightweight nature of the system is treated as a design constraint and evaluation condition. It remains
 important because the proposed approach should be practical and reproducible, but it is not the central research
 problem. The central problem is how heterogeneous internship postings can be semantically structured to
-support reliable, interpretable, and internship-oriented discovery.
+support reliable, interpretable, and internship-oriented discovery \cite{schwartz2020green, menghani2023efficient}.
 
 \section{Research Design}
 
-This thesis follows a design-oriented empirical research approach. The study begins from a practical information-management problem: internship postings collected from online recruitment environments are semi-structured, lexically inconsistent, semantically ambiguous, and frequently mixed with non-internship opportunities. To investigate this problem, the thesis designs a semantic enrichment model, implements it in a prototype system, and evaluates its behavior on noisy internship and job-posting data.
+This thesis follows a design-oriented empirical research approach \cite{hevner2004design, peffers2007design}. The study begins from a practical information-management problem: internship postings collected from online recruitment environments are semi-structured, lexically inconsistent, semantically ambiguous, and frequently mixed with non-internship opportunities \cite{kurekova2015using, batini2009methodologies}. To investigate this problem, the thesis designs a semantic enrichment model, implements it in a prototype system, and evaluates its behavior on noisy internship and job-posting data.
 
-The research design is appropriate because the thesis concerns both representation and system behavior. The proposed model cannot be evaluated only by describing its architecture; it must be examined through the quality of the records it produces, the discovery behavior it supports, the uncertainty signals it exposes, and the limitations it demonstrates under noisy real-world posting conditions.
+The research design is appropriate because the thesis concerns both representation and system behavior. The proposed model cannot be evaluated only by describing its architecture; it must be examined through the quality of the records it produces, the discovery behavior it supports, the uncertainty signals it exposes, and the limitations it demonstrates under noisy real-world posting conditions \cite{peffers2007design, wohlin2012experimentation}.
 
 The methodological logic of the thesis follows four stages:
 
@@ -43,14 +43,14 @@ The methodological logic of the thesis follows four stages:
     \item \textbf{Empirical evaluation:} compare the enriched system against deterministic and keyword-oriented baselines, while examining discovery effectiveness, trustworthiness, and operational boundaries.
 \end{enumerate}
 
-In this design, the software system functions as an experimental vehicle. It allows the proposed semantic structuring model to be tested using concrete data transformations, measurable outputs, and observable discovery behavior. Therefore, system architecture, schema design, and pipeline implementation are discussed in this chapter only insofar as they support the investigation of the research questions.
+In this design, the software system functions as an experimental vehicle. It allows the proposed semantic structuring model to be tested using concrete data transformations, measurable outputs, and observable discovery behavior \cite{hevner2004design, peffers2007design}. Therefore, system architecture, schema design, and pipeline implementation are discussed in this chapter only insofar as they support the investigation of the research questions.
 
 \section{Methodological Mapping to the Research Questions}
 
 
 \subsection{Methodological Mapping to the Research Questions}
 
-The revised research questions require Chapter 4 to explain not only what the system does, but how each methodological component contributes to the study. The following mapping connects the methodology to the new main research question (MRQ) and the five supporting research questions.
+The revised research questions require Chapter 4 to explain not only what the system does, but how each methodological component contributes to the study. The following mapping connects the methodology to the new main research question (MRQ) and the five supporting research questions \cite{peffers2007design, wohlin2012experimentation}.
 
 \begin{table}[H]
 \centering
@@ -91,11 +91,11 @@ The first methodological task is to understand the nature of the data problem. T
 and job-posting records collected from heterogeneous online recruitment sources. These sources may include
 general recruitment platforms, employer pages, and structured JSON datasets. Because many of these sources
 are not dedicated internship platforms, collected records may contain genuine internships together with full-time
-roles, graduate schemes, apprenticeships, training advertisements, and unrelated professional positions.
+roles, graduate schemes, apprenticeships, training advertisements, and unrelated professional positions \cite{kurekova2015using}.
 This creates a representation challenge before any frontend discovery can occur. The collected records must be
 inspected, filtered, normalized, and semantically enriched before they can support reliable internship-oriented
 retrieval. The methodology therefore treats heterogeneity as an empirical object of analysis rather than as a
-simple preprocessing inconvenience.
+simple preprocessing inconvenience \cite{batini2009methodologies, doan2012principles}.
 The analysis considers four forms of inconsistency:
 
 \begin{itemize}
@@ -112,33 +112,33 @@ The analysis considers four forms of inconsistency:
 This analysis supports RQ1 by establishing why internship discovery is not merely a keyword-search problem.
 The same keywords may appear in irrelevant postings, while relevant internships may be described using
 vocabulary that does not exactly match common student search terms. As a result, the methodology requires a
-semantic structuring model that combines explainable rules with contextual semantic interpretation.
+semantic structuring model that combines explainable rules with contextual semantic interpretation \cite{manning2008introduction, luan2021sparse}.
 
 \section{Semantic Structuring Model}
 
 The central methodological contribution of the thesis is the semantic structuring model. This model defines how
 heterogeneous internship and job-posting records are transformed into normalized, semantically enriched, and
-discovery-ready internship records.
+discovery-ready internship records \cite{sarawagi2008information, batini2009methodologies}.
 The model is organized as a layered enrichment approach. The layers are not presented as isolated
 implementation details, but as methodological responses to different kinds of data difficulty. Structurally
 predictable inconsistencies are handled through deterministic normalization. Vocabulary variation is addressed
 through controlled skill and category representations. Ambiguous internship relevance is addressed through
 embedding-based semantic interpretation. Uncertain cases are represented through review indicators instead of
-being forced into unreliable automated decisions.
+being forced into unreliable automated decisions \cite{reimers2019sentence, hunkenschroer2022ethics}.
 
 \subsection{Deterministic Normalization Layer}
 
 The first layer performs deterministic preprocessing and normalization. This layer is used for transformations
 where rule-based methods are reliable, interpretable, and computationally inexpensive. Examples include field
 validation, title cleanup, company and location normalization, salary pattern extraction, duplicate identifier
-generation, and rejection of clearly malformed or irrelevant records.
+generation, and rejection of clearly malformed or irrelevant records \cite{sarawagi2008information, chu2016data}.
 This layer supports structural consistency. It reduces noise before semantic interpretation begins and prevents
 obvious low-quality records from propagating into the enriched dataset. Because the operations are
 deterministic, they also support transparency: the reason for a transformation or rejection can usually be traced
-to an explicit rule or pattern.
+to an explicit rule or pattern \cite{batini2009methodologies}.
 Methodologically, this layer addresses the structural side of RQ1 and contributes to RQ2 by creating the
 normalized foundation required for semantic enrichment. It also supports RQ5 because it keeps the model
-lightweight and operationally feasible without depending on expensive inference for every transformation.
+lightweight and operationally feasible without depending on expensive inference for every transformation \cite{schwartz2020green, menghani2023efficient}.
 
 
 \subsection{Controlled Skill and Category Representation}
@@ -146,17 +146,17 @@ lightweight and operationally feasible without depending on expensive inference 
 The second part of the model represents skills and occupational domains using controlled internal vocabularies.
 Online postings often describe the same skill or domain using different expressions. For example, related
 programming roles may be described through job titles, technologies, frameworks, responsibilities, or employerspecific wording. Without controlled representation, these variations remain difficult to compare or filter
-consistently.
+consistently \cite{peterson2001occupational, senger2024deep}.
 The methodology therefore uses curated skill and category references to map noisy employer language into
 stable internal labels. These labels are intended to support internship discovery, browsing, and filtering. They
 are not intended to represent a complete occupational ontology or full labor-market taxonomy.
 Occupational frameworks such as ESCO remain useful as conceptual references because they demonstrate the
 value of standardized skill and occupation representation. However, full ESCO-level ontology alignment is
 outside the scope of the thesis. The proposed approach instead uses a lighter internal categorization strategy
-suitable for noisy internship data and student-centered discovery.
+suitable for noisy internship data and student-centered discovery \cite{esco2024, staab2009handbook, shvaiko2013ontology}.
 This component directly supports RQ2 by explaining how controlled vocabularies are combined with
 normalization and embeddings. It also supports RQ3 because consistent skills and categories make the resulting
-internship catalog more coherent and interpretable for discovery.
+internship catalog more coherent and interpretable for discovery \cite{zhang2024nnose}.
 
 \subsection{Embedding-Based Semantic Interpretation}
 
@@ -168,15 +168,15 @@ real internship.
 
 To address this problem, the methodology incorporates lightweight embedding-based semantic interpretation.
 Sentence-transformer representations are used to compare posting text against semantic reference patterns and to
-support internship relevance classification. This allows the system to consider contextual similarity rather than
+support internship relevance classification \cite{reimers2019sentence, senger2024deep}. This allows the system to consider contextual similarity rather than
 relying only on exact keyword overlap.
 The embedding component is not treated as a black-box replacement for the rule-based layer. It operates
 alongside deterministic normalization. This hybrid design improves robustness because explicit rules handle
 high-confidence structural cases, while semantic embeddings support interpretation of ambiguous or lexically
-varied postings.
+varied postings \cite{luan2021sparse, sarawagi2008information}.
 This component mainly supports RQ2, because it explains how embedding-based representations are integrated
 into the enrichment model. It also supports RQ3 by improving discovery beyond keyword-oriented retrieval, and
-RQ5 by demonstrating the limits of lightweight semantic inference when postings are vague or domain-diverse.
+RQ5 by demonstrating the limits of lightweight semantic inference when postings are vague or domain-diverse \cite{menghani2023efficient}.
 
 
 \subsection{Uncertainty and Manual Review Handling}
@@ -185,35 +185,35 @@ RQ5 by demonstrating the limits of lightweight semantic inference when postings 
 The fourth component represents uncertainty instead of hiding it. Heterogeneous internship postings often
 contain incomplete information, vague wording, conflicting signals, or ambiguous opportunity types. In such
 cases, a system that forces every record into a confident real-internship or non-internship decision may create
-unreliable outputs.
+unreliable outputs \cite{hunkenschroer2022ethics, rigotti2024fairness}.
 The methodology therefore includes uncertainty-aware handling. Records may be marked for manual review
 when confidence is low, when deterministic and semantic signals disagree, when the text is insufficiently
 informative, or when a posting appears close to the boundary between internship and non-internship categories.
 This review flag does not mean the system failed; rather, it indicates that the model has preserved uncertainty
-instead of pretending that all cases can be automated safely.
+instead of pretending that all cases can be automated safely \cite{krippendorff2004content}.
 This design directly supports RQ4. It also improves interpretability because users and evaluators can distinguish
 high-confidence automated results from ambiguous cases that require human inspection. For a student-centered
 discovery system, this is important because unreliable classification could either hide genuine opportunities or
-display irrelevant roles as internships.
+display irrelevant roles as internships \cite{raghavan2020mitigating}.
 
 \section{Structured Internship Representation}
 
 The target output of the methodology is a structured internship representation. This representation is not merely
 a technical JSON format for frontend consumption. It is the semantic contract produced by the enrichment
 process. Its purpose is to convert heterogeneous source postings into records that are consistent enough for
-discovery, filtering, comparison, and evaluation.
+discovery, filtering, comparison, and evaluation \cite{doan2012principles, kleppmann2017designing}.
 
 \subsection{Unified Internship Schema}
 
 The unified schema defines the fields required for structured internship discovery. Core fields include stable
 identifiers, title, company, location, source link, salary information, description, platform provenance, extracted
 skills, category labels, duration information where available, internship probability, final internship decision,
-and manual-review indicators.
+and manual-review indicators \cite{doan2012principles, batini2009methodologies}.
 The schema supports several methodological objectives. It preserves identity and provenance by linking
 processed records back to their original sources. It supports normalized metadata by giving each record
 consistent fields. It supports semantic discovery through skills, categories, and internship relevance signals. It
 supports uncertainty management through confidence and review indicators. Finally, it supports evaluation by
-making the outputs of normalization, enrichment, and classification inspectable.
+making the outputs of normalization, enrichment, and classification inspectable \cite{christen2012data, krippendorff2004content}.
 This schema is therefore central to the new research framing. It is the representation through which
 heterogeneous postings become semantically structured internship records.
 
@@ -228,42 +228,42 @@ heterogeneous postings become semantically structured internship records.
 
 Because aggregated postings may come from multiple sources, traceability is necessary. The methodology
 preserves platform information and original source links so that processed records can be connected back to
-their raw listings. Stable identifiers also support deduplication and consistency across ingestion cycles.
+their raw listings. Stable identifiers also support deduplication and consistency across ingestion cycles \cite{christen2012data, elmagarmid2007duplicate}.
 Metadata consistency is equally important. Fields such as title, company, location, salary, and category must be
 normalized enough to support browsing and filtering. Inconsistent metadata reduces discovery quality even
 when the underlying opportunity is relevant. For this reason, the methodology treats normalization and schema
-completeness as part of semantic structuring rather than as minor formatting tasks.
+completeness as part of semantic structuring rather than as minor formatting tasks \cite{batini2009methodologies, doan2012principles}.
 
 \subsection{Taxonomy-Informed Internal Categorization}
 
 The proposed category model is taxonomy-informed but not taxonomy-dependent. External frameworks such as
 ESCO and O*NET provide useful conceptual foundations for thinking about occupations and skills, but the
 thesis does not attempt full ontology-level alignment. Instead, the methodology uses internal categories that are
-easier to maintain, easier to explain, and better suited to the scale and purpose of the prototype.
+easier to maintain, easier to explain, and better suited to the scale and purpose of the prototype \cite{esco2024, peterson2001occupational, staab2009handbook}.
 This strategy avoids overclaiming. The categories are designed for internship-oriented discovery and browsing,
 not for complete labor-market analytics. The methodological value lies in creating enough semantic structure to
-improve discovery while preserving transparency and manageable system complexity.
+improve discovery while preserving transparency and manageable system complexity \cite{shvaiko2013ontology}.
 
 \section{Processing Workflow}
 
 
 The processing workflow operationalizes the semantic structuring model. It describes how raw postings move
-through validation, normalization, enrichment, classification, uncertainty handling, storage, and frontend access.
+through validation, normalization, enrichment, classification, uncertainty handling, storage, and frontend access \cite{peffers2007design, doan2012principles}.
 The workflow begins with raw recruitment records obtained from heterogeneous sources. These records are first
 validated to ensure that they contain enough information to be processed. Malformed records or records missing
 essential identifiers are excluded from downstream processing. Valid records then pass through deterministic
 cleaning and normalization, where titles, locations, salaries, descriptions, and other metadata are standardized as
-far as possible.
+far as possible \cite{chu2016data, batini2009methodologies}.
 After normalization, the enrichment process extracts skills, assigns categories, generates stable identifiers,
 detects duplicates, and prepares the record for internship relevance assessment. Ambiguous or lexically varied
 postings are then evaluated using lightweight semantic interpretation. The final decision combines deterministic
-and semantic evidence where appropriate.
+and semantic evidence where appropriate \cite{reimers2019sentence, senger2024deep}.
 Records with clear evidence are classified and exported into the structured internship catalog. Records with
 insufficient or conflicting evidence are marked for manual review. This ensures that uncertainty remains visible.
 The resulting catalog is then stored in a structured format for application-level discovery, while dynamic userspecific actions such as saving internships may be handled separately by the application persistence layer.
 This workflow supports the MRQ because it transforms heterogeneous postings into semantically consistent,
 interpretable, and discovery-ready representations. It also connects the methodology directly to Chapter 5, where
-the concrete implementation of these workflow stages is described.
+the concrete implementation of these workflow stages is described \cite{kleppmann2017designing}.
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.9\textwidth]{uml/sequenceDiagramFrontend.png}
@@ -276,16 +276,16 @@ the concrete implementation of these workflow stages is described.
 The evaluation methodology examines whether the proposed semantic enrichment model improves the
 representation and discovery of internship postings compared with simpler approaches. The evaluation is
 designed around the revised research questions and therefore considers data heterogeneity, enrichment behavior,
-discovery effectiveness, uncertainty handling, and operational limitations.
+discovery effectiveness, uncertainty handling, and operational limitations \cite{wohlin2012experimentation, peffers2007design}.
 The evaluation does not rely only on technical performance. Runtime, throughput, and hardware feasibility
 remain relevant, but they are treated as boundary and feasibility indicators rather than as the central research
 claim. The main evaluation question is whether the proposed model produces structured records that are more
 reliable, interpretable, and useful for internship-oriented discovery than keyword-oriented or purely
-deterministic alternatives.
+deterministic alternatives \cite{voorhees2005trec, jain1991art}.
 
 \subsection{Evaluation Objectives and Research Question Mapping}
 
-The evaluation methodology is organized around the revised research questions. Each research question is linked to a specific evaluation objective so that the empirical assessment directly reflects the methodological aims of the thesis. Table~\ref{tab:evaluation-objectives-rq-mapping} summarizes this mapping.
+The evaluation methodology is organized around the revised research questions. Each research question is linked to a specific evaluation objective so that the empirical assessment directly reflects the methodological aims of the thesis \cite{peffers2007design, wohlin2012experimentation}. Table~\ref{tab:evaluation-objectives-rq-mapping} summarizes this mapping.
 
 \begin{table}[H]
     \centering
@@ -318,15 +318,15 @@ The evaluation methodology is organized around the revised research questions. E
 
 \subsection{Ground Truth Construction}
 
-A manually inspected evaluation reference is required because internship relevance cannot be evaluated only from source metadata. The evaluation subset should include clear internships, clear non-internships, ambiguous cases, and records with inconsistent or incomplete metadata. This makes the reference useful for testing both classification correctness and uncertainty handling.
+A manually inspected evaluation reference is required because internship relevance cannot be evaluated only from source metadata. The evaluation subset should include clear internships, clear non-internships, ambiguous cases, and records with inconsistent or incomplete metadata. This makes the reference useful for testing both classification correctness and uncertainty handling \cite{krippendorff2004content, wohlin2012experimentation}.
 
-Manual inspection should compare the raw posting with the enriched output. The reviewer should check whether the final internship decision is reasonable, whether the skills reflect visible content, whether the category is coherent, whether salary and location information are preserved correctly, and whether ambiguous cases are properly marked for review.
+Manual inspection should compare the raw posting with the enriched output. The reviewer should check whether the final internship decision is reasonable, whether the skills reflect visible content, whether the category is coherent, whether salary and location information are preserved correctly, and whether ambiguous cases are properly marked for review \cite{krippendorff2004content}.
 
-This approach is suitable for a Master thesis because the goal is not to create a large public benchmark. The goal is to evaluate whether the proposed semantic structuring model behaves reliably on representative noisy internship data. The manual reference also supports error analysis in Chapter 6 and discussion of validity in Chapter 7.
+This approach is suitable for a Master thesis because the goal is not to create a large public benchmark. The goal is to evaluate whether the proposed semantic structuring model behaves reliably on representative noisy internship data. The manual reference also supports error analysis in Chapter 6 and discussion of validity in Chapter 7 \cite{wohlin2012experimentation}.
 
 \subsection{Baseline Configurations}
 
-The evaluation should compare the full semantic enrichment model against simpler alternatives. This helps isolate the added value of semantic structuring.
+The evaluation should compare the full semantic enrichment model against simpler alternatives. This helps isolate the added value of semantic structuring \cite{voorhees2005trec, wohlin2012experimentation}.
 
 \begin{itemize}
     \item \textbf{Keyword-oriented baseline:} represents conventional lexical discovery, where relevance depends mainly on exact terms such as internship, intern, student, trainee, or placement.
@@ -338,39 +338,39 @@ The evaluation should compare the full semantic enrichment model against simpler
     \item \textbf{Exploratory LLM reference:} may be used as a contextual comparison, but it should be described as exploratory rather than as a formal production benchmark.
 \end{itemize}
 
-The comparison should show whether semantic enrichment improves discovery quality and representation coherence beyond simpler approaches. It should also show where the lightweight approach remains limited.
+The comparison should show whether semantic enrichment improves discovery quality and representation coherence beyond simpler approaches. It should also show where the lightweight approach remains limited \cite{manning2008introduction, jain1991art}.
 
 \subsection{Metrics}
 
-The revised evaluation should use several categories of metrics because the thesis studies representation, discovery, uncertainty, and operational boundaries.
+The revised evaluation should use several categories of metrics because the thesis studies representation, discovery, uncertainty, and operational boundaries \cite{sokolova2009systematic, jarvelin2002cumulated, jain1991art}.
 
 \begin{itemize}
-    \item \textbf{Classification metrics:} precision, recall, F1-score, Top-1 accuracy, or Top-3 accuracy where applicable, used to assess internship relevance classification.
+    \item \textbf{Classification metrics:} precision, recall, F1-score, Top-1 accuracy, or Top-3 accuracy where applicable, used to assess internship relevance classification \cite{sokolova2009systematic}.
 
-    \item \textbf{Discovery metrics:} Precision@5, Hit Rate@5, NDCG@10, or similar measures used to evaluate whether enriched records improve the ranking or surfacing of relevant internships.
+    \item \textbf{Discovery metrics:} Precision@5, Hit Rate@5, NDCG@10, or similar measures used to evaluate whether enriched records improve the ranking or surfacing of relevant internships \cite{manning2008introduction, jarvelin2002cumulated}.
 
-    \item \textbf{Enrichment quality indicators:} schema completeness, skill extraction consistency, category coherence, salary normalization correctness, date extraction correctness, and metadata preservation.
+    \item \textbf{Enrichment quality indicators:} schema completeness, skill extraction consistency, category coherence, salary normalization correctness, date extraction correctness, and metadata preservation \cite{batini2009methodologies}.
 
-    \item \textbf{Uncertainty indicators:} proportion of manual-review cases, low-confidence decisions, rule/semantic disagreement cases, and ambiguous records correctly prevented from being overconfidently accepted.
+    \item \textbf{Uncertainty indicators:} proportion of manual-review cases, low-confidence decisions, rule/semantic disagreement cases, and ambiguous records correctly prevented from being overconfidently accepted \cite{krippendorff2004content}.
 
-    \item \textbf{Operational feasibility indicators:} processing throughput, runtime, memory practicality, frontend responsiveness, and cost or dependency comparison with heavier LLM-based processing.
+    \item \textbf{Operational feasibility indicators:} processing throughput, runtime, memory practicality, frontend responsiveness, and cost or dependency comparison with heavier LLM-based processing \cite{jain1991art, schwartz2020green}.
 \end{itemize}
 
 The word usability should be used carefully. Unless a formal user study is conducted with students or real users, the evaluation should avoid strong claims about user experience. The more accurate terms are discovery effectiveness, structured discovery quality, coherence, and interpretability.
 
 \subsection{Operational Feasibility Measures}
 
-Operational feasibility remains part of the evaluation, but its role changes under the new research framing. It should no longer be presented as the main research question. Instead, it supports RQ5 by identifying the boundary conditions of lightweight semantic enrichment.
+Operational feasibility remains part of the evaluation, but its role changes under the new research framing. It should no longer be presented as the main research question. Instead, it supports RQ5 by identifying the boundary conditions of lightweight semantic enrichment \cite{jain1991art, menghani2023efficient}.
 
-The evaluation may therefore report local execution time, approximate listings processed per second, CPU-only feasibility, frontend loading behavior, and cost comparison with external LLM-based workflows. These measures help demonstrate whether the proposed model can remain practical under realistic student-project or small-platform constraints.
+The evaluation may therefore report local execution time, approximate listings processed per second, CPU-only feasibility, frontend loading behavior, and cost comparison with external LLM-based workflows. These measures help demonstrate whether the proposed model can remain practical under realistic student-project or small-platform constraints \cite{schwartz2020green, jain1991art}.
 
-However, these operational measures should be interpreted as supporting evidence. The primary intellectual claim remains that semantic structuring can improve the representation and discovery of heterogeneous internship postings while preserving interpretability and manageable complexity.
+However, these operational measures should be interpreted as supporting evidence. The primary intellectual claim remains that semantic structuring can improve the representation and discovery of heterogeneous internship postings while preserving interpretability and manageable complexity \cite{peffers2007design}.
 
 
 \section{Chapter Conclusion}
 
-This chapter has defined the revised methodology of the thesis. It reframed the methodology around the semantic structuring of heterogeneous internship postings rather than around the software artifact alone. The chapter explained the design-oriented empirical research approach, the analysis of data heterogeneity, the layered semantic enrichment model, the structured internship representation, the processing workflow, and the evaluation design.
+This chapter has defined the revised methodology of the thesis. It reframed the methodology around the semantic structuring of heterogeneous internship postings rather than around the software artifact alone. The chapter explained the design-oriented empirical research approach, the analysis of data heterogeneity, the layered semantic enrichment model, the structured internship representation, the processing workflow, and the evaluation design \cite{hevner2004design, peffers2007design}.
 
-The proposed methodology combines deterministic normalization, controlled skill and category representation, lightweight embedding-based semantic interpretation, and uncertainty-aware manual-review handling. This combination is designed to transform noisy internship and job-posting data into structured records that are more consistent, interpretable, and suitable for internship-oriented discovery.
+The proposed methodology combines deterministic normalization, controlled skill and category representation, lightweight embedding-based semantic interpretation, and uncertainty-aware manual-review handling. This combination is designed to transform noisy internship and job-posting data into structured records that are more consistent, interpretable, and suitable for internship-oriented discovery \cite{sarawagi2008information, reimers2019sentence, krippendorff2004content}.
 
-The evaluation framework defined in this chapter aligns the methodology with the revised main research question and RQ1--RQ5. It examines heterogeneity, semantic structuring behavior, discovery effectiveness, uncertainty handling, and operational boundaries. These methodological decisions provide the foundation for Chapter 5, which describes the concrete implementation of the enrichment model, and Chapter 6, which evaluates its empirical behavior.
+The evaluation framework defined in this chapter aligns the methodology with the revised main research question and RQ1--RQ5. It examines heterogeneity, semantic structuring behavior, discovery effectiveness, uncertainty handling, and operational boundaries \cite{wohlin2012experimentation, sokolova2009systematic, jarvelin2002cumulated}. These methodological decisions provide the foundation for Chapter 5, which describes the concrete implementation of the enrichment model, and Chapter 6, which evaluates its empirical behavior.
