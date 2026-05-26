@@ -5,7 +5,7 @@
 This final chapter discusses the findings presented in Chapter 6 and explains their meaning
 for the thesis as a whole. The discussion focuses on what the current evaluation shows about
 noisy scraped recruitment data, semantic structuring, internship detection, uncertainty
-handling, structured discovery, and the operational limits of the lightweight approach.
+handling, structured discovery, and the operational limits of the lightweight approach \cite{wohlin2012experimentation, peffers2007design}.
 
 The chapter is organized into four main parts. Section~7.2 interprets the results in relation to
 the research questions and discusses the main limitations observed during evaluation.
@@ -16,10 +16,12 @@ work. Section~7.5 concludes the chapter by restating the overall contribution of
 The discussion does not introduce new benchmark claims. It remains limited to the evaluation
 scope established in Chapter 6: the inspected 300-role sample, the enriched frontend catalog,
 the classification comparison, the local frontend measurements, and the stated
-methodological boundaries.
+methodological boundaries \cite{wohlin2012experimentation, jain1991art}.
 
 
 \section{Discussion}
+
+The discussion interprets the implemented artifact as a design-science outcome and treats the empirical results as bounded evidence rather than universal proof of system performance \cite{hevner2004design, peffers2007design, wohlin2012experimentation}.
 
 \subsection{Interpretation of the Evaluation Results}
 
@@ -28,7 +30,7 @@ sources is affected by substantial noise. In the inspected 300-role sample, the 
 not limited to real internships. The sample contained real internships, fake or non-internship
 roles, and ambiguous cases. This confirms the central problem of the thesis: scraped
 recruitment data cannot be safely pushed directly into an internship discovery interface
-without filtering, normalization, and semantic enrichment.
+without filtering, normalization, and semantic enrichment \cite{kurekova2015using, batini2009methodologies}.
 
 This finding directly supports RQ1. The problem is not only that recruitment data has
 inconsistent fields or missing metadata. The deeper issue is that many sources mix internships
@@ -44,7 +46,7 @@ descriptions, internship probability values, and review-related indicators. Thes
 the practical role of combining deterministic normalization with controlled skill
 representation and internship detection. The importance of this result is not only technical. It
 shows that heterogeneous recruitment data can be converted into a more consistent
-representation for internship-oriented retrieval.
+representation for internship-oriented retrieval \cite{doan2012principles, batini2009methodologies, manning2008introduction}.
 
 The frontend search, filtering, and response results support RQ3 within a limited scope. They
 show that enriched records can support fast structured discovery under the tested local
@@ -59,14 +61,14 @@ ChatGPT5.5-assisted review achieved sample-level agreement with the human review
 inspected sample. The Transformer achieved strong binary internship detection results, but it
 did not produce an ambiguous category. This distinction is important because ambiguity
 should not always be forced into a real/fake decision. Some cases require review because the
-available posting information is incomplete, unclear, or open to interpretation.
+available posting information is incomplete, unclear, or open to interpretation \cite{sokolova2009systematic, krippendorff2004content}.
 
 Finally, the operational measurements support RQ5 by showing that the lightweight approach
 is feasible within the tested environment. The build results, file-size results, frontend
 response measurements, and search/filter timing results indicate that the system can support
 structured discovery without requiring heavy runtime inference in the frontend. At the same
 time, these results are bounded by the local test setup and should not be generalized to all
-deployment environments.
+deployment environments \cite{jain1991art, schwartz2020green}.
 
 
 \subsection{Error Analysis and Ambiguity Handling}
@@ -75,7 +77,7 @@ The main source of difficulty observed in the evaluation is ambiguity in recruit
 language. Some postings clearly describe internships through explicit terms such as intern,
 internship, co-op, placement, or stagiaire. Other postings are clearly unrelated because they
 refer to senior, manager, permanent, or general professional roles. The difficult cases lie
-between these two groups.
+between these two groups \cite{kurekova2015using, krippendorff2004content}.
 
 Ambiguous roles may include trainee programs, graduate programs, student-oriented jobs,
 apprenticeships, temporary training roles, or postings that use unclear employer-specific
@@ -89,7 +91,7 @@ classes. Because it has no ambiguous output, it must force borderline records in
 two classes. This is useful for fast detection, but it is less suitable for cases where the correct
 decision should be delayed until review. Therefore, the existence of the 9 ambiguous cases in
 the inspected sample is not a weakness of the evaluation. It is an important finding about the
-nature of internship data.
+nature of internship data \cite{sokolova2009systematic, krippendorff2004content}.
 
 The human and ChatGPT5.5-assisted review comparison also supports this interpretation.
 ChatGPT5.5-assisted review matched the human distribution on the inspected sample, but
@@ -103,7 +105,7 @@ inconsistently formatted. The pipeline can normalize and structure the informati
 present, but it cannot fully recover information that was not captured or was not expressed
 clearly in the source. This reinforces the need for cautious claims about the system. The
 pipeline improves structure and discovery readiness, but it does not eliminate all uncertainty
-from noisy recruitment data.
+from noisy recruitment data \cite{batini2009methodologies, doan2012principles}.
 
 \subsection{Trade-offs Between Detection, Structure, and Local Feasibility}
 
@@ -112,14 +114,14 @@ lightweight operation. A purely keyword-based approach would be simple and trans
 but it would struggle with varied internship terminology and employer-specific wording. A
 fully generative or heavyweight model-based approach could provide stronger contextual
 reasoning in some cases, but it would introduce more complexity and dependence on external
-inference. The thesis therefore adopts a middle position.
+inference. The thesis therefore adopts a middle position \cite{bass2012software, schwartz2020green, jain1991art}.
 
 Deterministic normalization is used where rules are appropriate and explainable. This
 includes field cleaning, schema consistency, stable representation, and structured frontend
 preparation. Lightweight Transformer-based detection is used where semantic interpretation
 is helpful, especially for distinguishing real internships from noisy scraped roles. Manual or
 ChatGPT5.5-assisted review is reserved for cases where automatic classification is less
-reliable.
+reliable \cite{sarawagi2008information, krippendorff2004content}.
 
 This layered design is important because it avoids treating all parts of the problem as if they
 require the same solution. Some tasks are best handled through rules, some through semantic
@@ -131,19 +133,19 @@ consumption, the application can use a structured JSON catalog for browsing, sea
 filtering. This keeps expensive processing outside the live user-facing path and supports
 responsive interaction under the tested local conditions. However, this design also means that
 catalog quality depends on the offline enrichment process and on the quality of the scraped
-input records.
+input records \cite{jain1991art, kleppmann2017designing}.
 
 \subsection{Threats to Validity}
 
 Several threats to validity affect the interpretation of the results. The first is sample size.
 The classification evaluation is based on 300 inspected roles. This sample is useful for thesis
 evaluation, but it does not represent every recruitment platform, country, language, industry,
-or internship type. Broader validation would require larger and more diverse samples.
+or internship type. Broader validation would require larger and more diverse samples \cite{wohlin2012experimentation}.
 
 The second threat concerns the construction of the reference labels. Human review is treated
 as the reference for the 300-role sample, but internship classification can involve judgment,
 especially for borderline cases. The presence of ambiguous labels helps address this issue, but
-it does not remove the subjectivity of classification decisions.
+it does not remove the subjectivity of classification decisions \cite{krippendorff2004content}.
 
 The third threat concerns ChatGPT5.5-assisted review. Its agreement with human review
 should be understood as agreement on the inspected sample, not as a general proof that
@@ -158,17 +160,19 @@ should consider adding a confidence band or an explicit review-needed class.
 The fifth threat concerns frontend and operational measurements. The response-time, build,
 file-size, and search/filter results were observed under local test conditions. They support
 local feasibility, but they do not guarantee identical performance under different hardware,
-network, hosting, caching, or production traffic conditions.
+network, hosting, caching, or production traffic conditions \cite{jain1991art}.
 
 The sixth threat concerns user validation. The frontend results show structured discovery
 behavior and fast filtering, but no formal user study was conducted with students. Therefore,
 the thesis should not claim proven user satisfaction or complete usability validation. A
 user-centered evaluation would be required to make stronger claims about real-world
-usefulness.
+usefulness \cite{wohlin2012experimentation}.
 
 
 
 \section{Ethical, Legal, and Privacy Considerations}
+
+Ethical interpretation is necessary because automated recruitment-related systems can affect visibility, access, and trust even when they are used for opportunity discovery rather than candidate selection \cite{hunkenschroer2022ethics, rigotti2024fairness}.
 
 \subsection{Data Privacy and Responsible Data Use}
 
@@ -177,19 +181,19 @@ hiring decisions. This reduces some privacy risks, but it does not remove the ne
 responsible data handling. Scraped or externally collected job data may include employer
 names, locations, links, and role descriptions. These records should be handled in a way that
 respects source terms, avoids unnecessary personal data collection, and preserves traceability
-to the original posting where possible.
+to the original posting where possible \cite{hunkenschroer2022ethics, rigotti2024fairness}.
 
 The thesis does not propose automated candidate ranking, hiring decisions, or student
 profiling. This is an important ethical boundary. The system is designed to organize
 internship opportunities for discovery, not to decide which students deserve opportunities.
-Maintaining this boundary reduces the risk of harmful automated decision-making.
+Maintaining this boundary reduces the risk of harmful automated decision-making \cite{hunkenschroer2022ethics}.
 
 \subsection{Bias and Representation}
 
 Internship discovery systems can reflect the limitations of their source data. If the scraped
 sources overrepresent certain platforms, regions, employers, languages, or industries, the
 resulting catalog will also reflect those imbalances. This may affect which opportunities are
-visible to users and which categories appear more common.
+visible to users and which categories appear more common \cite{hunkenschroer2022ethics, rigotti2024fairness}.
 
 The semantic enrichment pipeline can improve structure and filtering, but it cannot fully
 correct source-level bias by itself. Responsible deployment would require monitoring the
@@ -199,20 +203,20 @@ present a narrow or incomplete corpus as a complete view of the internship marke
 Ambiguous-case handling also has fairness implications. Forcing uncertain roles into a
 real/fake classification may incorrectly exclude valid opportunities or include irrelevant ones.
 Preserving review indicators helps reduce this risk by making uncertainty visible rather than
-hiding it behind overconfident automation.
+hiding it behind overconfident automation \cite{krippendorff2004content, rigotti2024fairness}.
 
 \subsection{Transparency and Explainability}
 
 Transparency is important because internship discovery affects student access to
 opportunities. The system should make its processing logic understandable where possible.
 Deterministic normalization, controlled skills, categories, source links, and review indicators
-all support a more explainable architecture than an opaque end-to-end model.
+all support a more explainable architecture than an opaque end-to-end model \cite{hunkenschroer2022ethics, bass2012software}.
 
 However, the current system does not fully expose explanations to end users. Future
 deployment could improve transparency by showing why a role was classified as an
 internship, why it was flagged for review, which skills were extracted, and which metadata
 was missing or uncertain. Such explanation features would make the system easier to audit
-and more trustworthy in educational or career-support contexts.
+and more trustworthy in educational or career-support contexts \cite{rigotti2024fairness}.
 
 
 \section{Conclusion and Future Work}
@@ -222,14 +226,14 @@ scraped recruitment data into structured internship records. The system combines
 deterministic normalization, controlled metadata representation, internship detection, review
 indicators, and frontend-ready JSON storage.
 The purpose of this design is to support
-internship-oriented discovery while preserving interpretability and manageable complexity.
+internship-oriented discovery while preserving interpretability and manageable complexity \cite{hevner2004design, peffers2007design, batini2009methodologies}.
 
 The current evaluation supports the feasibility and usefulness of this approach within its
 tested scope.
 It shows that scraped recruitment data includes real internships, fake or
 non-internship roles, and ambiguous cases; that the pipeline can structure accepted records for
 frontend use; that the Transformer performs strongly as a binary detector; and that enriched
-records can support fast local search and filtering.
+records can support fast local search and filtering \cite{wohlin2012experimentation, sokolova2009systematic, jain1991art}.
 
 
 \subsection{Summary of Findings}
@@ -238,31 +242,31 @@ For RQ1, the evaluation confirms that heterogeneous internship data contains str
 lexical, semantic, and quality-related inconsistencies. The inspected 300-role sample
 demonstrates that scraped recruitment sources include a mixture of valid internships,
 unrelated roles, and ambiguous cases. This supports the thesis claim that internship discovery
-is a semantic data-representation problem, not only a search-interface problem.
+is a semantic data-representation problem, not only a search-interface problem \cite{kurekova2015using, batini2009methodologies}.
 
 For RQ2, the results show that rule-based normalization, controlled skill representation,
 internship probabilities, and review indicators can be combined into a coherent enrichment
 model. The enriched frontend catalog demonstrates that noisy postings can be transformed
-into structured records suitable for browsing, filtering, and inspection.
+into structured records suitable for browsing, filtering, and inspection \cite{doan2012principles, batini2009methodologies}.
 
 For RQ3, the frontend evaluation shows that enriched records can support structured
 discovery behavior through search, filtering, and fast response under local test conditions.
 The finding should be interpreted as support for structured discovery quality, not as formal
-proof of user satisfaction.
+proof of user satisfaction \cite{manning2008introduction, jain1991art}.
 
 For RQ4, the comparison between human review, ChatGPT5.5-assisted review, and
 Transformer detection shows that internship classification benefits from both automation and
 review. The Transformer provides strong binary detection, while ambiguous cases remain
-better handled through review or explicit uncertainty indicators.
+better handled through review or explicit uncertainty indicators \cite{sokolova2009systematic, krippendorff2004content}.
 
 For RQ5, the local build, file-size, response-time, and search/filter results show that the
 lightweight approach is operationally feasible within the evaluated environment. However,
 the results remain bounded by the sample size, local test conditions, and absence of formal
-user validation.
+user validation \cite{jain1991art, schwartz2020green, wohlin2012experimentation}.
 
 Overall, the thesis supports the claim that lightweight semantic enrichment can improve the
 organization and discovery readiness of noisy internship data while preserving transparency
-and practical deployment simplicity.
+and practical deployment simplicity \cite{schwartz2020green, bass2012software}.
 
 \subsection{Future Directions}
 
@@ -270,52 +274,52 @@ Several future directions can strengthen this work. First, the classification ev
 be expanded beyond the 300-role sample. A larger dataset with multiple platforms, regions,
 and domains would improve confidence in the generalizability of the results. Independent
 human annotators could also be used to measure agreement and reduce subjectivity in the
-reference labels.
+reference labels \cite{wohlin2012experimentation, krippendorff2004content}.
 
 Second, future work should improve ambiguity handling. The Transformer currently
 performs binary classification, but the evaluation shows that some records are better treated
 as uncertain. A future model could include a third class, confidence thresholds, or a
-review-needed flag to better match the human inspection framework.
+review-needed flag to better match the human inspection framework \cite{sokolova2009systematic, krippendorff2004content}.
 
 Third, the system should be evaluated with real users. A student-centered study could
 examine whether enriched metadata, skill filters, categories, and review indicators actually
 improve discovery behavior in practice. Such a study would allow stronger claims about
-usability and usefulness.
+usability and usefulness \cite{wohlin2012experimentation}.
 
 Fourth, the corpus should be expanded and diversified. More internship-specific sources,
 university career portals, employer pages, multilingual postings, and regional platforms
-would improve coverage and reduce dependence on a narrow set of sources.
+would improve coverage and reduce dependence on a narrow set of sources \cite{kurekova2015using, batini2009methodologies}.
 
 Fifth, skill extraction and metadata normalization can be improved. Future versions could
 better distinguish required and preferred skills, handle implicit skills, detect missing or
 uncertain salary information, and normalize multilingual or employer-specific terminology
-more effectively.
+more effectively \cite{staab2009handbook, shvaiko2013ontology}.
 
 Finally, deployment testing should be extended beyond the local environment. Cloud
 deployment, different hardware, network variation, caching behavior, and larger catalog sizes
-should be evaluated before making broader operational claims.
+should be evaluated before making broader operational claims \cite{jain1991art, bass2012software}.
 
 \subsection{Practical Implications for Deployment}
 
 The thesis suggests that a lightweight enrichment architecture can be useful for
 student-centered internship discovery systems. Instead of relying on raw scraped records, a
 platform can process postings before publication, normalize their fields, detect internship
-relevance, extract useful metadata, and flag uncertain cases for review.
+relevance, extract useful metadata, and flag uncertain cases for review \cite{batini2009methodologies, doan2012principles}.
 
 This approach is practical because it separates offline enrichment from frontend interaction.
 The frontend can operate over a structured catalog, while the more complex cleaning and
 classification work happens before records are served to users. This supports fast browsing
-and filtering under the tested local conditions.
+and filtering under the tested local conditions \cite{jain1991art, kleppmann2017designing}.
 
 The approach is also explainable. Rules, extracted metadata, links, and review indicators
 make the system easier to inspect than a fully opaque model. This is especially important in
 academic, educational, or public-service contexts where users and administrators may need to
-understand why a record was accepted, rejected, or flagged.
+understand why a record was accepted, rejected, or flagged \cite{hunkenschroer2022ethics, rigotti2024fairness}.
 
 At the same time, practical deployment should preserve human oversight. The system should
 not pretend that every internship classification decision is certain. Ambiguous records should
 remain visible as review cases, especially when the available source information is
-incomplete or unclear.
+incomplete or unclear \cite{krippendorff2004content}.
 
 
 \section{Chapter Conclusion}
@@ -325,21 +329,21 @@ explained that the main challenge in internship aggregation is not only technica
 but the semantic uncertainty and noise found in scraped recruitment data. The discussion
 showed that the proposed pipeline can structure noisy records, support internship detection,
 preserve ambiguous cases for review, and enable efficient frontend discovery within the
-tested local environment.
+tested local environment \cite{peffers2007design, wohlin2012experimentation}.
 
 The chapter also identified the main limitations of the work: the 300-role evaluation sample,
 the binary nature of the Transformer output, the sample-level interpretation of ChatGPT5.5
 agreement, the local scope of frontend measurements, and the absence of a formal user study.
-These limitations define the boundaries of the findings without removing their value.
+These limitations define the boundaries of the findings without removing their value \cite{wohlin2012experimentation, jain1991art}.
 
 Future work should therefore focus on larger and more diverse evaluation samples, stronger
 ambiguous-case handling, real student-centered validation, expanded source coverage,
 improved skill and metadata extraction, and deployment testing beyond the local
-environment.
+environment \cite{krippendorff2004content, batini2009methodologies}.
 
 Overall, this thesis concludes that lightweight semantic enrichment is a defensible and
 practical approach for transforming heterogeneous recruitment data into structured,
 interpretable, and discovery-ready internship records. The contribution lies not only in the
 implemented system, but in showing how normalization, semantic detection, uncertainty
 handling, and frontend-ready representation can be combined into a coherent internship
-discovery pipeline.
+discovery pipeline \cite{hevner2004design, doan2012principles, schwartz2020green}.
