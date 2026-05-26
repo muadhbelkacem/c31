@@ -1,723 +1,585 @@
-\chapter{Evaluation and Manual Review Guidelines}
+\chapter{Manual Inspection Protocol and Evaluation Sample}
+\label{appendix:manual-inspection}
 
-\section{Purpose of the evaluation appendix}
-This appendix documents the rules used to evaluate whether a scraped role should be treated as a real internship, a non-internship, or an ambiguous case that requires manual review. The goal of the evaluation process is not only to keep internship records, but also to make each cleaning decision explainable and auditable.
+This appendix documents how the inspected role sample was interpreted during the evaluation. It
+supports the discussion of dataset noise, heterogeneous recruitment sources, and ambiguity
+handling. The full 300-role inspection file is preserved separately as \texttt{inspection\_results(2).json};
+only the necessary protocol and summary are included here to keep the thesis appendix readable.
 
-The Internify pipeline evaluates each job posting using a combination of normalized text fields, rule-based internship evidence, negative professional-role patterns, optional local embedding similarity, and deterministic manual-review logic. The final output contains both a boolean decision, \texttt{is\_real\_internship}, and an \texttt{internship\_probability} score. The output also stores \texttt{cleaning\_metadata} so that every decision can be inspected later.
+\section{Manual Label Definitions}
+\label{appendix:manual-label-definitions}
 
-\section{Real internship definition}
-A posting is treated as a real internship when it contains strong evidence that the role is intended for students, early-career candidates, or temporary work-term applicants. The strongest positive evidence usually appears in the title, because words such as ``Intern,'' ``Internship,'' ``Co-op,'' ``Student Intern,'' ``Stagiaire,'' or ``Stage'' directly describe the role type.
+\begin{table}[h]
+    \centering
+    \caption{Manual label definitions used in the evaluation}
+    \label{tab:manual-label-definitions}
+    \begin{tabular}{p{0.25\textwidth} p{0.68\textwidth}}
+        \hline
+        \textbf{Label} & \textbf{Definition used in the evaluation} \\
+        \hline
+        Real internship &
+        A role was marked as a real internship when the title or record content clearly indicated an
+        internship, co-op, stagiaire/stage, student placement, or early-career temporary learning role. \\
 
-A role is more likely to be accepted as a real internship when one or more of the following signals are present:
+        Fake / non-internship &
+        A role was marked as fake/non-internship when it was a general job, senior position, permanent role,
+        unrelated posting, training advertisement, or otherwise not an internship opportunity. \\
+
+        Ambiguous &
+        A role was marked as ambiguous when the available metadata was insufficient, contradictory, or
+        unclear enough that an automatic final decision would be unreliable. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Human Inspection Sample Summary}
+\label{appendix:human-inspection-summary}
+
+\begin{table}[h]
+    \centering
+    \caption{Human inspection sample summary}
+    \label{tab:human-inspection-summary}
+    \begin{tabular}{lrrrrr}
+        \hline
+        \textbf{Source file} & \textbf{Total roles} & \textbf{Completed inspections} &
+        \textbf{Real internships} & \textbf{Ambiguous cases} & \textbf{Fake / non-internships} \\
+        \hline
+        \texttt{random\_test\_role.json} & 300 & 300 & 128 & 9 & 163 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The manual sample confirms that scraped recruitment data contained a mixed set of valid
+internships, non-internship roles, and borderline cases. This is the empirical basis for treating
+internship discovery as a semantic filtering and uncertainty-management problem rather than a
+simple keyword-search problem.
+
+\section{Example Inspected Records}
+\label{appendix:example-inspected-records}
+
+\begin{table}[h]
+    \centering
+    \caption{Example inspected records}
+    \label{tab:example-inspected-records}
+    \begin{tabular}{p{0.18\textwidth} r p{0.33\textwidth} p{0.22\textwidth} p{0.15\textwidth}}
+        \hline
+        \textbf{Manual label} & \textbf{Index} & \textbf{Title} & \textbf{Company} & \textbf{Platform} \\
+        \hline
+        Real internship & 9 & Stagiaire en qualité bilingue \textbar{} Bilingual Quality Intern & Grass Valley & ZipRecruiter \\
+        Real internship & 13 & Indigenous Student Internship & OG7GES Indigenous Group Inc. & Jobillico \\
+        Real internship & 15 & Client Advisor Intern & RBC & rbc\_careers \\
+        Fake / non-internship & 1 & cook & KFC & Job Bank \\
+        Fake / non-internship & 2 & AI Infrastructure Architect & Okta & Wellfound \\
+        Fake / non-internship & 3 & Clinical Dietitian - Surrey Memorial Hospital & Fraser Health Authority & Jobillico \\
+        Ambiguous & 79 & Clinical Dietitian - Queen's Park Care Centre & Fraser Health Authority & Jobillico \\
+        Ambiguous & 115 & Staff Pharmacist- Signing bonus & Loblaw Companies Limited & Glassdoor \\
+        Ambiguous & 123 & Radiation Therapist & Horizon Health Network & Workopolis \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Files Supporting Appendix A}
+\label{appendix:files-supporting-appendix-a}
+
+\begin{table}[h]
+    \centering
+    \caption{Files supporting Appendix A}
+    \label{tab:files-supporting-appendix-a}
+    \begin{tabular}{p{0.30\textwidth} p{0.63\textwidth}}
+        \hline
+        \textbf{File} & \textbf{Role in the evaluation} \\
+        \hline
+        \texttt{inspection\_results(2).json} &
+        Primary manual inspection output for the 300-role sample, including the 128/9/163 distribution. \\
+
+        \texttt{random\_test\_role.json} &
+        Sample of scraped roles used for inspection, where available in the evidence archive. \\
+
+        \texttt{LLM-HUMAN-TRANSFORMER.txt} &
+        Summary comparison document that reports the human, ChatGPT5.5-assisted, and Transformer distributions. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+
+\chapter{Internship Detection and Classification Evidence}
+\label{appendix:classification-evidence}
+
+This appendix supports the classification results discussed in Chapter 6. Human review is treated as
+the reference for the inspected sample. ChatGPT5.5-assisted review is reported as sample-level
+agreement with that reference, not as a claim of universal accuracy. The Transformer is evaluated
+as a binary real/fake detector because it does not output an ambiguous class.
+
+\section{Classification Comparison Table}
+\label{appendix:classification-comparison-table}
+
+\begin{table}[h]
+    \centering
+    \caption{Classification comparison table}
+    \label{tab:classification-comparison}
+    \begin{tabular}{p{0.24\textwidth} r r r r p{0.18\textwidth} r r}
+        \hline
+        \textbf{System} &
+        \textbf{Total roles} &
+        \textbf{Real internships} &
+        \textbf{Ambiguous cases} &
+        \textbf{Fake / non-internships} &
+        \textbf{Agreement / Accuracy vs Human} &
+        \textbf{Precision} &
+        \textbf{Recall} \\
+        \hline
+        Human review &
+        300 & 128 & 9 & 163 & Reference & Reference & Reference \\
+
+        ChatGPT5.5-assisted review &
+        300 & 128 & 9 & 163 & 100\% sample agreement & 100\% & 100\% \\
+
+        Transformer &
+        300 & 132 & 0 & 168 & 95.19\% & 93.85\% & 95.31\% \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Interpretation of the Metrics}
+\label{appendix:interpretation-of-metrics}
+
+Precision measures how trustworthy the system is when it classifies a role as a real internship. A
+high precision score means that fewer fake or non-internship roles are incorrectly accepted as real
+internships.
+
+Recall measures how many real internships the system successfully finds. A high recall score
+means that fewer genuine internships are missed.
+
+The Transformer achieved 95.19\% accuracy, 93.85\% precision, and 95.31\% recall against the
+human clear real/fake cases. Since the Transformer does not produce an ambiguous label,
+ambiguous cases remain better handled through manual or ChatGPT5.5-assisted review. This
+interpretation supports the uncertainty-management focus of the thesis.
+
+\section{Classification Evidence Files}
+\label{appendix:classification-evidence-files}
+
+\begin{table}[h]
+    \centering
+    \caption{Classification evidence files}
+    \label{tab:classification-evidence-files}
+    \begin{tabular}{p{0.36\textwidth} p{0.58\textwidth}}
+        \hline
+        \textbf{File} & \textbf{Necessary content supported} \\
+        \hline
+        \texttt{inspection\_results(2).json} &
+        Human inspection distribution: 300 roles, 128 real internships, 9 ambiguous cases, and 163 fake/non-internship roles. \\
+
+        \texttt{LLM-HUMAN-TRANSFORMER.txt} &
+        Human, ChatGPT5.5-assisted, and Transformer comparison table and explanations of precision and recall. \\
+
+        \texttt{raw\_ml\_cleaner\_vs\_human\_rows.csv} &
+        Row-level comparison file, if included in the evidence archive. \\
+
+        \texttt{raw\_ml\_cleaner\_comparison\_summary.csv} &
+        Summary-level classifier comparison file, if included in the evidence archive. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\chapter{Semantic Enrichment Rules, Vocabularies, and Pipeline Logic}
+\label{appendix:semantic-enrichment-rules}
+
+This appendix records the essential implementation logic behind the semantic enrichment pipeline
+without reproducing the full codebase. It supports the claim that the pipeline combines
+deterministic cleaning, rule-based internship signals, embedding-based classification, skill
+extraction, domain categorization, deduplication, and manual-review indicators.
+
+\section{Pipeline Flow}
+\label{appendix:pipeline-flow}
+
 \begin{itemize}
-    \item The title contains an internship term, such as intern, internship, co-op, coop, student intern, software intern, engineering intern, data intern, research intern, summer intern, winter intern, fall intern, or stagiaire.
-    \item The description says that the candidate must be currently enrolled, actively enrolled, a university student, a college student, an undergraduate student, a graduate student, or pursuing a degree.
-    \item The description mentions a fixed internship duration, such as 3 months, 4 months, 8 months, 12 months, 16 months, work term, summer 2026, winter 2026, or fall 2026.
-    \item The role is described as a student placement, co-op placement, internship program, work term, stage, programme de stage, or emploi etudiant.
-    \item The posting uses education-related terms such as bachelor, master, diploma, degree, university, college, post-secondary, or student.
+    \item Load raw JSON records from scraped or provided recruitment data.
+    \item Normalize heterogeneous fields into a common internal representation.
+    \item Remove invalid records and reduce noisy descriptions while preserving useful text structure.
+    \item Deduplicate records using normalized links, title/company/location keys, and similarity checks.
+    \item Apply transparent internship scoring rules using positive and negative role signals.
+    \item Apply local Transformer/prototype classification when enabled and blend it with rule evidence.
+    \item Extract controlled skills and classify a broad domain/category.
+    \item Assign internship probability, final label, and manual-review indicators.
+    \item Export accepted records into frontend-ready JSON for browsing, filtering, and inspection.
 \end{itemize}
 
-The internal classification threshold used by the ML cleaner is 0.55. A posting with \texttt{internship\_probability} greater than or equal to 0.55 is labelled as a real internship by the backend classifier. The public production frontend applies a stricter display threshold of 0.60, meaning that only accepted internships with \texttt{internship\_probability} greater than or equal to 0.60 are shown to users.
+\section{Core Implementation Files}
+\label{appendix:core-implementation-files}
 
-\section{Non-internship definition}
-A posting is treated as not a real internship when it mainly describes a permanent, senior, licensed, professional, or experienced full-time role. These roles may still contain words such as ``stage'' or ``student'' in boilerplate text, but the main job requirements and title do not describe an internship.
+\begin{table}[h]
+    \centering
+    \caption{Core implementation files}
+    \label{tab:core-implementation-files}
+    \begin{tabular}{p{0.33\textwidth} p{0.60\textwidth}}
+        \hline
+        \textbf{File} & \textbf{Necessary role in the thesis} \\
+        \hline
+        \texttt{ml\_cleaner/pipeline.py} &
+        Coordinates loading, normalization, invalid filtering, deduplication, classification, skill extraction,
+        domain classification, review flags, and export. \\
 
-A role is more likely to be rejected when one or more of the following signals are present:
-\begin{itemize}
-    \item The title contains senior professional terms, such as manager, director, senior, lead, principal, staff, architect, supervisor, administrator, consultant, head of, or licensee.
-    \item The description contains permanent employment terms, such as full-time, full time, permanent, regular full-time, benefits package, signing bonus, or extended health care.
-    \item The role requires a professional licence, such as pharmacy license, valid provincial pharmacy license, class A pharmacist, registered pharmacist, registered nurse, medical license, law society membership, CPA, P.Eng, or similar professional requirements.
-    \item The role requires several years of experience, such as 5 years, 10 years, minimum 5 years, at least 5 years, or other high-experience requirements.
-    \item The title is a high-confidence rejection title, such as Pharmacist, Staff Pharmacist, Relief Pharmacist, Pharmacy Manager, Medical Doctor, Physician, Dentist, Lawyer, or Senior Software Engineer.
-\end{itemize}
+        \texttt{ml\_cleaner/text\_cleaning.py} &
+        Defines field aliases, HTML removal, description cleaning, title formatting, and canonical field normalization. \\
 
-\section{Ambiguous cases}
-Some postings are not clearly positive or clearly negative. For example, a ``Graduate Program'' may be early-career but not necessarily an internship. A ``Trainee'' role may be a student placement in one company but a permanent training position in another. A ``Junior'' role may be suitable for new graduates but not be an internship. These records are treated carefully because automatic classification can be uncertain.
+        \texttt{ml\_cleaner/rule\_filter.py} &
+        Computes transparent internship relevance scores using positive internship terms, education/duration indicators,
+        and negative seniority/professional patterns. \\
 
-The following terms are considered manual-review signals when the rest of the posting is unclear:
-\begin{itemize}
-    \item graduate
-    \item new graduate
-    \item junior
-    \item associate
-    \item trainee
-    \item resident
-    \item fellowship
-    \item apprentice
-    \item entry level
-    \item entry-level
-    \item co-op eligible
-    \item student preferred
-    \item recent graduate
-\end{itemize}
+        \texttt{ml\_cleaner/transformer\_classifier.py} &
+        Implements local sentence-transformer prototype similarity and blends semantic evidence with rule scores. \\
 
-\section{Manual review rule}
-The field \texttt{needs\_manual\_review} is set to true when the record is ambiguous. The pipeline uses deterministic logic instead of sending ambiguous cases to an LLM at runtime.
+        \texttt{ml\_cleaner/skill\_extractor.py} &
+        Extracts skills using a controlled skill library with keyword matching and optional embedding support. \\
 
-A posting is flagged for manual review when at least one of these conditions is true:
-\begin{enumerate}
-    \item The \texttt{internship\_probability} is in the borderline range between 0.45 and 0.60.
-    \item The rule-based evidence and semantic evidence disagree.
-    \item The title looks like an internship, but the final label is not real internship.
-    \item The semantic margin is weak, meaning the classifier does not clearly separate the best internship interpretation from the strongest negative interpretation.
-\end{enumerate}
+        \texttt{ml\_cleaner/domain\_classifier.py} &
+        Assigns a domain/category to each enriched record using controlled keyword or semantic signals. \\
 
-This design makes manual review explainable. Instead of hiding uncertainty, the system exposes records where the automatic decision is less reliable.
+        \texttt{ml\_cleaner/deduplicator.py} &
+        Removes duplicate or near-duplicate postings using canonical links and similarity checks. \\
 
-\section{Implementation excerpt: final decision and manual review}
-The following excerpt shows the core decision logic used by the cleaner. The label threshold is centralized in \texttt{final\_label\_from\_probability}, while \texttt{needs\_manual\_review\_flag} exposes uncertainty instead of hiding it.
+        \texttt{ml\_cleaner/export\_frontend.py} &
+        Filters accepted internship records and exports frontend-ready JSON. \\
 
-\begin{lstlisting}[language=Python, caption=Core decision logic for internship classification]
-# ml_pipeline/ml_cleaner/transformer_classifier.py
-def final_label_from_probability(probability: float,
- min_probability: float = 0.55) -> str:
- """Single source of truth for final internship label."""
- return "real internship" if probability >= min_probability else "not real internship"
+        \texttt{ml\_cleaner/schemas.py} &
+        Defines typed structures such as \texttt{NormalizedJob}, \texttt{RuleScore}, \texttt{ClassificationResult},
+        \texttt{DomainResult}, and \texttt{DeduplicationReport}. \\
+        \hline
+    \end{tabular}
+\end{table}
 
-# ml_pipeline/ml_cleaner/pipeline.py
-def needs_manual_review_flag(
- probability: float,
- rule_score: float,
- title_has_internship: bool,
- is_real: bool,
- semantic_margin: float | None,
- rule_semantic_disagreement: bool,
- min_review_probability: float,
- max_review_probability: float,
- weak_margin_threshold: float,
-) -> bool:
- """Deterministically flag ambiguous records instead of using an LLM fallback."""
- uncertain_probability = min_review_probability <= probability <= max_review_probability
- title_conflict = title_has_internship and not is_real
- weak_semantic_margin = semantic_margin is not None and abs(semantic_margin) < weak_margin_threshold
- return bool(
- uncertain_probability
- or rule_semantic_disagreement
- or title_conflict
- or weak_semantic_margin
- )
-\end{lstlisting}
+\section{Configuration and Vocabulary Files}
+\label{appendix:configuration-and-vocabulary-files}
 
-\section{Metadata consistency checks}
-The output schema includes several fields that allow the decision to be checked after processing:
-\begin{itemize}
-    \item \texttt{is\_real\_internship} stores the final boolean decision.
-    \item \texttt{internship\_probability} stores the numerical confidence score.
-    \item \texttt{needs\_manual\_review} stores whether the role should be checked manually.
-    \item \texttt{cleaning\_metadata.internship\_label} stores the textual label, either ``real internship'' or ``not real internship.''
-    \item \texttt{cleaning\_metadata.rule\_score} stores the rule-based internship score.
-    \item \texttt{cleaning\_metadata.rule\_reasons} stores the positive and negative rule signals found in the posting.
-    \item \texttt{cleaning\_metadata.classification\_method} explains whether the result came from rules, local prototype similarity, or deterministic override logic.
-    \item \texttt{cleaning\_metadata.semantic\_label} stores the best semantic prototype when available.
-    \item \texttt{cleaning\_metadata.semantic\_margin} stores how strongly the semantic model preferred the best label.
-    \item \texttt{cleaning\_metadata.rule\_semantic\_disagreement} stores whether rule evidence and semantic evidence disagreed.
-    \item \texttt{cleaning\_metadata.domain\_classification} stores the selected role category and confidence.
-    \item \texttt{cleaning\_metadata.extracted\_skills} stores the skills found in the posting.
-\end{itemize}
+\begin{table}[h]
+    \centering
+    \caption{Configuration and vocabulary files}
+    \label{tab:configuration-vocabulary-files}
+    \begin{tabular}{p{0.33\textwidth} p{0.60\textwidth}}
+        \hline
+        \textbf{File} & \textbf{Purpose} \\
+        \hline
+        \texttt{internship\_rules.json} &
+        Positive internship, co-op, stagiaire/stage, student, education, and duration signals. \\
 
-The most important consistency rule is that \texttt{is\_real\_internship} and \texttt{cleaning\_metadata.internship\_label} must agree. For example, if \texttt{is\_real\_internship} is true, then the \texttt{internship\_label} should be ``real internship.'' If \texttt{is\_real\_internship} is false, then the \texttt{internship\_label} should be ``not real internship.''
+        \texttt{negative\_role\_patterns.json} &
+        Seniority, management, permanent-role, and professional-role signals used to reduce false positives. \\
 
-\section{Example accepted and rejected records}
-The following examples come from the development output file produced by the cleaner.
+        \texttt{skills\_library.json} &
+        Controlled skill vocabulary and synonyms used for skill extraction. \\
 
-\textbf{Example 1: Accepted real internship without manual review} \\
-Title: Electrical And Automation Intern \\
-Company: Pason Systems Corp \\
-Location: Calgary \\
-Category: engineering \\
-Internship probability: 0.94 \\
-is\_real\_internship: true \\
-needs\_manual\_review: false \\
-Main rule reasons: positive title keyword ``intern,'' positive keyword ``internship,'' education/student indicator \\
-Explanation: This is a strong accepted example because the title explicitly says ``Intern'' and the description contains supporting internship evidence.
+        \texttt{domain\_keywords.json} &
+        Domain/category keyword sets used for structured browsing and filtering. \\
+        \hline
+    \end{tabular}
+\end{table}
 
-\textbf{Example 2: Accepted real internship with manual review} \\
-Title: Intern, Software (S-02-08) Winter 2026 \\
-Company: Matrox Graphics Inc \\
-Location: Dorval \\
-Category: software\_engineering \\
-Internship probability: 0.65 \\
-is\_real\_internship: true \\
-needs\_manual\_review: true \\
-Main rule reasons: positive title keyword ``intern,'' education/student indicator, internship duration/term indicator \\
-Explanation: The role is accepted because the title and description clearly indicate an internship. However, it is still flagged for manual review because the semantic margin is weak, meaning the classifier should not be treated as fully confident.
+\section{Uncertainty and Manual-Review Logic}
+\label{appendix:uncertainty-and-manual-review-logic}
 
-\textbf{Example 3: Rejected non-internship without manual review} \\
-Title: Graduate Hr Generalist - Amer \\
-Company: Canonical \\
-Location: Montreal, Quebec, Canada \\
-Category: business \\
-Internship probability: 0.42 \\
-is\_real\_internship: false \\
-needs\_manual\_review: false \\
-Semantic label: full-time experienced job \\
-Explanation: This posting is rejected because it does not reach the internship threshold and is semantically closer to a full-time experienced job than to a student internship.
+The implementation does not force every uncertain posting into a confident final interpretation. The
+manual-review indicator is triggered by uncertainty conditions such as probability falling inside a
+review range, disagreement between rule and semantic evidence, weak semantic margin, or
+conflict between an internship-looking title and a negative final decision. This supports RQ4 by
+preserving ambiguity instead of hiding it behind a binary decision.
 
-\textbf{Example 4: Rejected non-internship with manual review} \\
-Title: Pharmacist \\
-Company: Loblaw Companies Limited \\
-Location: Gravenhurst \\
-Category: healthcare \\
-Internship probability: 0.3082 \\
-is\_real\_internship: false \\
-needs\_manual\_review: true \\
-Main rule reasons: permanent job indicator, professional pharmacist license required, leadership/performance management required, trains existing staff, signing bonus professional role signal \\
-Explanation: This role is rejected because it is a licensed professional pharmacist job. It is flagged for manual review because the semantic evidence and rule evidence disagreed, showing why the manual-review flag is useful.
+\begin{verbatim}
+manual_review = (
+    probability inside review range
+    OR rule/semantic disagreement
+    OR internship title conflicts with final decision
+    OR semantic margin is weak
+)
+\end{verbatim}
 
-\section{Evaluation limitation}
-The repository includes an evaluation script that compares exported predictions against a manual labels CSV file with the columns id and label. However, the labels file must be filled manually before reporting accuracy, precision, recall, or F1-score. Therefore, unless a completed manual labels file is provided, this thesis should not claim final supervised evaluation metrics. The current evidence proves that the pipeline is explainable and auditable, but final statistical evaluation requires a manually labelled test set.
 
-\section{Evidence files}
-The evaluation and manual-review rules are supported by the following project files:
-\begin{itemize}
-    \item \texttt{ml\_pipeline/ml\_cleaner/pipeline.py}
-    \item \texttt{ml\_pipeline/ml\_cleaner/rule\_filter.py}
-    \item \texttt{ml\_pipeline/ml\_cleaner/transformer\_classifier.py}
-    \item \texttt{ml\_pipeline/ml\_cleaner/libraries/internship\_rules.json}
-    \item \texttt{ml\_pipeline/ml\_cleaner/libraries/negative\_role\_patterns.json}
-    \item \texttt{ml\_pipeline/data/output/intern\_data\_dev.json}
-    \item \texttt{ml\_pipeline/scripts/evaluate\_ml\_cleaner.py}
-\end{itemize}
+\chapter{Structured Internship Schema and Frontend Catalog Evidence}
+\label{appendix:structured-internship-schema}
 
-\chapter{Regex, Heuristic Rules, and Normalization Logic}
+This appendix shows the structured output expected from the enrichment pipeline and the
+frontend-facing fields used for discovery. It supports RQ2 and RQ3 by connecting semantic
+enrichment to concrete searchable and filterable record fields.
 
-\section{Purpose of the cleaning rules}
-This appendix documents the rule-based and normalization logic used to convert inconsistent scraped job postings into a cleaner internship dataset. The purpose of these rules is to reduce noise from different job boards, standardize fields, remove obvious non-internships, and support consistent frontend display.
+\section{Frontend-Ready Internship Record Schema}
+\label{appendix:frontend-ready-schema}
 
-\section{Field normalization}
-Scraped job data can use different names for the same field. For example, one scraper may use title, another may use job\_title, and another may use position. The cleaner handles this by using field aliases and selecting the first non-empty value.
+\begin{table}[h]
+    \centering
+    \caption{Frontend-ready internship record schema}
+    \label{tab:frontend-ready-schema}
+    \begin{tabular}{p{0.28\textwidth} p{0.66\textwidth}}
+        \hline
+        \textbf{Field} & \textbf{Meaning} \\
+        \hline
+        \texttt{id} &
+        Stable identifier used by the frontend and API routes. \\
 
-Examples of normalized field aliases include:
-\begin{itemize}
-    \item Title aliases: title, job\_title, position, role, name
-    \item Company aliases: company, company\_name, employer, organization
-    \item Location aliases: location, job\_location, city, place
-    \item Description aliases: description, job\_description, details, summary, content
-    \item Apply link aliases: original\_apply\_link, apply\_url, url, link, platform\_link
-    \item Date aliases: date\_posted, posted\_at, scrape\_date, scraped\_date
-\end{itemize}
+        \texttt{title} &
+        Cleaned internship title after normalization. \\
 
-This allows the pipeline to accept input from multiple scraping sources without requiring every scraper to use exactly the same field names.
+        \texttt{company} &
+        Normalized employer name. \\
 
-\section{Implementation excerpt: field aliases and stable identifiers}
-The following excerpt shows how inconsistent scraped field names are mapped into a canonical representation. It also shows the stable ID fallback used when no source identifier is available.
+        \texttt{location} &
+        Normalized location string where available. \\
 
-\begin{lstlisting}[language=Python, caption=Field aliases and stable ID generation]
-# ml_pipeline/ml_cleaner/text_cleaning.py
-FIELD_ALIASES = {
- "title": ("title", "job_title", "position", "role", "name"),
- "company": ("company", "employer", "organization", "company_name"),
- "description": ("description", "job_description", "summary", "details", "content"),
- "location": ("location", "city", "job_location", "place"),
- "link": ("original_apply_link", "apply_url", "link", "url", "platform_link"),
- "salary": ("salary", "compensation", "pay", "wage"),
- "job_age": ("job_age", "date_posted", "posted_date", "posted", "age",
- "scrape_date", "scraped_date"),
- "platform": ("platform", "source", "site"),
+        \texttt{link} &
+        Application or source link when available. \\
+
+        \texttt{salary} &
+        Salary/compensation string when available. \\
+
+        \texttt{description} &
+        Cleaned description with HTML, URLs, duplicated boilerplate, and unsafe symbols reduced. \\
+
+        \texttt{platform} &
+        Original source platform. \\
+
+        \texttt{skills} &
+        Extracted controlled skill labels used for structured filtering. \\
+
+        \texttt{category} &
+        Broad domain/category label. \\
+
+        \texttt{is\_real\_internship} &
+        Boolean final internship decision used for public filtering. \\
+
+        \texttt{internship\_probability} &
+        Numeric score representing internship relevance confidence. \\
+
+        \texttt{needs\_manual\_review} &
+        Indicator that the record is uncertain or borderline. \\
+
+        \texttt{cleaning\_metadata} &
+        Explanation-oriented metadata: rule score, reasons, semantic label, margin, review decision,
+        and extraction details. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Enriched Catalog Statistics Used in Chapter 6}
+\label{appendix:enriched-catalog-statistics}
+
+\begin{table}[h]
+    \centering
+    \caption{Enriched catalog statistics used in Chapter 6}
+    \label{tab:enriched-catalog-statistics}
+    \begin{tabular}{p{0.50\textwidth} p{0.30\textwidth}}
+        \hline
+        \textbf{Statistic} & \textbf{Value} \\
+        \hline
+        Public internships displayed & 202 \\
+        Average internship probability & 0.825 \\
+        Median internship probability & 0.9 \\
+        Manual-review records still shown & 60 / 202 \\
+        Records with extracted skills & 184 / 202 \\
+        Records with no skills & 18 / 202 \\
+        Records with salary available & 106 / 202 \\
+        Records missing salary & 96 / 202 \\
+        Records missing link & 2 / 202 \\
+        Empty descriptions & 0 / 202 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Example Structured Record Shape}
+\label{appendix:example-structured-record-shape}
+
+The following reduced example shows the record shape, not the full description text. It
+demonstrates the fields that make the enriched catalog searchable, filterable, and reviewable.
+
+\begin{verbatim}
+{
+  "id": "...",
+  "title": "SAP IT Business Analyst Co-Op (Jan 2026)",
+  "company": "Lockheed Martin Canada",
+  "location": "Ontario",
+  "skills": ["business", "education", "finance", "operations"],
+  "category": "business",
+  "is_real_internship": true,
+  "internship_probability": 0.65,
+  "needs_manual_review": true,
+  "cleaning_metadata": {
+    "rule_score": 0.55,
+    "internship_label": "real internship",
+    "semantic_label": "real internship",
+    "semantic_margin": 0.0254
+  }
 }
+\end{verbatim}
+
+\section{Frontend Discovery Fields}
+\label{appendix:frontend-discovery-fields}
+
+Search and filtering are supported by enriched fields such as title, company, location, skills,
+category, salary, description, internship probability, and review indicators. This supports structured
+discovery without claiming formal user satisfaction or a completed user study.
+
+\section{Files Supporting Appendix D}
+\label{appendix:files-supporting-appendix-d}
+
+\begin{table}[h]
+    \centering
+    \caption{Files supporting Appendix D}
+    \label{tab:files-supporting-appendix-d}
+    \begin{tabular}{p{0.38\textwidth} p{0.56\textwidth}}
+        \hline
+        \textbf{File} & \textbf{Role} \\
+        \hline
+        \texttt{website\_data\_statistics.json} &
+        Catalog-level statistics for accepted frontend records. \\
+
+        \texttt{frontend/public/intern\_data.json} &
+        Frontend-facing structured catalog file in the code archive. \\
+
+        \texttt{ml\_cleaner/schemas.py} &
+        Internal typed record definitions. \\
+
+        \texttt{ml\_cleaner/export\_frontend.py} &
+        Filtering and JSON export logic. \\
+
+        \texttt{frontend/app/lib/data.ts} and \texttt{frontend/app/api/internship/route.ts} &
+        Frontend data access and API behavior, where present in the code archive. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+\chapter{Evaluation Logs and Reproducibility Evidence}
+\label{appendix:evaluation-logs-reproducibility}
+
+This appendix lists the proof files needed to verify the operational and frontend-oriented
+measurements used in Chapter 6. The logs are not pasted in full because the thesis should not
+become a raw technical dump. The files should be kept in the evidence archive alongside the
+thesis.
+
+\section{Search and Filter Timing Evidence}
+\label{appendix:search-filter-timing-evidence}
+
+\begin{table}[h]
+    \centering
+    \caption{Search and filter timing evidence}
+    \label{tab:search-filter-timing-evidence}
+    \begin{tabular}{lrrrr}
+        \hline
+        \textbf{Query} & \textbf{Results found} & \textbf{Median filter time (ms)} &
+        \textbf{P95 filter time (ms)} & \textbf{Iterations} \\
+        \hline
+        software & 67 & 1.9643 & 2.4907 & 100 \\
+        data & 95 & 1.8872 & 2.3509 & 100 \\
+        business & 138 & 1.7720 & 2.2819 & 100 \\
+        marketing & 42 & 1.9068 & 2.3733 & 100 \\
+        engineering & 83 & 1.6766 & 1.9589 & 100 \\
+        finance & 27 & 1.9472 & 2.3504 & 100 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Local Frontend Response Evidence}
+\label{appendix:local-frontend-response-evidence}
+
+\begin{table}[h]
+    \centering
+    \caption{Local frontend response evidence}
+    \label{tab:local-frontend-response-evidence}
+    \begin{tabular}{p{0.22\textwidth} p{0.30\textwidth} r r r r r}
+        \hline
+        \textbf{Page or API} &
+        \textbf{Path} &
+        \textbf{Cold load (ms)} &
+        \textbf{Warm median (ms)} &
+        \textbf{Warm p95 (ms)} &
+        \textbf{Samples} &
+        \textbf{Status} \\
+        \hline
+        Homepage / &
+        \texttt{/} &
+        25.16 & 8.98 & 11.04 & 20 & 200 \\
+
+        Internship API /api/internship &
+        \texttt{/api/internship} &
+        37.22 & 7.88 & 11.05 & 20 & 200 \\
+
+        Role page /role/[id] &
+        \texttt{/role/glassdoor\_5008634264187525578} &
+        129.71 & 9.22 & 14.61 & 20 & 200 \\
+
+        Single role API /api/internship/[id] &
+        \texttt{/api/internship/glassdoor\_5008634264187525578} &
+        16.66 & 14.12 & 16.85 & 20 & 200 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Build and File-Size Evidence}
+\label{appendix:build-and-file-size-evidence}
+
+\begin{table}[h]
+    \centering
+    \caption{Build and file-size evidence}
+    \label{tab:build-file-size-evidence}
+    \begin{tabular}{p{0.36\textwidth} r p{0.20\textwidth} p{0.30\textwidth}}
+        \hline
+        \textbf{Metric} & \textbf{Value} & \textbf{Unit} & \textbf{Source} \\
+        \hline
+        \texttt{production\_build\_exit\_code} & 0 & 0 means passed & \texttt{frontend\_build\_exit\_code.txt} \\
+        \texttt{total\_build\_time} & 22.7 & seconds & \texttt{/usr/bin/time -v npm run build} \\
+        \texttt{compile\_time} & 6.0 & seconds & \texttt{next build stdout} \\
+        \texttt{static\_page\_generation\_time} & 4.6 & seconds & \texttt{next build stdout} \\
+        \texttt{max\_build\_memory} & 1.819 & GB decimal & Maximum resident set size \\
+        \texttt{accepted\_frontend\_records} & 202 & records & \texttt{frontend/public/intern\_data.json} \\
+        \texttt{frontend\_json\_size} & 1.179 & MB decimal & \texttt{frontend/public/intern\_data.json} \\
+        \texttt{frontend\_json\_gzip\_size} & 231 & KB approx & gzip compressed file bytes \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Evidence Archive Index}
+\label{appendix:evidence-archive-index}
+
+\begin{table}[h]
+    \centering
+    \caption{Evidence archive index}
+    \label{tab:evidence-archive-index}
+    \begin{tabular}{p{0.36\textwidth} p{0.58\textwidth}}
+        \hline
+        \textbf{Evidence file} & \textbf{Claim supported} \\
+        \hline
+        \texttt{frontend\_build\_performance\_actual.json / .csv} &
+        Production build exit code, build time, compile time, static generation time, memory, JSON size,
+        and accepted frontend record count. \\
+
+        \texttt{raw\_frontend\_build\_stdout.log} &
+        Original build output used as raw build evidence. \\
+
+        \texttt{frontend\_response\_speed\_actual.json / .csv} &
+        Local page and API response timing summary. \\
+
+        \texttt{raw\_frontend\_http\_samples.csv} &
+        Raw HTTP timing samples. \\
+
+        \texttt{frontend\_search\_filter\_summary.json / .csv} &
+        Search/filter timing summary for tested queries. \\
+
+        \texttt{raw\_frontend\_search\_filter\_samples.csv} &
+        Raw search/filter timing samples. \\
+
+        \texttt{website\_data\_statistics.json / .csv} &
+        Frontend catalog statistics, including record count, skills, salary, links, descriptions,
+        probabilities, and review indicators. \\
+
+        \texttt{source\_manifest.json} &
+        Evidence archive organization and file traceability. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Interpretation Boundary}
+\label{appendix:interpretation-boundary}
+
+These measurements should be described as local evaluation results observed under the tested
+environment. They support local execution feasibility and structured discovery behavior, but they
+do not prove universal cloud performance, production scalability, or user satisfaction. This
+boundary is important for defending the research scope.
 
-def first_value(record: dict[str, Any], aliases: tuple[str, ...]) -> str:
- """Return the first non-empty string-like value among candidate aliases."""
- for key in aliases:
-     value = record.get(key)
-     if value is None:
-         continue
-     if isinstance(value, (list, tuple)):
-         value = ", ".join(str(v) for v in value if v is not None)
-     value = str(value).strip()
-     if value and value.lower() not in {"none", "null", "nan", "n/a"}:
-         return value
- return ""
-
-def stable_id(parts: list[str]) -> str:
- """Create a deterministic ID from important fields."""
- joined = "|".join(p.strip().lower() for p in parts if p)
- return sha1(joined.encode("utf-8")).hexdigest()[:16]
-\end{lstlisting}
-
-\section{Title cleaning}
-The title normalization step removes extra whitespace, HTML entities, repeated separators, and noisy formatting. The goal is not to rewrite the title, but to keep a readable and consistent version of the original job title.
-
-Examples:
-\begin{itemize}
-    \item Raw title: `` Software Intern '' $\rightarrow$ Cleaned title: ``Software Intern''
-    \item Raw title: ``Data Analyst \& Reporting Intern'' $\rightarrow$ Cleaned title: ``Data Analyst \& Reporting Intern''
-\end{itemize}
-
-\section{Company and location cleaning}
-Company and location fields are cleaned using the same conservative principle. Empty, null, none, n/a, or nan values are treated as missing values. If a location cannot be found, the frontend fallback is ``Location Not Specified.''
-
-Examples:
-\begin{itemize}
-    \item Raw location: `` Montreal, Quebec, Canada '' $\rightarrow$ Cleaned location: ``Montreal, Quebec, Canada''
-    \item Raw location: ``'' $\rightarrow$ Cleaned location: ``Location Not Specified''
-\end{itemize}
-
-\section{Salary cleaning}
-Salary cleaning is designed to extract readable compensation information when available while avoiding invented salary values. If no salary is found, the system returns ``Salary not specified.''
-
-Examples of accepted salary patterns include:
-\begin{itemize}
-    \item \$20 / hour
-    \item \$20/hr
-    \item \$20 - \$25 / hour
-    \item \$50,000 - \$60,000
-    \item \$70K
-    \item \$70K - \$90K
-\end{itemize}
-
-Examples:
-\begin{itemize}
-    \item Raw salary: ``Compensation: \$20 - \$25 / hour depending on experience'' $\rightarrow$ Cleaned salary: ``\$20 - \$25 / hour''
-    \item Raw salary: ``N/A'' $\rightarrow$ Cleaned salary: ``Salary not specified''
-\end{itemize}
-
-\section{Duplicate ID logic}
-The pipeline uses stable identifiers so that the same role can be tracked consistently after cleaning. If the scraped data already contains a usable job ID, the system keeps it. If the role does not have a reliable ID, the system creates a stable ID from normalized job information such as title, company, location, and link.
-
-The frontend also protects against repeated IDs. If two records produce the same base ID, the later record receives a suffix such as -1 or -2 so that every role still has a unique frontend identifier.
-
-\section{Deduplication logic}
-Duplicate removal is important because the same internship may appear on multiple job boards or may be scraped more than once. The deduplication step compares normalized job records using stable link information and similarity between title, company, location, and description.
-
-The configured deduplication thresholds are:
-\begin{itemize}
-    \item \texttt{duplicate\_similarity\_threshold}: 0.88
-    \item \texttt{duplicate\_title\_threshold}: 0.90
-\end{itemize}
-
-This means that records must be very similar before they are treated as duplicates. This reduces the risk of deleting different internships that happen to have similar titles.
-
-\section{Positive internship heuristics}
-The internship rules library contains positive signals used to increase confidence that a role is a real internship. The uploaded rule library includes these groups:
-\begin{itemize}
-    \item \texttt{positive\_title\_terms}: 38 terms
-    \item \texttt{positive\_description\_terms}: 37 terms
-    \item \texttt{student\_indicators}: 43 terms
-    \item \texttt{duration\_indicators}: 40 terms
-    \item \texttt{season\_indicators}: 28 terms
-    \item \texttt{french\_terms}: 29 terms
-    \item \texttt{education\_terms}: 38 terms
-\end{itemize}
-
-Examples of positive internship terms include intern, internship, student intern, software intern, engineering intern, research intern, data intern, summer intern, winter intern, fall intern, co-op, coop, stagiaire, stage, programme de stage, and emploi etudiant.
-
-\section{Rejection heuristics and regex examples}
-The negative role pattern library contains terms and regex patterns that help reject non-internship roles. These rules are especially important for roles that mention students or training in a generic way but are actually permanent professional jobs.
-
-The uploaded negative pattern library includes these groups:
-\begin{itemize}
-    \item \texttt{negative\_title\_terms}: 54 terms
-    \item \texttt{negative\_description\_terms}: 61 terms
-    \item \texttt{professional\_license\_terms}: 28 terms
-    \item \texttt{regex\_patterns}: 21 patterns
-    \item \texttt{high\_confidence\_rejection\_titles}: 39 titles
-\end{itemize}
-
-Examples of negative title terms include manager, director, senior, lead, principal, staff, architect, supervisor, administrator, and consultant.
-
-Examples of professional licence terms include pharmacy license, pharmacist license, class A pharmacist, registered pharmacist, registered nurse, medical license, law society, CPA, and P.Eng.
-
-The following representative regex patterns detect high-experience and professional-role signals:
-
-\begin{lstlisting}[language=Python, caption=Representative regex patterns for rejection logic]
-# Representative regex patterns from the negative-pattern logic
-EXPERIENCE_AND_LICENSE_PATTERNS = [
- r"\b\d+\+\s*years\b",
- r"\b\d+\s*\+\s*years\b",
- r"\b[5-9]\s*years?\b",
- r"\b1[0-9]\s*years?\b",
- r"\b\d+\s*years?\s+of\s+experience\b",
- r"\bminimum\s+\d+\s*years?\b",
- r"\bat\s+least\s+\d+\s*years?\b",
- r"\bclass\s+[a-z]\s+pharmacist",
- r"\bpharmac(y|ist)\s+licen[cs]e\b",
-]
-\end{lstlisting}
-
-\section{Category rules}
-Domain classification is supported by a curated keyword library. Each category contains keywords and a short prototype description. The domain classifier uses keyword rules first, then optional local embedding fallback when keyword confidence is weak.
-
-The uploaded domain keyword library includes these categories:
-software\_engineering, data\_science, cybersecurity, cloud\_devops, business, design, engineering, healthcare, finance, marketing, operations, sales, hr, research, education, legal, customer\_support, manufacturing, general.
-
-Examples:
-\begin{itemize}
-    \item A role mentioning Python, JavaScript, React, APIs, Git, and software development is likely to be classified as \texttt{software\_engineering}.
-    \item A role mentioning machine learning, analytics, Pandas, NumPy, dashboards, or data pipelines is likely to be classified as \texttt{data\_science}.
-    \item A role mentioning vulnerability research, SIEM, penetration testing, threat hunting, or network security is likely to be classified as \texttt{cybersecurity}.
-    \item A role mentioning pharmacy, patient care, clinical work, medication, or healthcare documentation is likely to be classified as \texttt{healthcare}.
-\end{itemize}
-
-\section{Implementation excerpt: domain classification}
-The following excerpt shows that domain classification is not a black-box label. Keyword scores are computed first, and the optional embedding fallback is used only when keyword confidence is weak.
-
-\begin{lstlisting}[language=Python, caption=Domain classification logic]
-# ml_pipeline/ml_cleaner/domain_classifier.py
-def _count_keyword(text: str, keyword: str) -> bool:
- if keyword.startswith(" ") or keyword.endswith(" "):
-     return keyword in f" {text} "
- return re.search(
-     rf"(?<![a-z0-9]){re.escape(keyword)}(?![a-z0-9])",
-     text,
-     flags=re.I,
- ) is not None
-
-class DomainClassifier:
- """Classify job domains with keyword rules plus optional embedding fallback."""
- def _keyword_scores(self, text: str) -> Counter[str]:
-     lower = f" {text.lower()} "
-     scores: Counter[str] = Counter()
-     for domain, keywords in self.domain_keywords.items():
-         for keyword, weight in keywords.items():
-             if _count_keyword(lower, keyword.lower()):
-                 scores[domain] += weight
-     return scores
-\end{lstlisting}
-
-\section{Evidence files}
-The regex, heuristic, and normalization logic is supported by the following project files:
-\begin{itemize}
-    \item \texttt{ml\_pipeline/ml\_cleaner/text\_cleaning.py}
-    \item \texttt{ml\_pipeline/ml\_cleaner/deduplicator.py}
-    \item \texttt{ml\_pipeline/ml\_cleaner/domain\_classifier.py}
-    \item \texttt{ml\_pipeline/ml\_cleaner/libraries/internship\_rules.json}
-    \item \texttt{ml\_pipeline/ml\_cleaner/libraries/negative\_role\_patterns.json}
-    \item \texttt{ml\_pipeline/ml\_cleaner/libraries/domain\_keywords.json}
-    \item \texttt{frontend/app/lib/jobMapper.ts}
-\end{itemize}
-
-\chapter{Internship Schema and API Field Documentation}
-
-\section{Purpose of the schema appendix}
-This appendix documents the main fields used by Internify after cleaning. The same core fields are used by the ML cleaning pipeline and the frontend API. This makes the dataset easier to inspect, debug, and display.
-
-\section{Main output fields}
-\begin{description}
-    \item[id] Meaning: Stable frontend identifier for the role. Type: string. Notes: Uses the original job ID when available. Otherwise, it is generated from normalized role information. Duplicate IDs are made unique with suffixes when necessary.
-    \item[source\_id] Meaning: Original scraped identifier when available. Type: string or empty string. Notes: Useful for tracing a cleaned role back to the scraper output.
-    \item[title] Meaning: Cleaned role title. Type: string. Example: ``Electrical And Automation Intern''
-    \item[company] Meaning: Cleaned company name. Type: string. Example: ``Pason Systems Corp''
-    \item[location] Meaning: Cleaned role location. Type: string. Example: ``Calgary''. Fallback: ``Location Not Specified''
-    \item[link] Meaning: Main link used by the frontend for the role. Type: string. Notes: Usually comes from \texttt{original\_apply\_link}, \texttt{apply\_url}, \texttt{link}, \texttt{url}, or \texttt{platform\_link}.
-    \item[salary] Meaning: Cleaned compensation text. Type: string. Example: ``\$20 - \$25 / hour''. Fallback: ``Salary not specified''
-    \item[description] Meaning: Cleaned role description. Type: string. Notes: Newlines and extra whitespace are normalized, but the description is not rewritten.
-    \item[rating] Meaning: Company or role rating when available. Type: string or number.
-    \item[job\_age] Meaning: Posted date, scrape age, or related date information. Type: string.
-    \item[platform] Meaning: Source platform name. Type: string. Example: LinkedIn, Glassdoor, Indeed, or another scraper source.
-    \item[skills] Meaning: Extracted skills from the title and description. Type: list of strings. Example: \texttt{["Python", "JavaScript", "React", "Git"]}
-    \item[category] Meaning: Best-matching role domain. Type: string.
-    \item[is\_real\_internship] Meaning: Final boolean decision for whether the posting is a real internship. Type: boolean.
-    \item[internship\_probability] Meaning: Final confidence score for internship classification. Type: number between 0 and 1. Notes: Backend acceptance threshold is 0.55. Production frontend display threshold is 0.60.
-    \item[needs\_manual\_review] Meaning: Indicates whether the record should be checked manually. Type: boolean.
-    \item[cleaning\_metadata] Meaning: Audit object containing detailed information about the cleaning and classification decision. Type: object.
-\end{description}
-
-\section{Implementation excerpt: schema objects}
-The backend schema uses typed dataclasses for normalized jobs and classification results. This keeps the cleaning output consistent and makes each stage easier to test.
-
-\begin{lstlisting}[language=Python, caption=Backend schema dataclasses]
-# ml_pipeline/ml_cleaner/schemas.py
-@dataclass
-class NormalizedJob:
- """Canonical representation of a job record after field normalization."""
- source_index: int
- source_id: str
- title: str
- company: str
- location: str
- link: str
- salary: str
- description: str
- job_age: str
- platform: str
- raw: dict[str, Any] = field(default_factory=dict)
-
-@dataclass
-class ClassificationResult:
- """Internship classification output with transparent confidence metadata."""
- probability: float
- label: str
- method: str
- explanation: str
- semantic_label: str | None = None
- semantic_margin: float | None = None
- rule_semantic_disagreement: bool = False
-\end{lstlisting}
-
-The frontend uses a TypeScript interface for the public internship object:
-
-\begin{lstlisting}[language=Java, caption=Frontend Internship interface]
-// frontend/app/lib/jobMapper.ts
-export interface Internship {
- id: string;
- title: string;
- company: string;
- location: string;
- link: string;
- salary: string;
- description: string;
- rating: string;
- job_age: string;
- platform: string;
- skills: string[];
- category: string;
- duration?: string;
- is_real_internship?: boolean;
- internship_probability?: number;
- needs_manual_review?: boolean;
- source_id?: string;
- platform_link?: string;
- original_apply_link?: string;
-}
-\end{lstlisting}
-
-\section{cleaning\_metadata fields}
-\begin{itemize}
-    \item \texttt{source\_index}: Original index of the record in the input list.
-    \item \texttt{rule\_score}: Rule-based internship score before or alongside semantic classification.
-    \item \texttt{rule\_reasons}: List of rule signals found in the title or description.
-    \item \texttt{internship\_label}: Text version of the final internship decision.
-    \item \texttt{classification\_method}: Explains which classification path was used.
-    \item \texttt{classification\_explanation}: Human-readable explanation of the classification decision.
-    \item \texttt{semantic\_label}: Best semantic prototype label when local embedding classification is used.
-    \item \texttt{semantic\_margin}: Difference between the internship semantic score and the strongest negative semantic score.
-    \item \texttt{rule\_semantic\_disagreement}: Boolean flag showing whether rule-based evidence and semantic evidence disagreed.
-    \item \texttt{extracted\_skills}: Skills extracted from the posting.
-    \item \texttt{skills\_count}: Number of extracted skills.
-    \item \texttt{domain\_classification}: Object containing the selected domain, confidence, and method.
-    \item \texttt{detected\_language}: Simple language estimate based on local English and French markers.
-    \item \texttt{original\_id}: Original source ID if available.
-\end{itemize}
-
-\section{API behaviour}
-The frontend API reads the production JSON file from \texttt{frontend/public/intern\_data.json}. Before returning roles to users, it normalizes the records and applies the production acceptance filter. This filter requires:
-\begin{itemize}
-    \item \texttt{is\_real\_internship} must be true.
-    \item \texttt{internship\_probability} must be a number.
-    \item \texttt{internship\_probability} must be greater than or equal to 0.60.
-\end{itemize}
-
-This means that the public API is intentionally stricter than the backend classifier. The backend can keep development and audit records, while the frontend only displays higher-confidence internships.
-
-\section{Implementation excerpt: production frontend filter}
-The following TypeScript excerpt is useful evidence because it shows the exact filter that prevents low-confidence or rejected records from being displayed publicly.
-
-\begin{lstlisting}[language=Java, caption=Frontend production filter]
-// frontend/app/lib/jobMapper.ts
-export function isProductionAcceptedInternship(
- role: Internship,
- minProbability = 0.60,
-): boolean {
- return role.is_real_internship === true &&
- typeof role.internship_probability === 'number' &&
- role.internship_probability >= minProbability;
-}
-
-// frontend/app/lib/data.ts
-const data = JSON.parse(fileContents);
-cachedInternships = normalizeRoleArray(data)
- .filter(role => isProductionAcceptedInternship(role));
-\end{lstlisting}
-
-\section{Dataset snapshot from the inspected project}
-The inspected Internify project contained the following dataset snapshot:
-\begin{itemize}
-    \item Raw scraped records: 1,425
-    \item Development output records: 366
-    \item Production frontend records: 202
-    \item Accepted internships in development output: 216
-    \item Rejected non-internships in development output: 150
-    \item Manual-review records in development output: 206
-\end{itemize}
-
-These numbers describe the inspected project snapshot and may change when the scraper is run again or when the cleaning rules are updated.
-
-\section{Evidence files}
-The schema and API behaviour are supported by the following project files:
-\begin{itemize}
-    \item \texttt{ml\_pipeline/ml\_cleaner/schemas.py}
-    \item \texttt{ml\_pipeline/ml\_cleaner/pipeline.py}
-    \item \texttt{frontend/app/lib/jobMapper.ts}
-    \item \texttt{frontend/app/lib/data.ts}
-    \item \texttt{frontend/app/api/internship/route.ts}
-    \item \texttt{frontend/app/api/internship/[id]/route.ts}
-    \item \texttt{frontend/public/intern\_data.json}
-\end{itemize}
-
-\chapter{Skill Library and LLM-Assisted Evaluation Prompt}
-
-\section{Purpose of the skill library}
-The skill library is a curated local JSON resource used to support skill extraction from internship descriptions. It stores canonical skill names, synonyms, and short descriptions. This makes the skill extraction process more transparent than relying only on hidden model behaviour.
-
-The expanded skill library provided for this thesis contains:
-\begin{itemize}
-    \item 23 skill categories
-    \item 508 skill entries
-    \item 542 synonyms
-\end{itemize}
-
-The library is ESCO-inspired because it follows the idea of canonical skill labels and alternative names. However, it is not a full ESCO import and does not claim complete ESCO coverage.
-
-\section{Skill library categories}
-The expanded skill library is organized into the following categories:
-\begin{itemize}
-    \item \textbf{software}: 46 skills
-    \item \textbf{data\_ai}: 41 skills
-    \item \textbf{cybersecurity}: 38 skills
-    \item \textbf{cloud\_devops}: 37 skills
-    \item \textbf{engineering}: 41 skills
-    \item \textbf{business}: 38 skills
-    \item \textbf{healthcare}: 27 skills
-    \item \textbf{design}: 21 skills
-    \item \textbf{product}: 17 skills
-    \item \textbf{qa\_testing}: 17 skills
-    \item \textbf{it\_support}: 16 skills
-    \item \textbf{networking}: 16 skills
-    \item \textbf{finance}: 17 skills
-    \item \textbf{marketing}: 17 skills
-    \item \textbf{sales}: 14 skills
-    \item \textbf{hr}: 14 skills
-    \item \textbf{operations}: 15 skills
-    \item \textbf{research}: 14 skills
-    \item \textbf{biotech}: 12 skills
-    \item \textbf{education}: 12 skills
-    \item \textbf{legal}: 10 skills
-    \item \textbf{customer\_support}: 12 skills
-    \item \textbf{manufacturing}: 16 skills
-\end{itemize}
-
-\section{Skill library excerpt}
-The following excerpt shows examples of canonical skill names and synonyms from the library.
-
-\begin{itemize}
-    \item \textbf{Skill: Python}. Synonyms: python3, py. Description: Python programming for backend services, automation, scripting, data engineering, and machine learning.
-    \item \textbf{Skill: JavaScript}. Synonyms: js, ecmascript. Description: JavaScript programming for frontend and backend web development.
-    \item \textbf{Skill: React}. Synonyms: react.js, reactjs. Description: React library for interactive web user interfaces.
-    \item \textbf{Skill: Docker}. Synonyms: containerization, containers. Description: Container tooling for packaging and running applications consistently.
-    \item \textbf{Skill: Kubernetes}. Synonyms: k8s. Description: Container orchestration and cloud-native deployment.
-    \item \textbf{Skill: SAP}. Synonyms: sap erp. Description: Enterprise resource planning software used in business operations.
-    \item \textbf{Skill: SIEM}. Synonyms: security information and event management. Description: Security monitoring and incident investigation using log and event systems.
-    \item \textbf{Skill: Penetration Testing}. Synonyms: pentesting, pen testing. Description: Offensive security testing and vulnerability assessment.
-    \item \textbf{Skill: Problem Solving}. Synonyms: analytical problem solving. Description: Evaluating issues, identifying causes, and implementing solutions.
-    \item \textbf{Skill: Accounting}. Synonyms: bookkeeping. Description: Financial transaction recording, reporting, and reconciliation.
-\end{itemize}
-
-\section{Skill extraction method}
-Skill extraction uses a conservative approach. The system first checks for exact skill names and synonyms in the title and description. These keyword and synonym matches are trusted because they are directly visible in the posting text.
-
-The system can also use optional local embedding similarity for semantic skill matching. However, embedding-based skill extraction is intentionally conservative. A semantic match is accepted only when the best skill score is above the configured threshold and clearly above the second-best score. This reduces false positives, such as extracting programming skills from unrelated business or accounting postings.
-
-The configured skill extraction values are:
-\begin{itemize}
-    \item \texttt{max\_skills\_per\_job}: 15
-    \item \texttt{skill\_similarity\_threshold}: 0.68
-    \item \texttt{skill\_similarity\_margin}: 0.06
-\end{itemize}
-
-\section{Implementation excerpt: conservative skill extraction}
-The following code excerpt shows that skill extraction is not based only on free-form prediction. Exact names and synonyms are checked first. Optional embedding matches are accepted only when they pass both a threshold and a margin test.
-
-\begin{lstlisting}[language=Python, caption=Conservative skill extraction logic]
-# ml_pipeline/ml_cleaner/skill_extractor.py
-class SkillExtractor:
- @staticmethod
- def _matches_term(text: str, term: str) -> bool:
-     term_l = term.lower().strip()
-     if not term_l:
-         return False
-     if len(term_l) <= 2 and term_l not in {"c#", "c++"}:
-         return re.search(
-             rf"(?<![A-Za-z0-9]){re.escape(term)}(?![A-Za-z0-9])",
-             text,
-         ) is not None
-     return re.search(
-         rf"(?<![a-z0-9]){re.escape(term_l)}(?![a-z0-9])",
-         text.lower(),
-     ) is not None
-
- def _keyword_hits(self, text: str) -> set[str]:
-     found: set[str] = set()
-     for skill, payload in self.skills.items():
-         terms = [skill, *[str(s) for s in payload.get("synonyms", [])]]
-         for term in terms:
-             if self._matches_term(text, term):
-                 found.add(skill)
-                 break
-     return found
-
- def _embedding_hits(self, text: str) -> set[str]:
-     # A semantic hit is accepted only when the top score is high enough
-     # and clearly separated from the second-best skill.
-     if top_score >= self.threshold and (top_score - second_score) >= self.margin:
-         found.add(self.skill_names[top_idx])
-     return found
-\end{lstlisting}
-
-\section{Relationship between skill library and category classification}
-The skill library and domain keyword library support different parts of the pipeline. The skill library extracts individual skills such as Python, React, Docker, SAP, SIEM, Accounting, or Communication. The domain keyword library assigns the overall category of the role, such as software\_engineering, data\_science, cybersecurity, business, healthcare, or engineering.
-
-For example, a posting that mentions Python, APIs, React, Git, and software development may extract several software skills and also be classified as \texttt{software\_engineering}. A posting that mentions SIEM, threat hunting, and vulnerability research may extract cybersecurity skills and be classified as \texttt{cybersecurity}.
-
-\section{Important implementation note}
-The expanded skill library is grouped by category. This is useful for documentation and manual review. However, the inspected runtime code expects the skill library in a flat dictionary format, where each canonical skill is a top-level key. Therefore, unless the code is updated to flatten the grouped JSON format, the safest claim is that the expanded skill library is a curated reference resource for skill extraction and evaluation, not necessarily that every grouped entry is directly loaded by the deployed runtime pipeline.
-
-\section{LLM-assisted evaluation prompt}
-The LLM was used only as an external audit aid for reviewing exported internship records. It was not part of the production runtime classifier. The deployed pipeline relies on local normalization, rule libraries, keyword matching, negative role patterns, optional local SentenceTransformers similarity, and deterministic frontend filtering.
-
-The following prompt was used to help audit the cleaned JSON output:
-
-\begin{quote}
-I have a JSON file containing cleaned internship/job posting data. Your task is to act as a senior data quality auditor and ML evaluation engineer.
-
-Evaluate whether my cleaning pipeline output is good, reliable, and production-ready.
-
-Focus on these dimensions:
-\begin{enumerate}
-    \item \textbf{Classification correctness}
-    \begin{itemize}
-        \item Check whether \texttt{is\_real\_internship} labels are accurate.
-        \item Verify whether \texttt{internship\_probability} makes sense relative to the posting content.
-        \item Detect obvious false positives, meaning non-internships marked as internships.
-        \item Detect false negatives if any exist.
-        \item Check whether \texttt{needs\_manual\_review} is triggered appropriately.
-    \end{itemize}
-    \item \textbf{Metadata consistency}
-    Validate internal consistency between these fields: \texttt{title}, \texttt{description}, \texttt{category}, \texttt{skills}, \texttt{is\_real\_internship}, \texttt{internship\_probability}, \texttt{cleaning\_metadata.rule\_score}, \texttt{cleaning\_metadata.semantic\_label}, \texttt{cleaning\_metadata.rule\_semantic\_disagreement}.
-    Flag contradictions such as:
-    \begin{itemize}
-        \item semantic label says training/course advertisement but final label says real internship
-        \item low confidence but no manual review
-        \item category mismatch with skills or title
-        \item extracted skills that are clearly incorrect
-    \end{itemize}
-    \item \textbf{Data quality}
-    \begin{itemize}
-        \item Check whether titles are clean and readable.
-        \item Check whether descriptions are usable.
-        \item Check whether company, location, salary, and platform fields are consistent.
-        \item Identify duplicated, incomplete, or suspicious records.
-    \end{itemize}
-    \item \textbf{Production readiness}
-    \begin{itemize}
-        \item Decide whether the dataset is safe to show in the frontend.
-        \item List the strongest parts of the cleaning pipeline.
-        \item List any remaining weaknesses.
-        \item Recommend small improvements without rewriting the whole system.
-    \end{itemize}
-\end{enumerate}
-Return the evaluation in a clear, structured format with examples of strong records, questionable records, and recommended fixes.
-\end{quote}
-
-\section{Evidence files}
-The skill library and supporting rule resources are supported by the following files:
-\begin{itemize}
-    \item \texttt{skills\_library.json}
-    \item \texttt{domain\_keywords.json}
-    \item \texttt{internship\_rules.json}
-    \item \texttt{negative\_role\_patterns.json}
-    \item \texttt{ml\_pipeline/ml\_cleaner/skill\_extractor.py}
-    \item \texttt{ml\_pipeline/ml\_cleaner/domain\_classifier.py}
-    \item \texttt{ml\_pipeline/ml\_cleaner/rule\_filter.py}
-    \item \texttt{ml\_pipeline/ml\_cleaner/transformer\_classifier.py}
-\end{itemize}
