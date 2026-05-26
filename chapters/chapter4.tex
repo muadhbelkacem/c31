@@ -97,13 +97,18 @@ inspected, filtered, normalized, and semantically enriched before they can suppo
 retrieval. The methodology therefore treats heterogeneity as an empirical object of analysis rather than as a
 simple preprocessing inconvenience.
 The analysis considers four forms of inconsistency:
- Structural inconsistency: differences in field names, missing values, inconsistent JSON shapes, incomplete
-metadata, or duplicated records.
- Lexical inconsistency: different words used for similar roles, skills, locations, or employment arrangements.
- Semantic ambiguity: postings that contain internship-related terms but do not clearly represent genuine
-internship opportunities, or postings that are valid internships but use non-standard wording.
- Quality variation: noisy descriptions, boilerplate text, residual markup, inconsistent salary formats, weak
-location information, and source-specific formatting artifacts.
+
+\begin{itemize}
+    \item \textbf{Structural inconsistency:} differences in field names, missing values, inconsistent JSON shapes,
+    incomplete metadata, or duplicated records.
+    \item \textbf{Lexical inconsistency:} different words used for similar roles, skills, locations, or employment
+    arrangements.
+    \item \textbf{Semantic ambiguity:} postings that contain internship-related terms but do not clearly represent
+    genuine internship opportunities, or postings that are valid internships but use non-standard wording.
+    \item \textbf{Quality variation:} noisy descriptions, boilerplate text, residual markup, inconsistent salary
+    formats, weak location information, and source-specific formatting artifacts.
+\end{itemize}
+
 This analysis supports RQ1 by establishing why internship discovery is not merely a keyword-search problem.
 The same keywords may appear in irrelevant postings, while relevant internships may be described using
 vocabulary that does not exactly match common student search terms. As a result, the methodology requires a
