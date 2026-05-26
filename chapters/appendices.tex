@@ -9,44 +9,21 @@ only the necessary protocol and summary are included here to keep the thesis app
 \section{Manual Label Definitions}
 \label{appendix:manual-label-definitions}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Manual label definitions used in the evaluation}
-    \label{tab:manual-label-definitions}
-    \begin{tabular}{p{0.25\textwidth} p{0.68\textwidth}}
-        \hline
-        \textbf{Label} & \textbf{Definition used in the evaluation} \\
-        \hline
-        Real internship &
-        A role was marked as a real internship when the title or record content clearly indicated an
-        internship, co-op, stagiaire/stage, student placement, or early-career temporary learning role. \\
-
-        Fake / non-internship &
-        A role was marked as fake/non-internship when it was a general job, senior position, permanent role,
-        unrelated posting, training advertisement, or otherwise not an internship opportunity. \\
-
-        Ambiguous &
-        A role was marked as ambiguous when the available metadata was insufficient, contradictory, or
-        unclear enough that an automatic final decision would be unreliable. \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Manual label definitions used in the evaluation.png}
 \end{table}
 
 \section{Human Inspection Sample Summary}
 \label{appendix:human-inspection-summary}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Human inspection sample summary}
-    \label{tab:human-inspection-summary}
-    \begin{tabular}{lrrrrr}
-        \hline
-        \textbf{Source file} & \textbf{Total roles} & \textbf{Completed inspections} &
-        \textbf{Real internships} & \textbf{Ambiguous cases} & \textbf{Fake / non-internships} \\
-        \hline
-        \texttt{random\_test\_role.json} & 300 & 300 & 128 & 9 & 163 \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Human inspection sample summary.png}
 \end{table}
 
 The manual sample confirms that scraped recruitment data contained a mixed set of valid
@@ -57,48 +34,21 @@ simple keyword-search problem.
 \section{Example Inspected Records}
 \label{appendix:example-inspected-records}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Example inspected records}
-    \label{tab:example-inspected-records}
-    \begin{tabular}{p{0.18\textwidth} r p{0.33\textwidth} p{0.22\textwidth} p{0.15\textwidth}}
-        \hline
-        \textbf{Manual label} & \textbf{Index} & \textbf{Title} & \textbf{Company} & \textbf{Platform} \\
-        \hline
-        Real internship & 9 & Stagiaire en qualité bilingue \textbar{} Bilingual Quality Intern & Grass Valley & ZipRecruiter \\
-        Real internship & 13 & Indigenous Student Internship & OG7GES Indigenous Group Inc. & Jobillico \\
-        Real internship & 15 & Client Advisor Intern & RBC & rbc\_careers \\
-        Fake / non-internship & 1 & cook & KFC & Job Bank \\
-        Fake / non-internship & 2 & AI Infrastructure Architect & Okta & Wellfound \\
-        Fake / non-internship & 3 & Clinical Dietitian - Surrey Memorial Hospital & Fraser Health Authority & Jobillico \\
-        Ambiguous & 79 & Clinical Dietitian - Queen's Park Care Centre & Fraser Health Authority & Jobillico \\
-        Ambiguous & 115 & Staff Pharmacist- Signing bonus & Loblaw Companies Limited & Glassdoor \\
-        Ambiguous & 123 & Radiation Therapist & Horizon Health Network & Workopolis \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Example inspected records.png}
 \end{table}
 
 \section{Files Supporting Appendix A}
 \label{appendix:files-supporting-appendix-a}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Files supporting Appendix A}
-    \label{tab:files-supporting-appendix-a}
-    \begin{tabular}{p{0.30\textwidth} p{0.63\textwidth}}
-        \hline
-        \textbf{File} & \textbf{Role in the evaluation} \\
-        \hline
-        \texttt{inspection\_results(2).json} &
-        Primary manual inspection output for the 300-role sample, including the 128/9/163 distribution. \\
-
-        \texttt{random\_test\_role.json} &
-        Sample of scraped roles used for inspection, where available in the evidence archive. \\
-
-        \texttt{LLM-HUMAN-TRANSFORMER.txt} &
-        Summary comparison document that reports the human, ChatGPT5.5-assisted, and Transformer distributions. \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Files supporting Appendix A.png}
 \end{table}
 
 
@@ -114,31 +64,11 @@ as a binary real/fake detector because it does not output an ambiguous class.
 \section{Classification Comparison Table}
 \label{appendix:classification-comparison-table}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Classification comparison table}
-    \label{tab:classification-comparison}
-    \begin{tabular}{p{0.24\textwidth} r r r r p{0.18\textwidth} r r}
-        \hline
-        \textbf{System} &
-        \textbf{Total roles} &
-        \textbf{Real internships} &
-        \textbf{Ambiguous cases} &
-        \textbf{Fake / non-internships} &
-        \textbf{Agreement / Accuracy vs Human} &
-        \textbf{Precision} &
-        \textbf{Recall} \\
-        \hline
-        Human review &
-        300 & 128 & 9 & 163 & Reference & Reference & Reference \\
-
-        ChatGPT5.5-assisted review &
-        300 & 128 & 9 & 163 & 100\% sample agreement & 100\% & 100\% \\
-
-        Transformer &
-        300 & 132 & 0 & 168 & 95.19\% & 93.85\% & 95.31\% \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Classification comparison table.png}
 \end{table}
 
 \section{Interpretation of the Metrics}
@@ -159,27 +89,11 @@ interpretation supports the uncertainty-management focus of the thesis.
 \section{Classification Evidence Files}
 \label{appendix:classification-evidence-files}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Classification evidence files}
-    \label{tab:classification-evidence-files}
-    \begin{tabular}{p{0.36\textwidth} p{0.58\textwidth}}
-        \hline
-        \textbf{File} & \textbf{Necessary content supported} \\
-        \hline
-        \texttt{inspection\_results(2).json} &
-        Human inspection distribution: 300 roles, 128 real internships, 9 ambiguous cases, and 163 fake/non-internship roles. \\
-
-        \texttt{LLM-HUMAN-TRANSFORMER.txt} &
-        Human, ChatGPT5.5-assisted, and Transformer comparison table and explanations of precision and recall. \\
-
-        \texttt{raw\_ml\_cleaner\_vs\_human\_rows.csv} &
-        Row-level comparison file, if included in the evidence archive. \\
-
-        \texttt{raw\_ml\_cleaner\_comparison\_summary.csv} &
-        Summary-level classifier comparison file, if included in the evidence archive. \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Classification evidence files.png}
 \end{table}
 
 \chapter{Semantic Enrichment Rules, Vocabularies, and Pipeline Logic}
@@ -208,71 +122,21 @@ extraction, domain categorization, deduplication, and manual-review indicators.
 \section{Core Implementation Files}
 \label{appendix:core-implementation-files}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Core implementation files}
-    \label{tab:core-implementation-files}
-    \begin{tabular}{p{0.33\textwidth} p{0.60\textwidth}}
-        \hline
-        \textbf{File} & \textbf{Necessary role in the thesis} \\
-        \hline
-        \texttt{ml\_cleaner/pipeline.py} &
-        Coordinates loading, normalization, invalid filtering, deduplication, classification, skill extraction,
-        domain classification, review flags, and export. \\
-
-        \texttt{ml\_cleaner/text\_cleaning.py} &
-        Defines field aliases, HTML removal, description cleaning, title formatting, and canonical field normalization. \\
-
-        \texttt{ml\_cleaner/rule\_filter.py} &
-        Computes transparent internship relevance scores using positive internship terms, education/duration indicators,
-        and negative seniority/professional patterns. \\
-
-        \texttt{ml\_cleaner/transformer\_classifier.py} &
-        Implements local sentence-transformer prototype similarity and blends semantic evidence with rule scores. \\
-
-        \texttt{ml\_cleaner/skill\_extractor.py} &
-        Extracts skills using a controlled skill library with keyword matching and optional embedding support. \\
-
-        \texttt{ml\_cleaner/domain\_classifier.py} &
-        Assigns a domain/category to each enriched record using controlled keyword or semantic signals. \\
-
-        \texttt{ml\_cleaner/deduplicator.py} &
-        Removes duplicate or near-duplicate postings using canonical links and similarity checks. \\
-
-        \texttt{ml\_cleaner/export\_frontend.py} &
-        Filters accepted internship records and exports frontend-ready JSON. \\
-
-        \texttt{ml\_cleaner/schemas.py} &
-        Defines typed structures such as \texttt{NormalizedJob}, \texttt{RuleScore}, \texttt{ClassificationResult},
-        \texttt{DomainResult}, and \texttt{DeduplicationReport}. \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Core implementation files.png}
 \end{table}
 
 \section{Configuration and Vocabulary Files}
 \label{appendix:configuration-and-vocabulary-files}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Configuration and vocabulary files}
-    \label{tab:configuration-vocabulary-files}
-    \begin{tabular}{p{0.33\textwidth} p{0.60\textwidth}}
-        \hline
-        \textbf{File} & \textbf{Purpose} \\
-        \hline
-        \texttt{internship\_rules.json} &
-        Positive internship, co-op, stagiaire/stage, student, education, and duration signals. \\
-
-        \texttt{negative\_role\_patterns.json} &
-        Seniority, management, permanent-role, and professional-role signals used to reduce false positives. \\
-
-        \texttt{skills\_library.json} &
-        Controlled skill vocabulary and synonyms used for skill extraction. \\
-
-        \texttt{domain\_keywords.json} &
-        Domain/category keyword sets used for structured browsing and filtering. \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Configuration and vocabulary files.png}
 \end{table}
 
 \section{Uncertainty and Manual-Review Logic}
@@ -304,83 +168,21 @@ enrichment to concrete searchable and filterable record fields.
 \section{Frontend-Ready Internship Record Schema}
 \label{appendix:frontend-ready-schema}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Frontend-ready internship record schema}
-    \label{tab:frontend-ready-schema}
-    \begin{tabular}{p{0.28\textwidth} p{0.66\textwidth}}
-        \hline
-        \textbf{Field} & \textbf{Meaning} \\
-        \hline
-        \texttt{id} &
-        Stable identifier used by the frontend and API routes. \\
-
-        \texttt{title} &
-        Cleaned internship title after normalization. \\
-
-        \texttt{company} &
-        Normalized employer name. \\
-
-        \texttt{location} &
-        Normalized location string where available. \\
-
-        \texttt{link} &
-        Application or source link when available. \\
-
-        \texttt{salary} &
-        Salary/compensation string when available. \\
-
-        \texttt{description} &
-        Cleaned description with HTML, URLs, duplicated boilerplate, and unsafe symbols reduced. \\
-
-        \texttt{platform} &
-        Original source platform. \\
-
-        \texttt{skills} &
-        Extracted controlled skill labels used for structured filtering. \\
-
-        \texttt{category} &
-        Broad domain/category label. \\
-
-        \texttt{is\_real\_internship} &
-        Boolean final internship decision used for public filtering. \\
-
-        \texttt{internship\_probability} &
-        Numeric score representing internship relevance confidence. \\
-
-        \texttt{needs\_manual\_review} &
-        Indicator that the record is uncertain or borderline. \\
-
-        \texttt{cleaning\_metadata} &
-        Explanation-oriented metadata: rule score, reasons, semantic label, margin, review decision,
-        and extraction details. \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Frontend-ready internship record schema.png}
 \end{table}
 
 \section{Enriched Catalog Statistics Used in Chapter 6}
 \label{appendix:enriched-catalog-statistics}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Enriched catalog statistics used in Chapter 6}
-    \label{tab:enriched-catalog-statistics}
-    \begin{tabular}{p{0.50\textwidth} p{0.30\textwidth}}
-        \hline
-        \textbf{Statistic} & \textbf{Value} \\
-        \hline
-        Public internships displayed & 202 \\
-        Average internship probability & 0.825 \\
-        Median internship probability & 0.9 \\
-        Manual-review records still shown & 60 / 202 \\
-        Records with extracted skills & 184 / 202 \\
-        Records with no skills & 18 / 202 \\
-        Records with salary available & 106 / 202 \\
-        Records missing salary & 96 / 202 \\
-        Records missing link & 2 / 202 \\
-        Empty descriptions & 0 / 202 \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Enriched catalog statistics used in Chapter 6.png}
 \end{table}
 
 \section{Example Structured Record Shape}
@@ -419,30 +221,11 @@ discovery without claiming formal user satisfaction or a completed user study.
 \section{Files Supporting Appendix D}
 \label{appendix:files-supporting-appendix-d}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Files supporting Appendix D}
-    \label{tab:files-supporting-appendix-d}
-    \begin{tabular}{p{0.38\textwidth} p{0.56\textwidth}}
-        \hline
-        \textbf{File} & \textbf{Role} \\
-        \hline
-        \texttt{website\_data\_statistics.json} &
-        Catalog-level statistics for accepted frontend records. \\
-
-        \texttt{frontend/public/intern\_data.json} &
-        Frontend-facing structured catalog file in the code archive. \\
-
-        \texttt{ml\_cleaner/schemas.py} &
-        Internal typed record definitions. \\
-
-        \texttt{ml\_cleaner/export\_frontend.py} &
-        Filtering and JSON export logic. \\
-
-        \texttt{frontend/app/lib/data.ts} and \texttt{frontend/app/api/internship/route.ts} &
-        Frontend data access and API behavior, where present in the code archive. \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Files supporting Appendix D.png}
 \end{table}
 
 
@@ -457,122 +240,41 @@ thesis.
 \section{Search and Filter Timing Evidence}
 \label{appendix:search-filter-timing-evidence}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Search and filter timing evidence}
-    \label{tab:search-filter-timing-evidence}
-    \begin{tabular}{lrrrr}
-        \hline
-        \textbf{Query} & \textbf{Results found} & \textbf{Median filter time (ms)} &
-        \textbf{P95 filter time (ms)} & \textbf{Iterations} \\
-        \hline
-        software & 67 & 1.9643 & 2.4907 & 100 \\
-        data & 95 & 1.8872 & 2.3509 & 100 \\
-        business & 138 & 1.7720 & 2.2819 & 100 \\
-        marketing & 42 & 1.9068 & 2.3733 & 100 \\
-        engineering & 83 & 1.6766 & 1.9589 & 100 \\
-        finance & 27 & 1.9472 & 2.3504 & 100 \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Search and filter timing evidence.png}
 \end{table}
 
 \section{Local Frontend Response Evidence}
 \label{appendix:local-frontend-response-evidence}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Local frontend response evidence}
-    \label{tab:local-frontend-response-evidence}
-    \begin{tabular}{p{0.22\textwidth} p{0.30\textwidth} r r r r r}
-        \hline
-        \textbf{Page or API} &
-        \textbf{Path} &
-        \textbf{Cold load (ms)} &
-        \textbf{Warm median (ms)} &
-        \textbf{Warm p95 (ms)} &
-        \textbf{Samples} &
-        \textbf{Status} \\
-        \hline
-        Homepage / &
-        \texttt{/} &
-        25.16 & 8.98 & 11.04 & 20 & 200 \\
-
-        Internship API /api/internship &
-        \texttt{/api/internship} &
-        37.22 & 7.88 & 11.05 & 20 & 200 \\
-
-        Role page /role/[id] &
-        \texttt{/role/glassdoor\_5008634264187525578} &
-        129.71 & 9.22 & 14.61 & 20 & 200 \\
-
-        Single role API /api/internship/[id] &
-        \texttt{/api/internship/glassdoor\_5008634264187525578} &
-        16.66 & 14.12 & 16.85 & 20 & 200 \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Local frontend response evidence.png}
 \end{table}
 
 \section{Build and File-Size Evidence}
 \label{appendix:build-and-file-size-evidence}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Build and file-size evidence}
-    \label{tab:build-file-size-evidence}
-    \begin{tabular}{p{0.36\textwidth} r p{0.20\textwidth} p{0.30\textwidth}}
-        \hline
-        \textbf{Metric} & \textbf{Value} & \textbf{Unit} & \textbf{Source} \\
-        \hline
-        \texttt{production\_build\_exit\_code} & 0 & 0 means passed & \texttt{frontend\_build\_exit\_code.txt} \\
-        \texttt{total\_build\_time} & 22.7 & seconds & \texttt{/usr/bin/time -v npm run build} \\
-        \texttt{compile\_time} & 6.0 & seconds & \texttt{next build stdout} \\
-        \texttt{static\_page\_generation\_time} & 4.6 & seconds & \texttt{next build stdout} \\
-        \texttt{max\_build\_memory} & 1.819 & GB decimal & Maximum resident set size \\
-        \texttt{accepted\_frontend\_records} & 202 & records & \texttt{frontend/public/intern\_data.json} \\
-        \texttt{frontend\_json\_size} & 1.179 & MB decimal & \texttt{frontend/public/intern\_data.json} \\
-        \texttt{frontend\_json\_gzip\_size} & 231 & KB approx & gzip compressed file bytes \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Build and file-size evidence.png}
 \end{table}
 
 \section{Evidence Archive Index}
 \label{appendix:evidence-archive-index}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Evidence archive index}
-    \label{tab:evidence-archive-index}
-    \begin{tabular}{p{0.36\textwidth} p{0.58\textwidth}}
-        \hline
-        \textbf{Evidence file} & \textbf{Claim supported} \\
-        \hline
-        \texttt{frontend\_build\_performance\_actual.json / .csv} &
-        Production build exit code, build time, compile time, static generation time, memory, JSON size,
-        and accepted frontend record count. \\
-
-        \texttt{raw\_frontend\_build\_stdout.log} &
-        Original build output used as raw build evidence. \\
-
-        \texttt{frontend\_response\_speed\_actual.json / .csv} &
-        Local page and API response timing summary. \\
-
-        \texttt{raw\_frontend\_http\_samples.csv} &
-        Raw HTTP timing samples. \\
-
-        \texttt{frontend\_search\_filter\_summary.json / .csv} &
-        Search/filter timing summary for tested queries. \\
-
-        \texttt{raw\_frontend\_search\_filter\_samples.csv} &
-        Raw search/filter timing samples. \\
-
-        \texttt{website\_data\_statistics.json / .csv} &
-        Frontend catalog statistics, including record count, skills, salary, links, descriptions,
-        probabilities, and review indicators. \\
-
-        \texttt{source\_manifest.json} &
-        Evidence archive organization and file traceability. \\
-        \hline
-    \end{tabular}
+    \label{tab:frontend-catalog-statistics}
+    \includegraphics[width=\textwidth]{tables/appendices/Evidence archive index.png}
 \end{table}
 
 \section{Interpretation Boundary}
