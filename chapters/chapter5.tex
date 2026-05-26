@@ -562,6 +562,7 @@ The classifier calculates a confidence value based on the strength of the winnin
 
 In this fallback stage, the job text is embedded and compared against short domain descriptions. A prototype embedding result is accepted only when it exceeds a confidence threshold and has sufficient margin over the next-best label.
 
+\clearpage
 \begin{lstlisting}[caption={Simplified prototype embedding fallback}]
 def _embedding_classify(self, text: str) -> DomainResult | None:
     if self.model is None or self.domain_embeddings is None:
