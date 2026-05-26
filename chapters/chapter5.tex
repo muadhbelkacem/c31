@@ -566,23 +566,18 @@ In this fallback stage, the job text is embedded and compared against short doma
 def _embedding_classify(self, text: str) -> DomainResult | None:
     if self.model is None or self.domain_embeddings is None:
         return None
+    embedding = self.model.encode( text[:1800], convert\_to\_tensor=True, normalize\_embeddings=True )
+    sims = util.cos\_sim(embedding, self.domain\_embeddings)[0] pairs = sorted(zip(self.labels, sims), key=lambda item: item[1], reverse=True)
+    label, score = pairs[0] margin = score - pairs[1][1]
+    if score >= self.threshold and margin >= 0.015:
+     return DomainResult(
+         primary=label,
+         confidence=round(min(float(score), 0.95), 3),
+         method="prototype embedding fallback"
+     )
+     return None
 \end{lstlisting}
 
-embedding = self.model.encode( text[:1800], convert\_to\_tensor=True, normalize\_embeddings=True )
-
-sims = util.cos\_sim(embedding, self.domain\_embeddings)[0] pairs = sorted(zip(self.labels, sims), key=lambda item: item[1], reverse=True)
-
-label, score = pairs[0] margin = score - pairs[1][1]
-
-if score >= self.threshold and margin >= 0.015:
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
-\item return DomainResult(
-\item primary=label,
-\item confidence=round(min(float(score), 0.95), 3),
-\item method="prototype embedding fallback"
-\item )
-\item return None
-\end{itemize}
 \subsubsection*{General Fallback Category}
 
 If neither keyword scoring nor embedding fallback produces a confident domain assignment, the system assigns the record to a general category. This prevents records from being forced into inappropriate specialized categories while preserving frontend compatibility.
