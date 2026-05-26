@@ -2,13 +2,13 @@
 
 \section{Chapter Introduction}
 
-This chapter describes the concrete implementation of the proposed methodology within the software system. It follows the practical processing flow from heterogeneous data ingestion and preprocessing through semantic enrichment, structured persistence, caching, API communication, and frontend integration.
+This chapter describes the concrete implementation of the proposed methodology within the software system. It follows the practical processing flow from heterogeneous data ingestion and preprocessing through semantic enrichment, structured persistence, caching, API communication, and frontend integration \cite{bass2012software, sommerville2016software}.
 
-The focus is on implementation mechanisms directly reflected in the developed system, translating the methodological architecture defined in Chapter 4 into operational software components. Particular attention is given to how lightweight deterministic processing, transformer-assisted semantic classification, and structured data normalization are integrated to support practical internship aggregation and enrichment on commodity hardware.
+The focus is on implementation mechanisms directly reflected in the developed system, translating the methodological architecture defined in Chapter 4 into operational software components. Particular attention is given to how lightweight deterministic processing, transformer-assisted semantic classification, and structured data normalization are integrated to support practical internship aggregation and enrichment on commodity hardware \cite{peffers2007design, bass2012software}.
 
 \section{Functional Requirements and Use Case Modeling}
 
-This section presents the use case model of the proposed internship discovery system. The model provides a functional view of the system by showing the main actors that interact with the application and the services available to each actor. Since the system is designed to support internship browsing, filtering, saving, and user-specific interaction, the use case model helps clarify the boundaries of the application and the roles of different users.
+This section presents the use case model of the proposed internship discovery system. The model provides a functional view of the system by showing the main actors that interact with the application and the services available to each actor. Since the system is designed to support internship browsing, filtering, saving, and user-specific interaction, the use case model helps clarify the boundaries of the application and the roles of different users \cite{jacobson1992object, sommerville2016software}.
 
 The main actors identified in the system are the Visitor, the Registered User, and External Services. A visitor represents an unauthenticated user who can access the public internship discovery interface. This actor can browse internship listings, search and filter results, paginate through available opportunities, view role details, and toggle the visual theme of the interface. These functions correspond to the public discovery features of the application, where users can explore enriched internship records without needing an account.
 
@@ -16,7 +16,7 @@ The Registered User extends the visitor role by accessing additional account-rel
 
 The View Role Details use case is central to the internship discovery workflow. From this use case, users can access related actions such as viewing similar roles, sharing an internship, and applying to an internship. These interactions support deeper exploration of internship opportunities after the user selects a specific listing. The diagram also shows that subscription functionality may interact with external services, which can support notification or communication-related features.
 
-Overall, the use case model shows that the system separates public browsing functionality from authenticated user functionality. Public users can discover internship opportunities through search, filtering, pagination, and detailed viewing, while registered users gain access to saved roles, subscriptions, and account management. This organization is consistent with the system's objective of providing a structured internship discovery interface supported by enriched internship records and frontend browsing functionality.
+Overall, the use case model shows that the system separates public browsing functionality from authenticated user functionality. Public users can discover internship opportunities through search, filtering, pagination, and detailed viewing, while registered users gain access to saved roles, subscriptions, and account management. This organization is consistent with the system's objective of providing a structured internship discovery interface supported by enriched internship records and frontend browsing functionality \cite{jacobson1992object}.
 
 \begin{figure}[htbp]
     \centering
@@ -32,7 +32,7 @@ This section details the implementation of the data acquisition, normalization, 
 
 The implementation must remain robust against inconsistent source formatting, incomplete metadata, duplicate records, multilingual terminology variation, and noisy recruitment content commonly found in web-sourced internship data \cite{chu2016data, sarawagi2008information}. At the same time, it must preserve the lightweight deployment philosophy central to this thesis by avoiding unnecessary computational complexity and dependence on heavyweight external inference services \cite{schwartz2020green, menghani2023efficient}.
 
-Consistent with the three-layer processing architecture defined in Chapter 4, the implementation combines deterministic preprocessing for high-confidence normalization tasks, lightweight transformer-assisted semantic classification for ambiguous postings, and controlled exception handling for uncertain cases requiring manual review.
+Consistent with the three-layer processing architecture defined in Chapter 4, the implementation combines deterministic preprocessing for high-confidence normalization tasks, lightweight transformer-assisted semantic classification for ambiguous postings, and controlled exception handling for uncertain cases requiring manual review \cite{peffers2007design, bass2012software}.
 
 This section begins with the data ingestion mechanism and source normalization process, then describes deterministic preprocessing, heuristic metadata enrichment, semantic classification integration, and the generation of the structured internship dataset used throughout the application.
 
@@ -120,9 +120,9 @@ By resolving structurally predictable inconsistencies early in the pipeline, the
 
 \subsection{Data Enrichment and Categorization}
 
-Following preprocessing and sanitization, the system enriches each internship record with derived metadata required for structured filtering, semantic consistency, duplicate control, and frontend usability.
+Following preprocessing and sanitization, the system enriches each internship record with derived metadata required for structured filtering, semantic consistency, duplicate control, and frontend usability \cite{doan2012principles, sarawagi2008information}.
 
-These enrichment operations are primarily implemented within Layer A, where deterministic heuristics provide efficient metadata generation before contextual semantic classification is applied.
+These enrichment operations are primarily implemented within Layer A, where deterministic heuristics provide efficient metadata generation before contextual semantic classification is applied \cite{schwartz2020green, reimers2019sentence}.
 
 \subsubsection*{Stable Identifier Generation and Duplicate Handling}
 
@@ -175,7 +175,7 @@ For such cases, Layer B introduces transformer-assisted contextual semantic inte
 
 \subsection{Performance Optimization and the Caching Sub-System}
 
-To translate the efficiency of deterministic preprocessing and semantic enrichment into practical frontend responsiveness, the system employs an in-memory caching strategy.
+To translate the efficiency of deterministic preprocessing and semantic enrichment into practical frontend responsiveness, the system employs an in-memory caching strategy \cite{smith1982cache, jain1991art}.
 
 After internship records have passed through validation, preprocessing, enrichment, and structured transformation, the resulting processed Internship objects are stored in a server-side in-memory cache. The data.ts module acts as the primary data-access interface, checking cached processed data before falling back to reloading and reprocessing the underlying JSON dataset.
 
@@ -185,7 +185,7 @@ This caching strategy has several important implications for the system's operat
 
 The computational cost of ingestion, preprocessing, deterministic enrichment, semantic classification, and structured transformation is incurred only during data refresh or cache regeneration.
 
-This one-time processing cost is then amortized across repeated frontend and API access requests, substantially reducing redundant computation during normal application use.
+This one-time processing cost is then amortized across repeated frontend and API access requests, substantially reducing redundant computation during normal application use \cite{smith1982cache}.
 
 \subsubsection*{Low-Latency Application Responsiveness}
 
@@ -203,7 +203,7 @@ This design aligns with the thesis objective of achieving meaningful semantic en
 
 \subsubsection*{Cache Lifecycle Management}
 
-Cache invalidation is coupled to the underlying data refresh cycle, ensuring that processed internship records remain synchronized with updated source datasets while preserving operational efficiency.
+Cache invalidation is coupled to the underlying data refresh cycle, ensuring that processed internship records remain synchronized with updated source datasets while preserving operational efficiency \cite{smith1982cache, kleppmann2017designing}.
 
 This provides a predictable and explainable caching lifecycle without introducing unnecessary architectural complexity.
 
@@ -264,7 +264,7 @@ A representative processing sequence includes:
 \item cache persistence
 \item frontend/API availability
 \end{itemize}
-This staged orchestration improves modularity, simplifies debugging, and allows individual enrichment components to be independently tested and refined.
+This staged orchestration improves modularity, simplifies debugging, and allows individual enrichment components to be independently tested and refined \cite{bass2012software, sommerville2016software}.
 
 \subsubsection*{Design Principles and Trade-Offs}
 
@@ -299,7 +299,7 @@ This preprocessing includes:
 \item removal of common job-board boilerplate
 \item formatting cleanup for frontend-safe rendering
 \end{itemize}
-These transformations reduce surface-form variance and improve downstream consistency for duplicate detection, deterministic extraction, and semantic classification.
+These transformations reduce surface-form variance and improve downstream consistency for duplicate detection, deterministic extraction, and semantic classification \cite{batini2009methodologies, chu2016data}.
 
 \subsubsection*{Stable Identifier Generation and Duplicate Handling}
 
@@ -419,7 +419,7 @@ function cleanLocation(location: string): string {
 }
 \end{lstlisting}
 
-Normalized location metadata improves frontend filtering, browsing consistency, and geographic comparability across heterogeneous listings.
+Normalized location metadata improves frontend filtering, browsing consistency, and geographic comparability across heterogeneous listings \cite{batini2009methodologies}.
 
 \subsubsection*{Architectural Role}
 
@@ -525,7 +525,7 @@ The implementation therefore fits the overall three-layer architecture: determin
 
 \subsection{Heuristic Role Categorization}
 
-The final enrichment stage assigns each processed internship record to a high-level professional domain category. This category supports frontend filtering, browsing, and structured interpretation of internship listings.
+The final enrichment stage assigns each processed internship record to a high-level professional domain category. This category supports frontend filtering, browsing, and structured interpretation of internship listings \cite{sarawagi2008information, senger2024deep}.
 
 The implemented categorization module is not limited to a small five-category taxonomy. Instead, it uses a broader internal domain label space designed to reflect the diversity of internship postings encountered in the dataset. The supported domain labels include software engineering, data science, cybersecurity, cloud and DevOps, business, design, engineering, healthcare, and general fallback roles.
 
@@ -591,9 +591,9 @@ This design preserves the lightweight implementation philosophy of the system wh
 
 \subsection{Caching and Performance Considerations}
 
-To translate the efficiency of the enrichment and normalization modules into practical application responsiveness, the system uses several caching mechanisms across the server-side data-access layer and the client-side role-detail interface.
+To translate the efficiency of the enrichment and normalization modules into practical application responsiveness, the system uses several caching mechanisms across the server-side data-access layer and the client-side role-detail interface \cite{smith1982cache, jain1991art}.
 
-The caching design reflects the fact that the internship catalog is primarily read-heavy. The dataset is generated during the ingestion and enrichment workflow and then consumed repeatedly by the frontend application. Therefore, the system avoids unnecessary repeated file reads and normalization work during ordinary user interaction.
+The caching design reflects the fact that the internship catalog is primarily read-heavy. The dataset is generated during the ingestion and enrichment workflow and then consumed repeatedly by the frontend application. Therefore, the system avoids unnecessary repeated file reads and normalization work during ordinary user interaction \cite{kleppmann2017designing}.
 
 \subsubsection*{Server-Side Catalog Cache}
 
@@ -620,13 +620,13 @@ export async function getInternships(): Promise<Internship[]> {
 }
 \end{lstlisting}
 
-This cache supports efficient server-side loading for the main internship listing page.
+This cache supports efficient server-side loading for the main internship listing page \cite{smith1982cache}.
 
 \subsubsection*{API-Level Cache with Time-to-Live}
 
 The /api/internship route implements an additional cache for API-based access. This cache stores processed roles and associates them with a timestamp. Cached data is reused while it remains within the configured time-to-live period.
 
-In the current implementation, the cache duration is five minutes. This provides a simple balance between responsiveness and data freshness.
+In the current implementation, the cache duration is five minutes. This provides a simple balance between responsiveness and data freshness \cite{smith1982cache, kleppmann2017designing}.
 
 \begin{lstlisting}[caption={API cache with time-to-live}]
 let cachedRoles: any[] | null = null;
@@ -674,7 +674,7 @@ if (similarInternshipsCache.has(currentInternship.id)) {
 similarInternshipsCache.set(currentInternship.id, similar);
 \end{lstlisting}
 
-This cache improves responsiveness when users revisit or re-render role detail views that require similar internship recommendations.
+This cache improves responsiveness when users revisit or re-render role detail views that require similar internship recommendations \cite{smith1982cache}.
 
 \subsubsection*{Amortized Processing Cost}
 
@@ -686,19 +686,19 @@ This reduces redundant computation during browsing, filtering, and page navigati
 
 The frontend receives normalized internship records and performs interactive search, filtering, and pagination on the client side. Search and filtering are implemented through React state and memoized filtering logic, while pagination is synchronized with URL parameters.
 
-This means that after the internship dataset has been loaded, many common interactions do not require additional server-side semantic processing. The resulting interaction model supports fast browsing and filtering behavior, especially after the initial dataset load.
+This means that after the internship dataset has been loaded, many common interactions do not require additional server-side semantic processing. The resulting interaction model supports fast browsing and filtering behavior, especially after the initial dataset load \cite{riva2022realworld, jain1991art}.
 
 \subsubsection*{Cache Lifecycle}
 
 The cache lifecycle is tied to data refresh and time-based invalidation. The server-side data.ts cache persists for the lifetime of the server process, while the API route cache uses a five-minute TTL and can be cleared manually through the API.
 
-This design is simple, explainable, and appropriate for a static internship catalog that is regenerated periodically rather than continuously rewritten during normal user interaction.
+This design is simple, explainable, and appropriate for a static internship catalog that is regenerated periodically rather than continuously rewritten during normal user interaction \cite{smith1982cache}.
 
 \subsubsection*{Lightweight Operational Profile}
 
 The caching strategy supports the lightweight design of the system by ensuring that enriched and normalized internship records can be reused efficiently after preparation. Unlike architectures that perform semantic inference or external LLM calls during each user request, this implementation front-loads enrichment into the data preparation workflow and serves already processed records during application use.
 
-This reduces repeated computation, avoids unnecessary external inference dependency, and supports practical deployment on commodity hardware.
+This reduces repeated computation, avoids unnecessary external inference dependency, and supports practical deployment on commodity hardware \cite{schwartz2020green, menghani2023efficient}.
 
 \section{Storage, Persistence, and API Access}
 
@@ -710,7 +710,7 @@ This hybrid design follows the broader data-integration principle of separating 
 
 \subsection{Hybrid Data Storage Architecture}
 
-The system adopts a hybrid data storage architecture that distinguishes between the static internship catalog and dynamic user interaction state.
+The system adopts a hybrid data storage architecture that distinguishes between the static internship catalog and dynamic user interaction state \cite{kleppmann2017designing, codd1970relational}.
 
 \subsubsection*{Static Internship Catalog}
 
@@ -718,7 +718,7 @@ The primary repository for processed internship listings is the public/intern\_d
 
 During application execution, the catalog is accessed through the server-side data-access module data.ts. The getInternships() function reads the JSON file, validates that the content is processable, normalizes the role array using normalizeRoleArray(), filters records through isProductionAcceptedInternship(), and stores the accepted internship list in a module-level cache.
 
-This file-based catalog strategy is appropriate for the internship dataset because the catalog is read-heavy and updated through scheduled or manual refresh cycles rather than continuously modified during user interaction.
+This file-based catalog strategy is appropriate for the internship dataset because the catalog is read-heavy and updated through scheduled or manual refresh cycles rather than continuously modified during user interaction \cite{kleppmann2017designing}.
 
 The static catalog provides several implementation advantages:
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
@@ -736,11 +736,11 @@ Dynamic user-specific data is handled separately through Supabase. The frontend 
 
 The useSavedRoles hook manages saved internship state by reading from and writing to the saved\_roles table. Each saved role record links a user to a specific internship through fields such as user\_id, role\_id, saved internship data, and save timestamp.
 
-This relational persistence layer is appropriate for user-linked data because saved roles require durable storage, user ownership, and consistency across sessions. Separating this data from the static internship catalog avoids mixing public catalog delivery with account-specific application state.
+This relational persistence layer is appropriate for user-linked data because saved roles require durable storage, user ownership, and consistency across sessions. Separating this data from the static internship catalog avoids mixing public catalog delivery with account-specific application state \cite{codd1970relational, kleppmann2017designing}.
 
 \subsection{Metadata Organization and Application-Level Discovery}
 
-Although the implementation does not use a dedicated search index or vector index, the processed internship records contain structured metadata that supports practical discovery within the application.
+Although the implementation does not use a dedicated search index or vector index, the processed internship records contain structured metadata that supports practical discovery within the application \cite{manning2008introduction, doan2012principles}.
 
 The most important metadata fields include:
 \begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
@@ -758,7 +758,7 @@ These fields are produced during normalization and semantic enrichment, then use
 
 \subsubsection*{Category and Skill Metadata}
 
-The category field provides a high-level professional domain label for each internship record. The skills field stores extracted competencies produced by the skill extraction pipeline. Together, these fields support structured filtering and role comparison without requiring a separate retrieval engine.
+The category field provides a high-level professional domain label for each internship record. The skills field stores extracted competencies produced by the skill extraction pipeline. Together, these fields support structured filtering and role comparison without requiring a separate retrieval engine \cite{esco2024, pappas2022jobbert}.
 
 For example, the frontend can group or filter internships by domain category, while skill lists allow users to quickly assess whether a posting matches their competencies or interests.
 
@@ -772,7 +772,7 @@ This approach is consistent with efficient machine learning and Green AI princip
 
 \subsection{API and Data Access Design}
 
-The internship catalog is exposed through Next.js route handlers that provide structured JSON access to the frontend application. Next.js API routes support colocating backend request handling with the application framework, which fits the system's lightweight deployment approach \cite{riva2022realworld}.
+The internship catalog is exposed through Next.js route handlers that provide structured JSON access to the frontend application. Next.js API routes support colocating backend request handling with the application framework, which fits the system's lightweight deployment approach \cite{fielding2002principled, bass2012software, riva2022realworld}.
 
 \subsubsection*{Internship List API}
 
@@ -806,10 +806,10 @@ The storage and persistence design separates three concerns:
 \item Server/API data access and caching through data.ts and Next.js route handlers
 \item Dynamic user persistence through Supabase-backed saved roles and authentication state
 \end{itemize}
-This architecture supports lightweight deployment, practical frontend responsiveness, and reliable user-specific persistence without requiring the static internship catalog to be stored in a full relational database.
+This architecture supports lightweight deployment, practical frontend responsiveness, and reliable user-specific persistence without requiring the static internship catalog to be stored in a full relational database \cite{kleppmann2017designing, fielding2002principled}.
 
 \section{Chapter Conclusion}
 
-This chapter has described the implementation of the core system components that operationalize the methodology presented in the previous chapter. It detailed the ingestion and preprocessing pipeline, deterministic normalization procedures, semantic enrichment mechanisms, skill extraction, domain categorization, caching strategies, hybrid storage architecture, and the API-based data-access layer that connects the processed internship catalog to the frontend application.
+This chapter has described the implementation of the core system components that operationalize the methodology presented in the previous chapter. It detailed the ingestion and preprocessing pipeline, deterministic normalization procedures, semantic enrichment mechanisms, skill extraction, domain categorization, caching strategies, hybrid storage architecture, and the API-based data-access layer that connects the processed internship catalog to the frontend application \cite{peffers2007design, bass2012software}.
 
-Together, these implementation components transform heterogeneous internship data into structured, application-ready records while preserving the lightweight and computationally efficient design objectives of the thesis. The resulting system provides the practical foundation for the empirical evaluation presented in the next chapter, where extraction quality, semantic consistency, system responsiveness, retrieval effectiveness, and cost characteristics are assessed through the defined evaluation framework.
+Together, these implementation components transform heterogeneous internship data into structured, application-ready records while preserving the lightweight and computationally efficient design objectives of the thesis. The resulting system provides the practical foundation for the empirical evaluation presented in the next chapter, where extraction quality, semantic consistency, system responsiveness, retrieval effectiveness, and cost characteristics are assessed through the defined evaluation framework \cite{schwartz2020green, menghani2023efficient, wohlin2012experimentation}.
