@@ -111,6 +111,11 @@ frontend after processing.
 
 \begin{table}[H]
     \centering
+    \caption{Frontend catalog statistics for enriched internship records}
+    \label{tab:frontend-catalog-statistics}
+    \small
+    \renewcommand{\arraystretch}{1.12}
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{lll}
         \hline
         \textbf{Statistic} & \textbf{Value} & \textbf{Evidence file} \\
@@ -126,9 +131,8 @@ frontend after processing.
         Records missing link & 2 / 202 & \texttt{website\_data\_statistics.json / .csv} \\
         Empty descriptions & 0 / 202 & \texttt{website\_data\_statistics.json / .csv} \\
         \hline
-    \end{tabular}
-    \caption{Frontend catalog statistics for enriched internship records}
-    \label{tab:frontend-catalog-statistics}
+    \end{tabular}%
+    }
 \end{table}
 
 The frontend catalog contains 202 public internship records. The dataset includes an average internship
@@ -154,6 +158,11 @@ cases affect automated decision-making.
 
 \begin{table}[H]
     \centering
+    \caption{Internship classification comparison against human review}
+    \label{tab:internship-classification-comparison}
+    \scriptsize
+    \renewcommand{\arraystretch}{1.18}
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{llllllll}
         \hline
         \textbf{System} & \textbf{Total Roles} & \textbf{Real Internships} & \textbf{Ambiguous Cases} &
@@ -164,9 +173,8 @@ cases affect automated decision-making.
         ChatGPT5.5-assisted review & 300 & 128 & 9 & 163 & 100\% sample agreement & 100\% & 100\% \\
         Transformer & 300 & 132 & 0 & 168 & 95.19\% & 93.85\% & 95.31\% \\
         \hline
-    \end{tabular}
-    \caption{Internship classification comparison against human review}
-    \label{tab:internship-classification-comparison}
+    \end{tabular}%
+    }
 \end{table}
 
 Human review is the reference for this evaluation. On the inspected 300-role sample, human review
@@ -202,6 +210,11 @@ discovery behavior through frontend filtering and local response evidence.
 
 \begin{table}[H]
     \centering
+    \caption{Frontend search and filter timing summary}
+    \label{tab:frontend-search-filter-summary}
+    \small
+    \renewcommand{\arraystretch}{1.12}
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrr}
         \hline
         \textbf{Query} & \textbf{Results Found} & \textbf{Median Filter Time (ms)} &
@@ -214,9 +227,8 @@ discovery behavior through frontend filtering and local response evidence.
         engineering & 83 & 1.6766 & 1.9589 & 100 \\
         finance & 27 & 1.9472 & 2.3504 & 100 \\
         \hline
-    \end{tabular}
-    \caption{Frontend search and filter timing summary}
-    \label{tab:frontend-search-filter-summary}
+    \end{tabular}%
+    }
 \end{table}
 
 Across the tested queries, median filter times remained below 2 ms. The results show that enriched records
@@ -226,6 +238,11 @@ interactive user path, leaving the frontend to operate over compact structured r
 
 \begin{table}[H]
     \centering
+    \caption{Local production frontend response speed summary}
+    \label{tab:frontend-response-speed-summary}
+    \small
+    \renewcommand{\arraystretch}{1.12}
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrrr}
         \hline
         \textbf{Page / API} & \textbf{Cold Load (ms)} & \textbf{Warm Median (ms)} &
@@ -236,9 +253,8 @@ interactive user path, leaving the frontend to operate over compact structured r
         Role page /role/[id] & 129.71 & 9.22 & 14.61 & 20 & 200 \\
         Single role API /api/internship/[id] & 16.66 & 14.12 & 16.85 & 20 & 200 \\
         \hline
-    \end{tabular}
-    \caption{Local production frontend response speed summary}
-    \label{tab:frontend-response-speed-summary}
+    \end{tabular}%
+    }
 \end{table}
 
 The local production response samples show warm median response times of 8.98 ms for the homepage,
@@ -258,6 +274,11 @@ they indicate whether the proposed approach remains practical in a lightweight l
 
 \begin{table}[H]
     \centering
+    \caption{Operational feasibility measurements for the lightweight frontend build}
+    \label{tab:operational-feasibility-measurements}
+    \small
+    \renewcommand{\arraystretch}{1.12}
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{lll}
         \hline
         \textbf{Metric} & \textbf{Value} & \textbf{Unit / Evidence file} \\
@@ -271,9 +292,8 @@ they indicate whether the proposed approach remains practical in a lightweight l
         Frontend JSON size & 1.179 & MB decimal; \texttt{frontend\_build\_performance\_actual.json / .csv} \\
         Frontend JSON gzip size & 231 & KB approx.; \texttt{frontend\_build\_performance\_actual.json / .csv} \\
         \hline
-    \end{tabular}
-    \caption{Operational feasibility measurements for the lightweight frontend build}
-    \label{tab:operational-feasibility-measurements}
+    \end{tabular}%
+    }
 \end{table}
 
 The production build completed successfully with an exit code of 0. The total build time was 22.7 seconds,
@@ -319,8 +339,9 @@ The following table summarizes how the evidence addresses the research questions
     \centering
     \caption{Consolidated findings by research question}
     \label{tab:consolidated_findings_rq}
-    \renewcommand{\arraystretch}{1.25}
-    \begin{tabular}{p{0.12\textwidth} p{0.28\textwidth} p{0.50\textwidth}}
+    \small
+    \renewcommand{\arraystretch}{1.20}
+    \begin{tabular}{p{0.12\textwidth} p{0.26\textwidth} p{0.52\textwidth}}
         \hline
         \textbf{Research Question} & \textbf{Evidence Used} & \textbf{Finding} \\
         \hline
