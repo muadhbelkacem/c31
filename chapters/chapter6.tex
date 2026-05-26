@@ -113,26 +113,7 @@ frontend after processing.
     \centering
     \caption{Frontend catalog statistics for enriched internship records}
     \label{tab:frontend-catalog-statistics}
-    \small
-    \renewcommand{\arraystretch}{1.12}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lll}
-        \hline
-        \textbf{Statistic} & \textbf{Value} & \textbf{Evidence file} \\
-        \hline
-        Public internships displayed & 202 & \texttt{website\_data\_statistics.json / .csv} \\
-        Average internship probability & 0.825 & \texttt{website\_data\_statistics.json / .csv} \\
-        Median internship probability & 0.900 & \texttt{website\_data\_statistics.json / .csv} \\
-        Manual-review records still shown & 60 / 202 & \texttt{website\_data\_statistics.json / .csv} \\
-        Records with extracted skills & 184 / 202 & \texttt{website\_data\_statistics.json / .csv} \\
-        Records with no skills & 18 / 202 & \texttt{website\_data\_statistics.json / .csv} \\
-        Records with salary available & 106 / 202 & \texttt{website\_data\_statistics.json / .csv} \\
-        Records missing salary & 96 / 202 & \texttt{website\_data\_statistics.json / .csv} \\
-        Records missing link & 2 / 202 & \texttt{website\_data\_statistics.json / .csv} \\
-        Empty descriptions & 0 / 202 & \texttt{website\_data\_statistics.json / .csv} \\
-        \hline
-    \end{tabular}%
-    }
+    \includegraphics[width=\textwidth]{tables/Frontend catalog statistics for enriched internship records.png}
 \end{table}
 
 The frontend catalog contains 202 public internship records. The dataset includes an average internship
@@ -160,21 +141,7 @@ cases affect automated decision-making.
     \centering
     \caption{Internship classification comparison against human review}
     \label{tab:internship-classification-comparison}
-    \scriptsize
-    \renewcommand{\arraystretch}{1.18}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{llllllll}
-        \hline
-        \textbf{System} & \textbf{Total Roles} & \textbf{Real Internships} & \textbf{Ambiguous Cases} &
-        \textbf{Fake / Non-Internships} & \textbf{Agreement / Accuracy vs Human} &
-        \textbf{Precision} & \textbf{Recall} \\
-        \hline
-        Human review & 300 & 128 & 9 & 163 & Reference & Reference & Reference \\
-        ChatGPT5.5-assisted review & 300 & 128 & 9 & 163 & 100\% sample agreement & 100\% & 100\% \\
-        Transformer & 300 & 132 & 0 & 168 & 95.19\% & 93.85\% & 95.31\% \\
-        \hline
-    \end{tabular}%
-    }
+    \includegraphics[width=\textwidth]{tables/Internship classification comparison against human review.png}
 \end{table}
 
 Human review is the reference for this evaluation. On the inspected 300-role sample, human review
@@ -212,23 +179,7 @@ discovery behavior through frontend filtering and local response evidence.
     \centering
     \caption{Frontend search and filter timing summary}
     \label{tab:frontend-search-filter-summary}
-    \small
-    \renewcommand{\arraystretch}{1.12}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrr}
-        \hline
-        \textbf{Query} & \textbf{Results Found} & \textbf{Median Filter Time (ms)} &
-        \textbf{P95 Filter Time (ms)} & \textbf{Iterations} \\
-        \hline
-        software & 67 & 1.9643 & 2.4907 & 100 \\
-        data & 95 & 1.8872 & 2.3509 & 100 \\
-        business & 138 & 1.7720 & 2.2819 & 100 \\
-        marketing & 42 & 1.9068 & 2.3733 & 100 \\
-        engineering & 83 & 1.6766 & 1.9589 & 100 \\
-        finance & 27 & 1.9472 & 2.3504 & 100 \\
-        \hline
-    \end{tabular}%
-    }
+    \includegraphics[width=\textwidth]{tables/Frontend search and filter timing summary.png}
 \end{table}
 
 Across the tested queries, median filter times remained below 2 ms. The results show that enriched records
@@ -240,21 +191,7 @@ interactive user path, leaving the frontend to operate over compact structured r
     \centering
     \caption{Local production frontend response speed summary}
     \label{tab:frontend-response-speed-summary}
-    \small
-    \renewcommand{\arraystretch}{1.12}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrrr}
-        \hline
-        \textbf{Page / API} & \textbf{Cold Load (ms)} & \textbf{Warm Median (ms)} &
-        \textbf{Warm P95 (ms)} & \textbf{Samples} & \textbf{HTTP Status} \\
-        \hline
-        Homepage / & 25.16 & 8.98 & 11.04 & 20 & 200 \\
-        Internship API /api/internship & 37.22 & 7.88 & 11.05 & 20 & 200 \\
-        Role page /role/[id] & 129.71 & 9.22 & 14.61 & 20 & 200 \\
-        Single role API /api/internship/[id] & 16.66 & 14.12 & 16.85 & 20 & 200 \\
-        \hline
-    \end{tabular}%
-    }
+    \includegraphics[width=\textwidth]{tables/Local production frontend response speed summary.png}
 \end{table}
 
 The local production response samples show warm median response times of 8.98 ms for the homepage,
@@ -276,24 +213,7 @@ they indicate whether the proposed approach remains practical in a lightweight l
     \centering
     \caption{Operational feasibility measurements for the lightweight frontend build}
     \label{tab:operational-feasibility-measurements}
-    \small
-    \renewcommand{\arraystretch}{1.12}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lll}
-        \hline
-        \textbf{Metric} & \textbf{Value} & \textbf{Unit / Evidence file} \\
-        \hline
-        Production build exit code & 0 & 0 means passed; \texttt{frontend\_build\_performance\_actual.json / .csv} \\
-        Total build time & 22.7 & seconds; \texttt{frontend\_build\_performance\_actual.json / .csv} \\
-        Compile time & 6.0 & seconds; \texttt{frontend\_build\_performance\_actual.json / .csv} \\
-        Static page generation time & 4.6 & seconds; \texttt{frontend\_build\_performance\_actual.json / .csv} \\
-        Maximum build memory & 1.819 & GB decimal; \texttt{frontend\_build\_performance\_actual.json / .csv} \\
-        Accepted frontend records & 202 & records; \texttt{frontend\_build\_performance\_actual.json / .csv} \\
-        Frontend JSON size & 1.179 & MB decimal; \texttt{frontend\_build\_performance\_actual.json / .csv} \\
-        Frontend JSON gzip size & 231 & KB approx.; \texttt{frontend\_build\_performance\_actual.json / .csv} \\
-        \hline
-    \end{tabular}%
-    }
+    \includegraphics[width=\textwidth]{tables/Operational feasibility measurements for the lightweight frontend build.png}
 \end{table}
 
 The production build completed successfully with an exit code of 0. The total build time was 22.7 seconds,
@@ -339,28 +259,7 @@ The following table summarizes how the evidence addresses the research questions
     \centering
     \caption{Consolidated findings by research question}
     \label{tab:consolidated_findings_rq}
-    \small
-    \renewcommand{\arraystretch}{1.20}
-    \begin{tabular}{p{0.12\textwidth} p{0.26\textwidth} p{0.52\textwidth}}
-        \hline
-        \textbf{Research Question} & \textbf{Evidence Used} & \textbf{Finding} \\
-        \hline
-        RQ1 & Human review and classification distribution &
-        The scraped sample contains substantial fake/non-internship and ambiguous content, showing that internship discovery requires more than direct collection from job sources. \\
-
-        RQ2 & Enriched catalog statistics and metadata coverage &
-        The pipeline produces structured records with internship probabilities, skills, salary fields, links, descriptions, and review indicators. \\
-
-        RQ3 & Search/filter and frontend response evidence &
-        The enriched JSON records support fast structured discovery and low-overhead filtering in the tested local production environment. \\
-
-        RQ4 & Human, ChatGPT5.5-assisted, and Transformer comparison &
-        Ambiguous cases benefit from review, while the Transformer performs strongly as a binary real/fake internship detector. \\
-
-        RQ5 & Build/runtime/file-size evidence and limitations &
-        The approach is locally feasible, but the conclusions are bounded by sample size, local testing, and evidence scope. \\
-        \hline
-    \end{tabular}
+    \includegraphics[width=\textwidth]{tables/Consolidated findings by research question.png}
 \end{table}
 
 The consolidated findings show that the main contribution of the system is not a single benchmark number. Instead, the contribution lies in a defensible enrichment workflow: noisy scraped postings are inspected, classified, structured, enriched, and then delivered in a form that supports efficient internship-oriented discovery.
