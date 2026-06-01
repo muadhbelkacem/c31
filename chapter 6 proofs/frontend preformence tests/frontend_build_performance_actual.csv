@@ -1,9 +1,0 @@
-metric,value,unit,source
-production_build_exit_code,0,0 means passed,frontend_build_exit_code.txt
-total_build_time,22.7,seconds,/usr/bin/time -v npm run build
-compile_time,6.0,seconds,next build stdout
-static_page_generation_time,4.6,seconds,next build stdout
-max_build_memory,1.819,GB decimal,Maximum resident set size
-accepted_frontend_records,202,records,frontend/public/intern_data.json
-frontend_json_size,1.179,MB decimal,frontend/public/intern_data.json
-frontend_json_gzip_size,231,KB approx,gzip compressed file bytes
