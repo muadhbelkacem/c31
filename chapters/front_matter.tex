@@ -3,9 +3,12 @@
 \cleardoublepage
 \phantomsection
 \addcontentsline{toc}{chapter}{Arabic Abstract}
-\begin{center}
-    \includegraphics[width=\textwidth]{arabic_abstract}
-\end{center}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+    \node[inner sep=0pt] at (current page.center) {\includegraphics[width=\paperwidth,height=\paperheight]{arabic_abstract}};
+\end{tikzpicture}
+\mbox{}
+\clearpage
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}

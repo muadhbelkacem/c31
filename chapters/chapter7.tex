@@ -50,7 +50,7 @@ representation for internship-oriented retrieval \cite{doan2012principles, batin
 
 The frontend search, filtering, and response results support RQ3 within a limited scope. They
 show that enriched records can support fast structured discovery under the tested local
-conditions. However, these results should not be interpreted as proof of formal user
+conditions. However, these results are not interpreted as proof of formal user
 satisfaction, because no user study was conducted. The appropriate conclusion is that the
 enriched catalog supports efficient search and filtering behavior, not that the system has been
 fully validated as a user experience.
@@ -60,14 +60,14 @@ ambiguous cases, and 163 fake or non-internship roles in the 300-role sample.
 ChatGPT5.5-assisted review achieved sample-level agreement with the human review on this
 inspected sample. The Transformer achieved strong binary internship detection results, but it
 did not produce an ambiguous category. This distinction is important because ambiguity
-should not always be forced into a real/fake decision. Some cases require review because the
+is not always forced into a real/fake decision. Some cases require review because the
 available posting information is incomplete, unclear, or open to interpretation \cite{sokolova2009systematic, krippendorff2004content}.
 
 Finally, the operational measurements support RQ5 by showing that the lightweight approach
 is feasible within the tested environment. The build results, file-size results, frontend
 response measurements, and search/filter timing results indicate that the system can support
 structured discovery without requiring heavy runtime inference in the frontend. At the same
-time, these results are bounded by the local test setup and should not be generalized to all
+time, these results are bounded by the local test setup and are not generalized to all
 deployment environments \cite{jain1991art, schwartz2020green}.
 
 
@@ -82,20 +82,20 @@ between these two groups \cite{krippendorff2004content}.
 Ambiguous roles may include trainee programs, graduate programs, student-oriented jobs,
 apprenticeships, temporary training roles, or postings that use unclear employer-specific
 language. In these cases, the title alone may not be enough to determine whether the role
-should be treated as a real internship. The description, duration, target audience, and
+is treated as a real internship. The description, duration, target audience, and
 educational context may be necessary, but these details are not always available or complete.
 
-This explains why the Transformer result should be interpreted carefully. The Transformer
+This explains why the Transformer result is interpreted carefully. The Transformer
 performs binary classification, separating roles into real internship and fake/non-internship
 classes. Because it has no ambiguous output, it must force borderline records into one of the
 two classes. This is useful for fast detection, but it is less suitable for cases where the correct
-decision should be delayed until review. Therefore, the existence of the 9 ambiguous cases in
+decision is delayed until review. Therefore, the existence of the 9 ambiguous cases in
 the inspected sample is not a weakness of the evaluation. It is an important finding about the
 nature of internship data \cite{sokolova2009systematic, krippendorff2004content}.
 
 The human and ChatGPT5.5-assisted review comparison also supports this interpretation.
 ChatGPT5.5-assisted review matched the human distribution on the inspected sample, but
-this should be described only as sample-level agreement. It does not prove universal
+this is described only as sample-level agreement. It does not prove universal
 correctness. Its value in the thesis is that it provides a review-support perspective for
 ambiguous cases, while the Transformer provides a lightweight binary detection mechanism.
 
@@ -148,7 +148,7 @@ especially for borderline cases. The presence of ambiguous labels helps address 
 it does not remove the subjectivity of classification decisions \cite{krippendorff2004content}.
 
 The third threat concerns ChatGPT5.5-assisted review. Its agreement with human review
-should be understood as agreement on the inspected sample, not as a general proof that
+is understood as agreement on the inspected sample, not as a general proof that
 ChatGPT5.5 will always classify internships correctly. This limitation is important for
 avoiding overclaiming.
 
@@ -164,7 +164,7 @@ network, hosting, caching, or production traffic conditions \cite{jain1991art}.
 
 The sixth threat concerns user validation. The frontend results show structured discovery
 behavior and fast filtering, but no formal user study was conducted with students. Therefore,
-the thesis should not claim proven user satisfaction or complete usability validation. A
+the thesis does not claim proven user satisfaction or complete usability validation. A
 user-centered evaluation would be required to make stronger claims about real-world
 usefulness \cite{wohlin2012experimentation}.
 
@@ -179,7 +179,7 @@ Ethical interpretation is necessary because automated recruitment-related system
 The system processes recruitment postings rather than private student profiles or automated
 hiring decisions. This reduces some privacy risks, but it does not remove the need for
 responsible data handling. Scraped or externally collected job data may include employer
-names, locations, links, and role descriptions. These records should be handled in a way that
+names, locations, links, and role descriptions. These records are handled in a way that
 respects source terms, avoids unnecessary personal data collection, and preserves traceability
 to the original posting where possible \cite{hunkenschroer2022ethics, rigotti2024fairness}.
 
@@ -208,7 +208,7 @@ hiding it behind overconfident automation \cite{krippendorff2004content, rigotti
 \subsection{Transparency and Explainability}
 
 Transparency is important because internship discovery affects student access to
-opportunities. The system should make its processing logic understandable where possible.
+opportunities. The system is designed to make its processing logic understandable where possible.
 Deterministic normalization, controlled skills, categories, source links, and review indicators
 all support a more explainable architecture than an opaque end-to-end model \cite{hunkenschroer2022ethics, bass2012software}.
 
@@ -251,7 +251,7 @@ into structured records suitable for browsing, filtering, and inspection \cite{d
 
 For RQ3, the frontend evaluation shows that enriched records can support structured
 discovery behavior through search, filtering, and fast response under local test conditions.
-The finding should be interpreted as support for structured discovery quality, not as formal
+The finding is interpreted as support for structured discovery quality, not as formal
 proof of user satisfaction \cite{manning2008introduction, jain1991art}.
 
 For RQ4, the comparison between human review, ChatGPT5.5-assisted review, and

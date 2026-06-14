@@ -40,7 +40,7 @@ This section begins with the data ingestion mechanism and source normalization p
 
 The data ingestion pipeline serves as the primary entry point for internship data entering the system. Its role is to acquire raw recruitment records, perform structural validation and normalization, and prepare data for downstream semantic enrichment before persistence and frontend consumption.
 
-As illustrated in Figure X, the ingestion workflow follows a staged asynchronous architecture beginning with automated data acquisition, followed by cleaning and enrichment, persistence, and eventual frontend retrieval. This staged design reflects established data integration practices for handling heterogeneous semi-structured data sources \cite{abiteboul1997querying, doan2012principles, chu2016data}.
+As illustrated in Figure 5.2, the ingestion workflow follows a staged asynchronous architecture beginning with automated data acquisition, followed by cleaning and enrichment, persistence, and eventual frontend retrieval. This staged design reflects established data integration practices for handling heterogeneous semi-structured data sources \cite{abiteboul1997querying, doan2012principles, chu2016data}.
 
 \subsubsection*{Source Acquisition}
 
@@ -721,12 +721,13 @@ During application execution, the catalog is accessed through the server-side da
 This file-based catalog strategy is appropriate for the internship dataset because the catalog is read-heavy and updated through scheduled or manual refresh cycles rather than continuously modified during user interaction \cite{kleppmann2017designing}.
 
 The static catalog provides several implementation advantages:
-\begin{itemize}[leftmargin=1.4em,itemsep=0.25em,topsep=0.25em]
+
+\begin{itemize}
 \item simple deployment with the frontend application
 \item fast read access after initial loading
 \item easy replacement when the enrichment pipeline generates a new dataset
+\item reduced operational complexity compared with storing the static catalog in a relational database
 \end{itemize}
-reduced operational complexity compared with storing the static catalog in a relational database
 
 This design keeps the core internship discovery dataset lightweight and portable while preserving enough structure for filtering, browsing, and detailed role display.
 

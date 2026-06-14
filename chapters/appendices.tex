@@ -1,3 +1,7 @@
+\renewcommand{\thechapter}{\ifcase\value{chapter}\or A\or B\or C\or D\or E\or F\or G\or H\or I\or J\fi}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
 \chapter{Manual Inspection Protocol and Evaluation Sample}
 \label{appendix:manual-inspection}
 
@@ -233,9 +237,7 @@ discovery without claiming formal user satisfaction or a completed user study.
 \label{appendix:evaluation-logs-reproducibility}
 
 This appendix lists the proof files needed to verify the operational and frontend-oriented
-measurements used in Chapter 6. The logs are not pasted in full because the thesis should not
-become a raw technical dump. The files should be kept in the evidence archive alongside the
-thesis.
+measurements used in Chapter 6. The logs are not pasted in full to maintain the focus on the evaluation findings. The files are maintained in the evidence archive alongside the thesis.
 
 \section{Search and Filter Timing Evidence}
 \label{appendix:search-filter-timing-evidence}
@@ -280,8 +282,5 @@ thesis.
 \section{Interpretation Boundary}
 \label{appendix:interpretation-boundary}
 
-These measurements should be described as local evaluation results observed under the tested
-environment. They support local execution feasibility and structured discovery behavior, but they
-do not prove universal cloud performance, production scalability, or user satisfaction. This
-boundary is important for defending the research scope.
+These measurements represent local evaluation results observed under the tested environment. They support local execution feasibility and structured discovery behavior, but they do not prove universal cloud performance, production scalability, or user satisfaction. This boundary is important for defending the research scope.
 

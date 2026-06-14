@@ -1,19 +1,24 @@
 \chapter{Technological Environment and Development Tools}
 \section{Chapter Introduction}
 This chapter documents the concrete technological environment and development tools used to implement the proposed internship aggregation and semantic enrichment system. Its purpose is twofold. First, it provides a reproducible account of the software stack, libraries, infrastructure components, and development practices that support the implementation. Second, it establishes a clear separation from the theoretical foundations presented in Chapter 2: whereas Chapter 2 explains the concepts behind information extraction, semantic classification, and data normalization, this chapter identifies the specific tools used to realize those concepts in working software.
+
 The chapter is organized into six main areas:
-(1) frontend application technologies,
-(2) data representation and storage mechanisms,
-(3) the local semantic processing and enrichment environment,
-(4) text processing and heuristic normalization tools,
-(5) development, testing, and evaluation tooling,
-(6) deployment considerations for automated data ingestion.
-       Each section describes a specific layer of the technology stack, justifies the selection of tools relative to the system's lightweight and cost-aware design goals, and explains how the components interact \cite{hevner2004design, bass2012software}.
+
+\begin{enumerate}[label=\textbf{\arabic*:}, start=1, leftmargin=2.2cm]
+    \item frontend application technologies,
+    \item data representation and storage mechanisms,
+    \item the local semantic processing and enrichment environment,
+    \item text processing and heuristic normalization tools,
+    \item development, testing, and evaluation tooling,
+    \item deployment considerations for automated data ingestion.
+\end{enumerate}
+
+Each section describes a specific layer of the technology stack, justifies the selection of tools relative to the system's lightweight and cost-aware design goals, and explains how the components interact \cite{hevner2004design, bass2012software}.
 \section{Application Development Environment}
-The application environment provides the primary user interaction layer for students browsing internship listings, while also supporting authenticated account-specific functionality through the broader application infrastructure. Based on the implementation evidence, the system uses the Next.js framework (version 16.0.7) and React (version 19.2.1) for the presentation and application integration layers.
+The application environment provides the primary user interaction layer for students browsing internship listings, while also supporting authenticated account-specific functionality through the broader application infrastructure. The system uses the Next.js framework (version 16.0.7) and React (version 19.2.1) for the presentation and application integration layers.
 This architecture reflects modern hybrid web application design, combining efficient frontend rendering with backend integration for user-facing functionality \cite{riva2022realworld, bass2012software}. Next.js was selected because it supports React Server Components (RSC), provides a unified TypeScript development experience, and enables rapid prototyping without sacrificing production-grade reliability.
 \subsubsection*{Next.js App Router and Server Components}
-The application environment provides the primary user interaction layer for students browsing internship listings, while also supporting authenticated account-specific functionality through the broader application infrastructure. Based on the implementation, the system uses the Next.js framework (version 16.0.7) and React (version 19.2.1) for the presentation and application integration layers. This architecture reflects modern hybrid web application design, combining efficient frontend rendering with backend integration for user-facing functionality \cite{riva2022realworld, bass2012software}.
+The application environment provides the primary user interaction layer for students browsing internship listings, while also supporting authenticated account-specific functionality through the broader application infrastructure. The architecture reflects modern hybrid web application design, combining efficient frontend rendering with backend integration for user-facing functionality \cite{riva2022realworld, bass2012software}.
 Next.js was selected for several interconnected reasons \cite{riva2022realworld}. First, its file-based routing and layout system aligns well with the structured internship data model, enabling clean separation between listing views, filtering interfaces, and detailed internship pages. Second, its strong TypeScript integration supports maintainable frontend development and safer component interaction. Third, the framework provides performance-oriented rendering and frontend optimization capabilities suitable for responsive web applications.
 In local Chromium-based development testing, initial data-driven page loads typically ranged from approximately 0.6 to 2.5 seconds depending on caching state and data fetch conditions, while subsequent cached interactions exhibited significantly faster response times, often approaching near-instant frontend navigation and filtering behavior.
 The main user interface components, organized according to the Next.js component architecture, include:

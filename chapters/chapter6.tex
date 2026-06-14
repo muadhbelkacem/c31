@@ -53,11 +53,11 @@ terms.
 \subsection{Evaluation Boundaries}
 
 The results in this chapter must be interpreted within several boundaries. First, the classification results are
-sample-based and should not be generalized as universal model accuracy. Second, ambiguous cases
+sample-based and are not generalized as universal model accuracy. Second, ambiguous cases
 remain difficult to automate because they often depend on missing context, employer terminology, or
 incomplete descriptions. Third, no formal user study was conducted; therefore, this chapter evaluates
 structured discovery behavior rather than user satisfaction. Fourth, frontend timing results are local
-measurements observed in the tested environment and should not be treated as universal cloud-deployment
+measurements observed in the tested environment and are not treated as universal cloud-deployment
 guarantees. Fifth, files containing older or inconsistent classification distributions were excluded from the
 quantitative argument to preserve a single coherent basis \cite{wohlin2012experimentation, jain1991art}.
 
@@ -67,7 +67,7 @@ quantitative argument to preserve a single coherent basis \cite{wohlin2012experi
 RQ1 asks what structural, lexical, and semantic inconsistencies characterize heterogeneous online
 internship postings, and how these inconsistencies affect internship-oriented representation and discovery.
 The 300-role classification sample directly supports this question by showing that scraped recruitment data
-contains both genuine internships and many records that should not be accepted as internships \cite{batini2009methodologies}.
+contains both genuine internships and many records that are not accepted as internships \cite{batini2009methodologies}.
 
 In the selected sample, human inspection identified 128 real internships, 9 ambiguous cases, and 163 fake
 or non-internship roles. The fake/non-internship group is larger than the accepted internship group, and the
@@ -176,8 +176,8 @@ interactive user path, leaving the frontend to operate over compact structured r
 
 The local production response samples show warm median response times of 8.98 ms for the homepage,
 7.88 ms for the internship API, 9.22 ms for a role page, and 14.12 ms for a single-role API response. These
-figures support the practical discovery argument: the enriched dataset can be served and explored
-efficiently under the tested local conditions. However, these results should be interpreted as local frontend
+figures support the practical discovery argument: tThe enriched dataset can be served and explored
+efficiently under the tested local conditions. However, these results are interpreted as local frontend
 behavior, not as a guarantee of production performance across all networks, deployments, or hardware
 environments \cite{jain1991art}.
 
@@ -213,7 +213,7 @@ scalability to very large national datasets or high-traffic production deploymen
 Several limitations affect the interpretation of the findings. First, the classification evaluation is based on a
 300-role inspected sample. Although useful for analyzing noisy scraped recruitment data, this sample
 cannot represent every platform, country, domain, or language context. Second, the classification table is
-treated as the selected evidence basis for this rewritten chapter; proof files containing older or inconsistent
+treated as the selected evidence basis for this chapter; proof files containing older or inconsistent
 distributions were excluded rather than mixed with it \cite{wohlin2012experimentation}.
 
 Third, ambiguous cases remain a core limitation. The Transformer does not produce an ambiguous
@@ -227,7 +227,7 @@ Sixth, no formal user study was conducted. Therefore, this chapter avoids claims
 real student usability. The evidence supports structured discovery behavior, metadata coverage, and local
 frontend responsiveness, but it does not establish how students would perceive or use the system in a
 controlled user-evaluation setting. Seventh, the evidence is limited to the proof files available for this
-chapter. Unsupported old benchmark metrics and derived claims without a traceable proof file were not
+chapter. Unsupported benchmark metrics and derived claims without a traceable proof file were not
 included \cite{wohlin2012experimentation, jain1991art}.
 
 
@@ -247,7 +247,7 @@ The consolidated findings show that the main contribution of the system is not a
 
 \section{Chapter Conclusion}
 
-This chapter evaluated the current model both frontend and the transformer using the stats presented in the current Chapter 6. The results show that scraped recruitment data contains real internships, fake or non-internship roles, and ambiguous cases, confirming the need for internship-focused classification before records are presented in the frontend \cite{sokolova2009systematic}.
+This chapter evaluated the model and the transformer using the classification statistics. The results show that scraped recruitment data contains real internships, fake or non-internship roles, and ambiguous cases, confirming the need for internship-focused classification before records are presented in the frontend \cite{sokolova2009systematic}.
 
 The comparison between human review, ChatGPT5.5-assisted review, and the Transformer shows strong sample-level internship detection performance. At the same time, the presence of ambiguous cases shows that uncertainty should be preserved through review indicators rather than forced into a simple real/fake decision.
 
